@@ -69,5 +69,40 @@
   },
   {
     "id": "imp"
+  },
+  {
+    "id": "custom_traveler_1",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/role_icon/custom/d_1234680695861_1a8706ca.jpg",
+    "edition": "custom",
+    "name": "舞龙身",
+    "ability": "你无法被流放。每个白天舞龙头可以向一名非旅行者玩家发起流放，此次流放仅舞龙能参与且半数以上舞龙同意即可流放成功。[不可选择]",
+    "team": "traveler",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": 0
+  },
+  {
+    "id": "special_rule_basic",
+    "team": "special_rule",
+    "title": "基础规则",
+    "rules": [
+      {
+        "title": "可能",
+        "content": "某些事情“可能”发生。代表由说书人来决定该事情是否发生。"
+      },
+      {
+        "title": "中毒",
+        "content": "中毒的玩家会失去能力，但会认为自己仍具有能力，说书人会做出这些玩家仍然具有能力的行为。如果中毒玩家的角色能力会给他提供信息，说书人可能会给出错误信息，中毒的玩家不会得知自己中毒。"
+      }
+    ]
+  },
+  {
+    "id": "special_rule_madness",
+    "team": "special_rule",
+    "title": "疯狂",
+    "content": "你需要“疯狂”地证明自己是某个角色或阵营，或者证明某位玩家是某个角色或阵营。如果你没有“疯狂”证明，你可能会被处决。"
   }
 ]

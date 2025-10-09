@@ -8,6 +8,9 @@ export const THEME_COLORS = {
   // 邪恶阵营 - 红色系
   evil: '#b21e1d',
   
+  // 传奇角色 - 金色系
+  fabled: '#d4af37',
+  
   // 其他颜色
   purple: '#dd38ca',  // 旅行者等特殊标记
   gray: '#999',       // 分割线等
@@ -46,7 +49,8 @@ export const TEAM_COLORS: Record<string, string> = {
   outsider: THEME_COLORS.good,     // 外来者 - 蓝色
   minion: THEME_COLORS.evil,       // 爪牙 - 红色
   demon: THEME_COLORS.evil,        // 恶魔 - 红色
-  traveler: '#808080',             // 旅行者 - 灰色
+  traveler: THEME_COLORS.purple,   // 旅行者 - 紫色
+  fabled: THEME_COLORS.fabled,     // 传奇角色 - 金色
 };
 
 // 团队名称映射
@@ -56,5 +60,6 @@ export const TEAM_NAMES: Record<string, string> = {
   minion: '爪牙',
   demon: '恶魔',
   traveler: '旅行者',
+  fabled: '传奇角色',
 };
 

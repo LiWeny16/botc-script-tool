@@ -15,9 +15,9 @@ import { getScriptJsonUrl, loadScriptJson } from '../data/scriptRepository';
 import { generateScript } from '../utils/scriptGenerator';
 import CharacterSection from '../components/CharacterSection';
 import NightOrder from '../components/NightOrder';
+import SpecialRulesSection from '../components/SpecialRulesSection';
 import { THEME_COLORS } from '../theme/colors';
 import type { Script } from '../types';
-import html2canvas from 'html2canvas';
 
 const theme = createTheme({
   breakpoints: {
@@ -47,7 +47,7 @@ export default function ScriptPreview() {
       }
 
       const decodedName = decodeURIComponent(scriptName);
-      
+
       // 从映射表中获取JSON URL
       const jsonUrl = getScriptJsonUrl(decodedName);
 
@@ -69,43 +69,36 @@ export default function ScriptPreview() {
     loadScript();
   }, [scriptName]);
 
-  const handleExportImage = async () => {
-    if (!scriptRef.current || !script) return;
+  const handleExportJson = () => {
+    if (!script) return;
 
     try {
-      const images = scriptRef.current.querySelectorAll('img');
-      await Promise.all(
-        Array.from(images).map((img) => {
-          if (img.complete) return Promise.resolve();
-          return new Promise((resolve) => {
-            img.onload = () => resolve(null);
-            img.onerror = () => resolve(null);
-            setTimeout(() => resolve(null), 5000);
-          });
-        })
-      );
+      // 构建符合原始格式的JSON结构
+      const exportData = [
+        {
+          id: '_meta',
+          name: script.title,
+          author: script.author || '',
+        },
+        ...script.characters.townsfolk.map(char => ({ id: char.id })),
+        ...script.characters.outsider.map(char => ({ id: char.id })),
+        ...script.characters.minion.map(char => ({ id: char.id })),
+        ...script.characters.demon.map(char => ({ id: char.id })),
+        ...script.characters.fabled.map(char => ({ id: char.id })),
+        ...script.characters.traveler.map(char => ({ id: char.id })),
+      ];
 
-      const canvas = await html2canvas(scriptRef.current, {
-        scale: 2,
-        backgroundColor: '#242424',
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        width: scriptRef.current.scrollWidth,
-        height: scriptRef.current.scrollHeight,
-        windowWidth: scriptRef.current.scrollWidth,
-        windowHeight: scriptRef.current.scrollHeight,
-        imageTimeout: 0,
-        removeContainer: true,
-      });
-
+      const jsonString = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      link.download = `${script.title || '剧本'}.png`;
-      link.href = canvas.toDataURL('image/jpeg', 0.92);
+      link.href = url;
+      link.download = `${script.title || '剧本'}.json`;
       link.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('导出图片失败:', error);
-      alert('导出图片失败，请重试');
+      console.error('导出JSON失败:', error);
+      alert('导出JSON失败，请重试');
     }
   };
 
@@ -160,45 +153,12 @@ export default function ScriptPreview() {
     <Box
       sx={{
         minHeight: '100vh',
-        backgroundColor: 'background.default',
-        py: { xs: 2, sm: 3, md: 4 },
+        backgroundColor: isMobile ? '#fefaf0' : 'background.default',
+        pt: 0,
+        // pb: { xs: 0, md: 4 },
       }}
     >
-      <Container maxWidth="xl">
-        {/* 工具栏 */}
-        <Box
-          sx={{
-            mb: 3,
-            display: 'flex',
-            gap: 2,
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => navigate('/repo')}
-            sx={{ color: THEME_COLORS.paper.primary }}
-          >
-            返回剧本仓库
-          </Button>
-          <Button
-            startIcon={<DownloadIcon />}
-            onClick={handleExportImage}
-            variant="contained"
-            sx={{
-              backgroundColor: THEME_COLORS.good,
-              '&:hover': {
-                backgroundColor: THEME_COLORS.good,
-                opacity: 0.9,
-              },
-            }}
-          >
-            导出图片
-          </Button>
-        </Box>
-
+      <Container maxWidth="xl" sx={{ px: { xs: 0, md: 2 }, maxWidth: { xs: '100%', md: 'xl' } }}>
         {/* 剧本展示区域 */}
         <Box
           id="script-preview"
@@ -214,7 +174,7 @@ export default function ScriptPreview() {
               display: 'flex',
               width: '100%',
               justifyContent: 'center',
-              gap: '2px',
+              gap: { xs: 0, md: '2px' },
               alignItems: 'stretch',
             }}
           >
@@ -284,7 +244,7 @@ export default function ScriptPreview() {
                 pb: 2,
                 pt: 2,
                 flex: 1,
-                maxWidth: '1200px',
+                maxWidth: { xs: '100%', md: '1200px' },
                 backgroundImage: 'url(/bg.png)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
@@ -293,6 +253,8 @@ export default function ScriptPreview() {
                 position: 'relative',
                 overflow: 'hidden',
                 boxShadow: 'none',
+                border: 'none',
+                minHeight: { xs: '100vh', md: 'auto' },
               }}
             >
               {/* 装饰性花纹 */}
@@ -321,54 +283,107 @@ export default function ScriptPreview() {
                 }}
               />
 
-              {/* 标题区域 */}
-              <Box sx={{ textAlign: 'center', mb: 2, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2 } }}>
-                {!isMobile && script.author && (
-                  <Box
+              {/* 工具栏和标题区域 */}
+              <Box sx={{ position: 'relative', zIndex: 1, px: { xs: 1, sm: 2 } }}>
+                {/* 工具栏按钮 */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: 1.5,
+                    mb: 2,
+                    flexWrap: 'wrap',
+                    justifyContent: 'center',
+                    pt: 1,
+                  }}
+                >
+                  <Button
+                    startIcon={<ArrowBackIcon />}
+                    onClick={() => navigate('/repo')}
+                    variant="contained"
+                    size="small"
                     sx={{
-                      position: 'absolute',
-                      top: 0,
-                      right: { sm: 20, md: 30 },
-                      textAlign: 'right',
+                      backgroundColor: THEME_COLORS.paper.secondary,
+                      color: '#fefaf0',
+                      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                      py: { xs: 0.5, sm: 0.75 },
+                      px: { xs: 1.5, sm: 2 },
+                      '&:hover': {
+                        backgroundColor: THEME_COLORS.paper.primary,
+                      },
                     }}
                   >
+                    返回剧本仓库
+                  </Button>
+                  <Button
+                    startIcon={<DownloadIcon />}
+                    onClick={handleExportJson}
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      backgroundColor: THEME_COLORS.good,
+                      color: '#ffffff',
+                      fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                      py: { xs: 0.5, sm: 0.75 },
+                      px: { xs: 1.5, sm: 2 },
+                      '&:hover': {
+                        backgroundColor: THEME_COLORS.good,
+                        opacity: 0.85,
+                      },
+                    }}
+                  >
+                    导出JSON
+                  </Button>
+                </Box>
+
+                {/* 标题 */}
+                <Box sx={{ textAlign: 'center', mb: 2 }}>
+                  {!isMobile && script.author && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        top: 50,
+                        right: { sm: 20, md: 30 },
+                        textAlign: 'right',
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          color: THEME_COLORS.paper.secondary,
+                          fontSize: { sm: '0.85rem' },
+                          mb: 0.3,
+                        }}
+                      >
+                        剧本作者：{script.author}
+                        <br />
+                        支持7-15人
+                      </Typography>
+                    </Box>
+                  )}
+
+                  <Typography
+                    variant="h3"
+                    sx={{
+                      fontWeight: 'bold',
+                      color: THEME_COLORS.paper.primary,
+                      fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+                      mb: { xs: 0.5, sm: 0.5 },
+                    }}
+                  >
+                    {script.title}
+                  </Typography>
+
+                  {isMobile && script.author && (
                     <Typography
                       sx={{
                         color: THEME_COLORS.paper.secondary,
-                        fontSize: { sm: '0.85rem' },
-                        mb: 0.3,
+                        fontSize: '0.75rem',
+                        mt: 0.5,
                       }}
                     >
-                      剧本作者：{script.author}
-                      <br />
-                      支持7-15人
+                      作者：{script.author} · 支持7-15人
                     </Typography>
-                  </Box>
-                )}
-
-                <Typography
-                  variant="h3"
-                  sx={{
-                    fontWeight: 'bold',
-                    color: THEME_COLORS.paper.primary,
-                    fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
-                    mb: { xs: 0.5, sm: 0.5 },
-                  }}
-                >
-                  {script.title}
-                </Typography>
-
-                {isMobile && script.author && (
-                  <Typography
-                    sx={{
-                      color: THEME_COLORS.paper.secondary,
-                      fontSize: '0.75rem',
-                      mt: 0.5,
-                    }}
-                  >
-                    作者：{script.author} · 支持7-15人
-                  </Typography>
-                )}
+                  )}
+                </Box>
               </Box>
 
               {/* 角色区域 */}
@@ -377,25 +392,37 @@ export default function ScriptPreview() {
                   team="townsfolk"
                   characters={script.characters.townsfolk}
                   script={script}
-                  onReorder={() => {}} // 预览模式不允许重新排序
+                  onReorder={() => { }} // 预览模式不允许重新排序
                 />
                 <CharacterSection
                   team="outsider"
                   characters={script.characters.outsider}
                   script={script}
-                  onReorder={() => {}}
+                  onReorder={() => { }}
                 />
                 <CharacterSection
                   team="minion"
                   characters={script.characters.minion}
                   script={script}
-                  onReorder={() => {}}
+                  onReorder={() => { }}
                 />
                 <CharacterSection
                   team="demon"
                   characters={script.characters.demon}
                   script={script}
-                  onReorder={() => {}}
+                  onReorder={() => { }}
+                />
+                <CharacterSection
+                  team="fabled"
+                  characters={script.characters.fabled}
+                  script={script}
+                  onReorder={() => { }}
+                />
+                <CharacterSection
+                  team="traveler"
+                  characters={script.characters.traveler}
+                  script={script}
+                  onReorder={() => { }}
                 />
               </Box>
 
@@ -411,62 +438,9 @@ export default function ScriptPreview() {
                 </Box>
               )}
 
-              {/* 说明文字 */}
-              <Box sx={{ mt: 2.5, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2, md: 3 } }}>
-                <Box
-                  sx={{
-                    border: '2px solid rgba(61, 50, 38, 0.4)',
-                    borderRadius: 2,
-                    p: { xs: 1.5, sm: 2 },
-                    backgroundColor: 'rgba(254, 250, 240, 0.5)',
-                    mb: 1,
-                  }}
-                >
-                  <Box sx={{ mb: 1.5 }}>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontWeight: 'bold',
-                        color: THEME_COLORS.paper.secondary,
-                        fontSize: { xs: '0.9rem', sm: '1rem' },
-                      }}
-                    >
-                      可使
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: THEME_COLORS.paper.secondary,
-                        fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                        ml: 1,
-                      }}
-                    >
-                      某些事情"可能"发生。代表由说书人来决定该事情是否发生。
-                    </Typography>
-                  </Box>
-                  <Box>
-                    <Typography
-                      component="span"
-                      sx={{
-                        fontWeight: 'bold',
-                        color: THEME_COLORS.paper.secondary,
-                        fontSize: { xs: '0.9rem', sm: '1rem' },
-                      }}
-                    >
-                      中毒
-                    </Typography>
-                    <Typography
-                      component="span"
-                      sx={{
-                        color: THEME_COLORS.paper.secondary,
-                        fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                        ml: 1,
-                      }}
-                    >
-                      中毒的玩家会失去能力，但会认为自己的真实有能力。说书人会给出该玩家应得的错误信息，让玩家不可能会给出中毒信息。中毒的玩家不会得知自己中毒。
-                    </Typography>
-                  </Box>
-                </Box>
+              {/* 特殊说明卡片 */}
+              <Box sx={{ position: 'relative', zIndex: 1 }}>
+                <SpecialRulesSection rules={script.specialRules} />
               </Box>
             </Paper>
 

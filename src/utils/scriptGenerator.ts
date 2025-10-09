@@ -19,6 +19,8 @@ export function generateScript(jsonString: string): Script {
       outsider: [],
       minion: [],
       demon: [],
+      fabled: [],
+      traveler: [],
     },
     firstnight: [
       {
@@ -42,6 +44,7 @@ export function generateScript(jsonString: string): Script {
     ],
     jinx: {},
     all: [],
+    specialRules: [],
   };
 
   for (const item of json) {
@@ -49,6 +52,17 @@ export function generateScript(jsonString: string): Script {
     if (item.id === '_meta') {
       script.title = item.name || '自定义剧本';
       script.author = item.author || '';
+      continue;
+    }
+
+    // 处理特殊说明卡片
+    if (item.team === 'special_rule') {
+      script.specialRules.push({
+        id: item.id,
+        title: item.title || item.name,
+        content: item.content || item.ability,
+        rules: item.rules,  // 支持多个规则项
+      });
       continue;
     }
 
@@ -66,7 +80,7 @@ export function generateScript(jsonString: string): Script {
       continue;
     }
 
-    // 处理普通角色
+    // 处理普通角色、传奇角色和旅行者
     if (character.team && character.team in script.characters) {
       script.all.push(character);
       
@@ -77,24 +91,27 @@ export function generateScript(jsonString: string): Script {
         image: character.image,
         id: character.id,
         team: character.team,
-        firstNight: character.firstNight,
-        otherNight: character.otherNight,
+        firstNight: character.firstNight || 0,
+        otherNight: character.otherNight || 0,
       });
 
-      // 添加首夜行动
-      if (character.firstNight && character.firstNight > 0) {
-        script.firstnight.push({
-          image: character.image,
-          index: character.firstNight,
-        });
-      }
+      // 传奇角色和旅行者不参与夜晚行动顺序
+      if (character.team !== 'fabled' && character.team !== 'traveler') {
+        // 添加首夜行动
+        if (character.firstNight && character.firstNight > 0) {
+          script.firstnight.push({
+            image: character.image,
+            index: character.firstNight,
+          });
+        }
 
-      // 添加其他夜晚行动
-      if (character.otherNight && character.otherNight > 0) {
-        script.othernight.push({
-          image: character.image,
-          index: character.otherNight,
-        });
+        // 添加其他夜晚行动
+        if (character.otherNight && character.otherNight > 0) {
+          script.othernight.push({
+            image: character.image,
+            index: character.otherNight,
+          });
+        }
       }
     }
   }

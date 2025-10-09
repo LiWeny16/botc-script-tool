@@ -13,6 +13,7 @@ import type { Script } from './types';
 import InputPanel from './components/InputPanel';
 import CharacterSection from './components/CharacterSection';
 import NightOrder from './components/NightOrder';
+import SpecialRulesSection from './components/SpecialRulesSection';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import html2canvas from 'html2canvas';
@@ -66,7 +67,7 @@ function App() {
   };
 
   // 更新角色顺序
-  const handleReorderCharacters = (team: 'townsfolk' | 'outsider' | 'minion' | 'demon', newOrder: string[]) => {
+  const handleReorderCharacters = (team: 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveler', newOrder: string[]) => {
     if (!script) return;
 
     const updatedScript = {
@@ -98,8 +99,8 @@ function App() {
       }
 
       // 按照script中的顺序添加角色
-      ['townsfolk', 'outsider', 'minion', 'demon'].forEach(team => {
-        const teamKey = team as 'townsfolk' | 'outsider' | 'minion' | 'demon';
+      ['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].forEach(team => {
+        const teamKey = team as 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveler';
         script.characters[teamKey].forEach(character => {
           const originalItem = jsonArray.find((item: any) => item.id === character.id);
           if (originalItem) {
@@ -398,6 +399,18 @@ function App() {
                       script={script}
                       onReorder={handleReorderCharacters}
                     />
+                    <CharacterSection
+                      team="fabled"
+                      characters={script.characters.fabled}
+                      script={script}
+                      onReorder={handleReorderCharacters}
+                    />
+                    <CharacterSection
+                      team="traveler"
+                      characters={script.characters.traveler}
+                      script={script}
+                      onReorder={handleReorderCharacters}
+                    />
                   </Box>
 
                   {/* 移动端夜晚行动顺序 */}
@@ -412,77 +425,22 @@ function App() {
                     </Box>
                   )}
 
-                  {/* 说明文字 */}
-                  <Box sx={{ mt: 2.5, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2, md: 3 } }}>
-
-                    {/* 可使和中毒说明框 */}
-                    <Box
-                      sx={{
-                        border: '2px solid rgba(61, 50, 38, 0.4)',
-                        borderRadius: 2,
-                        p: { xs: 1.5, sm: 2 },
-                        backgroundColor: 'rgba(254, 250, 240, 0.5)',
-                        mb: 1,
-                      }}
-                    >
-                      <Box sx={{ mb: 1.5 }}>
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontWeight: 'bold',
-                            color: THEME_COLORS.paper.secondary,
-                            fontSize: { xs: '0.9rem', sm: '1rem' },
-                          }}
-                        >
-                          可使
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{
-                            color: THEME_COLORS.paper.secondary,
-                            fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                            ml: 1,
-                          }}
-                        >
-                          某些事情"可能"发生。代表由说书人来决定该事情是否发生。
-                        </Typography>
-                      </Box>
-                      <Box>
-                        <Typography
-                          component="span"
-                          sx={{
-                            fontWeight: 'bold',
-                            color: THEME_COLORS.paper.secondary,
-                            fontSize: { xs: '0.9rem', sm: '1rem' },
-                          }}
-                        >
-                          中毒
-                        </Typography>
-                        <Typography
-                          component="span"
-                          sx={{
-                            color: THEME_COLORS.paper.secondary,
-                            fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                            ml: 1,
-                          }}
-                        >
-                          中毒的玩家会失去能力，但会认为自己的真实有能力。说书人会给出该玩家应得的错误信息，让玩家不可能会给出中毒信息。中毒的玩家不会得知自己中毒。
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    {/* 底部署名 */}
-                    {/* <Typography
-                      sx={{
-                        textAlign: 'center',
-                        color: THEME_COLORS.paper.secondary,
-                        fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                        opacity: 0.7,
-                      }}
-                    >
-                      @bigonion 剧本工具制作
-                    </Typography> */}
+                  {/* 特殊说明卡片 */}
+                  <Box sx={{ position: 'relative', zIndex: 1 }}>
+                    <SpecialRulesSection rules={script.specialRules} />
                   </Box>
+
+                  {/* 底部署名 */}
+                  {/* <Typography
+                    sx={{
+                      textAlign: 'center',
+                      color: THEME_COLORS.paper.secondary,
+                      fontSize: { xs: '0.7rem', sm: '0.8rem' },
+                      opacity: 0.7,
+                    }}
+                  >
+                    @bigonion 剧本工具制作
+                  </Typography> */}
                 </Paper>
 
                 {/* 右侧 - 其他夜晚 */}
@@ -538,7 +496,7 @@ function App() {
                       zIndex: 1,
                     }
                   }}>
-                    <NightOrder title="其他夜晚" actions={script.othernight} />
+                    <NightOrder title="其他夜晚" actions={script?.othernight || []} />
                   </Box>
                 )}
               </Box>

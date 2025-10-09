@@ -11,24 +11,24 @@ export interface ScriptData {
 // 剧本映射表：剧本名 -> JSON文件URL
 export const SCRIPT_MAP: Record<string, string> = {
   // 常见剧本
-  '7席谜案录': '/scripts/常见剧本/#7席谜案录-TrashWarlock.json',
-  '三神谜题': '/scripts/常见剧本/#三神谜题-华稽.json',
-  '公爵夫人的晚宴': '/scripts/常见剧本/#公爵夫人的晚宴-Lei.json',
-  '嚣张跋扈': '/scripts/常见剧本/#嚣张跋扈-刘中奇.json',
-  '地狱二重奏2.0': '/scripts/常见剧本/#地狱二重奏2.0-钟楼剧本博物馆.json',
-  '复活庆典': '/scripts/常见剧本/#复活庆典-Zets.json',
-  '大师之夜': '/scripts/常见剧本/#大师之夜-王鑫.json',
-  '奇异人生': '/scripts/常见剧本/#奇异人生-海雾&奇异人生推理馆.json',
-  '森罗万象': '/scripts/常见剧本/#森罗万象-503.json',
-  '横行霸道': '/scripts/常见剧本/#横行霸道V5.0.json',
-  '菜市场': '/scripts/常见剧本/#菜市场v4-蓝铃兰.json',
-  '飞越疯人院Ⅱ': '/scripts/常见剧本/#飞越疯人院Ⅱv1.1.1-太一.json',
+  '7席谜案录': '/scripts/常见剧本/7席谜案录-TrashWarlock.json',
+  '三神谜题': '/scripts/常见剧本/三神谜题-华稽.json',
+  '公爵夫人的晚宴': '/scripts/常见剧本/公爵夫人的晚宴-Lei.json',
+  '嚣张跋扈': '/scripts/常见剧本/嚣张跋扈-刘中奇.json',
+  '地狱二重奏2.0': '/scripts/常见剧本/地狱二重奏2.0-钟楼剧本博物馆.json',
+  '复活庆典': '/scripts/常见剧本/复活庆典-Zets.json',
+  '大师之夜': '/scripts/常见剧本/大师之夜-王鑫.json',
+  '奇异人生': '/scripts/常见剧本/奇异人生-海雾&奇异人生推理馆.json',
+  '森罗万象': '/scripts/常见剧本/森罗万象-503.json',
+  '横行霸道': '/scripts/常见剧本/横行霸道V5.0.json',
+  '菜市场': '/scripts/常见剧本/菜市场v4-蓝铃兰.json',
+  '飞越疯人院Ⅱ': '/scripts/常见剧本/飞越疯人院2-太一.json',
   'Idiocracy': '/scripts/常见剧本/Idiocracy v1.4 Allen.json',
-  '赌徒悖论': '/scripts/常见剧本/赌徒悖论.json',
+  '赌徒悖论': '/scripts/自定义剧本/赌徒悖论.json',
   '横行霸道+': '/scripts/常见剧本/鸭镇制作《横行霸道+Ver.4.7》（集石魔典）.json',
   
   // 自定义剧本
-  '一夜鱼龙舞': '/scripts/自定义剧本/#一夜鱼龙舞3.2-驯鹿&痴愚.json',
+  '一夜鱼龙舞': '/scripts/自定义剧本/一夜鱼龙舞3.2-驯鹿&痴愚.json',
   
   // 全员许愿
   '惊弓之鸟': '/scripts/全员许愿/惊弓之鸟.json',
