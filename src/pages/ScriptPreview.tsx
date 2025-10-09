@@ -80,12 +80,10 @@ export default function ScriptPreview() {
           name: script.title,
           author: script.author || '',
         },
-        ...script.characters.townsfolk.map(char => ({ id: char.id })),
-        ...script.characters.outsider.map(char => ({ id: char.id })),
-        ...script.characters.minion.map(char => ({ id: char.id })),
-        ...script.characters.demon.map(char => ({ id: char.id })),
-        ...script.characters.fabled.map(char => ({ id: char.id })),
-        ...script.characters.traveler.map(char => ({ id: char.id })),
+        // 导出所有team的角色
+        ...Object.keys(script.characters).flatMap(team => 
+          script.characters[team].map(char => ({ id: char.id }))
+        ),
       ];
 
       const jsonString = JSON.stringify(exportData, null, 2);
@@ -388,48 +386,34 @@ export default function ScriptPreview() {
 
               {/* 角色区域 */}
               <Box sx={{ position: 'relative', zIndex: 1 }}>
-                <CharacterSection
-                  team="townsfolk"
-                  characters={script.characters.townsfolk}
-                  script={script}
-                  onReorder={() => { }}
-                  disableDrag={true}  // 预览模式禁用拖拽
-                />
-                <CharacterSection
-                  team="outsider"
-                  characters={script.characters.outsider}
-                  script={script}
-                  onReorder={() => { }}
-                  disableDrag={true}
-                />
-                <CharacterSection
-                  team="minion"
-                  characters={script.characters.minion}
-                  script={script}
-                  onReorder={() => { }}
-                  disableDrag={true}
-                />
-                <CharacterSection
-                  team="demon"
-                  characters={script.characters.demon}
-                  script={script}
-                  onReorder={() => { }}
-                  disableDrag={true}
-                />
-                <CharacterSection
-                  team="fabled"
-                  characters={script.characters.fabled}
-                  script={script}
-                  onReorder={() => { }}
-                  disableDrag={true}
-                />
-                <CharacterSection
-                  team="traveler"
-                  characters={script.characters.traveler}
-                  script={script}
-                  onReorder={() => { }}
-                  disableDrag={true}
-                />
+                {/* 按固定顺序显示标准团队 */}
+                {['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].map(team => (
+                  script.characters[team] && script.characters[team].length > 0 && (
+                    <CharacterSection
+                      key={team}
+                      team={team}
+                      characters={script.characters[team]}
+                      script={script}
+                      onReorder={() => { }}
+                      disableDrag={true}
+                    />
+                  )
+                ))}
+                
+                {/* 显示所有未知团队 */}
+                {Object.keys(script.characters)
+                  .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
+                  .map(team => (
+                    <CharacterSection
+                      key={team}
+                      team={team}
+                      characters={script.characters[team]}
+                      script={script}
+                      onReorder={() => { }}
+                      disableDrag={true}
+                    />
+                  ))
+                }
               </Box>
 
               {/* 移动端夜晚行动顺序 */}

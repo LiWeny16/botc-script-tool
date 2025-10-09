@@ -11,6 +11,9 @@ export const THEME_COLORS = {
   // 传奇角色 - 金色系
   fabled: '#d4af37',
   
+  // 未知团队 - 翠墨绿色
+  unknown: '#2d5c4f',
+  
   // 其他颜色
   purple: '#dd38ca',  // 旅行者等特殊标记
   gray: '#999',       // 分割线等
@@ -62,4 +65,29 @@ export const TEAM_NAMES: Record<string, string> = {
   traveler: '旅行者',
   fabled: '传奇角色',
 };
+
+// 获取团队颜色（如果未定义则返回翠墨绿色）
+export function getTeamColor(team: string, customColor?: string): string {
+  // 优先使用自定义颜色
+  if (customColor) {
+    return customColor;
+  }
+  // 其次使用预定义颜色
+  if (TEAM_COLORS[team]) {
+    return TEAM_COLORS[team];
+  }
+  // 未知团队使用翠墨绿色
+  return THEME_COLORS.unknown;
+}
+
+// 获取团队名称（如果未定义则返回格式化的team名称）
+export function getTeamName(team: string): string {
+  if (TEAM_NAMES[team]) {
+    return TEAM_NAMES[team];
+  }
+  // 自动格式化团队名称
+  return team.split('_').map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+}
 

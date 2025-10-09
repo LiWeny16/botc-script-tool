@@ -1,7 +1,7 @@
 import { Box, Typography, Divider } from '@mui/material';
 import type { Character, Script } from '../types';
 import { TEAM_NAMES, TEAM_COLORS } from '../data/characters';
-import { THEME_COLORS } from '../theme/colors';
+import { THEME_COLORS, getTeamColor, getTeamName } from '../theme/colors';
 import CharacterCard from './CharacterCard';
 import {
   DndContext,
@@ -20,10 +20,10 @@ import {
 } from '@dnd-kit/sortable';
 
 interface CharacterSectionProps {
-  team: 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveler';
+  team: string;  // 支持任意team类型
   characters: Character[];
   script: Script;
-  onReorder: (team: 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveler', newOrder: string[]) => void;
+  onReorder: (team: string, newOrder: string[]) => void;
   disableDrag?: boolean;  // 是否禁用拖拽功能
 }
 
@@ -39,13 +39,20 @@ export default function CharacterSection({ team, characters, script, onReorder, 
     })
   );
 
-  // 传奇角色和旅行者不显示阵营标签，直接显示类型
+  // 判断是否为标准团队
+  const standardTeams = ['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'];
+  const isStandardTeam = standardTeams.includes(team);
+  
+  // 传奇角色、旅行者和未知团队不显示阵营标签，直接显示类型
   const teamLabel =
-    team === 'fabled' || team === 'traveler'
+    !isStandardTeam || team === 'fabled' || team === 'traveler'
       ? ''
       : team === 'townsfolk' || team === 'outsider'
       ? '善良阵营'
       : '邪恶阵营';
+  
+  // 获取第一个角色的自定义颜色（如果有）
+  const customColor = characters.length > 0 ? characters[0].teamColor : undefined;
   
   const teamLabelColor = 
     team === 'fabled'
@@ -54,7 +61,9 @@ export default function CharacterSection({ team, characters, script, onReorder, 
       ? THEME_COLORS.purple
       : team === 'townsfolk' || team === 'outsider'
       ? THEME_COLORS.good
-      : THEME_COLORS.evil;
+      : team === 'minion' || team === 'demon'
+      ? THEME_COLORS.evil
+      : getTeamColor(team, customColor);  // 使用getTeamColor处理未知团队
 
   const handleDragEnd = (event: DragEndEvent) => {
     // 如果禁用拖拽，直接返回
@@ -95,11 +104,11 @@ export default function CharacterSection({ team, characters, script, onReorder, 
             fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' },
           }}
         >
-          {team === 'fabled' || team === 'traveler' ? (
-            // 传奇角色和旅行者只显示类型名称
-            <span style={{ color: TEAM_COLORS[team] }}>{TEAM_NAMES[team]}</span>
+          {!isStandardTeam || team === 'fabled' || team === 'traveler' ? (
+            // 传奇角色、旅行者和未知团队只显示类型名称
+            <span style={{ color: getTeamColor(team, customColor) }}>{getTeamName(team)}</span>
           ) : (
-            // 其他角色显示阵营·类型
+            // 标准角色显示阵营·类型
             <>
               <span style={{ color: teamLabelColor }}>{teamLabel}</span>
               ·

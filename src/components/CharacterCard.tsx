@@ -1,7 +1,7 @@
 import { Box, Typography, Paper } from '@mui/material';
 import type { Character } from '../types';
 import { highlightAbilityText } from '../utils/scriptGenerator';
-import { THEME_COLORS } from '../theme/colors';
+import { THEME_COLORS, getTeamColor } from '../theme/colors';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -12,9 +12,26 @@ interface CharacterCardProps {
 }
 
 export default function CharacterCard({ character, jinxInfo, allCharacters }: CharacterCardProps) {
-  // 判断角色是善良阵营还是邪恶阵营
-  const isGoodTeam = character.team === 'townsfolk' || character.team === 'outsider';
-  const nameColor = isGoodTeam ? THEME_COLORS.good : THEME_COLORS.evil;
+  // 根据团队类型确定名字颜色
+  const getNameColor = () => {
+    switch (character.team) {
+      case 'townsfolk':
+      case 'outsider':
+        return THEME_COLORS.good;
+      case 'minion':
+      case 'demon':
+        return THEME_COLORS.evil;
+      case 'fabled':
+        return THEME_COLORS.fabled;
+      case 'traveler':
+        return THEME_COLORS.purple;
+      default:
+        // 未知团队使用getTeamColor，支持自定义颜色
+        return getTeamColor(character.team, character.teamColor);
+    }
+  };
+  
+  const nameColor = getNameColor();
 
   const {
     attributes,

@@ -29,6 +29,7 @@ export const SCRIPT_MAP: Record<string, string> = {
   
   // 自定义剧本
   '一夜鱼龙舞': '/scripts/自定义剧本/一夜鱼龙舞3.2-驯鹿&痴愚.json',
+  '血染德扑': '/scripts/自定义剧本/血染德扑.json',
   
   // 全员许愿
   '惊弓之鸟': '/scripts/全员许愿/惊弓之鸟.json',
@@ -38,7 +39,7 @@ export const SCRIPT_MAP: Record<string, string> = {
 export const SCRIPT_REPOSITORY: ScriptData[] = [
   // 常见剧本
   { id: '7xmyl', name: '7席谜案录', author: 'TrashWarlock', description: '常见剧本', jsonUrl: SCRIPT_MAP['7席谜案录'] },
-  { id: 'ssmt', name: '三神谜题', author: '华稽', description: '常见剧本', jsonUrl: SCRIPT_MAP['三神谜题'] },
+  { id: 'xrdp', name: '血染德扑', author: '大聪花', description: '自定义剧本', jsonUrl: SCRIPT_MAP['血染德扑'] },
   { id: 'gfrdwy', name: '公爵夫人的晚宴', author: 'Lei', description: '常见剧本', jsonUrl: SCRIPT_MAP['公爵夫人的晚宴'] },
   { id: 'xzbd', name: '嚣张跋扈', author: '刘中奇', description: '常见剧本', jsonUrl: SCRIPT_MAP['嚣张跋扈'] },
   { id: 'dfecz', name: '地狱二重奏2.0', author: '钟楼剧本博物馆', description: '常见剧本', jsonUrl: SCRIPT_MAP['地狱二重奏2.0'] },

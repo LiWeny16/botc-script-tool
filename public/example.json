@@ -103,6 +103,29 @@
     "id": "special_rule_madness",
     "team": "special_rule",
     "title": "疯狂",
-    "content": "你需要“疯狂”地证明自己是某个角色或阵营，或者证明某位玩家是某个角色或阵营。如果你没有“疯狂”证明，你可能会被处决。"
+    "content": "你需要\"疯狂\"地证明自己是某个角色或阵营，或者证明某位玩家是某个角色或阵营。如果你没有\"疯狂\"证明，你可能会被处决。"
+  },
+  {
+    "id": "custom_legend_shop",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/spirit_of_ivory.png",
+    "edition": "custom",
+    "name": "神秘商人",
+    "ability": "这是一个自定义的未知团队角色示例。可以用于展示任何未知team类型。默认使用翠墨绿色。",
+    "team": "legend_shops",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": []
+  },
+  {
+    "id": "custom_neutral_role",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/hells_librarian.png",
+    "edition": "custom",
+    "name": "中立角色",
+    "ability": "这个角色使用自定义颜色。可以在JSON中通过teamColor字段指定颜色。",
+    "team": "neutral",
+    "teamColor": "#8b7355",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": []
   }
 ]

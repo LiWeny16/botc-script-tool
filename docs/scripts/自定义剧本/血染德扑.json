@@ -1,0 +1,256 @@
+[
+    {
+        "id": "_meta",
+        "name": "血染德扑",
+        "author": "Bigonion",
+        "logo": "https://i.ibb.co/6r1y43p/blood-on-the-felt-logo.png",
+        "description": "筹码是你的声音，底牌是你的身份。在这场谎言与计算的赌局中，活到最后，看穿一切。欢迎来到血染扑克。",
+        "townsfolkName": "镇民",
+        "outsidersName": "外来者",
+        "minionsName": "爪牙",
+        "demonsName": "恶魔"
+    },
+    {
+        "id": "empath",
+        "edition": "custom",
+        "name": "共情者",
+        "ability": "每个夜晚*，你会得知你左手边存活邻居的底牌，是否比你右手边存活邻居的底牌要强（如果接近，答案由说书人决定）。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
+        "otherNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
+        "reminders": [],
+        "setup": false
+    },
+    {
+        "id": "investigator",
+        "edition": "custom",
+        "name": "调查员",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
+        "otherNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
+        "reminders": [],
+        "setup": false
+    },
+    {
+        "id": "gambler",
+        "edition": "custom",
+        "name": "赌圣",
+        "ability": "每个夜晚*，选择一名玩家并猜测一张具体的牌（例如“红桃A”）。如果该玩家的底牌中包含这张牌，他立即死亡。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNightReminder": "",
+        "otherNightReminder": "唤醒赌徒，让他选择一名玩家和一张牌。如果猜中，该玩家死亡。",
+        "reminders": [
+            "死亡"
+        ],
+        "setup": false
+    },
+    {
+        "id": "artist",
+        "edition": "custom",
+        "name": "艺术家",
+        "ability": "每个白天，在牌局结束后，你可以向说书人秘密提出一个是否问题。你会知道问题的答案。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNight": 0,
+        "otherNight": 0,
+        "reminders": [
+            "提问"
+        ],
+        "setup": false
+    },
+    {
+        "id": "juggler",
+        "edition": "custom",
+        "name": "杂耍艺人",
+        "ability": "在你的首个白天，你可以公开猜测最多5名玩家的底牌（每人一张即可）。你每猜对一张，当晚就会获得一个“暗影筹码”。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNight": 0,
+        "otherNight": 0,
+        "reminders": [
+            "猜牌"
+        ],
+        "setup": false
+    },
+    {
+        "id": "chambermaid",
+        "edition": "basetown",
+        "name": "女仆",
+        "ability": "每个夜晚，选择两名存活玩家。你会得知他们之中有几个人在当晚秘密花费了“暗影筹码”。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNightReminder": "唤醒女仆，让她指向两名玩家。然后告知她选择的玩家中有多少人在今晚使用了暗影筹码。",
+        "otherNightReminder": "唤醒女仆，让她指向两名玩家。然后告知她选择的玩家中有多少人在今晚使用了暗影筹码。",
+        "reminders": [],
+        "setup": false
+    },
+    {
+        "id": "mayor",
+        "edition": "basetown",
+        "name": "镇长",
+        "ability": "如果场上仅剩3名玩家存活，且当天的“大法官”没有发动处决，你的阵营获胜。[初始暗影筹码+1]",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNight": 0,
+        "otherNight": 0,
+        "reminders": [
+            "特殊胜利"
+        ],
+        "setup": false
+    },
+    {
+        "id": "noble",
+        "edition": "basetown",
+        "name": "贵族",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNightReminder": "唤醒贵族，让他选择三名玩家。然后告诉他这三人中有一个是邪恶的。",
+        "otherNightReminder": "",
+        "reminders": [
+            "知晓信息"
+        ],
+        "setup": false
+    },
+    {
+        "id": "drunk",
+        "edition": "custom",
+        "name": "酒鬼",
+        "team": "outsider",
+        "sch_team": "外来者",
+        "firstNight": 0,
+        "otherNight": 0,
+        "reminders": [
+            "醉酒"
+        ],
+        "setup": true
+    },
+    {
+        "id": "mutant",
+        "edition": "custom",
+        "name": "畸形秀演员",
+        "ability": "如果你在白天“疯狂”地证明你的手牌极大或极小，你可能被处决。",
+        "team": "outsider",
+        "sch_team": "外来者",
+        "firstNight": 0,
+        "otherNight": 0,
+        "reminders": [],
+        "setup": false
+    },
+    {
+        "id": "scarlet_woman",
+        "edition": "custom",
+        "name": "红唇女郎",
+        "team": "minion",
+        "sch_team": "爪牙",
+        "firstNightReminder": "唤醒红唇女郎和恶魔，让他们互相确认身份。",
+        "otherNightReminder": "",
+        "reminders": [
+            "可能成为恶魔"
+        ],
+        "setup": false
+    },
+    {
+        "id": "cerenovus",
+        "edition": "custom",
+        "name": "洗脑师",
+        "ability": "每个夜晚，选择一名玩家。说书人决定他在明天白天需要“疯狂”地证明自己的手牌是“极大”还是“极小”。不然他可能会被处决。",
+        "team": "minion",
+        "sch_team": "爪牙",
+        "firstNightReminder": "唤醒洗脑师和恶魔，让他们互相确认身份。然后让洗脑师选择一名玩家使其“疯狂”。",
+        "otherNightReminder": "唤醒洗脑师，让他选择一名玩家使其“疯狂”。",
+        "reminders": [
+            "疯狂"
+        ],
+        "setup": false
+    },
+    {
+        "id": "imp",
+        "edition": "custom",
+        "name": "小恶魔",
+        "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你在夜晚自杀，一名爪牙会变成小恶魔。\n每局游戏限一次，说书人会秘密向你展示牌堆顶的前三张牌。[初始暗影筹码+1]",
+        "team": "demon",
+        "sch_team": "恶魔",
+        "firstNightReminder": "",
+        "otherNightReminder": "唤醒小恶魔，让他攻击一名玩家。如果他成功自杀，则在他入睡后通知一名爪牙角色变化。",
+        "reminders": [
+            "死亡",
+            "换牌"
+        ],
+        "setup": false
+    },
+    {
+        "id": "vigormortis",
+        "ability": "每个夜晚*，你要选择一名玩家：他死亡。被你杀死的爪牙保留他的能力，且与他邻近的两名镇民之一中毒。\n每局游戏限一次，说书人会秘密向你展示牌堆顶的前三张牌。[初始暗影筹码+1][-1外来者]",
+        "edition": "custom"
+    },
+    {
+        "id": "shop_divine_shield",
+        "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
+        "name": "神圣庇护",
+        "ability": "【消耗2暗影筹码】当晚保护你自己，免受恶魔的攻击。",
+        "team": "暗影商店",
+        "sch_team": "商店"
+    },
+    {
+        "id": "shop_glimpse",
+        "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
+        "name": "我没开挂",
+        "ability": "【消耗1暗影筹码】在下一个白天的牌局开始前，说书人会秘密向你展示牌堆顶的第一张牌。",
+        "team": "暗影商店",
+        "sch_team": "商店"
+    },
+    {
+        "id": "shop_forced_call",
+        "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
+        "name": "强制跟注",
+        "ability": "【消耗2暗影筹码】选择一名玩家。在下一个白天的牌局中，当第一次有人下注或加注时，只要他筹码足够，他就必须跟注。",
+        "team": "暗影商店",
+        "sch_team": "商店"
+    },
+    {
+        "id": "shop_double_flop",
+        "name": "双重荷官",
+        "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
+        "ability": "【消耗2暗影筹码】购买后，在下一个白天的翻牌圈，说书人会发出两组不同的翻牌（共6张牌）。玩家们必须投票选择其中一组作为本轮的正式公共牌。",
+        "team": "暗影商店",
+        "sch_team": "商店"
+    },
+    {
+        "id": "custom_legend_shop_river",
+        "name": "命运的重洗（传说）",
+        "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
+        "ability": "【消耗2暗影筹码】每局限购一次。在河牌发出后、最终下注轮开始前，你可以购买并使用此商品，强制说书人将河牌销掉，并发出牌堆顶的三张新牌作为新的河牌。",
+        "team": "暗影商店（传说）",
+        "sch_team": "传说商品"
+    },
+    {
+        "id": "custom_legend_shop_river",
+        "name": "命运的交换（传说）",
+        "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
+        "ability": "【消耗1暗影筹码】选择场上另一名玩家。在下一个白天开始时，你们交换底牌。",
+        "team": "暗影商店（传说）",
+        "sch_team": "传说商品"
+    },
+    {
+        "id": "special_rule_blood_on_the_poker",
+        "team": "special_rule",
+        "title": "Blood On The Poker 特殊规则",
+        "rules": [
+            {
+                "title": "赌狗从不私聊",
+                "content": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过剪刀石头布来决定最终的赢家。"
+            },
+            {
+                "title": "暗影筹码",
+                "content": "初始所有玩家拥有1颗暗影筹码。暗影筹码是额外的能力货币，与玩家在德州扑克牌桌上的常规筹码分离。只有赢得白天的德州扑克牌局的玩家才能获得1枚暗影筹码。这些筹码的持有和使用是秘密的，用于在夜晚购买暗影商店的商品或发动特殊能力。"
+            },
+            {
+                "title": "牌桌上的死亡",
+                "content": "玩家在牌局中输光所有常规筹码，不会立即死亡。他们仍然可以参与后续的讨论和投票，但无法再参与牌局下注。当玩家被处决或被恶魔击杀时，他们会失去所有筹码并宣告死亡。"
+            }
+        ]
+    }
+]

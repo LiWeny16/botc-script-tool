@@ -80,23 +80,30 @@ export function generateScript(jsonString: string): Script {
       continue;
     }
 
-    // 处理普通角色、传奇角色和旅行者
-    if (character.team && character.team in script.characters) {
+    // 处理所有角色（包括未知team类型）
+    if (character.team) {
       script.all.push(character);
       
-      const teamKey = character.team as keyof typeof script.characters;
-      script.characters[teamKey].push({
+      // 如果team不存在，自动创建数组
+      if (!script.characters[character.team]) {
+        script.characters[character.team] = [];
+      }
+      
+      script.characters[character.team].push({
         name: character.name,
         ability: character.ability,
         image: character.image,
         id: character.id,
         team: character.team,
+        teamColor: character.teamColor,  // 保存自定义颜色
         firstNight: character.firstNight || 0,
         otherNight: character.otherNight || 0,
       });
 
-      // 传奇角色和旅行者不参与夜晚行动顺序
-      if (character.team !== 'fabled' && character.team !== 'traveler') {
+      // 标准团队类型中，传奇角色和旅行者不参与夜晚行动顺序
+      // 未知团队类型默认不参与夜晚行动
+      const standardTeams: string[] = ['townsfolk', 'outsider', 'minion', 'demon'];
+      if (standardTeams.includes(character.team)) {
         // 添加首夜行动
         if (character.firstNight && character.firstNight > 0) {
           script.firstnight.push({

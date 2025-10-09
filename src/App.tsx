@@ -67,7 +67,7 @@ function App() {
   };
 
   // 更新角色顺序
-  const handleReorderCharacters = (team: 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveler', newOrder: string[]) => {
+  const handleReorderCharacters = (team: string, newOrder: string[]) => {
     if (!script) return;
 
     const updatedScript = {
@@ -98,10 +98,9 @@ function App() {
         newJsonArray.push(metaItem);
       }
 
-      // 按照script中的顺序添加角色
-      ['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].forEach(team => {
-        const teamKey = team as 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveler';
-        script.characters[teamKey].forEach(character => {
+      // 按照script中的顺序添加角色（包括所有team类型）
+      Object.keys(script.characters).forEach(team => {
+        script.characters[team].forEach(character => {
           const originalItem = jsonArray.find((item: any) => item.id === character.id);
           if (originalItem) {
             newJsonArray.push(originalItem);
@@ -375,42 +374,32 @@ function App() {
 
                   {/* 角色区域 */}
                   <Box sx={{ position: 'relative', zIndex: 1 }}>
-                    <CharacterSection
-                      team="townsfolk"
-                      characters={script.characters.townsfolk}
-                      script={script}
-                      onReorder={handleReorderCharacters}
-                    />
-                    <CharacterSection
-                      team="outsider"
-                      characters={script.characters.outsider}
-                      script={script}
-                      onReorder={handleReorderCharacters}
-                    />
-                    <CharacterSection
-                      team="minion"
-                      characters={script.characters.minion}
-                      script={script}
-                      onReorder={handleReorderCharacters}
-                    />
-                    <CharacterSection
-                      team="demon"
-                      characters={script.characters.demon}
-                      script={script}
-                      onReorder={handleReorderCharacters}
-                    />
-                    <CharacterSection
-                      team="fabled"
-                      characters={script.characters.fabled}
-                      script={script}
-                      onReorder={handleReorderCharacters}
-                    />
-                    <CharacterSection
-                      team="traveler"
-                      characters={script.characters.traveler}
-                      script={script}
-                      onReorder={handleReorderCharacters}
-                    />
+                    {/* 按固定顺序显示标准团队 */}
+                    {['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].map(team => (
+                      script.characters[team] && script.characters[team].length > 0 && (
+                        <CharacterSection
+                          key={team}
+                          team={team}
+                          characters={script.characters[team]}
+                          script={script}
+                          onReorder={handleReorderCharacters}
+                        />
+                      )
+                    ))}
+                    
+                    {/* 显示所有未知团队 */}
+                    {Object.keys(script.characters)
+                      .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
+                      .map(team => (
+                        <CharacterSection
+                          key={team}
+                          team={team}
+                          characters={script.characters[team]}
+                          script={script}
+                          onReorder={handleReorderCharacters}
+                        />
+                      ))
+                    }
                   </Box>
 
                   {/* 移动端夜晚行动顺序 */}

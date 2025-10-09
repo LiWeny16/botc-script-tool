@@ -1,11 +1,15 @@
-// 角色类型定义
-export type Team = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler' | 'fabled';
+// 角色类型定义 - 标准团队类型
+export type StandardTeam = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler' | 'fabled';
+
+// 扩展团队类型 - 包括任意字符串以支持自定义团队
+export type Team = StandardTeam | string;
 
 export interface Character {
   id: string;
   name: string;
   ability: string;
   team: Team;
+  teamColor?: string;  // 自定义团队颜色（可选）
   image: string;
   firstNight: number;
   otherNight: number;
@@ -49,6 +53,7 @@ export interface Script {
     demon: Character[];
     fabled: Character[];
     traveler: Character[];
+    [key: string]: Character[];  // 支持动态团队类型
   };
   firstnight: NightAction[];
   othernight: NightAction[];
