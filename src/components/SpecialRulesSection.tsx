@@ -34,7 +34,8 @@ export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps)
         display: 'flex',
         justifyContent: 'center',
         zIndex: 1,
-        mt: 1,
+        mt: { xs: 5, sm: 0.3 },
+        mb: 1,
       }}
     >
       <Box
