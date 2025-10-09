@@ -1,4 +1,3 @@
-import type { Character } from '../types';
 import { TEAM_COLORS, TEAM_NAMES } from '../theme/colors';
 
 // 导出团队颜色和名称（从统一配置导入）
