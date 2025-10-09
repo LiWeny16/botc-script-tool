@@ -24,13 +24,16 @@ interface CharacterSectionProps {
   characters: Character[];
   script: Script;
   onReorder: (team: 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'fabled' | 'traveler', newOrder: string[]) => void;
+  disableDrag?: boolean;  // 是否禁用拖拽功能
 }
 
-export default function CharacterSection({ team, characters, script, onReorder }: CharacterSectionProps) {
+export default function CharacterSection({ team, characters, script, onReorder, disableDrag = false }: CharacterSectionProps) {
   if (characters.length === 0) return null;
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: disableDrag ? { distance: 999999 } : undefined,  // 禁用拖拽
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -54,6 +57,9 @@ export default function CharacterSection({ team, characters, script, onReorder }
       : THEME_COLORS.evil;
 
   const handleDragEnd = (event: DragEndEvent) => {
+    // 如果禁用拖拽，直接返回
+    if (disableDrag) return;
+    
     const { active, over } = event;
 
     if (over && active.id !== over.id) {

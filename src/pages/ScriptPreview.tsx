@@ -392,37 +392,43 @@ export default function ScriptPreview() {
                   team="townsfolk"
                   characters={script.characters.townsfolk}
                   script={script}
-                  onReorder={() => { }} // 预览模式不允许重新排序
+                  onReorder={() => { }}
+                  disableDrag={true}  // 预览模式禁用拖拽
                 />
                 <CharacterSection
                   team="outsider"
                   characters={script.characters.outsider}
                   script={script}
                   onReorder={() => { }}
+                  disableDrag={true}
                 />
                 <CharacterSection
                   team="minion"
                   characters={script.characters.minion}
                   script={script}
                   onReorder={() => { }}
+                  disableDrag={true}
                 />
                 <CharacterSection
                   team="demon"
                   characters={script.characters.demon}
                   script={script}
                   onReorder={() => { }}
+                  disableDrag={true}
                 />
                 <CharacterSection
                   team="fabled"
                   characters={script.characters.fabled}
                   script={script}
                   onReorder={() => { }}
+                  disableDrag={true}
                 />
                 <CharacterSection
                   team="traveler"
                   characters={script.characters.traveler}
                   script={script}
                   onReorder={() => { }}
+                  disableDrag={true}
                 />
               </Box>
 
