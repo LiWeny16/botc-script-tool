@@ -11,15 +11,19 @@
         "demonsName": "恶魔"
     },
     {
-        "id": "empath",
-        "edition": "custom",
-        "name": "共情者",
-        "ability": "每个夜晚*，你会得知你左手边存活邻居的底牌，是否比你右手边存活邻居的底牌要强（如果接近，答案由说书人决定）。",
+        "id": "bounty_hunter"
+    },
+    {
+        "id": "noble",
+        "edition": "basetown",
+        "name": "贵族",
         "team": "townsfolk",
         "sch_team": "镇民",
-        "firstNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
-        "otherNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
-        "reminders": [],
+        "firstNightReminder": "唤醒贵族，让他选择三名玩家。然后告诉他这三人中有一个是邪恶的。",
+        "otherNightReminder": "",
+        "reminders": [
+            "知晓信息"
+        ],
         "setup": false
     },
     {
@@ -30,6 +34,18 @@
         "sch_team": "镇民",
         "firstNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
         "otherNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
+        "reminders": [],
+        "setup": false
+    },
+    {
+        "id": "empath",
+        "edition": "custom",
+        "name": "共情者",
+        "ability": "每个夜晚*，你会得知你左手边存活邻居的底牌，是否比你右手边存活邻居的底牌要强（如果接近，答案由说书人决定）。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
+        "otherNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
         "reminders": [],
         "setup": false
     },
@@ -102,22 +118,6 @@
         "setup": false
     },
     {
-        "id": "noble",
-        "edition": "basetown",
-        "name": "贵族",
-        "team": "townsfolk",
-        "sch_team": "镇民",
-        "firstNightReminder": "唤醒贵族，让他选择三名玩家。然后告诉他这三人中有一个是邪恶的。",
-        "otherNightReminder": "",
-        "reminders": [
-            "知晓信息"
-        ],
-        "setup": false
-    },
-    {
-        "id": "gossip"
-    },
-    {
         "id": "magician",
         "ability": "每个夜晚，你可以选择一名玩家并偷看他一张底牌。",
         "team": "townsfolk",
@@ -153,7 +153,7 @@
     {
         "id": "Casanova",
         "name": "花花公子",
-        "ability": "每个夜晚，你要选择除你以外的一名存活的玩家：如果他是善良的且明天白天他被处决，你的阵营落败。",
+        "ability": "每当有人梭哈的时候，你必须也梭哈。",
         "team": "outsider",
         "firstNight": 40,
         "otherNight": 69,
@@ -242,7 +242,7 @@
         "id": "uv6d0fft",
         "name": "血染德扑",
         "team": "fabled",
-        "ability": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过剪刀石头布来决定最终的赢家。",
+        "ability": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过猜拳来决定最终的赢家。",
         "image": "https://clocktower-wiki.gstonegames.com/images/thumb/9/97/Bootlegger.png/200px-Bootlegger.png",
         "setup": false,
         "reminders": []
@@ -251,7 +251,7 @@
         "id": "uv6d0fft",
         "name": "作弊达人",
         "team": "fabled",
-        "ability": "每个夜晚，恶魔可以选择与一名爪牙交换底牌。",
+        "ability": "每个夜晚，恶魔可以选择与一名爪牙交换底牌或选择偷看一名善良玩家的底牌。",
         "image": "https://clocktower-wiki.gstonegames.com/images/thumb/9/97/Bootlegger.png/200px-Bootlegger.png",
         "setup": false,
         "reminders": []
