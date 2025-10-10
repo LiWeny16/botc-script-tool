@@ -1,7 +1,9 @@
 import { Box, Typography, Divider } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 import type { Character, Script } from '../types';
-import { TEAM_NAMES, TEAM_COLORS } from '../data/characters';
+import { TEAM_COLORS } from '../data/characters';
 import { THEME_COLORS, getTeamColor, getTeamName } from '../theme/colors';
+import { useTranslation } from '../utils/i18n';
 import CharacterCard from './CharacterCard';
 import {
   DndContext,
@@ -27,7 +29,9 @@ interface CharacterSectionProps {
   disableDrag?: boolean;  // 是否禁用拖拽功能
 }
 
-export default function CharacterSection({ team, characters, script, onReorder, disableDrag = false }: CharacterSectionProps) {
+const CharacterSection = observer(({ team, characters, script, onReorder, disableDrag = false }: CharacterSectionProps) => {
+  const { t } = useTranslation();
+  
   if (characters.length === 0) return null;
 
   const sensors = useSensors(
@@ -48,8 +52,8 @@ export default function CharacterSection({ team, characters, script, onReorder, 
     !isStandardTeam || team === 'fabled' || team === 'traveler'
       ? ''
       : team === 'townsfolk' || team === 'outsider'
-      ? '善良阵营'
-      : '邪恶阵营';
+      ? t('team.good')
+      : t('team.evil');
   
   // 获取第一个角色的自定义颜色（如果有）
   const customColor = characters.length > 0 ? characters[0].teamColor : undefined;
@@ -64,6 +68,19 @@ export default function CharacterSection({ team, characters, script, onReorder, 
       : team === 'minion' || team === 'demon'
       ? THEME_COLORS.evil
       : getTeamColor(team, customColor);  // 使用getTeamColor处理未知团队
+
+  // 获取翻译后的团队名称
+  const getTranslatedTeamName = (teamKey: string): string => {
+    const teamMap: Record<string, string> = {
+      'townsfolk': t('team.townsfolk'),
+      'outsider': t('team.outsider'),
+      'minion': t('team.minion'),
+      'demon': t('team.demon'),
+      'fabled': t('team.fabled'),
+      'traveler': t('team.traveler'),
+    };
+    return teamMap[teamKey] || getTeamName(teamKey);
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
     // 如果禁用拖拽，直接返回
@@ -106,13 +123,13 @@ export default function CharacterSection({ team, characters, script, onReorder, 
         >
           {!isStandardTeam || team === 'fabled' || team === 'traveler' ? (
             // 传奇角色、旅行者和未知团队只显示类型名称
-            <span style={{ color: getTeamColor(team, customColor) }}>{getTeamName(team)}</span>
+            <span style={{ color: getTeamColor(team, customColor) }}>{getTranslatedTeamName(team)}</span>
           ) : (
             // 标准角色显示阵营·类型
             <>
               <span style={{ color: teamLabelColor }}>{teamLabel}</span>
               ·
-              <span style={{ color: TEAM_COLORS[team] }}>{TEAM_NAMES[team]}</span>
+              <span style={{ color: TEAM_COLORS[team] }}>{getTranslatedTeamName(team)}</span>
             </>
           )}
         </Typography>
@@ -230,4 +247,6 @@ export default function CharacterSection({ team, characters, script, onReorder, 
       </DndContext>
     </Box>
   );
-}
+});
+
+export default CharacterSection;

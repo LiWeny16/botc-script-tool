@@ -1,15 +1,19 @@
 import type { Character, Script } from '../types';
 import { CHARACTERS } from '../data/characters';
+import { CHARACTERS_EN } from '../data/charactersEn';
 import { hasJinx, getJinx } from '../data/jinx';
 import { THEME_COLORS } from '../theme/colors';
 
 // 解析 JSON 并生成剧本对象
-export function generateScript(jsonString: string): Script {
+export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'zh-CN'): Script {
   const json = JSON.parse(jsonString);
   
   if (!Array.isArray(json)) {
     throw new Error('JSON 必须是数组格式');
   }
+
+  // 根据语言选择角色字典
+  const charactersDict = language === 'en' ? CHARACTERS_EN : CHARACTERS;
 
   const script: Script = {
     title: '自定义剧本',
@@ -47,7 +51,12 @@ export function generateScript(jsonString: string): Script {
     specialRules: [],
   };
 
-  for (const item of json) {
+  for (let item of json) {
+    // 支持简化格式：如果 item 是字符串，转换为对象
+    if (typeof item === 'string') {
+      item = { id: item };
+    }
+
     // 处理元数据
     if (item.id === '_meta') {
       script.title = item.name || '自定义剧本';
@@ -68,8 +77,8 @@ export function generateScript(jsonString: string): Script {
 
     // 从字典中获取角色信息，或使用 JSON 中的完整信息
     let character: Character = item;
-    if (item.id in CHARACTERS && !item.image) {
-      character = { ...CHARACTERS[item.id], ...item };
+    if (item.id in charactersDict && !item.image) {
+      character = { ...charactersDict[item.id], ...item };
     }
 
     // 处理相克规则
@@ -146,6 +155,11 @@ export function generateScript(jsonString: string): Script {
 
 // 高亮能力文本中的关键词
 export function highlightAbilityText(text: string): string {
+  // 防御性检查：如果 text 为 undefined 或 null，返回空字符串
+  if (!text) {
+    return '';
+  }
+
   const redKeywords = [
     '未正常生效', '选择或影响', '死于处决', '恶魔角色', '爪牙角色',
     '邪恶玩家', '邪恶阵营', '邪恶角色', '"是恶魔"', '负面能力',

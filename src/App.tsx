@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Container,
   Box,
@@ -9,6 +9,7 @@ import {
   Paper,
   useMediaQuery,
 } from '@mui/material';
+import { observer } from 'mobx-react-lite';
 import type { Script } from './types';
 import InputPanel from './components/InputPanel';
 import CharacterSection from './components/CharacterSection';
@@ -16,6 +17,7 @@ import NightOrder from './components/NightOrder';
 import SpecialRulesSection from './components/SpecialRulesSection';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
+import { useTranslation } from './utils/i18n';
 import html2canvas from 'html2canvas';
 
 // 创建主题
@@ -49,14 +51,17 @@ const theme = createTheme({
   },
 });
 
-function App() {
+const App = observer(() => {
+  const { t, language } = useTranslation();
   const [script, setScript] = useState<Script | null>(null);
   const [originalJson, setOriginalJson] = useState<string>('');
+  const [customTitle, setCustomTitle] = useState<string>('');
+  const [customAuthor, setCustomAuthor] = useState<string>('');
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const handleGenerate = (json: string, title?: string, author?: string) => {
-    const generatedScript = generateScript(json);
+    const generatedScript = generateScript(json, language);
 
     // 覆写标题和作者
     if (title) generatedScript.title = title;
@@ -64,7 +69,22 @@ function App() {
 
     setScript(generatedScript);
     setOriginalJson(json);
+    setCustomTitle(title || '');
+    setCustomAuthor(author || '');
   };
+
+  // 监听语言变化，重新生成剧本
+  useEffect(() => {
+    if (originalJson) {
+      const generatedScript = generateScript(originalJson, language);
+      
+      // 恢复自定义标题和作者
+      if (customTitle) generatedScript.title = customTitle;
+      if (customAuthor) generatedScript.author = customAuthor;
+      
+      setScript(generatedScript);
+    }
+  }, [language, originalJson, customTitle, customAuthor]);
 
   // 更新角色顺序
   const handleReorderCharacters = (team: string, newOrder: string[]) => {
@@ -119,7 +139,7 @@ function App() {
 
       // 复制到剪贴板
       navigator.clipboard.writeText(jsonString).then(() => {
-        alert('JSON已复制到剪贴板！');
+        alert(t('input.jsonCopied'));
       }).catch(() => {
         // 如果复制失败，显示在弹窗中
         const textarea = document.createElement('textarea');
@@ -128,11 +148,11 @@ function App() {
         textarea.select();
         document.execCommand('copy');
         document.body.removeChild(textarea);
-        alert('JSON已复制到剪贴板！');
+        alert(t('input.jsonCopied'));
       });
     } catch (error) {
       console.error('导出JSON失败:', error);
-      alert('导出JSON失败，请重试');
+      alert(t('input.exportJsonFailed'));
     }
   };
 
@@ -174,7 +194,7 @@ function App() {
       link.click();
     } catch (error) {
       console.error('导出图片失败:', error);
-      alert('导出图片失败，请重试。如果问题持续，请刷新页面后重试。');
+      alert(t('input.exportImageFailed'));
     }
   };
 
@@ -270,7 +290,7 @@ function App() {
                       zIndex: 1,
                     }
                   }}>
-                    <NightOrder title="首个夜晚" actions={script.firstnight} />
+                    <NightOrder title={t('night.first')} actions={script.firstnight} />
                   </Box>
                 )}
 
@@ -337,9 +357,9 @@ function App() {
                             mb: 0.3,
                           }}
                         >
-                          剧本作者：{script.author}
-                          <br />
-                          支持7-15人
+                        {t('script.author')}：{script.author}
+                        <br />
+                        {t('script.playerCount')}
                         </Typography>
                       </Box>
                     )}
@@ -366,7 +386,7 @@ function App() {
                           mt: 0.5,
                         }}
                       >
-                        作者：{script.author} · 支持7-15人
+                        {t('script.author2')}：{script.author} · {t('script.playerCount')}
                       </Typography>
                     )}
                   </Box>
@@ -406,10 +426,10 @@ function App() {
                   {isMobile && (
                     <Box sx={{ mt: 2, display: 'flex', gap: 1.5, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2, md: 3 } }}>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <NightOrder title="首个夜晚" actions={script.firstnight} isMobile={true} />
+                        <NightOrder title={t('night.first')} actions={script.firstnight} isMobile={true} />
                       </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <NightOrder title="其他夜晚" actions={script.othernight} isMobile={true} />
+                        <NightOrder title={t('night.other')} actions={script.othernight} isMobile={true} />
                       </Box>
                     </Box>
                   )}
@@ -485,7 +505,7 @@ function App() {
                       zIndex: 1,
                     }
                   }}>
-                    <NightOrder title="其他夜晚" actions={script?.othernight || []} />
+                    <NightOrder title={t('night.other')} actions={script?.othernight || []} />
                   </Box>
                 )}
               </Box>
@@ -508,7 +528,7 @@ function App() {
                   fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
                 }}
               >
-                请在上方输入剧本 JSON 并点击"生成剧本"按钮
+                {t('app.emptyState')}
               </Typography>
             </Paper>
           )}
@@ -516,6 +536,6 @@ function App() {
       </Box>
     </ThemeProvider>
   );
-}
+});
 
 export default App;

@@ -9,6 +9,11 @@ import {
   Alert,
   Stack,
   Collapse,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import {
   Upload,
@@ -18,7 +23,12 @@ import {
   ExpandMore,
   ExpandLess,
   LibraryBooks,
+  RestartAlt,
 } from '@mui/icons-material';
+import { observer } from 'mobx-react-lite';
+import { configStore } from '../stores/ConfigStore';
+import { useTranslation } from '../utils/i18n';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface InputPanelProps {
   onGenerate: (json: string, title?: string, author?: string) => void;
@@ -27,25 +37,41 @@ interface InputPanelProps {
   hasScript: boolean;
 }
 
-export default function InputPanel({ onGenerate, onExportImage, onExportJson, hasScript }: InputPanelProps) {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, hasScript }: InputPanelProps) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
   const [titleInput, setTitleInput] = useState('');
   const [authorInput, setAuthorInput] = useState('');
   const [error, setError] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
 
   const handleGenerate = () => {
     try {
       setError('');
       if (!jsonInput.trim()) {
-        setError('请输入剧本 JSON 数据');
+        setError(t('input.errorEmpty'));
         return;
       }
       onGenerate(jsonInput, titleInput, authorInput);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '解析 JSON 失败');
+      setError(err instanceof Error ? err.message : t('input.errorParse'));
     }
+  };
+
+  const handleResetSettings = () => {
+    setResetDialogOpen(true);
+  };
+
+  const handleConfirmReset = () => {
+    configStore.resetToDefault();
+    setResetDialogOpen(false);
+    alert(t('dialog.resetSuccess'));
+  };
+
+  const handleCancelReset = () => {
+    setResetDialogOpen(false);
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -95,23 +121,26 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
             fontSize: { xs: '1.3rem', sm: '1.5rem' },
           }}
         >
-          血染钟楼剧本生成器
+          {t('app.title')}
         </Typography>
-        <Button
-          variant="outlined"
-          startIcon={<LibraryBooks />}
-          onClick={() => navigate('/repo')}
-          sx={{
-            borderColor: '#0078ba',
-            color: '#0078ba',
-            '&:hover': {
-              borderColor: '#005a8c',
-              backgroundColor: 'rgba(0, 120, 186, 0.08)',
-            },
-          }}
-        >
-          剧本仓库
-        </Button>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LanguageSwitcher />
+          <Button
+            variant="outlined"
+            startIcon={<LibraryBooks />}
+            onClick={() => navigate('/repo')}
+            sx={{
+              borderColor: '#0078ba',
+              color: '#0078ba',
+              '&:hover': {
+                borderColor: '#005a8c',
+                backgroundColor: 'rgba(0, 120, 186, 0.08)',
+              },
+            }}
+          >
+            {t('app.scriptRepository')}
+          </Button>
+        </Box>
       </Box>
 
       <Stack spacing={2}>
@@ -120,8 +149,8 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
           multiline
           rows={6}
           fullWidth
-          label="剧本 JSON"
-          placeholder='粘贴官方剧本制作器导出的 JSON 数据...'
+          label={t('input.jsonLabel')}
+          placeholder={t('input.jsonPlaceholder')}
           value={jsonInput}
           onChange={(e) => setJsonInput(e.target.value)}
           variant="outlined"
@@ -158,7 +187,7 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
               minWidth: { sm: 120 },
             }}
           >
-            生成剧本
+            {t('input.generateScript')}
           </Button>
 
           <Button
@@ -170,7 +199,7 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
               flex: { xs: '1 1 100%', sm: '0 1 auto' },
             }}
           >
-            上传 JSON
+            {t('input.uploadJson')}
             <input
               type="file"
               accept=".json"
@@ -189,7 +218,7 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
               flex: { xs: '1 1 100%', sm: '0 1 auto' },
             }}
           >
-            导出图片
+            {t('input.exportImage')}
           </Button>
 
           <Button
@@ -202,7 +231,7 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
               flex: { xs: '1 1 100%', sm: '0 1 auto' },
             }}
           >
-            复制 JSON
+            {t('input.copyJson')}
           </Button>
 
           <Button
@@ -215,7 +244,7 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
               flex: { xs: '1 1 100%', sm: '0 1 auto' },
             }}
           >
-            清空
+            {t('input.clear')}
           </Button>
         </Box>
 
@@ -228,15 +257,15 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
             sx={{ mb: 1 }}
           >
             <Settings sx={{ mr: 1, fontSize: 20 }} />
-            高级选项
+            {t('input.advancedOptions')}
           </Button>
 
           <Collapse in={showAdvanced}>
             <Stack spacing={2} sx={{ mt: 2 }}>
               <TextField
                 fullWidth
-                label="剧本标题（可选）"
-                placeholder="自定义剧本"
+                label={t('input.titleLabel')}
+                placeholder={t('input.titlePlaceholder')}
                 value={titleInput}
                 onChange={(e) => setTitleInput(e.target.value)}
                 variant="outlined"
@@ -245,13 +274,24 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
 
               <TextField
                 fullWidth
-                label="剧本作者（可选）"
-                placeholder="作者名称"
+                label={t('input.authorLabel')}
+                placeholder={t('input.authorPlaceholder')}
                 value={authorInput}
                 onChange={(e) => setAuthorInput(e.target.value)}
                 variant="outlined"
                 size="small"
               />
+
+              <Button
+                variant="outlined"
+                color="warning"
+                startIcon={<RestartAlt />}
+                onClick={handleResetSettings}
+                size="small"
+                fullWidth
+              >
+                {t('input.resetSettings')}
+              </Button>
             </Stack>
           </Collapse>
         </Box>
@@ -259,12 +299,39 @@ export default function InputPanel({ onGenerate, onExportImage, onExportJson, ha
         {/* 提示信息 */}
         <Alert severity="info" sx={{ mt: 2 }}>
           <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-            • 支持官方剧本制作器的剧本 JSON<br />
-            • 支持鸦木布拉夫、汀西维尔、福波斯等各个人数的剧本格式<br />
-            • 2025/1/3 之后的实验性角色暂未录入，请使用完整 JSON 信息
+            {t('info.supportOfficial')}<br />
+            {t('info.supportFormats')}<br />
+            {t('info.experimentalCharacters')}
           </Typography>
         </Alert>
       </Stack>
+
+      {/* 重置确认对话框 */}
+      <Dialog
+        open={resetDialogOpen}
+        onClose={handleCancelReset}
+        aria-labelledby="reset-dialog-title"
+        aria-describedby="reset-dialog-description"
+      >
+        <DialogTitle id="reset-dialog-title">
+          {t('dialog.resetTitle')}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="reset-dialog-description">
+            {t('dialog.resetMessage')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelReset} color="primary">
+            {t('common.cancel')}
+          </Button>
+          <Button onClick={handleConfirmReset} color="warning" variant="contained" autoFocus>
+            {t('common.confirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
-}
+});
+
+export default InputPanel;

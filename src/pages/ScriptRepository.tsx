@@ -13,11 +13,15 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { observer } from 'mobx-react-lite';
 import { searchScripts, type ScriptData } from '../data/scriptRepository';
 import { THEME_COLORS } from '../theme/colors';
+import { useTranslation } from '../utils/i18n';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
-export default function ScriptRepository() {
+const ScriptRepository = observer(() => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [scripts, setScripts] = useState<ScriptData[]>(searchScripts(''));
 
@@ -39,8 +43,8 @@ export default function ScriptRepository() {
       }}
     >
       <Container maxWidth="lg">
-        {/* 返回按钮 */}
-        <Box sx={{ mb: 3 }}>
+        {/* 返回按钮和语言切换 */}
+        <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate('/')}
@@ -48,8 +52,9 @@ export default function ScriptRepository() {
               color: THEME_COLORS.paper.primary,
             }}
           >
-            返回剧本生成器
+            {t('repo.backToGenerator')}
           </Button>
+          <LanguageSwitcher />
         </Box>
 
         {/* 标题 */}
@@ -63,7 +68,7 @@ export default function ScriptRepository() {
             fontSize: { xs: '1.8rem', sm: '2.2rem', md: '2.5rem' },
           }}
         >
-          剧本仓库
+          {t('repo.title')}
         </Typography>
 
         <Typography
@@ -74,7 +79,7 @@ export default function ScriptRepository() {
             fontSize: { xs: '0.9rem', sm: '1rem' },
           }}
         >
-          浏览和预览血染钟楼剧本
+          {t('repo.subtitle')}
         </Typography>
 
         {/* 搜索框 */}
@@ -82,7 +87,7 @@ export default function ScriptRepository() {
           <TextField
             fullWidth
             variant="outlined"
-            placeholder="搜索剧本名称、作者..."
+            placeholder={t('repo.searchPlaceholder')}
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             InputProps={{
@@ -157,7 +162,7 @@ export default function ScriptRepository() {
                       fontSize: '0.9rem',
                     }}
                   >
-                    作者：{script.author}
+                    {t('repo.author')}：{script.author}
                   </Typography>
                   <Typography
                     sx={{
@@ -188,12 +193,14 @@ export default function ScriptRepository() {
                 fontSize: '1.1rem',
               }}
             >
-              未找到匹配的剧本
+              {t('repo.noResults')}
             </Typography>
           </Box>
         )}
       </Container>
     </Box>
   );
-}
+});
+
+export default ScriptRepository;
 

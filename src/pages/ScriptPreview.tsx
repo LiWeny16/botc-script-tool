@@ -11,12 +11,15 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
+import { observer } from 'mobx-react-lite';
 import { getScriptJsonUrl, loadScriptJson } from '../data/scriptRepository';
 import { generateScript } from '../utils/scriptGenerator';
 import CharacterSection from '../components/CharacterSection';
 import NightOrder from '../components/NightOrder';
 import SpecialRulesSection from '../components/SpecialRulesSection';
 import { THEME_COLORS } from '../theme/colors';
+import { useTranslation } from '../utils/i18n';
+import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Script } from '../types';
 
 const theme = createTheme({
@@ -31,18 +34,20 @@ const theme = createTheme({
   },
 });
 
-export default function ScriptPreview() {
+const ScriptPreview = observer(() => {
   const { scriptName } = useParams<{ scriptName: string }>();
   const navigate = useNavigate();
+  const { t, language } = useTranslation();
   const [script, setScript] = useState<Script | null>(null);
   const [error, setError] = useState<string>('');
+  const [originalJson, setOriginalJson] = useState<string>('');
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     const loadScript = async () => {
       if (!scriptName) {
-        setError('未指定剧本名称');
+        setError(t('error.noScriptName'));
         return;
       }
 
@@ -52,22 +57,35 @@ export default function ScriptPreview() {
       const jsonUrl = getScriptJsonUrl(decodedName);
 
       if (!jsonUrl) {
-        setError(`未找到剧本：${decodedName}`);
+        setError(`${t('error.scriptNotFound')}：${decodedName}`);
         return;
       }
 
       try {
         // 从URL加载JSON
         const jsonString = await loadScriptJson(jsonUrl);
-        const generatedScript = generateScript(jsonString);
+        setOriginalJson(jsonString);
+        const generatedScript = generateScript(jsonString, language);
         setScript(generatedScript);
       } catch (err) {
-        setError(`加载剧本失败：${err instanceof Error ? err.message : '未知错误'}`);
+        setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
       }
     };
 
     loadScript();
-  }, [scriptName]);
+  }, [scriptName, t]);
+
+  // 监听语言变化，重新生成剧本
+  useEffect(() => {
+    if (originalJson) {
+      try {
+        const generatedScript = generateScript(originalJson, language);
+        setScript(generatedScript);
+      } catch (err) {
+        console.error('Failed to regenerate script:', err);
+      }
+    }
+  }, [language, originalJson]);
 
   const handleExportJson = () => {
     if (!script) return;
@@ -96,7 +114,7 @@ export default function ScriptPreview() {
       URL.revokeObjectURL(url);
     } catch (error) {
       console.error('导出JSON失败:', error);
-      alert('导出JSON失败，请重试');
+      alert(t('input.exportJsonFailed'));
     }
   };
 
@@ -122,7 +140,7 @@ export default function ScriptPreview() {
               onClick={() => navigate('/repo')}
               variant="contained"
             >
-              返回剧本仓库
+              {t('repo.backToRepository')}
             </Button>
           </Paper>
         </Container>
@@ -142,7 +160,7 @@ export default function ScriptPreview() {
           justifyContent: 'center',
         }}
       >
-        <Typography>加载中...</Typography>
+        <Typography>{t('common.loading')}</Typography>
       </Box>
     );
   }
@@ -231,7 +249,7 @@ export default function ScriptPreview() {
                   },
                 }}
               >
-                <NightOrder title="首个夜晚" actions={script.firstnight} />
+                <NightOrder title={t('night.first')} actions={script.firstnight} />
               </Box>
             )}
 
@@ -310,7 +328,7 @@ export default function ScriptPreview() {
                       },
                     }}
                   >
-                    返回剧本仓库
+                    {t('repo.backToRepository')}
                   </Button>
                   <Button
                     startIcon={<DownloadIcon />}
@@ -329,8 +347,9 @@ export default function ScriptPreview() {
                       },
                     }}
                   >
-                    导出JSON
+                    {t('repo.exportJson')}
                   </Button>
+                  <LanguageSwitcher />
                 </Box>
 
                 {/* 标题 */}
@@ -351,9 +370,9 @@ export default function ScriptPreview() {
                           mb: 0.3,
                         }}
                       >
-                        剧本作者：{script.author}
+                        {t('script.author')}：{script.author}
                         <br />
-                        支持7-15人
+                        {t('script.playerCount')}
                       </Typography>
                     </Box>
                   )}
@@ -378,7 +397,7 @@ export default function ScriptPreview() {
                         mt: 0.5,
                       }}
                     >
-                      作者：{script.author} · 支持7-15人
+                      {t('script.author2')}：{script.author} · {t('script.playerCount')}
                     </Typography>
                   )}
                 </Box>
@@ -420,10 +439,10 @@ export default function ScriptPreview() {
               {isMobile && (
                 <Box sx={{ mt: 2, display: 'flex', gap: 1.5, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2, md: 3 } }}>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <NightOrder title="首个夜晚" actions={script.firstnight} isMobile={true} />
+                    <NightOrder title={t('night.first')} actions={script.firstnight} isMobile={true} />
                   </Box>
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <NightOrder title="其他夜晚" actions={script.othernight} isMobile={true} />
+                    <NightOrder title={t('night.other')} actions={script.othernight} isMobile={true} />
                   </Box>
                 </Box>
               )}
@@ -489,7 +508,7 @@ export default function ScriptPreview() {
                   },
                 }}
               >
-                <NightOrder title="其他夜晚" actions={script.othernight} />
+                <NightOrder title={t('night.other')} actions={script.othernight} />
               </Box>
             )}
           </Box>
@@ -497,5 +516,7 @@ export default function ScriptPreview() {
       </Container>
     </Box>
   );
-}
+});
+
+export default ScriptPreview;
 
