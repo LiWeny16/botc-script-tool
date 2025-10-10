@@ -36,7 +36,7 @@
     {
         "id": "gambler",
         "edition": "custom",
-        "name": "赌圣",
+        "name": "赌徒",
         "ability": "每个夜晚*，选择一名玩家并猜测一张具体的牌（例如“红桃A”）。如果该玩家的底牌中包含这张牌，他立即死亡。",
         "team": "townsfolk",
         "sch_team": "镇民",
@@ -79,7 +79,7 @@
         "id": "chambermaid",
         "edition": "basetown",
         "name": "女仆",
-        "ability": "每个夜晚，选择两名存活玩家。你会得知他们之中有几个人在当晚秘密花费了“暗影筹码”。",
+        "ability": "每个夜晚，选择两名存活玩家。你会得知他们之中有几个人因为自身能力被唤醒或在当晚花费了“暗影筹码”。",
         "team": "townsfolk",
         "sch_team": "镇民",
         "firstNightReminder": "唤醒女仆，让她指向两名玩家。然后告知她选择的玩家中有多少人在今晚使用了暗影筹码。",
@@ -115,6 +115,17 @@
         "setup": false
     },
     {
+        "id": "gossip"
+    },
+    {
+        "id": "magician",
+        "ability": "每个夜晚，你可以选择一名玩家并偷看他一张底牌。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNight": 3,
+        "otherNight": 3
+    },
+    {
         "id": "drunk",
         "edition": "custom",
         "name": "酒鬼",
@@ -137,6 +148,28 @@
         "firstNight": 0,
         "otherNight": 0,
         "reminders": [],
+        "setup": false
+    },
+    {
+        "id": "Casanova",
+        "name": "花花公子",
+        "ability": "每个夜晚，你要选择除你以外的一名存活的玩家：如果他是善良的且明天白天他被处决，你的阵营落败。",
+        "team": "outsider",
+        "firstNight": 40,
+        "otherNight": 69,
+        "sch_team": "外来者",
+        "image": "https://youke1.picui.cn/s1/2025/10/11/68e9579bbd205.png"
+    },
+    {
+        "id": "disappointed",
+        "edition": "custom",
+        "image": "https://youke1.picui.cn/s1/2025/10/11/68e95986b417e.png",
+        "name": "失望",
+        "ability": "你以为你是一个爪牙，但其实你不是。",
+        "team": "outsider",
+        "sch_team": "外来者",
+        "firstNight": 5,
+        "otherNight": 5,
         "setup": false
     },
     {
@@ -167,10 +200,29 @@
         "setup": false
     },
     {
+        "id": "kluan",
+        "image": "https://youke1.picui.cn/s1/2025/10/11/68e95afc2ca80.png",
+        "edition": "custom",
+        "name": "癫人",
+        "ability": "每个夜晚，你要选择至多俩名玩家：他们会以为自己受到“疯狂”的能力影响，但实际上没有。",
+        "team": "minion",
+        "sch_team": "爪牙",
+        "reminders": [
+            "疯狂"
+        ],
+        "firstNight": 46,
+        "otherNight": 40,
+        "setup": false
+    },
+    {
+        "id": "psychopath",
+        "ability": "每个白天，在牌局开始之前，你可以公开选择一名玩家：他的手牌作废"
+    },
+    {
         "id": "imp",
         "edition": "custom",
         "name": "小恶魔",
-        "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你在夜晚自杀，一名爪牙会变成小恶魔。\n每局游戏限一次，说书人会秘密向你展示牌堆顶的前三张牌。[初始暗影筹码+1]",
+        "ability": "每个夜晚*，你要选择一名玩家：他死亡。如果你在夜晚自杀，一名爪牙会变成小恶魔。说书人会秘密向你展示牌堆顶的其中一张牌。[初始暗影筹码+1]",
         "team": "demon",
         "sch_team": "恶魔",
         "firstNightReminder": "",
@@ -183,8 +235,26 @@
     },
     {
         "id": "vigormortis",
-        "ability": "每个夜晚*，你要选择一名玩家：他死亡。被你杀死的爪牙保留他的能力，且与他邻近的两名镇民之一中毒。\n每局游戏限一次，说书人会秘密向你展示牌堆顶的前三张牌。[初始暗影筹码+1][-1外来者]",
+        "ability": "每个夜晚*，你要选择一名玩家：他死亡。被你杀死的爪牙保留他的能力，且与他邻近的两名镇民之一中毒。说书人会秘密向你展示牌堆顶的其中一张牌。[初始暗影筹码+1][-1外来者]",
         "edition": "custom"
+    },
+    {
+        "id": "uv6d0fft",
+        "name": "血染德扑",
+        "team": "fabled",
+        "ability": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过剪刀石头布来决定最终的赢家。",
+        "image": "https://clocktower-wiki.gstonegames.com/images/thumb/9/97/Bootlegger.png/200px-Bootlegger.png",
+        "setup": false,
+        "reminders": []
+    },
+    {
+        "id": "uv6d0fft",
+        "name": "作弊达人",
+        "team": "fabled",
+        "ability": "每个夜晚，恶魔可以选择与一名爪牙交换底牌。",
+        "image": "https://clocktower-wiki.gstonegames.com/images/thumb/9/97/Bootlegger.png/200px-Bootlegger.png",
+        "setup": false,
+        "reminders": []
     },
     {
         "id": "shop_divine_shield",
@@ -240,12 +310,8 @@
         "title": "Blood On The Poker 特殊规则",
         "rules": [
             {
-                "title": "赌狗从不私聊",
-                "content": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过剪刀石头布来决定最终的赢家。"
-            },
-            {
                 "title": "暗影筹码",
-                "content": "初始所有玩家拥有1颗暗影筹码。暗影筹码是额外的能力货币，与玩家在德州扑克牌桌上的常规筹码分离。只有赢得白天的德州扑克牌局的玩家才能获得1枚暗影筹码。这些筹码的持有和使用是秘密的，用于在夜晚购买暗影商店的商品或发动特殊能力。"
+                "content": "初始所有玩家拥有1颗暗影筹码。暗影筹码是额外的能力货币，与玩家在德州扑克牌桌上的常规筹码分离。赢得白天的牌局的玩家获得1枚暗影筹码。这些筹码的持有和使用是秘密的，用于在夜晚购买暗影商店的商品或发动特殊能力。"
             },
             {
                 "title": "牌桌上的死亡",
