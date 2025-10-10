@@ -24,6 +24,7 @@ import {
   ExpandLess,
   LibraryBooks,
   RestartAlt,
+  Share,
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
@@ -34,10 +35,11 @@ interface InputPanelProps {
   onGenerate: (json: string, title?: string, author?: string) => void;
   onExportImage: () => void;
   onExportJson: () => void;
+  onShare: () => void;
   hasScript: boolean;
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, hasScript }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, hasScript }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -101,6 +103,9 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, hasScrip
         mb: 3,
         backgroundColor: '#fefefe',
         borderRadius: 2,
+        '@media print': {
+          display: 'none', // 打印时隐藏整个输入面板
+        },
       }}
     >
       <Box
@@ -232,6 +237,19 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, hasScrip
             }}
           >
             {t('input.copyJson')}
+          </Button>
+
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<Share />}
+            onClick={onShare}
+            disabled={!hasScript}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '0 1 auto' },
+            }}
+          >
+            {t('input.shareScript')}
           </Button>
 
           <Button

@@ -3,6 +3,7 @@ import { CHARACTERS } from '../data/characters';
 import { CHARACTERS_EN } from '../data/charactersEn';
 import { hasJinx, getJinx } from '../data/jinx';
 import { THEME_COLORS } from '../theme/colors';
+import { normalizeCharacterId } from '../data/characterIdMapping';
 
 // 解析 JSON 并生成剧本对象
 export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'zh-CN'): Script {
@@ -77,8 +78,18 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
     // 从字典中获取角色信息，或使用 JSON 中的完整信息
     let character: Character = item;
-    if (item.id in charactersDict && !item.image) {
-      character = { ...charactersDict[item.id], ...item };
+    
+    // 尝试直接匹配ID
+    let dictKey = item.id;
+    if (!(dictKey in charactersDict)) {
+      // 如果直接匹配失败，尝试使用ID映射
+      dictKey = normalizeCharacterId(item.id, language);
+    }
+    
+    if (dictKey in charactersDict && !item.image) {
+      character = { ...charactersDict[dictKey], ...item };
+      // 保持原始ID，这样用户的JSON格式不会被改变
+      character.id = item.id;
     }
 
     // 处理相克规则

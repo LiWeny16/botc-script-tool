@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -8,11 +8,10 @@ import {
   Paper,
   useMediaQuery,
   createTheme,
+  CircularProgress,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import DownloadIcon from '@mui/icons-material/Download';
 import { observer } from 'mobx-react-lite';
-import { getScriptJsonUrl, loadScriptJson } from '../data/scriptRepository';
 import { generateScript } from '../utils/scriptGenerator';
 import CharacterSection from '../components/CharacterSection';
 import NightOrder from '../components/NightOrder';
@@ -34,46 +33,55 @@ const theme = createTheme({
   },
 });
 
-const ScriptPreview = observer(() => {
-  const { scriptName } = useParams<{ scriptName: string }>();
+const SharedScript = observer(() => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const [script, setScript] = useState<Script | null>(null);
   const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
   const [originalJson, setOriginalJson] = useState<string>('');
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
-    const loadScript = async () => {
-      if (!scriptName) {
-        setError(t('error.noScriptName'));
-        return;
-      }
-
-      const decodedName = decodeURIComponent(scriptName);
-
-      // 从映射表中获取JSON URL
-      const jsonUrl = getScriptJsonUrl(decodedName);
-
-      if (!jsonUrl) {
-        setError(`${t('error.scriptNotFound')}：${decodedName}`);
+    const loadSharedScript = async () => {
+      const jsonParam = searchParams.get('json');
+      
+      if (!jsonParam) {
+        setError(t('error.noJsonParam'));
+        setLoading(false);
         return;
       }
 
       try {
-        // 从URL加载JSON
-        const jsonString = await loadScriptJson(jsonUrl);
+        let jsonString = '';
+        
+        // 检查是否是HTTP/HTTPS链接
+        if (jsonParam.startsWith('http://') || jsonParam.startsWith('https://')) {
+          // 从URL下载JSON
+          const response = await fetch(jsonParam);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          jsonString = await response.text();
+        } else {
+          // 直接解码JSON字符串
+          jsonString = decodeURIComponent(jsonParam);
+        }
+
         setOriginalJson(jsonString);
         const generatedScript = generateScript(jsonString, language);
         setScript(generatedScript);
       } catch (err) {
         setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadScript();
-  }, [scriptName, t]);
+    loadSharedScript();
+  }, [searchParams, t]);
 
   // 监听语言变化，重新生成剧本
   useEffect(() => {
@@ -87,36 +95,25 @@ const ScriptPreview = observer(() => {
     }
   }, [language, originalJson]);
 
-  const handleExportJson = () => {
-    if (!script) return;
-
-    try {
-      // 构建符合原始格式的JSON结构
-      const exportData = [
-        {
-          id: '_meta',
-          name: script.title,
-          author: script.author || '',
-        },
-        // 导出所有team的角色
-        ...Object.keys(script.characters).flatMap(team => 
-          script.characters[team].map(char => ({ id: char.id }))
-        ),
-      ];
-
-      const jsonString = JSON.stringify(exportData, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${script.title || '剧本'}.json`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error('导出JSON失败:', error);
-      alert(t('input.exportJsonFailed'));
-    }
-  };
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          backgroundColor: '#f5f5f5',
+          py: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography>{t('common.loading')}</Typography>
+        </Box>
+      </Box>
+    );
+  }
 
   if (error) {
     return (
@@ -137,10 +134,10 @@ const ScriptPreview = observer(() => {
             </Typography>
             <Button
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate('/repo')}
+              onClick={() => navigate('/')}
               variant="contained"
             >
-              {t('repo.backToRepository')}
+              {t('common.back')}
             </Button>
           </Paper>
         </Container>
@@ -171,7 +168,6 @@ const ScriptPreview = observer(() => {
         minHeight: '100vh',
         backgroundColor: isMobile ? '#fefaf0' : 'background.default',
         pt: 0,
-        // pb: { xs: 0, md: 4 },
       }}
     >
       <Container maxWidth="xl" sx={{ px: { xs: 0, md: 2 }, maxWidth: { xs: '100%', md: 'xl' } }}>
@@ -317,7 +313,7 @@ const ScriptPreview = observer(() => {
                 >
                   <Button
                     startIcon={<ArrowBackIcon />}
-                    onClick={() => navigate('/repo')}
+                    onClick={() => navigate('/')}
                     variant="contained"
                     size="small"
                     sx={{
@@ -331,26 +327,7 @@ const ScriptPreview = observer(() => {
                       },
                     }}
                   >
-                    {t('repo.backToRepository')}
-                  </Button>
-                  <Button
-                    startIcon={<DownloadIcon />}
-                    onClick={handleExportJson}
-                    variant="contained"
-                    size="small"
-                    sx={{
-                      backgroundColor: THEME_COLORS.good,
-                      color: '#ffffff',
-                      fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                      py: { xs: 0.5, sm: 0.75 },
-                      px: { xs: 1.5, sm: 2 },
-                      '&:hover': {
-                        backgroundColor: THEME_COLORS.good,
-                        opacity: 0.85,
-                      },
-                    }}
-                  >
-                    {t('repo.exportJson')}
+                    {t('common.back')}
                   </Button>
                   <LanguageSwitcher />
                 </Box>
@@ -521,5 +498,4 @@ const ScriptPreview = observer(() => {
   );
 });
 
-export default ScriptPreview;
-
+export default SharedScript;

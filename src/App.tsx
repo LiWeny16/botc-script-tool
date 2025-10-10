@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -15,6 +16,7 @@ import InputPanel from './components/InputPanel';
 import CharacterSection from './components/CharacterSection';
 import NightOrder from './components/NightOrder';
 import SpecialRulesSection from './components/SpecialRulesSection';
+import ShareDialog from './components/ShareDialog';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
@@ -52,13 +54,24 @@ const theme = createTheme({
 });
 
 const App = observer(() => {
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t, language } = useTranslation();
   const [script, setScript] = useState<Script | null>(null);
   const [originalJson, setOriginalJson] = useState<string>('');
   const [customTitle, setCustomTitle] = useState<string>('');
   const [customAuthor, setCustomAuthor] = useState<string>('');
+  const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // 检测URL中的json参数，如果存在则跳转到共享页面
+  useEffect(() => {
+    const jsonParam = searchParams.get('json');
+    if (jsonParam) {
+      navigate(`/shared?json=${encodeURIComponent(jsonParam)}`);
+    }
+  }, [searchParams, navigate]);
 
   const handleGenerate = (json: string, title?: string, author?: string) => {
     const generatedScript = generateScript(json, language);
@@ -214,6 +227,7 @@ const App = observer(() => {
             onGenerate={handleGenerate}
             onExportImage={handleExportImage}
             onExportJson={handleExportJson}
+            onShare={() => setShareDialogOpen(true)}
             hasScript={script !== null}
           />
 
@@ -534,6 +548,14 @@ const App = observer(() => {
           )}
         </Container>
       </Box>
+
+      {/* 分享对话框 */}
+      <ShareDialog
+        open={shareDialogOpen}
+        onClose={() => setShareDialogOpen(false)}
+        script={script}
+        originalJson={originalJson}
+      />
     </ThemeProvider>
   );
 });
