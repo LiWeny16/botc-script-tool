@@ -26,7 +26,7 @@ export const SCRIPT_MAP: Record<string, string> = {
   'Idiocracy': '/scripts/常见剧本/Idiocracy v1.4 Allen.json',
   '赌徒悖论': '/scripts/自定义剧本/赌徒悖论.json',
   '横行霸道+': '/scripts/常见剧本/鸭镇制作《横行霸道+Ver.4.7》（集石魔典）.json',
-  
+  '灵异蜂蜜': '/scripts/常见剧本/灵异蜂蜜-星火乐.json',
   // 自定义剧本
   '一夜鱼龙舞': '/scripts/自定义剧本/一夜鱼龙舞3.2-驯鹿&痴愚.json',
   '血染德扑': '/scripts/自定义剧本/血染德扑.json',
@@ -53,7 +53,7 @@ export const SCRIPT_REPOSITORY: ScriptData[] = [
   { id: 'idiocracy', name: 'Idiocracy', author: 'Allen', description: '常见剧本', jsonUrl: SCRIPT_MAP['Idiocracy'] },
   { id: 'dtbl', name: '赌徒悖论', author: '未知', description: '常见剧本', jsonUrl: SCRIPT_MAP['赌徒悖论'] },
   { id: 'hxbd-plus', name: '横行霸道+', author: '鸭镇制作', description: '常见剧本', jsonUrl: SCRIPT_MAP['横行霸道+'] },
-  
+  { id: 'lyfm', name: '灵异蜂蜜', author: '星火乐', description: '常见剧本', jsonUrl: SCRIPT_MAP['灵异蜂蜜'] },
   // 自定义剧本
   { id: 'yylw', name: '一夜鱼龙舞', author: '驯鹿&痴愚', description: '自定义剧本', jsonUrl: SCRIPT_MAP['一夜鱼龙舞'] },
   
