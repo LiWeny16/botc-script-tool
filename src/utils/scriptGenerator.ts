@@ -29,15 +29,15 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     },
     firstnight: [
       {
-        image: 'https://clocktower-wiki.gstonegames.com/images/thumb/5/5d/Dusk.png/75px-Dusk.png',
+        image: '/imgs/icons/75px-Dusk.png',
         index: 0,
       },
       {
-        image: 'https://clocktower-wiki.gstonegames.com/images/thumb/8/85/Mi.png/75px-Mi.png',
+        image: '/imgs/icons/75px-Mi.png',
         index: 1,
       },
       {
-        image: 'https://clocktower-wiki.gstonegames.com/images/thumb/1/18/Di.png/75px-Di.png',
+        image: '/imgs/icons/75px-Di.png',
         index: 2,
       },
     ],
