@@ -5,6 +5,7 @@ import { THEME_COLORS, getTeamColor } from '../theme/colors';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import CharacterImage from './CharacterImage';
+import { useTranslation } from '../utils/i18n';
 
 interface CharacterCardProps {
   character: Character;
@@ -15,6 +16,7 @@ interface CharacterCardProps {
 }
 
 export default function CharacterCard({ character, jinxInfo, allCharacters, onUpdate, onEdit }: CharacterCardProps) {
+  const { t } = useTranslation();
   // 根据团队类型确定名字颜色
   const getNameColor = () => {
     switch (character.team) {
@@ -173,7 +175,7 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
                       fontStyle: 'italic',
                     }}
                   >
-                    （相克规则：{jinxText}）
+                    ({t('jinx.rule')}: {jinxText})
                   </Typography>
                 </Box>
               );

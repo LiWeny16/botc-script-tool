@@ -164,12 +164,21 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
   // 自动检查角色间的相克关系
   for (const charA of script.all) {
     for (const charB of script.all) {
-      if (charA.name !== charB.name && hasJinx(charA.name, charB.name)) {
-        if (!script.jinx[charA.name]) {
-          script.jinx[charA.name] = {};
-        }
-        if (!script.jinx[charA.name][charB.name]) {
-          script.jinx[charA.name][charB.name] = getJinx(charA.name, charB.name);
+      if (charA.id !== charB.id) {
+        // 英文模式下使用角色ID进行相克检查
+        const keyA = language === 'en' ? charA.id : charA.name;
+        const keyB = language === 'en' ? charB.id : charB.name;
+        
+        if (hasJinx(keyA, keyB, language)) {
+          const nameA = charA.name;
+          const nameB = charB.name;
+          
+          if (!script.jinx[nameA]) {
+            script.jinx[nameA] = {};
+          }
+          if (!script.jinx[nameA][nameB]) {
+            script.jinx[nameA][nameB] = getJinx(keyA, keyB, language);
+          }
         }
       }
     }

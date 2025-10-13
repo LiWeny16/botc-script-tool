@@ -248,22 +248,40 @@ const jinx = {
         "痢蛭": "如果在大于等于五名玩家存活时，入殓师提名并处决了宿主且他死于这次处决，原本的痢蛭会在当晚死亡，入殓师变为邪恶的痢蛭且当晚无法攻击。"
     }
 };
-export const JINX_DATA: Record<string, Record<string, string>> = jinx
+
+// 英文相克关系数据 - 从 jinxEn.json 导入
+import jinxEnData from './jinxEn.json';
+
+// 构建英文相克数据结构
+const jinxEn: Record<string, Record<string, string>> = {};
+jinxEnData.forEach((item: any) => {
+  if (item.jinx && Array.isArray(item.jinx)) {
+    jinxEn[item.id] = {};
+    item.jinx.forEach((j: any) => {
+      jinxEn[item.id][j.id] = j.reason;
+    });
+  }
+});
+
+export const JINX_DATA: Record<string, Record<string, string>> = jinx;
+export const JINX_DATA_EN: Record<string, Record<string, string>> = jinxEn;
 
 // 检查两个角色之间是否有相克关系
-export function hasJinx(charA: string, charB: string): boolean {
-  if (charA in JINX_DATA && charB in JINX_DATA[charA]) return true;
-  if (charB in JINX_DATA && charA in JINX_DATA[charB]) return true;
+export function hasJinx(charA: string, charB: string, language: 'zh-CN' | 'en' = 'zh-CN'): boolean {
+  const data = language === 'en' ? JINX_DATA_EN : JINX_DATA;
+  if (charA in data && charB in data[charA]) return true;
+  if (charB in data && charA in data[charB]) return true;
   return false;
 }
 
 // 获取两个角色之间的相克规则文本
-export function getJinx(charA: string, charB: string): string {
-  if (charA in JINX_DATA && charB in JINX_DATA[charA]) {
-    return JINX_DATA[charA][charB];
+export function getJinx(charA: string, charB: string, language: 'zh-CN' | 'en' = 'zh-CN'): string {
+  const data = language === 'en' ? JINX_DATA_EN : JINX_DATA;
+  if (charA in data && charB in data[charA]) {
+    return data[charA][charB];
   }
-  if (charB in JINX_DATA && charA in JINX_DATA[charB]) {
-    return JINX_DATA[charB][charA];
+  if (charB in data && charA in data[charB]) {
+    return data[charB][charA];
   }
   return '';
 }

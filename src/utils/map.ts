@@ -140,6 +140,9 @@ export const translations = {
     'loading': '加载中...',
     'selectedCharacters': '已选角色',
     'selected': '已选',
+    
+    // 相克规则
+    'jinx.rule': '相克规则',
   },
   'en': {
     // Common
@@ -281,6 +284,9 @@ export const translations = {
     'loading': 'Loading...',
     'selectedCharacters': 'Selected Characters',
     'selected': 'Selected',
+    
+    // Jinx Rules
+    'jinx.rule': 'Jinx Rule',
   },
 };
 
