@@ -143,6 +143,10 @@ export const translations = {
     
     // 相克规则
     'jinx.rule': '相克规则',
+    
+    // 角色操作
+    'character.edit': '编辑',
+    'character.delete': '删除',
   },
   'en': {
     // Common
@@ -287,6 +291,10 @@ export const translations = {
     
     // Jinx Rules
     'jinx.rule': 'Jinx Rule',
+    
+    // Character Actions
+    'character.edit': 'Edit',
+    'character.delete': 'Delete',
   },
 };
 

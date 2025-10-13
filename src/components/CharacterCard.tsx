@@ -1,4 +1,6 @@
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { useState } from 'react';
 import type { Character } from '../types';
 import { highlightAbilityText } from '../utils/scriptGenerator';
 import { THEME_COLORS, getTeamColor } from '../theme/colors';
@@ -13,10 +15,16 @@ interface CharacterCardProps {
   allCharacters?: Character[];
   onUpdate?: (characterId: string, updates: Partial<Character>) => void;
   onEdit?: (character: Character) => void;
+  onDelete?: (character: Character) => void;
 }
 
-export default function CharacterCard({ character, jinxInfo, allCharacters, onUpdate, onEdit }: CharacterCardProps) {
+export default function CharacterCard({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete }: CharacterCardProps) {
   const { t } = useTranslation();
+  const [contextMenu, setContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
+
   // 根据团队类型确定名字颜色
   const getNameColor = () => {
     switch (character.team) {
@@ -61,33 +69,72 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
     }
   };
 
+  // 处理右键菜单
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setContextMenu(
+      contextMenu === null
+        ? {
+            mouseX: event.clientX + 2,
+            mouseY: event.clientY - 6,
+          }
+        : null,
+    );
+  };
+
+  // 关闭右键菜单
+  const handleClose = () => {
+    setContextMenu(null);
+  };
+
+  // 处理编辑
+  const handleEditClick = () => {
+    handleClose();
+    if (onEdit) {
+      onEdit(character);
+    }
+  };
+
+  // 处理删除
+  const handleDeleteClick = () => {
+    handleClose();
+    if (onDelete) {
+      onDelete(character);
+    }
+  };
+
   return (
-    <Paper
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      elevation={isDragging ? 6 : 0}
-      onDoubleClick={handleDoubleClick}
-      sx={{
-        display: 'flex',
-        gap: 1,
-        p: 1,
-        backgroundColor: 'transparent',
-        borderRadius: 1,
-        transition: 'all 0.2s',
-        height: '100%',
-        cursor: isDragging ? 'grabbing' : 'grab',
-        userSelect: 'none', // 禁用文本选择
-        WebkitUserSelect: 'none', // Safari
-        MozUserSelect: 'none', // Firefox
-        msUserSelect: 'none', // IE/Edge
-        '&:hover': {
-          backgroundColor: 'rgba(0, 0, 0, 0.02)',
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
-        },
-      }}
-    >
+    <>
+      <Paper
+        ref={setNodeRef}
+        style={style}
+        {...attributes}
+        {...listeners}
+        elevation={isDragging ? 6 : 0}
+        onDoubleClick={handleDoubleClick}
+        onContextMenu={handleContextMenu}
+        sx={{
+          display: 'flex',
+          gap: 0.3,
+          pt: 1,
+          pb: 0.4,
+          paddingX:0.4,
+          backgroundColor: 'transparent',
+          borderRadius: 1,
+          transition: 'all 0.2s',
+          height: '100%',
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none', // 禁用文本选择
+          WebkitUserSelect: 'none', // Safari
+          MozUserSelect: 'none', // Firefox
+          msUserSelect: 'none', // IE/Edge
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          },
+        }}
+      >
       {/* 角色头像 */}
       <CharacterImage
         src={character.image}
@@ -111,9 +158,9 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
           sx={{
             fontWeight: 'bold',
             fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
-            mb: 0.3,
+            // mb: 0.3,
             color: nameColor,
-            lineHeight: 1.3,
+            lineHeight: 1.2,
           }}
         >
           {character.name}
@@ -184,5 +231,31 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
         )}
       </Box>
     </Paper>
+
+    {/* 右键菜单 */}
+    <Menu
+      open={contextMenu !== null}
+      onClose={handleClose}
+      anchorReference="anchorPosition"
+      anchorPosition={
+        contextMenu !== null
+          ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+          : undefined
+      }
+    >
+      <MenuItem onClick={handleEditClick}>
+        <ListItemIcon>
+          <EditIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>{t('character.edit')}</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={handleDeleteClick}>
+        <ListItemIcon>
+          <DeleteIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText>{t('character.delete')}</ListItemText>
+      </MenuItem>
+    </Menu>
+    </>
   );
 }

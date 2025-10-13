@@ -654,6 +654,7 @@ const App = observer(() => {
                           onReorder={handleReorderCharacters}
                           onUpdateCharacter={handleUpdateCharacter}
                           onEditCharacter={handleEditCharacter}
+                          onDeleteCharacter={handleRemoveCharacter}
                         />
                       )
                     ))}
@@ -670,6 +671,7 @@ const App = observer(() => {
                           onReorder={handleReorderCharacters}
                           onUpdateCharacter={handleUpdateCharacter}
                           onEditCharacter={handleEditCharacter}
+                          onDeleteCharacter={handleRemoveCharacter}
                         />
                       ))
                     }

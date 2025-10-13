@@ -28,10 +28,11 @@ interface CharacterSectionProps {
   onReorder: (team: string, newOrder: string[]) => void;
   onUpdateCharacter?: (characterId: string, updates: Partial<Character>) => void;  // 更新角色信息
   onEditCharacter?: (character: Character) => void;  // 编辑角色信息
+  onDeleteCharacter?: (character: Character) => void;  // 删除角色
   disableDrag?: boolean;  // 是否禁用拖拽功能
 }
 
-const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, disableDrag = false }: CharacterSectionProps) => {
+const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, disableDrag = false }: CharacterSectionProps) => {
   const { t } = useTranslation();
   
   if (characters.length === 0) return null;
@@ -176,6 +177,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                   allCharacters={script.all}
                   onUpdate={onUpdateCharacter}
                   onEdit={onEditCharacter}
+                  onDelete={onDeleteCharacter}
                 />
               </Box>
             </Box>
@@ -214,6 +216,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                         allCharacters={script.all}
                         onUpdate={onUpdateCharacter}
                         onEdit={onEditCharacter}
+                        onDelete={onDeleteCharacter}
                       />
                     </Box>
                   ))}
@@ -245,6 +248,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                         allCharacters={script.all}
                         onUpdate={onUpdateCharacter}
                         onEdit={onEditCharacter}
+                        onDelete={onDeleteCharacter}
                       />
                     </Box>
                   ))}
