@@ -615,7 +615,14 @@ export default function CharacterLibraryCard({
             <Card
                 sx={{
                     width: { xs: 340, sm: 400 },
-                    height: { xs: 720, sm: 630 },
+                    height: { 
+                        xs: 'min(calc(100vh - 180px), 720px)', // 移动端：视口高度减去180px（顶部+底部边距）或720px，取较小值
+                        sm: 'min(calc(100vh - 120px), 830px)'  // 桌面端：视口高度减去160px（顶部+底部边距）或630px，取较小值
+                    },
+                    maxHeight: { 
+                        xs: 'calc(100vh - 5px)', // 确保不超过可用高度
+                        sm: 'calc(100vh - 5px)' 
+                    },
                     boxShadow: 6,
                     borderRadius: 2,
                     display: 'flex',
