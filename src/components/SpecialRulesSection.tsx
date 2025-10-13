@@ -26,7 +26,7 @@ const DEFAULT_RULES: SpecialRule[] = [
 
 export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps) {
   // 如果没有自定义规则，使用默认规则
-  const displayRules = rules.length > 0 ? rules : DEFAULT_RULES;
+  const displayRules = rules.length > 0 ? rules : rules;
 
   return (
     <Box

@@ -87,7 +87,7 @@ const ShareDialog = observer(({ open, onClose, script, originalJson }: ShareDial
 
     if (url) {
       // 生成完整剧本链接
-      const baseUrl = window.location.origin + window.location.pathname + '#/shared';
+      const baseUrl = window.location.origin + window.location.pathname + '#/repo/preview';
       const fullLink = `${baseUrl}?json=${encodeURIComponent(url)}`;
       setFullUrl(fullLink);
 

@@ -18,7 +18,9 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
   const script: Script = {
     title: '自定义剧本',
+    titleImage: undefined,
     author: '',
+    playerCount: undefined,
     characters: {
       townsfolk: [],
       outsider: [],
@@ -43,7 +45,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     ],
     othernight: [
       {
-        image: 'https://clocktower-wiki.gstonegames.com/images/thumb/5/5d/Dusk.png/75px-Dusk.png',
+        image: '/imgs/icons/75px-Dusk.png',
         index: 0,
       },
     ],
@@ -61,7 +63,9 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     // 处理元数据
     if (item.id === '_meta') {
       script.title = item.name || '自定义剧本';
+      script.titleImage = item.titleImage || item.logo;  // 支持 titleImage 或 logo 字段
       script.author = item.author || '';
+      script.playerCount = item.playerCount;  // 解析玩家人数
       continue;
     }
 
@@ -102,11 +106,25 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
     // 处理所有角色（包括未知team类型）
     if (character.team) {
+      // 检查是否已存在相同ID的角色
+      const existsInAll = script.all.some(c => c.id === character.id);
+      if (existsInAll) {
+        console.warn(`跳过重复的角色ID: ${character.id}`);
+        continue;
+      }
+
       script.all.push(character);
       
       // 如果team不存在，自动创建数组
       if (!script.characters[character.team]) {
         script.characters[character.team] = [];
+      }
+      
+      // 检查团队中是否已存在相同ID的角色
+      const existsInTeam = script.characters[character.team].some(c => c.id === character.id);
+      if (existsInTeam) {
+        console.warn(`跳过团队 ${character.team} 中重复的角色ID: ${character.id}`);
+        continue;
       }
       
       script.characters[character.team].push({

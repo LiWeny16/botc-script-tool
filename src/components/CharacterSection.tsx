@@ -18,7 +18,7 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
+  rectSortingStrategy,
 } from '@dnd-kit/sortable';
 
 interface CharacterSectionProps {
@@ -26,10 +26,12 @@ interface CharacterSectionProps {
   characters: Character[];
   script: Script;
   onReorder: (team: string, newOrder: string[]) => void;
+  onUpdateCharacter?: (characterId: string, updates: Partial<Character>) => void;  // 更新角色信息
+  onEditCharacter?: (character: Character) => void;  // 编辑角色信息
   disableDrag?: boolean;  // 是否禁用拖拽功能
 }
 
-const CharacterSection = observer(({ team, characters, script, onReorder, disableDrag = false }: CharacterSectionProps) => {
+const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, disableDrag = false }: CharacterSectionProps) => {
   const { t } = useTranslation();
   
   if (characters.length === 0) return null;
@@ -151,7 +153,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, disabl
       >
         <SortableContext
           items={characters.map(c => c.id)}
-          strategy={verticalListSortingStrategy}
+          strategy={rectSortingStrategy}
         >
           {/* 只有一个角色时居中显示 */}
           {characters.length === 1 ? (
@@ -172,6 +174,8 @@ const CharacterSection = observer(({ team, characters, script, onReorder, disabl
                   character={characters[0]}
                   jinxInfo={script.jinx[characters[0].name]}
                   allCharacters={script.all}
+                  onUpdate={onUpdateCharacter}
+                  onEdit={onEditCharacter}
                 />
               </Box>
             </Box>
@@ -184,7 +188,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, disabl
                 flexDirection: { xs: 'column', sm: 'row' },
               }}
             >
-              {/* 左列 */}
+              {/* 左列 - 前半部分角色 */}
               <Box 
                 sx={{ 
                   flex: 1, 
@@ -194,7 +198,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, disabl
                 }}
               >
                 {characters
-                  .filter((_, index) => index % 2 === 0)
+                  .slice(0, Math.ceil(characters.length / 2))
                   .map((character, idx, arr) => (
                     <Box
                       key={character.id}
@@ -208,12 +212,14 @@ const CharacterSection = observer(({ team, characters, script, onReorder, disabl
                         character={character}
                         jinxInfo={script.jinx[character.name]}
                         allCharacters={script.all}
+                        onUpdate={onUpdateCharacter}
+                        onEdit={onEditCharacter}
                       />
                     </Box>
                   ))}
               </Box>
 
-              {/* 右列 */}
+              {/* 右列 - 后半部分角色 */}
               <Box 
                 sx={{ 
                   flex: 1, 
@@ -223,7 +229,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, disabl
                 }}
               >
                 {characters
-                  .filter((_, index) => index % 2 === 1)
+                  .slice(Math.ceil(characters.length / 2))
                   .map((character, idx, arr) => (
                     <Box
                       key={character.id}
@@ -237,6 +243,8 @@ const CharacterSection = observer(({ team, characters, script, onReorder, disabl
                         character={character}
                         jinxInfo={script.jinx[character.name]}
                         allCharacters={script.all}
+                        onUpdate={onUpdateCharacter}
+                        onEdit={onEditCharacter}
                       />
                     </Box>
                   ))}

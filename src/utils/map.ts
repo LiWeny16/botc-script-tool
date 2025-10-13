@@ -9,11 +9,18 @@ export const translations = {
     'common.success': '成功',
     'common.error': '错误',
     'common.warning': '警告',
+    'common.save': '保存',
     
     // 主页面
     'app.title': '血染钟楼剧本生成器',
     'app.scriptRepository': '剧本仓库',
     'app.emptyState': '请在上方输入剧本 JSON 并点击"生成剧本"按钮',
+    
+    // SEO相关
+    'seo.title': 'Onion的钟楼工具 - 血染钟楼剧本生成器',
+    'seo.description': '专业的血染钟楼剧本生成工具，支持自定义角色配置、剧本导出、多种游戏模式。为血染钟楼爱好者提供便捷的剧本制作体验。',
+    'seo.keywords': '血染钟楼,剧本生成器,BOTC,Blood on the Clocktower,桌游工具',
+    'seo.appTitle': 'Onion的钟楼工具',
     
     // 输入面板
     'input.jsonLabel': '剧本 JSON',
@@ -49,7 +56,7 @@ export const translations = {
     // 剧本信息
     'script.author': '剧本作者',
     'script.author2': '作者',
-    'script.playerCount': '支持7-15人',
+    'script.playerCount': '支持',
     
     // 团队名称
     'team.good': '善良阵营',
@@ -96,6 +103,43 @@ export const translations = {
     'share.compressedLink': '压缩链接',
     'share.compressedDescription': '使用简化格式，只包含角色 ID，链接更短',
     'share.copyLink': '复制链接',
+    
+    // 角色编辑
+    'editCharacter': '编辑角色',
+    'basicInfo': '基本信息',
+    'characterName': '角色名称',
+    'team': '阵营',
+    'ability': '能力描述',
+    'imageUrl': '图片链接',
+    'nightOrder': '夜晚行动顺序',
+    'firstNight': '首夜顺序',
+    'otherNight': '其他夜晚顺序',
+    'storytellerReminders': '说书人提醒',
+    'firstNightReminder': '首夜提醒',
+    'otherNightReminder': '其他夜晚提醒',
+    'reminderTokens': '提醒标记',
+    'addReminder': '添加提醒标记（回车确认）',
+    'addReminderPlaceholder': '输入提醒内容',
+    'preview': '预览',
+    
+    // 阵营
+    'townsfolk': '镇民',
+    'outsider': '外来者',
+    'minion': '爪牙',
+    'demon': '恶魔',
+    'fabled': '传奇',
+    'traveler': '旅行者',
+    
+    // 角色库
+    'characterLibrary': '角色库',
+    'searchCharacters': '搜索角色名称、能力描述...',
+    'addToScript': '添加到剧本',
+    'noSearchResults': '未找到匹配的角色',
+    'noCharactersInTeam': '该阵营暂无角色',
+    'all': '全部',
+    'loading': '加载中...',
+    'selectedCharacters': '已选角色',
+    'selected': '已选',
   },
   'en': {
     // Common
@@ -106,11 +150,18 @@ export const translations = {
     'common.success': 'Success',
     'common.error': 'Error',
     'common.warning': 'Warning',
+    'common.save': 'Save',
     
     // Main Page
     'app.title': 'Blood on the Clocktower Script Generator',
     'app.scriptRepository': 'Script Repository',
     'app.emptyState': 'Please enter script JSON above and click "Generate Script" button',
+    
+    // SEO Related
+    'seo.title': 'Onion\'s Clocktower Tool - Blood on the Clocktower Script Generator',
+    'seo.description': 'Professional Blood on the Clocktower script generation tool with custom character configuration, script export, and multiple game modes. Providing convenient script creation experience for BOTC enthusiasts.',
+    'seo.keywords': 'Blood on the Clocktower,BOTC,Script Generator,Board Game Tool,Clocktower',
+    'seo.appTitle': 'Onion\'s Clocktower Tool',
     
     // Input Panel
     'input.jsonLabel': 'Script JSON',
@@ -146,7 +197,7 @@ export const translations = {
     // Script Info
     'script.author': 'Script Author',
     'script.author2': 'Author',
-    'script.playerCount': 'Supports 7-15 players',
+    'script.playerCount': 'Supports',
     
     // Team Names
     'team.good': 'Good',
@@ -193,6 +244,43 @@ export const translations = {
     'share.compressedLink': 'Compressed Link',
     'share.compressedDescription': 'Uses simplified format with only character IDs, shorter URL',
     'share.copyLink': 'Copy Link',
+    
+    // Character Edit
+    'editCharacter': 'Edit Character',
+    'basicInfo': 'Basic Information',
+    'characterName': 'Character Name',
+    'team': 'Team',
+    'ability': 'Ability Description',
+    'imageUrl': 'Image URL',
+    'nightOrder': 'Night Action Order',
+    'firstNight': 'First Night Order',
+    'otherNight': 'Other Nights Order',
+    'storytellerReminders': 'Storyteller Reminders',
+    'firstNightReminder': 'First Night Reminder',
+    'otherNightReminder': 'Other Nights Reminder',
+    'reminderTokens': 'Reminder Tokens',
+    'addReminder': 'Add Reminder Token (Press Enter)',
+    'addReminderPlaceholder': 'Enter reminder text',
+    'preview': 'Preview',
+    
+    // Teams
+    'townsfolk': 'Townsfolk',
+    'outsider': 'Outsider',
+    'minion': 'Minion',
+    'demon': 'Demon',
+    'fabled': 'Fabled',
+    'traveler': 'Traveler',
+    
+    // Character Library
+    'characterLibrary': 'Character Library',
+    'searchCharacters': 'Search character name, ability...',
+    'addToScript': 'Add to Script',
+    'noSearchResults': 'No matching characters found',
+    'noCharactersInTeam': 'No characters in this team',
+    'all': 'All',
+    'loading': 'Loading...',
+    'selectedCharacters': 'Selected Characters',
+    'selected': 'Selected',
   },
 };
 

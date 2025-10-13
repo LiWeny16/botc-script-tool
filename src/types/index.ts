@@ -45,7 +45,9 @@ export interface SpecialRule {
 
 export interface Script {
   title: string;
+  titleImage?: string;  // 可选的标题图片链接
   author: string;
+  playerCount?: string;  // 玩家人数范围，如 "7-15"
   characters: {
     townsfolk: Character[];
     outsider: Character[];

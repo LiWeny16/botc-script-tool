@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -8,6 +8,7 @@ import {
   Paper,
   useMediaQuery,
   createTheme,
+  CircularProgress,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -36,18 +37,54 @@ const theme = createTheme({
 
 const ScriptPreview = observer(() => {
   const { scriptName } = useParams<{ scriptName: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t, language } = useTranslation();
   const [script, setScript] = useState<Script | null>(null);
   const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
   const [originalJson, setOriginalJson] = useState<string>('');
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   useEffect(() => {
     const loadScript = async () => {
+      // 优先检查URL参数中的json源
+      const jsonParam = searchParams.get('json');
+      
+      if (jsonParam) {
+        // 从URL参数加载JSON
+        try {
+          let jsonString = '';
+          
+          // 检查是否是HTTP/HTTPS链接
+          if (jsonParam.startsWith('http://') || jsonParam.startsWith('https://')) {
+            // 从URL下载JSON
+            const response = await fetch(jsonParam);
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            jsonString = await response.text();
+          } else {
+            // 直接解码JSON字符串
+            jsonString = decodeURIComponent(jsonParam);
+          }
+
+          setOriginalJson(jsonString);
+          const generatedScript = generateScript(jsonString, language);
+          setScript(generatedScript);
+        } catch (err) {
+          setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      // 从剧本库加载
       if (!scriptName) {
         setError(t('error.noScriptName'));
+        setLoading(false);
         return;
       }
 
@@ -58,6 +95,7 @@ const ScriptPreview = observer(() => {
 
       if (!jsonUrl) {
         setError(`${t('error.scriptNotFound')}：${decodedName}`);
+        setLoading(false);
         return;
       }
 
@@ -69,11 +107,13 @@ const ScriptPreview = observer(() => {
         setScript(generatedScript);
       } catch (err) {
         setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
+      } finally {
+        setLoading(false);
       }
     };
 
     loadScript();
-  }, [scriptName, t]);
+  }, [scriptName, searchParams, t]);
 
   // 监听语言变化，重新生成剧本
   useEffect(() => {
@@ -118,6 +158,26 @@ const ScriptPreview = observer(() => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          minHeight: '100vh',
+          backgroundColor: '#f5f5f5',
+          py: 4,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Box sx={{ textAlign: 'center' }}>
+          <CircularProgress sx={{ mb: 2 }} />
+          <Typography>{t('common.loading')}</Typography>
+        </Box>
+      </Box>
+    );
+  }
+
   if (error) {
     return (
       <Box
@@ -137,10 +197,10 @@ const ScriptPreview = observer(() => {
             </Typography>
             <Button
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate('/repo')}
+              onClick={() => navigate(searchParams.get('json') ? '/' : '/repo')}
               variant="contained"
             >
-              {t('repo.backToRepository')}
+              {t('common.back')}
             </Button>
           </Paper>
         </Container>
@@ -276,7 +336,7 @@ const ScriptPreview = observer(() => {
               {/* 装饰性花纹 */}
               <Box
                 component="img"
-                src="https://clocktower-wiki.gstonegames.com/skins/pivot/assets/image/flower3.png"
+                src="/imgs/images/flower3.png"
                 sx={{
                   position: 'absolute',
                   bottom: 0,
@@ -288,7 +348,7 @@ const ScriptPreview = observer(() => {
               />
               <Box
                 component="img"
-                src="https://clocktower-wiki.gstonegames.com/skins/pivot/assets/image/flower4.png"
+                src="/imgs/images/flower4.png"
                 sx={{
                   position: 'absolute',
                   bottom: 0,
@@ -375,22 +435,36 @@ const ScriptPreview = observer(() => {
                       >
                         {t('script.author')}：{script.author}
                         <br />
-                        {t('script.playerCount')}
+                        {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : t('script.playerCount')}
                       </Typography>
                     </Box>
                   )}
 
-                  <Typography
-                    variant="h3"
-                    sx={{
-                      fontWeight: 'bold',
-                      color: THEME_COLORS.paper.primary,
-                      fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
-                      mb: { xs: 0.5, sm: 0.5 },
-                    }}
-                  >
-                    {script.title}
-                  </Typography>
+                  {script.titleImage ? (
+                    <Box
+                      component="img"
+                      src={script.titleImage}
+                      alt={script.title}
+                      sx={{
+                        maxWidth: { xs: '70%', sm: '50%', md: '40%' },
+                        maxHeight: { xs: '80px', sm: '90px', md: '100px' },
+                        objectFit: 'contain',
+                        mb: { xs: 0.5, sm: 0.5 },
+                      }}
+                    />
+                  ) : (
+                    <Typography
+                      variant="h3"
+                      sx={{
+                        fontWeight: 'bold',
+                        color: THEME_COLORS.paper.primary,
+                        fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+                        mb: { xs: 0.5, sm: 0.5 },
+                      }}
+                    >
+                      {script.title}
+                    </Typography>
+                  )}
 
                   {isMobile && script.author && (
                     <Typography
@@ -400,7 +474,8 @@ const ScriptPreview = observer(() => {
                         mt: 0.5,
                       }}
                     >
-                      {t('script.author2')}：{script.author} · {t('script.playerCount')}
+                      {t('script.author2')}：{script.author}
+                      {script.playerCount && ` · ${t('script.playerCount')}：${script.playerCount}`}
                     </Typography>
                   )}
                 </Box>

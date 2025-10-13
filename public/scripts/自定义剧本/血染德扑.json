@@ -2,16 +2,20 @@
     {
         "id": "_meta",
         "name": "血染德扑",
+        "titleImage": "/imgs/images/血染德扑.png",
         "author": "Bigonion",
-        "logo": "https://i.ibb.co/6r1y43p/blood-on-the-felt-logo.png",
-        "description": "筹码是你的声音，底牌是你的身份。在这场谎言与计算的赌局中，活到最后，看穿一切。欢迎来到血染扑克。",
+        "playerCount": "7-15",
+        "description": "筹码是你的声音，底牌是你的身份。在这场谎言与计算的赌局中，活到最后，看穿一切。欢迎来到血染德扑。",
         "townsfolkName": "镇民",
         "outsidersName": "外来者",
         "minionsName": "爪牙",
         "demonsName": "恶魔"
     },
     {
-        "id": "bounty_hunter"
+        "id": "bounty_hunter",
+        "name": "赏金猎人",
+        "ability": "在你的首个夜晚，你会得知一名邪恶玩家。每当你得知的玩家死亡，你会在当晚得知另一名邪恶玩家并领取1个暗影筹码作为赏金。[会有一名镇民转变为邪恶阵营]",
+        "team": "townsfolk"
     },
     {
         "id": "noble",
@@ -24,7 +28,8 @@
         "reminders": [
             "知晓信息"
         ],
-        "setup": false
+        "setup": false,
+        "ability": "在你的首个夜晚，你会得知三名玩家：其中有且只有一名玩家是邪恶的。"
     },
     {
         "id": "investigator",
@@ -35,7 +40,8 @@
         "firstNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
         "otherNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
         "reminders": [],
-        "setup": false
+        "setup": false,
+        "ability": "在你的首个夜晚，你会得知两名玩家和一个爪牙角色：这两名玩家之一是该角色（或者你会得知没有爪牙在场）。"
     },
     {
         "id": "empath",
@@ -104,6 +110,15 @@
         "setup": false
     },
     {
+        "id": "magician",
+        "ability": "每个夜晚，你可以选择一名玩家并偷看他一张底牌。",
+        "team": "townsfolk",
+        "sch_team": "镇民",
+        "firstNight": 3,
+        "otherNight": 3,
+        "name": "魔术师"
+    },
+    {
         "id": "mayor",
         "edition": "basetown",
         "name": "镇长",
@@ -118,14 +133,6 @@
         "setup": false
     },
     {
-        "id": "magician",
-        "ability": "每个夜晚，你可以选择一名玩家并偷看他一张底牌。",
-        "team": "townsfolk",
-        "sch_team": "镇民",
-        "firstNight": 3,
-        "otherNight": 3
-    },
-    {
         "id": "drunk",
         "edition": "custom",
         "name": "酒鬼",
@@ -136,7 +143,18 @@
         "reminders": [
             "醉酒"
         ],
-        "setup": true
+        "setup": true,
+        "ability": "你不知道你是酒鬼。你以为你是一个镇民角色，但其实你不是。"
+    },
+    {
+        "id": "Casanova",
+        "name": "花花公子",
+        "ability": "每当有人梭哈的时候，你也必须梭哈。",
+        "team": "outsider",
+        "firstNight": 40,
+        "otherNight": 69,
+        "sch_team": "外来者",
+        "image": "https://youke1.picui.cn/s1/2025/10/11/68e9579bbd205.png"
     },
     {
         "id": "mutant",
@@ -149,16 +167,6 @@
         "otherNight": 0,
         "reminders": [],
         "setup": false
-    },
-    {
-        "id": "Casanova",
-        "name": "花花公子",
-        "ability": "每当有人梭哈的时候，你也必须梭哈。",
-        "team": "outsider",
-        "firstNight": 40,
-        "otherNight": 69,
-        "sch_team": "外来者",
-        "image": "https://youke1.picui.cn/s1/2025/10/11/68e9579bbd205.png"
     },
     {
         "id": "disappointed",
@@ -183,7 +191,8 @@
         "reminders": [
             "可能成为恶魔"
         ],
-        "setup": false
+        "setup": false,
+        "ability": "如果大于等于五名玩家存活时（旅行者不计算在内）恶魔死亡，你变成那个恶魔。"
     },
     {
         "id": "cerenovus",
@@ -216,7 +225,9 @@
     },
     {
         "id": "psychopath",
-        "ability": "每个白天，在牌局开始之前，你可以公开选择一名玩家：他的手牌作废。如果你在当天的牌局牌比大法官大，你无法被处决。"
+        "ability": "每个白天，在牌局开始之前，你可以公开选择一名玩家：他的手牌作废。如果你在当天的牌局牌比大法官大，你无法被处决。",
+        "name": "精神病患者",
+        "team": "minion"
     },
     {
         "id": "imp",
@@ -236,23 +247,25 @@
     {
         "id": "vigormortis",
         "ability": "每个夜晚*，你要选择一名玩家：他死亡。被你杀死的爪牙保留他的能力，且与他邻近的两名镇民之一中毒。说书人会秘密向你展示牌堆顶的其中一张牌。[初始暗影筹码+1][-1外来者]",
-        "edition": "custom"
+        "edition": "custom",
+        "name": "亡骨魔",
+        "team": "demon"
     },
     {
         "id": "uv6d0fft",
         "name": "血染德扑",
         "team": "fabled",
         "ability": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过猜拳来决定最终的赢家。",
-        "image": "https://clocktower-wiki.gstonegames.com/images/thumb/9/97/Bootlegger.png/200px-Bootlegger.png",
+        "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bootlegger.png",
         "setup": false,
         "reminders": []
     },
     {
-        "id": "uv6d0fft",
+        "id": "uv6d0fft2",
         "name": "作弊达人",
         "team": "fabled",
         "ability": "每个夜晚，恶魔可以选择与一名爪牙交换底牌或选择偷看一名善良玩家的底牌。",
-        "image": "https://clocktower-wiki.gstonegames.com/images/thumb/9/97/Bootlegger.png/200px-Bootlegger.png",
+        "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bootlegger.png",
         "setup": false,
         "reminders": []
     },
@@ -260,7 +273,7 @@
         "id": "shop_divine_shield",
         "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
         "name": "神圣庇护",
-        "ability": "【消耗2暗影筹码】当晚保护你自己，免受恶魔的攻击。",
+        "ability": "【暗影筹码*2】当晚保护你自己，免受恶魔的攻击。",
         "team": "暗影商店",
         "sch_team": "商店"
     },
@@ -268,7 +281,7 @@
         "id": "shop_glimpse",
         "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
         "name": "我没开挂",
-        "ability": "【消耗1暗影筹码】在下一个白天的牌局开始前，说书人会秘密向你展示牌堆顶的第一张牌。",
+        "ability": "【暗影筹码*1】在下一个白天的牌局开始前，说书人会秘密向你展示翻牌中的一或俩张牌。",
         "team": "暗影商店",
         "sch_team": "商店"
     },
@@ -276,7 +289,7 @@
         "id": "shop_forced_call",
         "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
         "name": "强制跟注",
-        "ability": "【消耗2暗影筹码】选择一名玩家。在下一个白天的牌局中，当第一次有人下注或加注时，只要他筹码足够，他就必须跟注。",
+        "ability": "【暗影筹码*2】选择一名玩家。在下一个白天的牌局中，当第一次有人下注或加注时，只要他筹码足够，他就必须跟注。",
         "team": "暗影商店",
         "sch_team": "商店"
     },
@@ -284,23 +297,23 @@
         "id": "shop_double_flop",
         "name": "双重荷官",
         "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
-        "ability": "【消耗2暗影筹码】购买后，在下一个白天的翻牌圈，说书人会发出两组不同的翻牌（共6张牌）。玩家们必须投票选择其中一组作为本轮的正式公共牌。",
+        "ability": "【暗影筹码*2】购买后，在下一个白天的翻牌圈，说书人会发出两组不同的翻牌（共6张牌）。玩家们必须投票选择其中一组作为本轮的正式公共牌。",
         "team": "暗影商店",
         "sch_team": "商店"
     },
     {
         "id": "custom_legend_shop_river",
-        "name": "命运的重洗（传说）",
+        "name": "谁是庄家（传说）",
         "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
-        "ability": "【消耗2暗影筹码】每局限购一次。在河牌发出后、最终下注轮开始前，你可以购买并使用此商品，强制说书人将河牌销掉，并发出牌堆顶的三张新牌作为新的河牌。",
+        "ability": "【暗影筹码*2】每局限购一次，指定谁是庄家。如果有多人指定，那么由说书人决定谁坐庄。",
         "team": "暗影商店（传说）",
         "sch_team": "传说商品"
     },
     {
-        "id": "custom_legend_shop_river",
+        "id": "custom_legend_shop_river2",
         "name": "命运的交换（传说）",
         "image": "https://free.picui.cn/free/2025/10/10/68e809600f74a.png",
-        "ability": "【消耗1暗影筹码】选择场上另一名玩家。在下一个白天开始时，你们交换底牌。",
+        "ability": "【暗影筹码*3】每局限购一次，选择场上另一名玩家。在下一个白天开始时，你们交换底牌。",
         "team": "暗影商店（传说）",
         "sch_team": "传说商品"
     },

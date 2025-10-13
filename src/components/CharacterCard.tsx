@@ -9,9 +9,11 @@ interface CharacterCardProps {
   character: Character;
   jinxInfo?: Record<string, string>;
   allCharacters?: Character[];
+  onUpdate?: (characterId: string, updates: Partial<Character>) => void;
+  onEdit?: (character: Character) => void;
 }
 
-export default function CharacterCard({ character, jinxInfo, allCharacters }: CharacterCardProps) {
+export default function CharacterCard({ character, jinxInfo, allCharacters, onUpdate, onEdit }: CharacterCardProps) {
   // 根据团队类型确定名字颜色
   const getNameColor = () => {
     switch (character.team) {
@@ -48,6 +50,14 @@ export default function CharacterCard({ character, jinxInfo, allCharacters }: Ch
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // 处理双击事件
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onEdit) {
+      onEdit(character);
+    }
+  };
+
   return (
     <Paper
       ref={setNodeRef}
@@ -55,6 +65,7 @@ export default function CharacterCard({ character, jinxInfo, allCharacters }: Ch
       {...attributes}
       {...listeners}
       elevation={isDragging ? 6 : 0}
+      onDoubleClick={handleDoubleClick}
       sx={{
         display: 'flex',
         gap: 1,
@@ -64,6 +75,10 @@ export default function CharacterCard({ character, jinxInfo, allCharacters }: Ch
         transition: 'all 0.2s',
         height: '100%',
         cursor: isDragging ? 'grabbing' : 'grab',
+        userSelect: 'none', // 禁用文本选择
+        WebkitUserSelect: 'none', // Safari
+        MozUserSelect: 'none', // Firefox
+        msUserSelect: 'none', // IE/Edge
         '&:hover': {
           backgroundColor: 'rgba(0, 0, 0, 0.02)',
           boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -81,6 +96,9 @@ export default function CharacterCard({ character, jinxInfo, allCharacters }: Ch
           borderRadius: 1,
           objectFit: 'cover',
           flexShrink: 0,
+          userDrag: 'none', // 禁用图片拖拽
+          WebkitUserDrag: 'none', // Safari
+          pointerEvents: 'none', // 禁用所有指针事件
         }}
       />
 
@@ -140,6 +158,9 @@ export default function CharacterCard({ character, jinxInfo, allCharacters }: Ch
                         height: { xs: 20, sm: 22, md: 24 },
                         borderRadius: 0.5,
                         flexShrink: 0,
+                        userDrag: 'none', // 禁用图片拖拽
+                        WebkitUserDrag: 'none', // Safari
+                        pointerEvents: 'none', // 禁用所有指针事件
                       }}
                     />
                   )}

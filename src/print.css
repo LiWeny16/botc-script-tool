@@ -75,5 +75,26 @@
   .MuiPaper-root {
     box-shadow: none !important;
   }
+
+  /* 隐藏所有工具组件 */
+  .MuiFab-root,
+  .floating-add-button,
+  [role="dialog"],
+  .MuiDialog-root,
+  .character-edit-dialog,
+  .character-library-dialog,
+  .character-library-card,
+  .share-dialog {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* 隐藏输入面板 */
+  .input-panel,
+  .MuiTextField-root,
+  .MuiButton-root:not(#script-preview .MuiButton-root) {
+    display: none !important;
+    visibility: hidden !important;
+  }
 }
 

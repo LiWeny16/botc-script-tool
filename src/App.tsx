@@ -11,15 +11,20 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import { observer } from 'mobx-react-lite';
-import type { Script } from './types';
+import type { Script, Character } from './types';
 import InputPanel from './components/InputPanel';
 import CharacterSection from './components/CharacterSection';
 import NightOrder from './components/NightOrder';
 import SpecialRulesSection from './components/SpecialRulesSection';
 import ShareDialog from './components/ShareDialog';
+import CharacterEditDialog from './components/CharacterEditDialog';
+import FloatingAddButton from './components/FloatingAddButton';
+import CharacterLibraryCard from './components/CharacterLibraryCard';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
+import { SEOManager } from './components/SEOManager';
+import { scriptStore } from './stores/ScriptStore';
 import html2canvas from 'html2canvas';
 
 // 创建主题
@@ -57,20 +62,49 @@ const App = observer(() => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t, language } = useTranslation();
-  const [script, setScript] = useState<Script | null>(null);
-  const [originalJson, setOriginalJson] = useState<string>('');
-  const [customTitle, setCustomTitle] = useState<string>('');
-  const [customAuthor, setCustomAuthor] = useState<string>('');
   const [shareDialogOpen, setShareDialogOpen] = useState<boolean>(false);
+  const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
+  const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
+  const [libraryCardOpen, setLibraryCardOpen] = useState<boolean>(false);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-  // 检测URL中的json参数，如果存在则跳转到共享页面
+  // 从 MobX store 获取状态
+  const { script, originalJson, customTitle, customAuthor } = scriptStore;
+
+  // 初始化加载数据
   useEffect(() => {
-    const jsonParam = searchParams.get('json');
-    if (jsonParam) {
-      navigate(`/shared?json=${encodeURIComponent(jsonParam)}`);
-    }
+    const initializeApp = async () => {
+      // 检测URL中的json参数，如果存在则跳转到preview页面
+      const jsonParam = searchParams.get('json');
+      if (jsonParam) {
+        navigate(`/repo/preview?json=${encodeURIComponent(jsonParam)}`);
+        return;
+      }
+
+      // 如果没有存储的数据，加载默认示例
+      if (!scriptStore.hasStoredData) {
+        try {
+          const defaultJson = await scriptStore.loadDefaultExample();
+          handleGenerate(defaultJson);
+        } catch (error) {
+          console.error('加载默认示例失败:', error);
+        }
+      } else {
+        // 如果有存储的数据，重新生成剧本（适应语言变化）
+        if (originalJson) {
+          const generatedScript = generateScript(originalJson, language);
+          if (customTitle) generatedScript.title = customTitle;
+          if (customAuthor) generatedScript.author = customAuthor;
+          scriptStore.setScript(generatedScript);
+        }
+      }
+      
+      setIsInitialized(true);
+    };
+
+    initializeApp();
   }, [searchParams, navigate]);
 
   const handleGenerate = (json: string, title?: string, author?: string) => {
@@ -80,26 +114,29 @@ const App = observer(() => {
     if (title) generatedScript.title = title;
     if (author) generatedScript.author = author;
 
-    setScript(generatedScript);
-    setOriginalJson(json);
-    setCustomTitle(title || '');
-    setCustomAuthor(author || '');
+    // 更新 store
+    scriptStore.updateScript({
+      script: generatedScript,
+      originalJson: json,
+      customTitle: title || '',
+      customAuthor: author || '',
+    });
   };
 
   // 监听语言变化，重新生成剧本
   useEffect(() => {
-    if (originalJson) {
+    if (originalJson && isInitialized) {
       const generatedScript = generateScript(originalJson, language);
       
       // 恢复自定义标题和作者
       if (customTitle) generatedScript.title = customTitle;
       if (customAuthor) generatedScript.author = customAuthor;
       
-      setScript(generatedScript);
+      scriptStore.setScript(generatedScript);
     }
-  }, [language, originalJson, customTitle, customAuthor]);
+  }, [language, originalJson, customTitle, customAuthor, isInitialized]);
 
-  // 更新角色顺序
+  // 更新角色顺序并同步到JSON
   const handleReorderCharacters = (team: string, newOrder: string[]) => {
     if (!script) return;
 
@@ -111,7 +148,187 @@ const App = observer(() => {
       },
     };
 
-    setScript(updatedScript);
+    // 重新构建 all 数组以保持一致性
+    const newAllArray: Character[] = [];
+    Object.values(updatedScript.characters).forEach(teamCharacters => {
+      newAllArray.push(...teamCharacters);
+    });
+    updatedScript.all = newAllArray;
+
+    scriptStore.setScript(updatedScript);
+    
+    // 同步更新JSON
+    syncScriptToJson(updatedScript);
+  };
+
+  // 更新角色信息并同步到JSON
+  const handleUpdateCharacter = (characterId: string, updates: Partial<Character>) => {
+    if (!script) return;
+
+    const updatedScript = { ...script };
+    let updated = false;
+    let targetCharacter: Character | null = null;
+    let foundTeam: string | null = null;
+
+    // 找到要更新的角色（只应该在一个团队中）
+    for (const team of Object.keys(updatedScript.characters)) {
+      const charIndex = updatedScript.characters[team].findIndex(c => c.id === characterId);
+      if (charIndex !== -1) {
+        if (targetCharacter) {
+          // 如果已经找到了一个角色，说明有重复ID，这是个问题
+          console.warn(`发现重复的角色ID: ${characterId}，在团队 ${foundTeam} 和 ${team} 中都存在`);
+          continue; // 跳过重复的角色
+        }
+        
+        targetCharacter = updatedScript.characters[team][charIndex];
+        foundTeam = team;
+        updatedScript.characters[team][charIndex] = {
+          ...targetCharacter,
+          ...updates,
+        };
+        updated = true;
+      }
+    }
+
+    // 更新all数组中的角色
+    if (targetCharacter && updated) {
+      const allIndex = updatedScript.all.findIndex(c => c.id === characterId);
+      if (allIndex !== -1) {
+        updatedScript.all[allIndex] = {
+          ...targetCharacter,
+          ...updates,
+        };
+      }
+    }
+
+    if (updated) {
+      scriptStore.setScript(updatedScript);
+      syncScriptToJson(updatedScript);
+    }
+  };
+
+  // 处理编辑角色
+  const handleEditCharacter = (character: Character) => {
+    setEditingCharacter(character);
+    setEditDialogOpen(true);
+  };
+
+  // 关闭编辑对话框
+  const handleCloseEditDialog = () => {
+    setEditDialogOpen(false);
+    setEditingCharacter(null);
+  };
+
+  // 处理添加角色到剧本
+  const handleAddCharacter = (character: Character) => {
+    if (!script) return;
+
+    const updatedScript = { ...script };
+    
+    // 检查角色是否已存在
+    const exists = updatedScript.all.some(c => c.id === character.id);
+    if (exists) {
+      // 可以显示提示信息
+      return;
+    }
+
+    // 添加到对应团队
+    if (!updatedScript.characters[character.team]) {
+      updatedScript.characters[character.team] = [];
+    }
+    updatedScript.characters[character.team].push(character);
+    
+    // 添加到all数组
+    updatedScript.all.push(character);
+
+    scriptStore.setScript(updatedScript);
+    syncScriptToJson(updatedScript);
+    // 不再自动关闭角色库
+  };
+
+  // 处理从剧本中删除角色
+  const handleRemoveCharacter = (character: Character) => {
+    if (!script) return;
+
+    const updatedScript = { ...script };
+    
+    // 从对应团队中删除
+    if (updatedScript.characters[character.team]) {
+      updatedScript.characters[character.team] = updatedScript.characters[character.team].filter(c => c.id !== character.id);
+      
+      // 如果团队为空，删除该团队
+      if (updatedScript.characters[character.team].length === 0) {
+        delete updatedScript.characters[character.team];
+      }
+    }
+    
+    // 从all数组中删除
+    updatedScript.all = updatedScript.all.filter(c => c.id !== character.id);
+
+    scriptStore.setScript(updatedScript);
+    syncScriptToJson(updatedScript);
+  };
+
+  // 将Script同步回JSON
+  const syncScriptToJson = (updatedScript: Script) => {
+    try {
+      const parsedJson = JSON.parse(originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      // 创建新的JSON数组
+      const newJsonArray: any[] = [];
+
+      // 添加元数据
+      const metaItem = jsonArray.find((item: any) => item.id === '_meta');
+      if (metaItem) {
+        newJsonArray.push(metaItem);
+      }
+
+      // 按照script中的顺序添加角色，并更新角色信息
+      Object.keys(updatedScript.characters).forEach(team => {
+        updatedScript.characters[team].forEach(character => {
+          const originalItem = jsonArray.find((item: any) => item.id === character.id);
+          if (originalItem) {
+            // 合并原始数据和更新后的数据
+            const updatedItem = {
+              ...originalItem,
+              name: character.name,
+              ability: character.ability,
+              team: character.team,
+            };
+            newJsonArray.push(updatedItem);
+          } else {
+            // 如果是新添加的角色，创建新的JSON项
+            const newItem = {
+              id: character.id,
+              name: character.name,
+              ability: character.ability,
+              team: character.team,
+              image: character.image,
+              firstNight: character.firstNight || 0,
+              otherNight: character.otherNight || 0,
+              firstNightReminder: character.firstNightReminder || '',
+              otherNightReminder: character.otherNightReminder || '',
+              reminders: character.reminders || [],
+              setup: character.setup || false,
+            };
+            newJsonArray.push(newItem);
+          }
+        });
+      });
+
+      // 添加相克规则和特殊规则
+      jsonArray.forEach((item: any) => {
+        if (item.team === 'a jinxed' || item.team === 'special_rule') {
+          newJsonArray.push(item);
+        }
+      });
+
+      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      scriptStore.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步JSON失败:', error);
+    }
   };
 
   // 导出更新后的JSON
@@ -213,6 +430,7 @@ const App = observer(() => {
 
   return (
     <ThemeProvider theme={theme}>
+      <SEOManager />
       <CssBaseline />
       <Box
         sx={{
@@ -229,6 +447,7 @@ const App = observer(() => {
             onExportJson={handleExportJson}
             onShare={() => setShareDialogOpen(true)}
             hasScript={script !== null}
+            currentJson={originalJson}
           />
 
           {/* 剧本展示区域 */}
@@ -326,10 +545,11 @@ const App = observer(() => {
                     boxShadow: 'none',
                   }}
                 >
+                  
                   {/* 装饰性花纹 */}
                   <Box
                     component="img"
-                    src="https://clocktower-wiki.gstonegames.com/skins/pivot/assets/image/flower3.png"
+                    src="/imgs/images/flower3.png"
                     sx={{
                       position: 'absolute',
                       bottom: 0,
@@ -341,7 +561,7 @@ const App = observer(() => {
                   />
                   <Box
                     component="img"
-                    src="https://clocktower-wiki.gstonegames.com/skins/pivot/assets/image/flower4.png"
+                    src="/imgs/images/flower4.png"
                     sx={{
                       position: 'absolute',
                       bottom: 0,
@@ -353,7 +573,7 @@ const App = observer(() => {
                   />
 
                   {/* 标题区域 */}
-                  <Box sx={{ textAlign: 'center', mb: 2, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2 } }}>
+                  <Box sx={{ textAlign: 'center', mb: 0, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2 } }}>
                     {/* 桌面端：右上角作者信息（绝对定位） */}
                     {!isMobile && script.author && (
                       <Box
@@ -373,23 +593,37 @@ const App = observer(() => {
                         >
                         {t('script.author')}：{script.author}
                         <br />
-                        {t('script.playerCount')}
+                        {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : t('script.playerCount')}
                         </Typography>
                       </Box>
                     )}
 
                     {/* 标题 */}
-                    <Typography
-                      variant="h3"
-                      sx={{
-                        fontWeight: 'bold',
-                        color: THEME_COLORS.paper.primary,
-                        fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
-                        mb: { xs: 0.5, sm: 0.5 },
-                      }}
-                    >
-                      {script.title}
-                    </Typography>
+                    {script.titleImage ? (
+                      <Box
+                        component="img"
+                        src={script.titleImage}
+                        alt={script.title}
+                        sx={{
+                          maxWidth: { xs: '70%', sm: '50%', md: '40%' },
+                          maxHeight: { xs: '80px', sm: '90px', md: '100px' },
+                          objectFit: 'contain',
+                          mb: { xs: 0.5, sm: 0.5 },
+                        }}
+                      />
+                    ) : (
+                      <Typography
+                        variant="h3"
+                        sx={{
+                          fontWeight: 'bold',
+                          color: THEME_COLORS.paper.primary,
+                          fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+                          mb: { xs: 0.5, sm: 0.5 },
+                        }}
+                      >
+                        {script.title}
+                      </Typography>
+                    )}
 
                     {/* 移动端：标题下方作者信息 */}
                     {isMobile && script.author && (
@@ -400,7 +634,8 @@ const App = observer(() => {
                           mt: 0.5,
                         }}
                       >
-                        {t('script.author2')}：{script.author} · {t('script.playerCount')}
+                        {t('script.author2')}：{script.author}
+                        {script.playerCount && ` · ${t('script.playerCount')}：${script.playerCount}`}
                       </Typography>
                     )}
                   </Box>
@@ -417,6 +652,8 @@ const App = observer(() => {
                           characters={script.characters[team]}
                           script={script}
                           onReorder={handleReorderCharacters}
+                          onUpdateCharacter={handleUpdateCharacter}
+                          onEditCharacter={handleEditCharacter}
                         />
                       )
                     ))}
@@ -431,6 +668,8 @@ const App = observer(() => {
                           characters={script.characters[team]}
                           script={script}
                           onReorder={handleReorderCharacters}
+                          onUpdateCharacter={handleUpdateCharacter}
+                          onEditCharacter={handleEditCharacter}
                         />
                       ))
                     }
@@ -555,6 +794,29 @@ const App = observer(() => {
         onClose={() => setShareDialogOpen(false)}
         script={script}
         originalJson={originalJson}
+      />
+
+      {/* 角色编辑对话框 */}
+      <CharacterEditDialog
+        open={editDialogOpen}
+        character={editingCharacter}
+        onClose={handleCloseEditDialog}
+        onSave={handleUpdateCharacter}
+      />
+
+      {/* 角色库悬浮卡片 */}
+      <CharacterLibraryCard
+        open={libraryCardOpen}
+        onClose={() => setLibraryCardOpen(false)}
+        onAddCharacter={handleAddCharacter}
+        onRemoveCharacter={handleRemoveCharacter}
+        selectedCharacters={script?.all || []}
+      />
+
+      {/* 悬浮添加按钮 */}
+      <FloatingAddButton
+        onClick={() => setLibraryCardOpen(!libraryCardOpen)}
+        show={!!script} // 只要有剧本就显示
       />
     </ThemeProvider>
   );

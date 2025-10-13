@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -37,9 +37,10 @@ interface InputPanelProps {
   onExportJson: () => void;
   onShare: () => void;
   hasScript: boolean;
+  currentJson?: string;
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, hasScript }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, hasScript, currentJson }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -48,6 +49,13 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   const [error, setError] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+
+  // 同步currentJson到jsonInput
+  useEffect(() => {
+    if (currentJson && currentJson !== jsonInput) {
+      setJsonInput(currentJson);
+    }
+  }, [currentJson]);
 
   const handleGenerate = () => {
     try {
