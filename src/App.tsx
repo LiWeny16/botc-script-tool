@@ -20,6 +20,7 @@ import ShareDialog from './components/ShareDialog';
 import CharacterEditDialog from './components/CharacterEditDialog';
 import FloatingAddButton from './components/FloatingAddButton';
 import CharacterLibraryCard from './components/CharacterLibraryCard';
+import CharacterImage from './components/CharacterImage';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
@@ -547,9 +548,9 @@ const App = observer(() => {
                 >
                   
                   {/* 装饰性花纹 */}
-                  <Box
-                    component="img"
+                  <CharacterImage
                     src="/imgs/images/flower3.png"
+                    alt="装饰花纹"
                     sx={{
                       position: 'absolute',
                       bottom: 0,
@@ -559,9 +560,9 @@ const App = observer(() => {
                       pointerEvents: 'none',
                     }}
                   />
-                  <Box
-                    component="img"
+                  <CharacterImage
                     src="/imgs/images/flower4.png"
+                    alt="装饰花纹"
                     sx={{
                       position: 'absolute',
                       bottom: 0,
@@ -600,8 +601,7 @@ const App = observer(() => {
 
                     {/* 标题 */}
                     {script.titleImage ? (
-                      <Box
-                        component="img"
+                      <CharacterImage
                         src={script.titleImage}
                         alt={script.title}
                         sx={{

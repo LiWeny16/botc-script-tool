@@ -23,6 +23,7 @@ import {
 import { CHARACTERS } from '../data/characters';
 import { CHARACTERS_EN } from '../data/charactersEn';
 import { useTranslation } from '../utils/i18n';
+import CharacterImage from './CharacterImage';
 import type { Character } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 
@@ -87,7 +88,7 @@ const getFabledCharacters = (language: string): Character[] => {
         {
             id: 'angel',
             name: isEnglish ? 'Angel' : '天使',
-            ability: isEnglish ? 'Something bad might be protected from the Demon.' : '某个人可能会被保护免受恶魔攻击。',
+            ability: isEnglish ? "Something bad might happen to whoever is most responsible for the death of a new player. " : "对新玩家的死亡负最大责任的人，可能会遭遇一些不好的事情。",
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Angel_icon.webp',
             firstNight: 0,
@@ -100,7 +101,7 @@ const getFabledCharacters = (language: string): Character[] => {
         {
             id: 'bootlegger',
             name: isEnglish ? 'Bootlegger' : '私酒贩',
-            ability: isEnglish ? 'This character is not in play. The Storyteller can break game rules.' : '这个角色不在剧本中。说书人可以打破游戏规则。',
+            ability: isEnglish ? "This script has homebrew characters or rules. " : "这个剧本包含有自制角色或自制规则。",
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Bootlegger_icon.webp',
             firstNight: 0,
@@ -113,7 +114,7 @@ const getFabledCharacters = (language: string): Character[] => {
         {
             id: 'buddhist',
             name: isEnglish ? 'Buddhist' : '佛陀',
-            ability: isEnglish ? 'For good players, evil player abilities do not cause good players to die.' : '对于善良玩家，邪恶玩家的能力不会让善良玩家死亡。',
+            ability: isEnglish ? "For the first 2 minutes of each day, veteran players may not talk. " : "每个白天的前两分钟，老玩家不能发言。",
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Buddhist_icon.webp',
             firstNight: 0,
@@ -243,7 +244,7 @@ const getFabledCharacters = (language: string): Character[] => {
         {
             id: 'sentinel',
             name: isEnglish ? 'Sentinel' : '哨兵',
-            ability: isEnglish ? "There might be 1 extra or 1 fewer Outsider in play. ": "在初始设置时，可能会额外增加或减少个外来者。",
+            ability: isEnglish ? "There might be 1 extra or 1 fewer Outsider in play. " : "在初始设置时，可能会额外增加或减少个外来者。",
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Sentinel_icon.webp',
             firstNight: 0,
@@ -269,7 +270,7 @@ const getFabledCharacters = (language: string): Character[] => {
         {
             id: 'storm_catcher',
             name: isEnglish ? 'Storm Catcher' : '暴风捕手',
-            ability: isEnglish ? "Name a good character. If in play, they can only die by execution, but evil players learn which player it is. ":"游戏开始时，你要宣布一个善良角色。如果该角色在场，他只能死于处决，但所有邪恶玩家会在首个夜晚得知他是哪—名玩家。",
+            ability: isEnglish ? "Name a good character. If in play, they can only die by execution, but evil players learn which player it is. " : "游戏开始时，你要宣布一个善良角色。如果该角色在场，他只能死于处决，但所有邪恶玩家会在首个夜晚得知他是哪—名玩家。",
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Storm%20Catcher_icon.webp',
             firstNight: 0,
@@ -292,6 +293,34 @@ const getFabledCharacters = (language: string): Character[] => {
             reminders: [],
             setup: false,
         },
+        {
+            id: "qilin",
+            image: "https://oss.gstonegames.com/data_file/clocktower/web/icons/qilin.png",
+            name: isEnglish ? "Qilin" : "麒麟",
+            ability: isEnglish ? "On the last day of the game, something good happens to the luckiest players." : "在游戏的最后一天，最幸运的玩家身上会发生一些好的事情。",
+            team: "fabled",
+            firstNight: 0,
+            otherNight: 0
+        },
+        {
+            id: "zuiyingdeshangdi",
+            image: "https://botcgrimoire.top/img/duck.bd99fd34.png",
+            name: isEnglish ? "The Stubborn God" : "嘴硬的上帝",
+            ability: isEnglish ? `"I may have a problem, but I won't admit it or talk about it."` : `“我可能有问题，但我就是不承认也不说”`,
+            team: "fabled",
+            firstNight: 0,
+            otherNight: 0
+        },
+        {
+            id: "fabled_charactor",
+            image: "https://botcgrimoire.top/img/fableds.efacc32a.png",
+            name: isEnglish ? "Fabled Charactor" : "传奇角色",
+            ability: isEnglish ? `This is a fabled character.` : `这是一个传奇角色。`,
+            team: "fabled",
+            firstNight: 0,
+            otherNight: 0
+        },
+
     ];
 };
 
@@ -460,23 +489,18 @@ export default function CharacterLibraryCard({
         onClose();
     }, [onClose]);
 
-    // 懒加载图片组件
+    // 懒加载图片组件 - 使用统一的CharacterImage组件
     const LazyAvatar = React.memo(({ character, teamColor }: { character: Character; teamColor: string }) => {
-        const [imageLoaded, setImageLoaded] = useState(false);
-        const [imageError, setImageError] = useState(false);
-
         return (
-            <Avatar
-                src={imageError ? '/imgs/icons/75px-Di.png' : character.image}
+            <CharacterImage
+                component="avatar"
+                src={character.image}
                 alt={character.name}
                 sx={{
                     width: 48,
                     height: 48,
                     border: `2px solid ${teamColor}`,
-                    backgroundColor: imageLoaded ? 'transparent' : '#f5f5f5',
                 }}
-                onLoad={() => setImageLoaded(true)}
-                onError={() => setImageError(true)}
             />
         );
     });
@@ -615,13 +639,13 @@ export default function CharacterLibraryCard({
             <Card
                 sx={{
                     width: { xs: 340, sm: 400 },
-                    height: { 
+                    height: {
                         xs: 'min(calc(100vh - 180px), 720px)', // 移动端：视口高度减去180px（顶部+底部边距）或720px，取较小值
                         sm: 'min(calc(100vh - 120px), 830px)'  // 桌面端：视口高度减去160px（顶部+底部边距）或630px，取较小值
                     },
-                    maxHeight: { 
+                    maxHeight: {
                         xs: 'calc(100vh - 5px)', // 确保不超过可用高度
-                        sm: 'calc(100vh - 5px)' 
+                        sm: 'calc(100vh - 5px)'
                     },
                     boxShadow: 6,
                     borderRadius: 2,
@@ -655,16 +679,12 @@ export default function CharacterLibraryCard({
                     }}
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box
-                            component="img"
+                        <CharacterImage
                             src="/imgs/images/botc-title.png"
                             alt="BOTC"
                             sx={{
                                 height: 24,
                                 objectFit: 'contain',
-                            }}
-                            onError={(e) => {
-                                (e.target as HTMLImageElement).style.display = 'none';
                             }}
                         />
                         <Typography variant="h6" sx={{ fontSize: '1rem' }}>

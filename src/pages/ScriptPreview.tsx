@@ -18,6 +18,7 @@ import { generateScript } from '../utils/scriptGenerator';
 import CharacterSection from '../components/CharacterSection';
 import NightOrder from '../components/NightOrder';
 import SpecialRulesSection from '../components/SpecialRulesSection';
+import CharacterImage from '../components/CharacterImage';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -334,9 +335,9 @@ const ScriptPreview = observer(() => {
               }}
             >
               {/* 装饰性花纹 */}
-              <Box
-                component="img"
+              <CharacterImage
                 src="/imgs/images/flower3.png"
+                alt="装饰花纹"
                 sx={{
                   position: 'absolute',
                   bottom: 0,
@@ -346,9 +347,9 @@ const ScriptPreview = observer(() => {
                   pointerEvents: 'none',
                 }}
               />
-              <Box
-                component="img"
+              <CharacterImage
                 src="/imgs/images/flower4.png"
+                alt="装饰花纹"
                 sx={{
                   position: 'absolute',
                   bottom: 0,
@@ -441,8 +442,7 @@ const ScriptPreview = observer(() => {
                   )}
 
                   {script.titleImage ? (
-                    <Box
-                      component="img"
+                    <CharacterImage
                       src={script.titleImage}
                       alt={script.title}
                       sx={{

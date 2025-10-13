@@ -1,6 +1,7 @@
 import { Box, Typography, Paper } from '@mui/material';
 import type { NightAction } from '../types';
 import { THEME_COLORS } from '../theme/colors';
+import CharacterImage from './CharacterImage';
 
 interface NightOrderProps {
   title: string;
@@ -85,8 +86,7 @@ export default function NightOrder({ title, actions, isMobile = false }: NightOr
               alignItems: 'center',
             }}
           >
-            <Box
-              component="img"
+            <CharacterImage
               src={action.image}
               alt={`Action ${index}`}
               sx={{

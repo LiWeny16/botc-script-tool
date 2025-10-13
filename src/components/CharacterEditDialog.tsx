@@ -22,6 +22,7 @@ import { Close as CloseIcon } from '@mui/icons-material';
 import type { Character } from '../types';
 import { CHARACTERS } from '../data/characters';
 import { useTranslation } from '../utils/i18n';
+import CharacterImage from './CharacterImage';
 
 interface CharacterEditDialogProps {
   open: boolean;
@@ -112,10 +113,9 @@ export default function CharacterEditDialog({
           </IconButton>
         </Box>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <Box
-            component="img"
-            src={editData.image}
-            alt={editData.name}
+          <CharacterImage
+            src={editData.image || character?.image || ''}
+            alt={editData.name || character?.name || ''}
             sx={{
               width: 50, // 缩小图片
               height: 50, // 缩小图片
@@ -123,7 +123,6 @@ export default function CharacterEditDialog({
               objectFit: 'cover',
               flexShrink: 0,
             }}
-            onError={(e) => { (e.target as HTMLImageElement).src = '/imgs/icons/75px-Di.png'; }}
           />
           <Box>
             <Typography variant="subtitle1" fontWeight="bold" color="primary">

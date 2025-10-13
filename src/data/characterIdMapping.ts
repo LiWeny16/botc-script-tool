@@ -19,7 +19,7 @@ export const CN_TO_EN_ID_MAP: Record<string, string> = {
   'fang_gu': 'fanggu',
   'no_dashii': 'nodashii',
   'lil_monsta': 'lilmonsta',
-  'al_hadikhia': 'alhadikhia',
+  'al-hadikhia': 'alhadikhia',
   'lord_of_typhon': 'lordoftyphon',
 };
 

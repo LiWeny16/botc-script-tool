@@ -4,6 +4,7 @@ import { highlightAbilityText } from '../utils/scriptGenerator';
 import { THEME_COLORS, getTeamColor } from '../theme/colors';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import CharacterImage from './CharacterImage';
 
 interface CharacterCardProps {
   character: Character;
@@ -86,8 +87,7 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
       }}
     >
       {/* 角色头像 */}
-      <Box
-        component="img"
+      <CharacterImage
         src={character.image}
         alt={character.name}
         sx={{
@@ -149,8 +149,7 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
                   }}
                 >
                   {targetChar && (
-                    <Box
-                      component="img"
+                    <CharacterImage
                       src={targetChar.image}
                       alt={targetName}
                       sx={{
