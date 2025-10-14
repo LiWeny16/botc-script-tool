@@ -36,11 +36,12 @@ interface InputPanelProps {
   onExportImage: () => void;
   onExportJson: () => void;
   onShare: () => void;
+  onClear?: () => void;
   hasScript: boolean;
   currentJson?: string;
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, hasScript, currentJson }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, hasScript, currentJson }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -49,6 +50,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   const [error, setError] = useState('');
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
   // 同步currentJson到jsonInput
   useEffect(() => {
@@ -96,11 +98,30 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
     }
   };
 
+  const handleClearClick = () => {
+    // 如果有剧本，显示确认对话框
+    if (hasScript) {
+      setClearDialogOpen(true);
+    } else {
+      // 如果没有剧本，直接清空输入
+      handleClear();
+    }
+  };
+
   const handleClear = () => {
     setJsonInput('');
     setTitleInput('');
     setAuthorInput('');
     setError('');
+    setClearDialogOpen(false);
+    // 调用父组件的清空回调，清空剧本和存储
+    if (onClear) {
+      onClear();
+    }
+  };
+
+  const handleCancelClear = () => {
+    setClearDialogOpen(false);
   };
 
   return (
@@ -265,7 +286,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             size="large"
             color="secondary"
             startIcon={<Refresh />}
-            onClick={handleClear}
+            onClick={handleClearClick}
             sx={{
               flex: { xs: '1 1 100%', sm: '0 1 auto' },
             }}
@@ -352,6 +373,31 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             {t('common.cancel')}
           </Button>
           <Button onClick={handleConfirmReset} color="warning" variant="contained" autoFocus>
+            {t('common.confirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 清空确认对话框 */}
+      <Dialog
+        open={clearDialogOpen}
+        onClose={handleCancelClear}
+        aria-labelledby="clear-dialog-title"
+        aria-describedby="clear-dialog-description"
+      >
+        <DialogTitle id="clear-dialog-title">
+          {t('dialog.clearTitle')}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="clear-dialog-description">
+            {t('dialog.clearMessage')}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCancelClear} color="primary">
+            {t('common.cancel')}
+          </Button>
+          <Button onClick={handleClear} color="error" variant="contained" autoFocus>
             {t('common.confirm')}
           </Button>
         </DialogActions>

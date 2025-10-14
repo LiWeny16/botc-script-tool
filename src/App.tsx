@@ -429,6 +429,11 @@ const App = observer(() => {
     }
   };
 
+  // 清空所有数据
+  const handleClear = () => {
+    scriptStore.clear();
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <SEOManager />
@@ -447,6 +452,7 @@ const App = observer(() => {
             onExportImage={handleExportImage}
             onExportJson={handleExportJson}
             onShare={() => setShareDialogOpen(true)}
+            onClear={handleClear}
             hasScript={script !== null}
             currentJson={originalJson}
           />

@@ -47,6 +47,8 @@ export const translations = {
     'dialog.resetTitle': '确认恢复初始设置',
     'dialog.resetMessage': '此操作将清除所有自定义设置（包括语言偏好），恢复到默认状态。是否继续？',
     'dialog.resetSuccess': '设置已恢复到初始状态',
+    'dialog.clearTitle': '确认清空剧本',
+    'dialog.clearMessage': '此操作将清空当前剧本、所有角色选择和 JSON 数据。是否继续？',
     
     // 提示信息
     'info.supportOfficial': '• 支持官方剧本制作器的剧本 JSON',
@@ -195,6 +197,8 @@ export const translations = {
     'dialog.resetTitle': 'Confirm Reset to Default',
     'dialog.resetMessage': 'This will clear all custom settings (including language preferences) and restore to default state. Continue?',
     'dialog.resetSuccess': 'Settings have been reset to default',
+    'dialog.clearTitle': 'Confirm Clear Script',
+    'dialog.clearMessage': 'This will clear the current script, all character selections, and JSON data. Continue?',
     
     // Info
     'info.supportOfficial': '• Support official script maker JSON format',
