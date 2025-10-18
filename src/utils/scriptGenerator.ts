@@ -8,7 +8,7 @@ import { normalizeCharacterId } from '../data/characterIdMapping';
 // 解析 JSON 并生成剧本对象
 export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'zh-CN'): Script {
   const json = JSON.parse(jsonString);
-  
+
   if (!Array.isArray(json)) {
     throw new Error('JSON 必须是数组格式');
   }
@@ -82,14 +82,14 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
     // 从字典中获取角色信息，或使用 JSON 中的完整信息
     let character: Character = item;
-    
+
     // 尝试直接匹配ID
     let dictKey = item.id;
     if (!(dictKey in charactersDict)) {
       // 如果直接匹配失败，尝试使用ID映射
       dictKey = normalizeCharacterId(item.id, language);
     }
-    
+
     if (dictKey in charactersDict && !item.image) {
       character = { ...charactersDict[dictKey], ...item };
       // 保持原始ID，这样用户的JSON格式不会被改变
@@ -114,19 +114,19 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       }
 
       script.all.push(character);
-      
+
       // 如果team不存在，自动创建数组
       if (!script.characters[character.team]) {
         script.characters[character.team] = [];
       }
-      
+
       // 检查团队中是否已存在相同ID的角色
       const existsInTeam = script.characters[character.team].some(c => c.id === character.id);
       if (existsInTeam) {
         console.warn(`跳过团队 ${character.team} 中重复的角色ID: ${character.id}`);
         continue;
       }
-      
+
       script.characters[character.team].push({
         name: character.name,
         ability: character.ability,
@@ -168,11 +168,11 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         // 英文模式下使用角色ID进行相克检查
         const keyA = language === 'en' ? charA.id : charA.name;
         const keyB = language === 'en' ? charB.id : charB.name;
-        
+
         if (hasJinx(keyA, keyB, language)) {
           const nameA = charA.name;
           const nameB = charB.name;
-          
+
           if (!script.jinx[nameA]) {
             script.jinx[nameA] = {};
           }
@@ -204,16 +204,17 @@ export function highlightAbilityText(text: string): string {
     '小恶魔', '小怪宝', '狐媚娘', '维齐尔', '被处决', '杀死',
     '死亡', '邪恶', '落败', '中毒', '爪牙', '恶魔', '处决',
     '错误', '自杀', '暴乱', '军团', '代价', '伪装',
+    '作弊',
   ];
 
   const blueKeywords = [
     '外来者角色', '善良玩家', '善良阵营', '善良角色', '镇民角色',
     '恢复健康', '起死回生', '落难少女', '有且只有', '有多准确',
     '守夜人', '外来者', '农夫', '书生', '疯子', '国王',
-    '醉酒', '复活', '反刍', '镇民', '善良', '正确', '存活', '获胜',
+    '醉酒', '复活', '反刍', '镇民', '善良', '正确', '存活', '获胜', '大法官','暗影筹码','梭哈',
   ];
 
-  const purpleKeywords = ['非旅行者', '旅行者', '"疯狂"'];
+  const purpleKeywords = ['非旅行者', '旅行者', '疯狂'];
 
   let result = text;
 

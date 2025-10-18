@@ -49,13 +49,7 @@ export interface Script {
   author: string;
   playerCount?: string;  // 玩家人数范围，如 "7-15"
   characters: {
-    townsfolk: Character[];
-    outsider: Character[];
-    minion: Character[];
-    demon: Character[];
-    fabled: Character[];
-    traveler: Character[];
-    [key: string]: Character[];  // 支持动态团队类型
+    [key: string]: Character[];  // 支持动态团队类型，包括标准团队
   };
   firstnight: NightAction[];
   othernight: NightAction[];

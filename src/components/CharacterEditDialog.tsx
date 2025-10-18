@@ -57,15 +57,54 @@ export default function CharacterEditDialog({
     if (character) {
       const updates: Partial<Character> = {};
       const defaultData = CHARACTERS[character.id] || {};
+      
+      // 创建完整的原始数据（包含默认值）
+      const originalData = {
+        ...defaultData,
+        ...character,
+      };
 
+      // 比较编辑后的数据与原始完整数据的差异
       Object.keys(editData).forEach((key) => {
         const typedKey = key as keyof Character;
-        if (editData[typedKey] !== defaultData[typedKey]) {
-          (updates as any)[typedKey] = editData[typedKey];
+        const editValue = editData[typedKey];
+        const originalValue = originalData[typedKey];
+        
+        // 处理数字类型的比较（0 和 undefined 应该被视为不同）
+        if (typedKey === 'firstNight' || typedKey === 'otherNight') {
+          const editNum = Number(editValue) || 0;
+          const originalNum = Number(originalValue) || 0;
+          if (editNum !== originalNum) {
+            (updates as any)[typedKey] = editNum;
+          }
+        }
+        // 处理字符串类型的比较
+        else if (typedKey === 'firstNightReminder' || typedKey === 'otherNightReminder') {
+          const editStr = String(editValue || '');
+          const originalStr = String(originalValue || '');
+          if (editStr !== originalStr) {
+            (updates as any)[typedKey] = editStr;
+          }
+        }
+        // 处理数组类型的比较
+        else if (typedKey === 'reminders') {
+          const editArray = Array.isArray(editValue) ? editValue : [];
+          const originalArray = Array.isArray(originalValue) ? originalValue : [];
+          if (JSON.stringify(editArray) !== JSON.stringify(originalArray)) {
+            (updates as any)[typedKey] = editArray;
+          }
+        }
+        // 处理其他类型的比较
+        else if (editValue !== originalValue) {
+          (updates as any)[typedKey] = editValue;
         }
       });
 
-      onSave(character.id, updates);
+      // 如果有任何更改，则保存
+      if (Object.keys(updates).length > 0) {
+        console.log('保存角色更新:', updates); // 调试日志
+        onSave(character.id, updates);
+      }
       onClose();
     }
   };

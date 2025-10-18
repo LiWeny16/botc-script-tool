@@ -139,73 +139,12 @@ const App = observer(() => {
 
   // 更新角色顺序并同步到JSON
   const handleReorderCharacters = (team: string, newOrder: string[]) => {
-    if (!script) return;
-
-    const updatedScript = {
-      ...script,
-      characters: {
-        ...script.characters,
-        [team]: newOrder.map(id => script.characters[team].find(c => c.id === id)!),
-      },
-    };
-
-    // 重新构建 all 数组以保持一致性
-    const newAllArray: Character[] = [];
-    Object.values(updatedScript.characters).forEach(teamCharacters => {
-      newAllArray.push(...teamCharacters);
-    });
-    updatedScript.all = newAllArray;
-
-    scriptStore.setScript(updatedScript);
-    
-    // 同步更新JSON
-    syncScriptToJson(updatedScript);
+    scriptStore.reorderCharacters(team, newOrder);
   };
 
   // 更新角色信息并同步到JSON
   const handleUpdateCharacter = (characterId: string, updates: Partial<Character>) => {
-    if (!script) return;
-
-    const updatedScript = { ...script };
-    let updated = false;
-    let targetCharacter: Character | null = null;
-    let foundTeam: string | null = null;
-
-    // 找到要更新的角色（只应该在一个团队中）
-    for (const team of Object.keys(updatedScript.characters)) {
-      const charIndex = updatedScript.characters[team].findIndex(c => c.id === characterId);
-      if (charIndex !== -1) {
-        if (targetCharacter) {
-          // 如果已经找到了一个角色，说明有重复ID，这是个问题
-          console.warn(`发现重复的角色ID: ${characterId}，在团队 ${foundTeam} 和 ${team} 中都存在`);
-          continue; // 跳过重复的角色
-        }
-        
-        targetCharacter = updatedScript.characters[team][charIndex];
-        foundTeam = team;
-        updatedScript.characters[team][charIndex] = {
-          ...targetCharacter,
-          ...updates,
-        };
-        updated = true;
-      }
-    }
-
-    // 更新all数组中的角色
-    if (targetCharacter && updated) {
-      const allIndex = updatedScript.all.findIndex(c => c.id === characterId);
-      if (allIndex !== -1) {
-        updatedScript.all[allIndex] = {
-          ...targetCharacter,
-          ...updates,
-        };
-      }
-    }
-
-    if (updated) {
-      scriptStore.setScript(updatedScript);
-      syncScriptToJson(updatedScript);
-    }
+    scriptStore.updateCharacter(characterId, updates);
   };
 
   // 处理编辑角色
@@ -222,52 +161,13 @@ const App = observer(() => {
 
   // 处理添加角色到剧本
   const handleAddCharacter = (character: Character) => {
-    if (!script) return;
-
-    const updatedScript = { ...script };
-    
-    // 检查角色是否已存在
-    const exists = updatedScript.all.some(c => c.id === character.id);
-    if (exists) {
-      // 可以显示提示信息
-      return;
-    }
-
-    // 添加到对应团队
-    if (!updatedScript.characters[character.team]) {
-      updatedScript.characters[character.team] = [];
-    }
-    updatedScript.characters[character.team].push(character);
-    
-    // 添加到all数组
-    updatedScript.all.push(character);
-
-    scriptStore.setScript(updatedScript);
-    syncScriptToJson(updatedScript);
+    scriptStore.addCharacter(character);
     // 不再自动关闭角色库
   };
 
   // 处理从剧本中删除角色
   const handleRemoveCharacter = (character: Character) => {
-    if (!script) return;
-
-    const updatedScript = { ...script };
-    
-    // 从对应团队中删除
-    if (updatedScript.characters[character.team]) {
-      updatedScript.characters[character.team] = updatedScript.characters[character.team].filter(c => c.id !== character.id);
-      
-      // 如果团队为空，删除该团队
-      if (updatedScript.characters[character.team].length === 0) {
-        delete updatedScript.characters[character.team];
-      }
-    }
-    
-    // 从all数组中删除
-    updatedScript.all = updatedScript.all.filter(c => c.id !== character.id);
-
-    scriptStore.setScript(updatedScript);
-    syncScriptToJson(updatedScript);
+    scriptStore.removeCharacter(character);
   };
 
   // 将Script同步回JSON

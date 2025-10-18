@@ -244,7 +244,7 @@ const getFabledCharacters = (language: string): Character[] => {
         {
             id: 'sentinel',
             name: isEnglish ? 'Sentinel' : '哨兵',
-            ability: isEnglish ? "There might be 1 extra or 1 fewer Outsider in play. " : "在初始设置时，可能会额外增加或减少个外来者。",
+            ability: isEnglish ? "There might be 1 extra or 1 fewer Outsider in play. " : "在初始设置时，可能会额外增加或减少一个外来者。",
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Sentinel_icon.webp',
             firstNight: 0,
