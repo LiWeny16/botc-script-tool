@@ -265,7 +265,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
               flex: { xs: '1 1 100%', sm: '0 1 auto' },
             }}
           >
-            {t('input.copyJson')}
+            {t('input.exportJson')}
           </Button>
 
           <Button

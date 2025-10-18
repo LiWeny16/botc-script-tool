@@ -1,657 +1,657 @@
 [
-    {
-      "id": "_meta",
-      "name": "血染德扑",
-      "titleImage": "/imgs/images/血染德扑.png",
-      "author": "Bigonion",
-      "playerCount": "7-15",
-      "description": "筹码是你的声音，底牌是你的身份。在这场谎言与计算的赌局中，活到最后，看穿一切。欢迎来到血染德扑。",
-      "townsfolkName": "镇民",
-      "outsidersName": "外来者",
-      "minionsName": "爪牙",
-      "demonsName": "恶魔"
-    },
-    {
-      "id": "bounty_hunter",
-      "name": "赏金猎人",
-      "ability": "在你的首个夜晚，你会得知一名邪恶玩家。每当你得知的玩家死亡，你会在当晚得知另一名邪恶玩家并领取1个“暗影筹码”作为赏金。[会有一名镇民转变为邪恶阵营]",
-      "team": "townsfolk",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bounty_hunter.png",
-      "firstNight": 3055,
-      "otherNight": 94,
-      "firstNightReminder": "（在进入首个夜晚时立即通知赏金猎人转变的那个镇民他的阵营发生了变化）唤醒赏金猎人，对他指向一名邪恶玩家。",
-      "otherNightReminder": "如果赏金猎人之前得知的玩家死亡，唤醒赏金猎人，对他指向一名新的邪恶玩家。",
-      "reminders": [
-        "得知"
-      ],
-      "setup": true
-    },
-    {
-      "id": "alchemist",
-      "name": "炼金术士",
-      "ability": "你拥有一个爪牙角色的能力。当你使用能力时，说书人可能会要求你更换选择。",
-      "team": "townsfolk",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/alchemist.png",
-      "firstNight": 3.3,
-      "otherNight": 0,
-      "firstNightReminder": "唤醒炼金术士，对他展示他获得的能力所对应的爪牙角色标记。",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "investigator",
-      "edition": "custom",
-      "name": "调查员",
-      "team": "townsfolk",
-      "sch_team": "镇民",
-      "firstNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
-      "otherNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
-      "reminders": [],
-      "setup": false,
-      "ability": "在你的首个夜晚，你会得知两名玩家和一个爪牙角色：这两名玩家之一是该角色（或者你会得知没有爪牙在场）。",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/investigator.png",
-      "firstNight": 3037,
-      "otherNight": 0
-    },
-    {
-      "id": "empath",
-      "edition": "custom",
-      "name": "共情者",
-      "ability": "每个夜晚*，你会得知你左手边存活邻居的底牌，是否比你右手边存活邻居的底牌要强（如果接近，答案由说书人决定）。",
-      "team": "townsfolk",
-      "sch_team": "镇民",
-      "firstNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
-      "otherNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
-      "reminders": [],
-      "setup": false,
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/empath.png",
-      "firstNight": 3039,
-      "otherNight": 80
-    },
-    {
-      "id": "undertaker",
-      "name": "送葬者",
-      "ability": "每个夜晚*，你会得知今天白天死于处决的玩家的角色。",
-      "team": "townsfolk",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/undertaker.png",
-      "firstNight": 0,
-      "otherNight": 83,
-      "firstNightReminder": "",
-      "otherNightReminder": "如果今天白天有玩家死于处决，唤醒送葬者，对他展示那名玩家的角色标记。",
-      "reminders": [
-        "死于今日"
-      ],
-      "setup": false
-    },
-    {
-      "id": "grandmother",
-      "name": "祖母",
-      "ability": "在你的首个夜晚，你会得知一名善良玩家和他的角色。如果他被恶魔杀死，你也会死亡。",
-      "team": "townsfolk",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/grandmother.png",
-      "firstNight": 3043,
-      "otherNight": 66,
-      "firstNightReminder": "唤醒祖母，对她指向一名善良玩家，并展示该玩家的角色标记。",
-      "otherNightReminder": "如果恶魔杀死了孙子，祖母死亡。",
-      "reminders": [
-        "孙子",
-        "死亡"
-      ],
-      "setup": false
-    },
-    {
-      "id": "magician",
-      "ability": "每个夜晚，你可以作弊并选择一名玩家并偷看他一张底牌。",
-      "team": "townsfolk",
-      "sch_team": "镇民",
-      "firstNight": 3,
-      "otherNight": 3,
-      "name": "魔术师",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/magician.png",
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "exorcist",
-      "name": "驱魔人",
-      "ability": "每个夜晚*，你要选择一名玩家（与上个夜晚不同）：如果你选中了恶魔，他会得知你的角色，但他当晚不会因其自身能力而被唤醒。",
-      "team": "townsfolk",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/exorcist.png",
-      "firstNight": 0,
-      "otherNight": 29,
-      "firstNightReminder": "",
-      "otherNightReminder": "唤醒驱魔人，让他选择一名与上一晚不同的玩家。如果他选中了恶魔，则在驱魔人入睡后通知该恶魔谁是驱魔人。",
-      "reminders": [
-        "被选择"
-      ],
-      "setup": false
-    },
-    {
-      "id": "snake_charmer",
-      "name": "舞蛇人",
-      "ability": "每个夜晚，你要选择一名存活的玩家：如果你选中了恶魔，你和他交换角色和阵营，然后他中毒。",
-      "team": "townsfolk",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/snake_charmer.png",
-      "firstNight": 3021,
-      "otherNight": 13,
-      "firstNightReminder": "唤醒舞蛇人，让他选择一名存活玩家。如果选中恶魔则执行角色和阵营的交换，并在舞蛇人入睡后通知旧恶魔角色变化。",
-      "otherNightReminder": "唤醒舞蛇人，让他选择一名存活玩家。如果选中恶魔则执行角色和阵营的交换，并在舞蛇人入睡后通知旧恶魔角色变化。",
-      "reminders": [
-        "中毒"
-      ],
-      "setup": false
-    },
-    {
-      "id": "chambermaid",
-      "edition": "basetown",
-      "name": "女仆",
-      "ability": "每个夜晚，选择两名存活玩家。你会得知他们之中有几个人因为自身能力被唤醒或在当晚“作弊”。",
-      "team": "townsfolk",
-      "sch_team": "镇民",
-      "firstNightReminder": "唤醒女仆，让她指向两名玩家。然后告知她选择的玩家中有多少人在今晚使用了暗影筹码。",
-      "otherNightReminder": "唤醒女仆，让她指向两名玩家。然后告知她选择的玩家中有多少人在今晚使用了暗影筹码。",
-      "reminders": [],
-      "setup": false,
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/chambermaid.png",
-      "firstNight": 3064,
-      "otherNight": 100
-    },
-    {
-      "id": "fortune_teller",
-      "name": "占卜师",
-      "ability": "每个夜晚，你要选择两名玩家：你会得知他们之中是否有恶魔。会有一名善良玩家始终被你的能力当作恶魔。<i>（干扰项）</i>",
-      "team": "townsfolk",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/fortune_teller.png",
-      "firstNight": 3040,
-      "otherNight": 81,
-      "firstNightReminder": "唤醒占卜师，让他选择两名玩家。以点头或摇头告知他是否选中了恶魔。",
-      "otherNightReminder": "唤醒占卜师，让他选择两名玩家。以点头或摇头告知他是否选中了恶魔。",
-      "reminders": [
-        "干扰项"
-      ],
-      "setup": false
-    },
-    {
-      "id": "gambler",
-      "edition": "custom",
-      "name": "赌徒",
-      "ability": "在每个白天牌局的任意轮次，你可以进行一次梭哈。如果你成功梭哈并赢得该轮牌局，当天夜晚你会得知一名邪恶玩家，如果你输了，你可能会死亡。",
-      "team": "townsfolk",
-      "sch_team": "镇民",
-      "firstNightReminder": "",
-      "otherNightReminder": "唤醒赌徒，让他进行猜测。如果猜测错误，他死亡。",
-      "reminders": [
-        "死亡"
-      ],
-      "setup": false,
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/gambler.png",
-      "firstNight": 0,
-      "otherNight": 0
-    },
-    {
-      "id": "mayor",
-      "edition": "basetown",
-      "name": "镇长",
-      "ability": "如果场上仅剩3名玩家存活，且当天的“大法官”没有发动处决，你的阵营获胜。如果你在夜晚死亡，可能会有一名其他玩家代替你死亡。[初始暗影筹码+1]",
-      "team": "townsfolk",
-      "sch_team": "镇民",
-      "firstNight": 0,
-      "otherNight": 0,
-      "reminders": [
-        "特殊胜利"
-      ],
-      "setup": false,
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/mayor.png",
-      "firstNightReminder": "",
-      "otherNightReminder": ""
-    },
-    {
-      "id": "drunk",
-      "edition": "custom",
-      "name": "酒鬼",
-      "team": "outsider",
-      "sch_team": "外来者",
-      "firstNight": 0,
-      "otherNight": 0,
-      "reminders": [
-        "醉酒"
-      ],
-      "setup": true,
-      "ability": "你不知道你是酒鬼。你以为你是一个镇民角色，但其实你不是。",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/drunk.png",
-      "firstNightReminder": "",
-      "otherNightReminder": ""
-    },
-    {
-      "id": "Casanova",
-      "name": "花花公子",
-      "ability": "每当有人梭哈的时候，你也必须梭哈，否则将会被视为作弊。",
-      "team": "outsider",
-      "firstNight": 40,
-      "otherNight": 69,
-      "sch_team": "外来者",
-      "image": "https://youke1.picui.cn/s1/2025/10/11/68e9579bbd205.png",
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "mutant",
-      "edition": "custom",
-      "name": "畸形秀演员",
-      "ability": "如果你在白天“疯狂”地证明你的手牌极大或极小，你可能被处决。",
-      "team": "outsider",
-      "sch_team": "外来者",
-      "firstNight": 0,
-      "otherNight": 0,
-      "reminders": [],
-      "setup": false,
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/mutant.png",
-      "firstNightReminder": "",
-      "otherNightReminder": ""
-    },
-    {
-      "id": "disappointed",
-      "edition": "custom",
-      "image": "https://youke1.picui.cn/s1/2025/10/11/68e95986b417e.png",
-      "name": "失望",
-      "ability": "你以为你是一个爪牙，但其实你不是。",
-      "team": "outsider",
-      "sch_team": "外来者",
-      "firstNight": 5,
-      "otherNight": 5,
-      "setup": false,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": []
-    },
-    {
-      "id": "poisoner",
-      "name": "投毒者",
-      "ability": "每个夜晚，你要选择一名玩家：他在当晚和明天白天中毒。",
-      "team": "minion",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/poisoner.png",
-      "firstNight": 3018,
-      "otherNight": 9,
-      "firstNightReminder": "唤醒投毒者，让他选择一名玩家，那名玩家中毒。",
-      "otherNightReminder": "唤醒投毒者，让他选择一名玩家，那名玩家中毒。",
-      "reminders": [
-        "中毒"
-      ],
-      "setup": false
-    },
-    {
-      "id": "psychopath",
-      "ability": "每个白天，在牌局开始之前，你可以公开选择一名玩家：他死亡。如果你在当天的牌局牌比“大法官”大，你无法死于处决。",
-      "name": "精神病患者",
-      "team": "minion",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/psychopath.png",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "pit-hag",
-      "name": "麻脸巫婆",
-      "ability": "每个夜晚*，你要选择一名玩家和一个角色，如果该角色不在场，他变成该角色。如果因此创造了一个恶魔，当晚的死亡由说书人决定。",
-      "team": "minion",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/pit-hag.png",
-      "firstNight": 0,
-      "otherNight": 8,
-      "firstNightReminder": "",
-      "otherNightReminder": "唤醒麻脸巫婆，让她选择一名玩家和角色列表上的一个角色。如果该角色不在场，则在麻脸巫婆入睡后通知该玩家角色变化。根据实际情况，可以将相关通知合并，例如玩家变成了恶魔，则在恶魔行动时一并唤醒，通知角色变化并让他执行相应行动。",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "scarlet_woman",
-      "edition": "custom",
-      "name": "红唇女郎",
-      "team": "minion",
-      "sch_team": "爪牙",
-      "firstNightReminder": "唤醒红唇女郎和恶魔，让他们互相确认身份。",
-      "otherNightReminder": "如果红唇女郎的能力曾被触发，唤醒她并告知她变成了哪个恶魔角色。",
-      "reminders": [
-        "是恶魔"
-      ],
-      "setup": false,
-      "ability": "如果大于等于五名玩家存活时（旅行者不计算在内）恶魔死亡，你变成那个恶魔。",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/scarlet_woman.png",
-      "firstNight": 0,
-      "otherNight": 26
-    },
-    {
-      "id": "cerenovus",
-      "edition": "custom",
-      "name": "洗脑师",
-      "ability": "每个夜晚，选择一名玩家。说书人决定他在明天白天需要“疯狂”地证明自己的手牌是“极大”还是“极小”。不然他可能会被处决。",
-      "team": "minion",
-      "sch_team": "爪牙",
-      "firstNightReminder": "唤醒洗脑师和恶魔，让他们互相确认身份。然后让洗脑师选择一名玩家使其“疯狂”。",
-      "otherNightReminder": "唤醒洗脑师，让他选择一名玩家使其“疯狂”。",
-      "reminders": [
-        "疯狂"
-      ],
-      "setup": false,
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/cerenovus.png",
-      "firstNight": 3025,
-      "otherNight": 20
-    },
-    {
-      "id": "shabaloth",
-      "name": "沙巴洛斯",
-      "ability": "每个夜晚*，你要选择两名玩家：他们死亡。你上个夜晚选择过且当前死亡的玩家之一可能会被你反刍。",
-      "team": "demon",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/shabaloth.png",
-      "firstNight": 0,
-      "otherNight": 34,
-      "firstNightReminder": "",
-      "otherNightReminder": "决定上一夜被沙巴洛斯选择的玩家是否被反刍。然后唤醒沙巴洛斯，让他攻击两名玩家。",
-      "reminders": [
-        "死亡",
-        "复活"
-      ],
-      "setup": false
-    },
-    {
-      "id": "yaggababble",
-      "name": "牙噶巴卜",
-      "ability": "在你的首个夜晚，你会得知一段秘密短语。每次你在白天公开说出这段短语，当天便可能会有一名玩家在这之后死亡。\n",
-      "team": "demon",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/yaggababble.png",
-      "firstNight": 3031,
-      "otherNight": 45,
-      "firstNightReminder": "唤醒牙噶巴卜，对他展示他的秘密短语。",
-      "otherNightReminder": "根据已放置的提示标记数量，选择最多等同于该数量的玩家死亡。该夜晚行动只是一个提示，死亡的造成时机可以是白天，也可以是夜晚的任何时候。",
-      "reminders": [
-        "死亡"
-      ],
-      "setup": false
-    },
-    {
-      "id": "pact_demon",
-      "name": "契魔",
-      "ability": "每个夜晚*，你不会杀死玩家。改为选择两名存活玩家签订死亡契约。如果他们中的一人因任何原因死亡，另一人也会一同死亡。",
-      "team": "demon",
-      "image": "/imgs/icons/血染德扑/契魔.png",
-      "firstNight": 0,
-      "otherNight": 41,
-      "firstNightReminder": "",
-      "otherNightReminder": "唤醒契魔，让他选择两名玩家。用“链接”标记他们。白天开始时，公开宣布这两名玩家被链接。",
-      "reminders": [
-        "链接"
-      ],
-      "setup": false
-    },
-    {
-      "id": "al-hadikhia",
-      "name": "哈迪寂亚",
-      "ability": "每个夜晚*，你可以选择三名玩家（所有玩家会得知你选了谁）：他们分别秘密决定自己的生死，然后如果他们都存活则都死亡。",
-      "team": "demon",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/al-hadikhia.png",
-      "firstNight": 0,
-      "otherNight": 42,
-      "firstNightReminder": "",
-      "otherNightReminder": "唤醒哈迪寂亚，让他选择三名玩家。执行哈迪寂亚的能力流程（参考哈迪寂亚的百科页面）。",
-      "reminders": [
-        "1",
-        "2",
-        "3",
-        "选择生",
-        "选择死"
-      ],
-      "setup": false
-    },
-    {
-      "id": "uv6d0fft",
-      "name": "血染德扑",
-      "team": "fabled",
-      "ability": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过猜拳来决定最终的赢家。",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bootlegger.png",
-      "setup": false,
-      "reminders": [],
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": ""
-    },
-    {
-      "id": "zuiyingdeshangdi",
-      "name": "嘴硬的上帝",
-      "ability": "“我可能有问题，但我就是不承认也不说”",
-      "team": "fabled",
-      "image": "https://botcgrimoire.top/img/duck.bd99fd34.png",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "uv6d0fft2",
-      "name": "作弊达人",
-      "team": "fabled",
-      "ability": "每个夜晚，恶魔可以选择与一名爪牙交换底牌或选择偷看一名善良玩家的底牌。黎明到来之前，可以要求说书人秘密向你展示牌堆顶的其中一张公共牌。但均会被视为作弊。[暗影筹码+3]",
-      "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bootlegger.png",
-      "setup": false,
-      "reminders": [],
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": ""
-    },
-    {
-      "id": "sentinel",
-      "name": "哨兵",
-      "ability": "在初始设置时，可能会额外增加或减少一个外来者。",
-      "team": "fabled",
-      "image": "https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Sentinel_icon.webp",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "meishuguanzhang",
-      "name": "馆长",
-      "ability": "每个夜晚*，你要选择一名玩家：如果他同意，你得知他的精神状态，但他的精神状态可能发生改变。",
-      "team": "traveler",
-      "image": "/imgs/icons/血染德扑/insanity.png",
-      "firstNight": 1,
-      "otherNight": 1,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [
-        "提名善良方",
-        "提名邪恶方"
-      ],
-      "setup": false
-    },
-    {
-      "id": "叠码仔",
-      "name": "叠码仔",
-      "ability": "每个白天，所有玩家都可以找你借高利贷，但是在下回合结束前他们必须还给你1.2倍的筹码，否则他们可能会死亡[你的初始筹码翻两倍]",
-      "team": "traveler",
-      "image": "/imgs/icons/血染德扑/叠码仔.png",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "赌场老板",
-      "name": "赌场老板",
-      "ability": "每个白天，你可以公开猜测一名玩家昨晚和今天白天是否作弊了，如果你猜对了，他将会立即变成你指定的一种旅行者，并且被禁止参与牌局。你首次死亡的时候将不会死亡，改为丢弃所有筹码。",
-      "team": "traveler",
-      "image": "/imgs/icons/血染德扑/boss.png",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [
-        "禁止赌博"
-      ],
-      "setup": false
-    },
-    {
-      "id": "beggar",
-      "name": "九头蛇",
-      "ability": "当与你同阵营的一名玩家死亡时，可能有一名同阵营玩家复活。",
-      "team": "traveler",
-      "image": "/imgs/icons/血染德扑/九头蛇.png",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "电话交易员",
-      "name": "电话交易员",
-      "ability": "每个夜晚，你会得知明天当电话铃响后接听电话后会发生什么，接听电话的人也会知道会发生什么，发生的事情可能会打破规则。",
-      "team": "traveler",
-      "image": "/imgs/icons/血染德扑/经销商.png",
-      "firstNight": 1,
-      "otherNight": 1,
-      "firstNightReminder": "唤醒官员。让官员指向任意一名玩家。用官员的“3票”提示标记那名被选中的玩家。让官员入睡。",
-      "otherNightReminder": "唤醒官员。让官员指向任意一名玩家。用官员的“3票”提示标记那名被选中的玩家。让官员入睡。",
-      "reminders": [
-        "3票"
-      ],
-      "setup": false
-    },
-    {
-      "id": "tinker",
-      "name": "瘾君子",
-      "ability": "你以为你是一个在场的善良玩家，但其实你不是。该角色的玩家会知道瘾君子在场。如果你们之中其中一人“疯狂”证明瘾君子在场，你们可能都会死亡。",
-      "team": "traveler",
-      "image": "/imgs/icons/血染德扑/瘾君子.png",
-      "firstNight": 0,
-      "otherNight": 63,
-      "firstNightReminder": "",
-      "otherNightReminder": "在夜晚的任意时机，你都可以决定杀死修补匠。这里只是一个提示以免遗忘修补匠。",
-      "reminders": [
-        "死亡"
-      ],
-      "setup": false
-    },
-    {
-      "id": "shop_divine_shield",
-      "image": "/imgs/icons/血染德扑/poker.png",
-      "name": "弹刀大师",
-      "ability": "【暗影筹码*2】如果你在当天夜晚因为恶魔而死亡，可能会有一名爪牙代替你死亡。",
-      "team": "暗影商店",
-      "sch_team": "商店",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "shop_glimpse",
-      "image": "/imgs/icons/血染德扑/poker.png",
-      "name": "我没开挂",
-      "ability": "【暗影筹码*1】在下一个白天的牌局开始前，说书人会秘密向你展示翻牌中的一或俩张牌，这将会被视为作弊。",
-      "team": "暗影商店",
-      "sch_team": "商店",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "shop_forced_call",
-      "image": "/imgs/icons/血染德扑/poker.png",
-      "name": "强制跟注",
-      "ability": "【暗影筹码*2】选择一名玩家。在下一个白天的牌局中，当第一次有人下注或加注时，只要他筹码足够，他就必须跟注，否则可能死亡。",
-      "team": "暗影商店",
-      "sch_team": "商店",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "shop_double_flop",
-      "name": "双重荷官",
-      "image": "/imgs/icons/血染德扑/poker.png",
-      "ability": "【暗影筹码*2】购买后，在下一个白天的翻牌圈，说书人会发出两组不同的翻牌（共6张牌）。玩家们必须投票选择其中一组作为本轮的正式公共牌。",
-      "team": "暗影商店",
-      "sch_team": "商店",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "custom_legend_shop_river",
-      "name": "谁是庄家（传说）",
-      "image": "/imgs/icons/血染德扑/poker.png",
-      "ability": "【暗影筹码*2】每局限购一次，指定谁是庄家。如果有多人指定，那么由说书人决定谁坐庄。",
-      "team": "暗影商店（传说）",
-      "sch_team": "传说商品",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "custom_legend_shop_river2",
-      "name": "命运的交换（传说）",
-      "image": "/imgs/icons/血染德扑/poker.png",
-      "ability": "【暗影筹码*3】每局限购一次，选择场上另一名玩家。你们交换底牌，但你们都将会被视为作弊。",
-      "team": "暗影商店（传说）",
-      "sch_team": "传说商品",
-      "firstNight": 0,
-      "otherNight": 0,
-      "firstNightReminder": "",
-      "otherNightReminder": "",
-      "reminders": [],
-      "setup": false
-    },
-    {
-      "id": "special_rule_blood_on_the_poker",
-      "team": "special_rule",
-      "title": "Blood On The Poker 特殊规则",
-      "rules": [
-        {
-          "title": "暗影筹码",
-          "content": "初始所有玩家拥有1颗暗影筹码。暗影筹码是额外的能力货币，与玩家在德州扑克牌桌上的常规筹码分离。赢得白天的牌局的玩家获得1枚暗影筹码。这些筹码的持有和使用是秘密的，用于在夜晚购买暗影商店的商品或发动特殊能力。"
-        }
-      ]
-    },
-    {
-      "id": "special_rule_blood_on_the_poker",
-      "team": "special_rule",
-      "title": "Blood On The Poker 特殊规则",
-      "rules": [
-        {
-          "title": "牌桌上的死亡",
-          "content": "玩家在牌局中输光所有常规筹码，不会立即死亡。他们仍然可以参与后续的讨论和投票，但无法再参与牌局下注。当玩家被处决或被恶魔击杀时，他们会失去所有筹码并宣告死亡。"
-        }
-      ]
-    }
-  ]
+  {
+    "id": "_meta",
+    "name": "血染德扑",
+    "titleImage": "/imgs/images/血染德扑.png",
+    "author": "Bigonion",
+    "playerCount": "7-15",
+    "description": "筹码是你的声音，底牌是你的身份。在这场谎言与计算的赌局中，活到最后，看穿一切。欢迎来到血染德扑。",
+    "townsfolkName": "镇民",
+    "outsidersName": "外来者",
+    "minionsName": "爪牙",
+    "demonsName": "恶魔"
+  },
+  {
+    "id": "bounty_hunter",
+    "name": "赏金猎人",
+    "ability": "在你的首个夜晚，你会得知一名邪恶玩家。每当你得知的玩家死亡，你会在当晚得知另一名邪恶玩家并领取1个“暗影筹码”作为赏金。[会有一名镇民转变为邪恶阵营]",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bounty_hunter.png",
+    "firstNight": 3055,
+    "otherNight": 94,
+    "firstNightReminder": "（在进入首个夜晚时立即通知赏金猎人转变的那个镇民他的阵营发生了变化）唤醒赏金猎人，对他指向一名邪恶玩家。",
+    "otherNightReminder": "如果赏金猎人之前得知的玩家死亡，唤醒赏金猎人，对他指向一名新的邪恶玩家。",
+    "reminders": [
+      "得知"
+    ],
+    "setup": true
+  },
+  {
+    "id": "alchemist",
+    "name": "炼金术士",
+    "ability": "你拥有一个爪牙角色的能力。当你使用能力时，说书人可能会要求你更换选择。",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/alchemist.png",
+    "firstNight": 3.3,
+    "otherNight": 0,
+    "firstNightReminder": "唤醒炼金术士，对他展示他获得的能力所对应的爪牙角色标记。",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "investigator",
+    "edition": "custom",
+    "name": "调查员",
+    "team": "townsfolk",
+    "sch_team": "镇民",
+    "firstNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
+    "otherNightReminder": "唤醒调查员，让他指向两名玩家。告知他选中的人里是否有黑色J或Q。",
+    "reminders": [],
+    "setup": false,
+    "ability": "在你的首个夜晚，你会得知两名玩家和一个爪牙角色：这两名玩家之一是该角色（或者你会得知没有爪牙在场）。",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/investigator.png",
+    "firstNight": 3037,
+    "otherNight": 0
+  },
+  {
+    "id": "empath",
+    "edition": "custom",
+    "name": "共情者",
+    "ability": "每个夜晚*，你会得知你左手边存活邻居的底牌，是否比你右手边存活邻居的底牌要强（如果接近，答案由说书人决定）。",
+    "team": "townsfolk",
+    "sch_team": "镇民",
+    "firstNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
+    "otherNightReminder": "唤醒共情者，指向其左右邻居，并告知哪一方的底牌胜率更高。",
+    "reminders": [],
+    "setup": false,
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/empath.png",
+    "firstNight": 3039,
+    "otherNight": 80
+  },
+  {
+    "id": "undertaker",
+    "name": "送葬者",
+    "ability": "每个夜晚*，你会得知今天白天死于处决的玩家的角色。",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/undertaker.png",
+    "firstNight": 0,
+    "otherNight": 83,
+    "firstNightReminder": "",
+    "otherNightReminder": "如果今天白天有玩家死于处决，唤醒送葬者，对他展示那名玩家的角色标记。",
+    "reminders": [
+      "死于今日"
+    ],
+    "setup": false
+  },
+  {
+    "id": "grandmother",
+    "name": "祖母",
+    "ability": "在你的首个夜晚，你会得知一名善良玩家和他的角色。如果他被恶魔杀死，你也会死亡。",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/grandmother.png",
+    "firstNight": 3043,
+    "otherNight": 66,
+    "firstNightReminder": "唤醒祖母，对她指向一名善良玩家，并展示该玩家的角色标记。",
+    "otherNightReminder": "如果恶魔杀死了孙子，祖母死亡。",
+    "reminders": [
+      "孙子",
+      "死亡"
+    ],
+    "setup": false
+  },
+  {
+    "id": "magician",
+    "ability": "每个夜晚，你可以选择作弊并偷看一名玩家的底牌。",
+    "team": "townsfolk",
+    "sch_team": "镇民",
+    "firstNight": 3,
+    "otherNight": 3,
+    "name": "魔术师",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/magician.png",
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "exorcist",
+    "name": "驱魔人",
+    "ability": "每个夜晚*，你要选择一名玩家（与上个夜晚不同）：如果你选中了恶魔，他会得知你的角色，但他当晚不会因其自身能力而被唤醒。",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/exorcist.png",
+    "firstNight": 0,
+    "otherNight": 29,
+    "firstNightReminder": "",
+    "otherNightReminder": "唤醒驱魔人，让他选择一名与上一晚不同的玩家。如果他选中了恶魔，则在驱魔人入睡后通知该恶魔谁是驱魔人。",
+    "reminders": [
+      "被选择"
+    ],
+    "setup": false
+  },
+  {
+    "id": "snake_charmer",
+    "name": "舞蛇人",
+    "ability": "每个夜晚，你要选择一名存活的玩家：如果你选中了恶魔，你和他交换角色和阵营，然后他中毒。",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/snake_charmer.png",
+    "firstNight": 3021,
+    "otherNight": 13,
+    "firstNightReminder": "唤醒舞蛇人，让他选择一名存活玩家。如果选中恶魔则执行角色和阵营的交换，并在舞蛇人入睡后通知旧恶魔角色变化。",
+    "otherNightReminder": "唤醒舞蛇人，让他选择一名存活玩家。如果选中恶魔则执行角色和阵营的交换，并在舞蛇人入睡后通知旧恶魔角色变化。",
+    "reminders": [
+      "中毒"
+    ],
+    "setup": false
+  },
+  {
+    "id": "chambermaid",
+    "edition": "basetown",
+    "name": "女仆",
+    "ability": "每个夜晚，选择两名存活玩家。你会得知他们之中有几个人因为自身能力被唤醒或者是否在当晚“作弊”，由你来选择获取哪种信息。",
+    "team": "townsfolk",
+    "sch_team": "镇民",
+    "firstNightReminder": "唤醒女仆，让她指向两名玩家。然后告知她选择的玩家中有多少人在今晚使用了暗影筹码。",
+    "otherNightReminder": "唤醒女仆，让她指向两名玩家。然后告知她选择的玩家中有多少人在今晚使用了暗影筹码。",
+    "reminders": [
+      "选择哪一个能力"
+    ],
+    "setup": false,
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/chambermaid.png",
+    "firstNight": 3064,
+    "otherNight": 100
+  },
+  {
+    "id": "fortune_teller",
+    "name": "占卜师",
+    "ability": "每个夜晚，你要选择两名玩家：你会得知他们之中是否有恶魔。会有一名善良玩家始终被你的能力当作恶魔。<i>（干扰项）</i>",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/fortune_teller.png",
+    "firstNight": 3040,
+    "otherNight": 81,
+    "firstNightReminder": "唤醒占卜师，让他选择两名玩家。以点头或摇头告知他是否选中了恶魔。",
+    "otherNightReminder": "唤醒占卜师，让他选择两名玩家。以点头或摇头告知他是否选中了恶魔。",
+    "reminders": [
+      "干扰项"
+    ],
+    "setup": false
+  },
+  {
+    "id": "gambler",
+    "name": "赌徒",
+    "ability": "在每个白天牌局的任意轮次，你可以选择梭哈。如果你成功梭哈并赢得该轮牌局，当天夜晚你会得知一名邪恶玩家，如果你输了，你可能会死亡。",
+    "team": "townsfolk",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/gambler.png",
+    "firstNight": 0,
+    "otherNight": 12,
+    "firstNightReminder": "",
+    "otherNightReminder": "唤醒赌徒，让他进行猜测。如果猜测错误，他死亡。",
+    "reminders": [
+      "死亡"
+    ],
+    "setup": false
+  },
+  {
+    "id": "mayor",
+    "edition": "basetown",
+    "name": "镇长",
+    "ability": "如果场上仅剩3名玩家存活，且当天的“大法官”没有发动处决，你的阵营获胜。如果你在夜晚死亡，可能会有一名其他玩家代替你死亡。[初始暗影筹码+1]",
+    "team": "townsfolk",
+    "sch_team": "镇民",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "特殊胜利"
+    ],
+    "setup": false,
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/mayor.png",
+    "firstNightReminder": "",
+    "otherNightReminder": ""
+  },
+  {
+    "id": "drunk",
+    "edition": "custom",
+    "name": "酒鬼",
+    "team": "outsider",
+    "sch_team": "外来者",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "醉酒"
+    ],
+    "setup": true,
+    "ability": "你不知道你是酒鬼。你以为你是一个镇民角色，但其实你不是。",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/drunk.png",
+    "firstNightReminder": "",
+    "otherNightReminder": ""
+  },
+  {
+    "id": "Casanova",
+    "name": "花花公子",
+    "ability": "每当有人梭哈的时候，你也必须梭哈，否则将会被视为作弊。",
+    "team": "outsider",
+    "firstNight": 0,
+    "otherNight": 0,
+    "sch_team": "外来者",
+    "image": "https://youke1.picui.cn/s1/2025/10/11/68e9579bbd205.png",
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "mutant",
+    "edition": "custom",
+    "name": "畸形秀演员",
+    "ability": "如果你在白天“疯狂”地证明你的手牌极大或极小，你可能被处决。",
+    "team": "outsider",
+    "sch_team": "外来者",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [],
+    "setup": false,
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/mutant.png",
+    "firstNightReminder": "",
+    "otherNightReminder": ""
+  },
+  {
+    "id": "disappointed",
+    "edition": "custom",
+    "image": "https://youke1.picui.cn/s1/2025/10/11/68e95986b417e.png",
+    "name": "失望",
+    "ability": "你以为你是一个爪牙，但其实你不是。",
+    "team": "outsider",
+    "sch_team": "外来者",
+    "firstNight": 5,
+    "otherNight": 5,
+    "setup": false,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": []
+  },
+  {
+    "id": "poisoner",
+    "name": "投毒者",
+    "ability": "每个夜晚，你要选择一名玩家：他在当晚和明天白天中毒。",
+    "team": "minion",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/poisoner.png",
+    "firstNight": 3018,
+    "otherNight": 9,
+    "firstNightReminder": "唤醒投毒者，让他选择一名玩家，那名玩家中毒。",
+    "otherNightReminder": "唤醒投毒者，让他选择一名玩家，那名玩家中毒。",
+    "reminders": [
+      "中毒"
+    ],
+    "setup": false
+  },
+  {
+    "id": "psychopath",
+    "ability": "每个白天，在牌局开始之前，你可以公开选择一名玩家：他死亡。如果你在当天的牌局牌比“大法官”大，你无法死于处决。",
+    "name": "精神病患者",
+    "team": "minion",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/psychopath.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "pit-hag",
+    "name": "麻脸巫婆",
+    "ability": "每个夜晚*，你要选择一名玩家和一个角色，如果该角色不在场，他变成该角色。如果因此创造了一个恶魔，当晚的死亡由说书人决定。",
+    "team": "minion",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/pit-hag.png",
+    "firstNight": 0,
+    "otherNight": 8,
+    "firstNightReminder": "",
+    "otherNightReminder": "唤醒麻脸巫婆，让她选择一名玩家和角色列表上的一个角色。如果该角色不在场，则在麻脸巫婆入睡后通知该玩家角色变化。根据实际情况，可以将相关通知合并，例如玩家变成了恶魔，则在恶魔行动时一并唤醒，通知角色变化并让他执行相应行动。",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "scarlet_woman",
+    "edition": "custom",
+    "name": "红唇女郎",
+    "team": "minion",
+    "sch_team": "爪牙",
+    "firstNightReminder": "唤醒红唇女郎和恶魔，让他们互相确认身份。",
+    "otherNightReminder": "如果红唇女郎的能力曾被触发，唤醒她并告知她变成了哪个恶魔角色。",
+    "reminders": [
+      "是恶魔"
+    ],
+    "setup": false,
+    "ability": "如果大于等于五名玩家存活时（旅行者不计算在内）恶魔死亡，你变成那个恶魔。",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/scarlet_woman.png",
+    "firstNight": 0,
+    "otherNight": 26
+  },
+  {
+    "id": "cerenovus",
+    "edition": "custom",
+    "name": "洗脑师",
+    "ability": "每个夜晚，选择一名玩家。说书人决定他在明天白天需要“疯狂”地证明自己的手牌是“极大”还是“极小”。不然他可能会被处决。",
+    "team": "minion",
+    "sch_team": "爪牙",
+    "firstNightReminder": "唤醒洗脑师和恶魔，让他们互相确认身份。然后让洗脑师选择一名玩家使其“疯狂”。",
+    "otherNightReminder": "唤醒洗脑师，让他选择一名玩家使其“疯狂”。",
+    "reminders": [
+      "疯狂"
+    ],
+    "setup": false,
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/cerenovus.png",
+    "firstNight": 3025,
+    "otherNight": 20
+  },
+  {
+    "id": "shabaloth",
+    "name": "沙巴洛斯",
+    "ability": "每个夜晚*，你要选择两名玩家：他们死亡。你上个夜晚选择过且当前死亡的玩家之一可能会被你反刍。",
+    "team": "demon",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/shabaloth.png",
+    "firstNight": 0,
+    "otherNight": 34,
+    "firstNightReminder": "",
+    "otherNightReminder": "决定上一夜被沙巴洛斯选择的玩家是否被反刍。然后唤醒沙巴洛斯，让他攻击两名玩家。",
+    "reminders": [
+      "死亡",
+      "复活"
+    ],
+    "setup": false
+  },
+  {
+    "id": "yaggababble",
+    "name": "牙噶巴卜",
+    "ability": "在你的首个夜晚，你会得知一段秘密短语。每次你在白天公开说出这段短语，当天便可能会有一名玩家在这之后死亡。\n",
+    "team": "demon",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/yaggababble.png",
+    "firstNight": 3031,
+    "otherNight": 45,
+    "firstNightReminder": "唤醒牙噶巴卜，对他展示他的秘密短语。",
+    "otherNightReminder": "根据已放置的提示标记数量，选择最多等同于该数量的玩家死亡。该夜晚行动只是一个提示，死亡的造成时机可以是白天，也可以是夜晚的任何时候。",
+    "reminders": [
+      "死亡"
+    ],
+    "setup": false
+  },
+  {
+    "id": "pact_demon",
+    "name": "契魔",
+    "ability": "每个夜晚*，你可以选择两名存活玩家签订死亡契约。如果他们中的一人因任何原因死亡，另一人也会随之一同死亡。[+1外来者]",
+    "team": "demon",
+    "image": "/imgs/icons/血染德扑/契魔.png",
+    "firstNight": 0,
+    "otherNight": 41,
+    "firstNightReminder": "",
+    "otherNightReminder": "唤醒契魔，让他选择两名玩家。用“链接”标记他们。白天开始时，公开宣布这两名玩家被链接。",
+    "reminders": [
+      "链接"
+    ],
+    "setup": false
+  },
+  {
+    "id": "al-hadikhia",
+    "name": "哈迪寂亚",
+    "ability": "每个夜晚*，你可以选择三名玩家（所有玩家会得知你选了谁）：他们分别秘密决定自己的生死，然后如果他们都存活则都死亡。",
+    "team": "demon",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/al-hadikhia.png",
+    "firstNight": 0,
+    "otherNight": 42,
+    "firstNightReminder": "",
+    "otherNightReminder": "唤醒哈迪寂亚，让他选择三名玩家。执行哈迪寂亚的能力流程（参考哈迪寂亚的百科页面）。",
+    "reminders": [
+      "1",
+      "2",
+      "3",
+      "选择生",
+      "选择死"
+    ],
+    "setup": false
+  },
+  {
+    "id": "uv6d0fft",
+    "name": "血染德扑",
+    "team": "fabled",
+    "ability": "白天没有私聊环节。取而代之的是一场酣畅淋漓的德州扑克牌局。赢的玩家（即“大法官”）可以拥有最终处决权。如果牌局平局，则通过猜拳来决定最终的赢家。",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bootlegger.png",
+    "setup": false,
+    "reminders": [],
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": ""
+  },
+  {
+    "id": "zuiyingdeshangdi",
+    "name": "嘴硬的上帝",
+    "ability": "“我可能有问题，但我就是不承认也不说”",
+    "team": "fabled",
+    "image": "https://botcgrimoire.top/img/duck.bd99fd34.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "uv6d0fft2",
+    "name": "作弊达人",
+    "team": "fabled",
+    "ability": "每个夜晚，恶魔可以作弊并与一名爪牙交换底牌或选择偷看一名善良玩家的底牌。每个黎明到来之前，可以作弊并要求说书人秘密向你展示牌堆顶的其中一张公共牌。[恶魔初始暗影筹码+3]",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bootlegger.png",
+    "setup": false,
+    "reminders": [],
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": ""
+  },
+  {
+    "id": "sentinel",
+    "name": "哨兵",
+    "ability": "在初始设置时，可能会额外增加或减少一个外来者。",
+    "team": "fabled",
+    "image": "https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Sentinel_icon.webp",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "meishuguanzhang",
+    "name": "馆长",
+    "ability": "每个夜晚*，你要选择一名玩家：如果他同意，你得知他的精神状态，但他的精神状态可能发生改变。",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/insanity.png",
+    "firstNight": 1,
+    "otherNight": 1,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "提名善良方",
+      "提名邪恶方"
+    ],
+    "setup": false
+  },
+  {
+    "id": "叠码仔",
+    "name": "叠码仔",
+    "ability": "每个白天，所有玩家都可以找你借高利贷，但是在下回合结束前他们必须还给你1.2倍的筹码，否则他们可能会死亡[你的初始筹码翻两倍]",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/叠码仔.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "赌场老板",
+    "name": "赌场老板",
+    "ability": "每个白天，你可以公开猜测一名玩家昨晚和今天白天是否作弊了，如果你猜对了，他将会立即变成你指定的一种旅行者，并且被禁止参与牌局。你首次死亡的时候将不会死亡，改为丢弃所有筹码。",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/boss.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "禁止赌博"
+    ],
+    "setup": false
+  },
+  {
+    "id": "beggar",
+    "name": "九头蛇",
+    "ability": "当与你同阵营的一名玩家死亡时，可能有一名同阵营玩家复活。",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/九头蛇.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "电话交易员",
+    "name": "电话交易员",
+    "ability": "每个夜晚，你会得知明天当电话铃响后接听电话后会发生什么，接听电话的人也会知道会发生什么，发生的事情可能会打破规则。",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/经销商.png",
+    "firstNight": 1,
+    "otherNight": 1,
+    "firstNightReminder": "唤醒官员。让官员指向任意一名玩家。用官员的“3票”提示标记那名被选中的玩家。让官员入睡。",
+    "otherNightReminder": "唤醒官员。让官员指向任意一名玩家。用官员的“3票”提示标记那名被选中的玩家。让官员入睡。",
+    "reminders": [
+      "3票"
+    ],
+    "setup": false
+  },
+  {
+    "id": "tinker",
+    "name": "瘾君子",
+    "ability": "你以为你是一个在场的善良玩家，但其实你不是。该角色的玩家会知道瘾君子在场。如果你们之中其中一人“疯狂”证明瘾君子在场，你们可能都会死亡。",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/瘾君子.png",
+    "firstNight": 0,
+    "otherNight": 63,
+    "firstNightReminder": "",
+    "otherNightReminder": "在夜晚的任意时机，你都可以决定杀死修补匠。这里只是一个提示以免遗忘修补匠。",
+    "reminders": [
+      "死亡"
+    ],
+    "setup": false
+  },
+  {
+    "id": "shop_divine_shield",
+    "image": "/imgs/icons/血染德扑/poker.png",
+    "name": "弹刀大师",
+    "ability": "【暗影筹码*2】如果你在当天夜晚因为恶魔而死亡，可能会有一名爪牙代替你死亡。",
+    "team": "暗影商店",
+    "sch_team": "商店",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "shop_glimpse",
+    "image": "/imgs/icons/血染德扑/poker.png",
+    "name": "我没开挂",
+    "ability": "【暗影筹码*1】在下一个白天的牌局开始前，说书人会秘密向你展示翻牌中的一或俩张牌，这将会被视为作弊。",
+    "team": "暗影商店",
+    "sch_team": "商店",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "shop_forced_call",
+    "image": "/imgs/icons/血染德扑/poker.png",
+    "name": "强制跟注",
+    "ability": "【暗影筹码*2】选择一名玩家。在下一个白天的牌局中，当第一次有人下注或加注时，只要他筹码足够，他就必须跟注，否则可能死亡。",
+    "team": "暗影商店",
+    "sch_team": "商店",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "shop_double_flop",
+    "name": "双重荷官",
+    "image": "/imgs/icons/血染德扑/poker.png",
+    "ability": "【暗影筹码*2】购买后，在下一个白天的翻牌圈，说书人会发出两组不同的翻牌（共6张牌）。玩家们必须投票选择其中一组作为本轮的正式公共牌。",
+    "team": "暗影商店",
+    "sch_team": "商店",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "custom_legend_shop_river",
+    "name": "谁是庄家（传说）",
+    "image": "/imgs/icons/血染德扑/poker.png",
+    "ability": "【暗影筹码*2】每局限购一次，指定谁是庄家。如果有多人指定，那么由说书人决定谁坐庄。",
+    "team": "暗影商店（传说）",
+    "sch_team": "传说商品",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "custom_legend_shop_river2",
+    "name": "命运的交换（传说）",
+    "image": "/imgs/icons/血染德扑/poker.png",
+    "ability": "【暗影筹码*3】每局限购一次，选择场上另一名玩家。你们交换底牌，但你们都将会被视为作弊。",
+    "team": "暗影商店（传说）",
+    "sch_team": "传说商品",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  {
+    "id": "special_rule_blood_on_the_poker",
+    "team": "special_rule",
+    "title": "Blood On The Poker 特殊规则",
+    "rules": [
+      {
+        "title": "暗影筹码",
+        "content": "初始所有玩家拥有1颗暗影筹码。暗影筹码是额外的能力货币，与玩家在德州扑克牌桌上的常规筹码分离。赢得白天的牌局的玩家获得1枚暗影筹码。这些筹码的持有和使用是秘密的，用于在夜晚购买暗影商店的商品或发动特殊能力。"
+      }
+    ]
+  },
+  {
+    "id": "special_rule_blood_on_the_poker",
+    "team": "special_rule",
+    "title": "Blood On The Poker 特殊规则",
+    "rules": [
+      {
+        "title": "牌桌上的死亡",
+        "content": "玩家在牌局中输光所有常规筹码，不会立即死亡。他们仍然可以参与后续的讨论和投票，但无法再参与牌局下注。当玩家被处决或被恶魔击杀时，他们会失去所有筹码并宣告死亡。"
+      }
+    ]
+  }
+]

@@ -232,55 +232,19 @@ const App = observer(() => {
     }
   };
 
-  // 导出更新后的JSON
+  // 导出JSON文件
   const handleExportJson = () => {
-    if (!script) return;
+    if (!originalJson) return;
 
     try {
-      const parsedJson = JSON.parse(originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
-
-      // 创建新的JSON数组，保持原始顺序但根据script中的顺序重新排列
-      const newJsonArray: any[] = [];
-
-      // 添加元数据
-      const metaItem = jsonArray.find((item: any) => item.id === '_meta');
-      if (metaItem) {
-        newJsonArray.push(metaItem);
-      }
-
-      // 按照script中的顺序添加角色（包括所有team类型）
-      Object.keys(script.characters).forEach(team => {
-        script.characters[team].forEach(character => {
-          const originalItem = jsonArray.find((item: any) => item.id === character.id);
-          if (originalItem) {
-            newJsonArray.push(originalItem);
-          }
-        });
-      });
-
-      // 添加相克规则
-      jsonArray.forEach((item: any) => {
-        if (item.team === 'a jinxed') {
-          newJsonArray.push(item);
-        }
-      });
-
-      const jsonString = JSON.stringify(newJsonArray, null, 2);
-
-      // 复制到剪贴板
-      navigator.clipboard.writeText(jsonString).then(() => {
-        alert(t('input.jsonCopied'));
-      }).catch(() => {
-        // 如果复制失败，显示在弹窗中
-        const textarea = document.createElement('textarea');
-        textarea.value = jsonString;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        alert(t('input.jsonCopied'));
-      });
+      // 直接下载原始JSON文件
+      const blob = new Blob([originalJson], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${script?.title || '剧本'}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
     } catch (error) {
       console.error('导出JSON失败:', error);
       alert(t('input.exportJsonFailed'));

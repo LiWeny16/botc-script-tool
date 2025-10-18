@@ -129,28 +129,15 @@ const ScriptPreview = observer(() => {
   }, [language, originalJson]);
 
   const handleExportJson = () => {
-    if (!script) return;
+    if (!originalJson) return;
 
     try {
-      // 构建符合原始格式的JSON结构
-      const exportData = [
-        {
-          id: '_meta',
-          name: script.title,
-          author: script.author || '',
-        },
-        // 导出所有team的角色
-        ...Object.keys(script.characters).flatMap(team => 
-          script.characters[team].map(char => ({ id: char.id }))
-        ),
-      ];
-
-      const jsonString = JSON.stringify(exportData, null, 2);
-      const blob = new Blob([jsonString], { type: 'application/json' });
+      // 直接下载原始JSON文件
+      const blob = new Blob([originalJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${script.title || '剧本'}.json`;
+      link.download = `${script?.title || '剧本'}.json`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
