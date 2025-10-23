@@ -430,7 +430,7 @@ const App = observer(() => {
                     {/* 固定高度包裹层，让图片/文本在同一高度内居中 */}
                     <Box
                       sx={{
-                        height: { xs: 90, sm: 100, md: 110 },
+                        height: { xs: 90, sm: 100, md: 180 },
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -455,7 +455,7 @@ const App = observer(() => {
                           sx={{
                             fontWeight: 'bold',
                             color: THEME_COLORS.paper.primary,
-                            fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+                            fontSize: { xs: '1.5rem', sm: '1.8rem', md: '3rem' },
                             lineHeight: 1.1,
                             m: 0,
                           }}
@@ -470,7 +470,7 @@ const App = observer(() => {
                       <Typography
                         sx={{
                           color: THEME_COLORS.paper.secondary,
-                          fontSize: { xs: '0.75rem', sm: '0.85rem' },
+                          fontSize: { xs: '0.75rem', sm: '0.95rem' },
                           mt: 0.5,
                         }}
                       >
@@ -484,42 +484,43 @@ const App = observer(() => {
 
                   {/* 角色区域 */}
                   <Box sx={{
-                    px: "20px",
-                    position: 'relative', zIndex: 1
+                    width: "100%",
                   }}>
-                    {/* 按固定顺序显示标准团队 */}
-                    {['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].map(team => (
-                      script.characters[team] && script.characters[team].length > 0 && (
-                        <CharacterSection
-                          key={team}
-                          team={team}
+                    <Box sx={{ px: 5, }}>
+                      {/* 按固定顺序显示标准团队 */}
+                      {['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].map(team => (
+                        script.characters[team] && script.characters[team].length > 0 && (
+                          <CharacterSection
+                            key={team}
+                            team={team}
 
-                          characters={script.characters[team]}
-                          script={script}
-                          onReorder={handleReorderCharacters}
-                          onUpdateCharacter={handleUpdateCharacter}
-                          onEditCharacter={handleEditCharacter}
-                          onDeleteCharacter={handleRemoveCharacter}
-                        />
-                      )
-                    ))}
+                            characters={script.characters[team]}
+                            script={script}
+                            onReorder={handleReorderCharacters}
+                            onUpdateCharacter={handleUpdateCharacter}
+                            onEditCharacter={handleEditCharacter}
+                            onDeleteCharacter={handleRemoveCharacter}
+                          />
+                        )
+                      ))}
 
-                    {/* 显示所有未知团队 */}
-                    {Object.keys(script.characters)
-                      .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
-                      .map(team => (
-                        <CharacterSection
-                          key={team}
-                          team={team}
-                          characters={script.characters[team]}
-                          script={script}
-                          onReorder={handleReorderCharacters}
-                          onUpdateCharacter={handleUpdateCharacter}
-                          onEditCharacter={handleEditCharacter}
-                          onDeleteCharacter={handleRemoveCharacter}
-                        />
-                      ))
-                    }
+                      {/* 显示所有未知团队 */}
+                      {Object.keys(script.characters)
+                        .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
+                        .map(team => (
+                          <CharacterSection
+                            key={team}
+                            team={team}
+                            characters={script.characters[team]}
+                            script={script}
+                            onReorder={handleReorderCharacters}
+                            onUpdateCharacter={handleUpdateCharacter}
+                            onEditCharacter={handleEditCharacter}
+                            onDeleteCharacter={handleRemoveCharacter}
+                          />
+                        ))
+                      }
+                    </Box>
                   </Box>
 
                   {/* 移动端夜晚行动顺序 */}
@@ -808,7 +809,7 @@ const nightOrderStyle = {
   padding: 1.5,
   flexShrink: 0,
   position: 'relative',
-  backgroundImage: "url(/imgs/images/order_back2.png)",
+  backgroundImage: "url(/imgs/images/night_order/order_back_purple.png)",
   display: 'flex',
   alignItems: 'flex-start',
   justifyContent: "center",

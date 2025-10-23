@@ -719,7 +719,7 @@ export default function CharacterLibraryCard({
                 >
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                         <CharacterImage
-                            src="/imgs/images/botc-title.png"
+                            src="/imgs/images/logo2.png"
                             alt="BOTC"
                             sx={{
                                 height: 24,

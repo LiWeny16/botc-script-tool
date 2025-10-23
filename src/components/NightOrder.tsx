@@ -64,9 +64,9 @@ export default function NightOrder({ title, actions, isMobile = false }: NightOr
           display: 'flex',
           flexDirection: isMobile ? 'row' : 'column',
           flexWrap: isMobile ? 'wrap' : 'nowrap',
-          gap: 0.5,
+          // gap: 0.5,
           overflowY: isMobile ? 'visible' : 'auto',
-          px: 0.3,
+          // px: 0.3,
           justifyContent: isMobile ? 'center' : 'flex-start',
           '&::-webkit-scrollbar': {
             width: 3,
@@ -90,11 +90,11 @@ export default function NightOrder({ title, actions, isMobile = false }: NightOr
               src={action.image}
               alt={`Action ${index}`}
               sx={{
-                width: { xs: 35, sm: 38, md: 42 },
-                height: { xs: 35, sm: 38, md: 42 },
-                borderRadius: 1,
+                width: { xs: 35, sm: 38, md: 52 },
+                height: { xs: 35, sm: 38, md: 52 },
+                // borderRadius: 1,
                 // backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                p: 0.2,
+                // p: 0.2,
                 transition: 'all 0.2s',
                 '&:hover': {
                   transform: 'scale(1.05)',

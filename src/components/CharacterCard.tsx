@@ -25,6 +25,57 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
     mouseY: number;
   } | null>(null);
 
+  // 统一配置
+  const CONFIG = {
+    // 卡片配置
+    card: {
+      padding: 1,
+      borderRadius: 1,
+      gap: 1, // 图标与文本区域间距
+    },
+    // 角色头像配置
+    avatar: {
+      width: { xs: 60, sm: 70, md: 99 },
+      height: { xs: 60, sm: 70, md: 79 },
+      borderRadius: 1,
+    },
+    // 文本区域配置
+    textArea: {
+      gap: 0.5, // 名字、描述、相克规则之间的间距
+    },
+    // 角色名字配置
+    name: {
+      fontSize: { xs: '1rem', sm: '1.05rem', md: '1.2rem' },
+      fontWeight: 'bold',
+      lineHeight: 1.2,
+    },
+    // 角色描述配置
+    description: {
+      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
+      lineHeight: 1.5,
+    },
+    // 相克规则配置
+    jinx: {
+      gap: 0.3, // 多个相克规则之间的间距
+      padding: 0.3,
+      backgroundColor: '#EDE4D5',
+      borderRadius: 0.5,
+      iconGap: 0.5, // 图标与文字之间的间距
+      // 相克规则中的角色图标
+      icon: {
+        width: { xs: 24, sm: 28, md: 32 },
+        height: { xs: 24, sm: 28, md: 32 },
+        borderRadius: 0.5,
+      },
+      // 相克规则文字
+      text: {
+        fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
+        lineHeight: 1.4,
+        fontStyle: 'italic',
+      },
+    },
+  };
+
   // 根据团队类型确定名字颜色
   const getNameColor = () => {
     switch (character.team) {
@@ -43,7 +94,7 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
         return getTeamColor(character.team, character.teamColor);
     }
   };
-  
+
   const nameColor = getNameColor();
 
   const {
@@ -76,9 +127,9 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
     setContextMenu(
       contextMenu === null
         ? {
-            mouseX: event.clientX + 2,
-            mouseY: event.clientY - 6,
-          }
+          mouseX: event.clientX + 2,
+          mouseY: event.clientY - 6,
+        }
         : null,
     );
   };
@@ -116,146 +167,154 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
         onContextMenu={handleContextMenu}
         sx={{
           display: 'flex',
-          gap: 0.3,
-          pt: 1,
-          pb: 0.4,
-          paddingX:0.4,
+          flexDirection: 'column',
+          p: CONFIG.card.padding,
           backgroundColor: 'transparent',
-          borderRadius: 1,
+          borderRadius: CONFIG.card.borderRadius,
           transition: 'all 0.2s',
-          height: '100%',
           cursor: isDragging ? 'grabbing' : 'grab',
-          userSelect: 'none', // 禁用文本选择
-          WebkitUserSelect: 'none', // Safari
-          MozUserSelect: 'none', // Firefox
-          msUserSelect: 'none', // IE/Edge
+          userSelect: 'none',
+          WebkitUserSelect: 'none',
+          MozUserSelect: 'none',
+          msUserSelect: 'none',
           '&:hover': {
             backgroundColor: 'rgba(0, 0, 0, 0.02)',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
           },
         }}
       >
-      {/* 角色头像 */}
-      <CharacterImage
-        src={character.image}
-        alt={character.name}
-        sx={{
-          width: { xs: 50, sm: 55, md: 60 },
-          height: { xs: 50, sm: 55, md: 60 },
-          borderRadius: 1,
-          objectFit: 'cover',
-          flexShrink: 0,
-          userDrag: 'none', // 禁用图片拖拽
-          WebkitUserDrag: 'none', // Safari
-          pointerEvents: 'none', // 禁用所有指针事件
-        }}
-      />
+        {/* 上半部分: 角色头像 + 角色信息 */}
+        <Box sx={{
+          width: "100%",
+          display: "flex",
+          gap: CONFIG.card.gap,
+          alignItems: 'center',
+        }}>
+          {/* 角色头像 */}
+          <CharacterImage
+            src={character.image}
+            alt={character.name}
+            sx={{
+              width: CONFIG.avatar.width,
+              height: CONFIG.avatar.height,
+              borderRadius: CONFIG.avatar.borderRadius,
+              objectFit: 'cover',
+              flexShrink: 0,
+              userDrag: 'none',
+              WebkitUserDrag: 'none',
+              pointerEvents: 'none',
+            }}
+          />
 
-      {/* 角色信息 */}
-      <Box sx={{ flex: 1, minWidth: 0 }}>
-        <Typography
-          variant="h6"
-          sx={{
-            fontWeight: 'bold',
-            fontSize: { xs: '0.9rem', sm: '0.95rem', md: '1rem' },
-            // mb: 0.3,
-            color: nameColor,
-            lineHeight: 1.2,
-          }}
-        >
-          {character.name}
-        </Typography>
-        
-        <Typography
-          variant="body2"
-          sx={{
-            fontSize: { xs: '0.75rem', sm: '0.8rem', md: '0.85rem' },
-            lineHeight: 1.5,
-            color: THEME_COLORS.text.tertiary,
-          }}
-          dangerouslySetInnerHTML={{
-            __html: highlightAbilityText(character.ability),
-          }}
-        />
+          {/* 角色信息：名字 + 描述 + 相克规则 */}
+          <Box sx={{
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: CONFIG.textArea.gap,
+          }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: CONFIG.name.fontWeight,
+                fontSize: CONFIG.name.fontSize,
+                color: nameColor,
+                lineHeight: CONFIG.name.lineHeight,
+              }}
+            >
+              {character.name}
+            </Typography>
 
-        {/* 相克规则 */}
-        {jinxInfo && Object.keys(jinxInfo).length > 0 && (
-          <Box sx={{ mt: 0.5 }}>
-            {Object.entries(jinxInfo).map(([targetName, jinxText]) => {
-              const targetChar = allCharacters?.find((c) => c.name === targetName);
-              return (
-                <Box
-                  key={targetName}
-                  sx={{
-                    display: 'flex',
-                    gap: 0.6,
-                    alignItems: 'flex-start',
-                    mt: 0.5,
-                    p: 0.6,
-                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                    borderRadius: 0.5,
-                    border: '1px solid rgba(255, 232, 157, 0.8)',
-                  }}
-                >
-                  {targetChar && (
-                    <CharacterImage
-                      src={targetChar.image}
-                      alt={targetName}
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: CONFIG.description.fontSize,
+                lineHeight: CONFIG.description.lineHeight,
+                color: THEME_COLORS.text.tertiary,
+              }}
+              dangerouslySetInnerHTML={{
+                __html: highlightAbilityText(character.ability),
+              }}
+            />
+
+            {/* 相克规则 - 放在描述文本下方,与描述文本左对齐 */}
+            {jinxInfo && Object.keys(jinxInfo).length > 0 && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
+                {Object.entries(jinxInfo).map(([targetName, jinxText]) => {
+                  const targetChar = allCharacters?.find((c) => c.name === targetName);
+                  return (
+                    <Box
+                      key={targetName}
                       sx={{
-                        width: { xs: 20, sm: 22, md: 24 },
-                        height: { xs: 20, sm: 22, md: 24 },
-                        borderRadius: 0.5,
-                        flexShrink: 0,
-                        userDrag: 'none', // 禁用图片拖拽
-                        WebkitUserDrag: 'none', // Safari
-                        pointerEvents: 'none', // 禁用所有指针事件
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: CONFIG.jinx.iconGap,
+                        p: CONFIG.jinx.padding,
+                        backgroundColor: CONFIG.jinx.backgroundColor,
+                        borderRadius: CONFIG.jinx.borderRadius,
                       }}
-                    />
-                  )}
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontSize: { xs: '0.7rem', sm: '0.72rem' },
-                      color: THEME_COLORS.text.primary,
-                      lineHeight: 1.4,
-                      flex: 1,
-                      fontStyle: 'italic',
-                    }}
-                  >
-                    ({t('jinx.rule')}: {jinxText})
-                  </Typography>
-                </Box>
-              );
-            })}
+                    >
+                      {targetChar && (
+                        <CharacterImage
+                          src={targetChar.image}
+                          alt={targetName}
+                          sx={{
+                            width: CONFIG.jinx.icon.width,
+                            height: CONFIG.jinx.icon.height,
+                            borderRadius: CONFIG.jinx.icon.borderRadius,
+                            flexShrink: 0,
+                            userDrag: 'none',
+                            WebkitUserDrag: 'none',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                      )}
+                      <Typography
+                        variant="caption"
+                        sx={{
+                          fontSize: CONFIG.jinx.text.fontSize,
+                          color: THEME_COLORS.text.primary,
+                          lineHeight: CONFIG.jinx.text.lineHeight,
+                          fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
+                          flex: 1,
+                        }}
+                      >
+                        {t('jinx.rule')}: {jinxText}
+                      </Typography>
+                    </Box>
+                  );
+                })}
+              </Box>
+            )}
           </Box>
-        )}
-      </Box>
-    </Paper>
+        </Box>
+      </Paper>
 
-    {/* 右键菜单 */}
-    <Menu
-      open={contextMenu !== null}
-      onClose={handleClose}
-      anchorReference="anchorPosition"
-      anchorPosition={
-        contextMenu !== null
-          ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-          : undefined
-      }
-    >
-      <MenuItem onClick={handleEditClick}>
-        <ListItemIcon>
-          <EditIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>{t('character.edit')}</ListItemText>
-      </MenuItem>
-      <MenuItem onClick={handleDeleteClick}>
-        <ListItemIcon>
-          <DeleteIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText>{t('character.delete')}</ListItemText>
-      </MenuItem>
-    </Menu>
+      {/* 右键菜单 */}
+      <Menu
+        open={contextMenu !== null}
+        onClose={handleClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
+      >
+        <MenuItem onClick={handleEditClick}>
+          <ListItemIcon>
+            <EditIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{t('character.edit')}</ListItemText>
+        </MenuItem>
+        <MenuItem onClick={handleDeleteClick}>
+          <ListItemIcon>
+            <DeleteIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>{t('character.delete')}</ListItemText>
+        </MenuItem>
+      </Menu>
     </>
   );
 }
