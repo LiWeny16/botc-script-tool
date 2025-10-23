@@ -93,7 +93,7 @@ export default function NightOrder({ title, actions, isMobile = false }: NightOr
                 width: { xs: 35, sm: 38, md: 42 },
                 height: { xs: 35, sm: 38, md: 42 },
                 borderRadius: 1,
-                backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                // backgroundColor: 'rgba(255, 255, 255, 0.08)',
                 p: 0.2,
                 transition: 'all 0.2s',
                 '&:hover': {

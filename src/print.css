@@ -50,18 +50,7 @@
   }
 
   /* 确保内部容器占满宽度并保持原始布局 - 针对60%缩放优化 */
-  #script-preview > div {
-    width: 100% !important;
-    max-width: none !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    display: flex !important;
-    gap: 2px !important;
-    align-items: stretch !important;
-    /* 针对60%缩放优化字体和间距 */
-    font-size: 1.2em !important;
-    line-height: 1.3 !important;
-  }
+
 
   /* 确保背景图片和颜色正确显示 */
   * {
@@ -77,16 +66,16 @@
   }
 
   /* 确保图片清晰显示 */
-  img {
+  /* img {
     image-rendering: -webkit-optimize-contrast !important;
-  }
+  } */
 
   /* 移除MUI Container的限制 */
-  .MuiContainer-root {
+  /* .MuiContainer-root {
     max-width: none !important;
     padding: 0 !important;
     margin: 0 !important;
-  }
+  } */
 
   /* 移除所有不必要的阴影效果 */
   .MuiPaper-root {

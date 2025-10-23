@@ -101,7 +101,7 @@ const App = observer(() => {
           scriptStore.setScript(generatedScript);
         }
       }
-      
+
       setIsInitialized(true);
     };
 
@@ -128,11 +128,11 @@ const App = observer(() => {
   useEffect(() => {
     if (originalJson && isInitialized) {
       const generatedScript = generateScript(originalJson, language);
-      
+
       // 恢复自定义标题和作者
       if (customTitle) generatedScript.title = customTitle;
       if (customAuthor) generatedScript.author = customAuthor;
-      
+
       scriptStore.setScript(generatedScript);
     }
   }, [language, originalJson, customTitle, customAuthor, isInitialized]);
@@ -329,85 +329,93 @@ const App = observer(() => {
               sx={{
                 display: "flex",
                 width: "100%",
-                justifyContent: "center",
               }}
             >
+
               <Box
                 sx={{
                   display: "flex",
                   width: "100%",
+                  height: "100%",
                   justifyContent: "center",
-                  gap: '2px',
-                  alignItems: 'stretch'
+                  position: 'relative',
+
                 }}>
+
+                <CharacterImage
+                  src="/imgs/images/flower3_2.png"
+                  alt="左下角装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+                <CharacterImage
+                  src="/imgs/images/flower4.png"
+                  alt="装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+
+                <CharacterImage
+                  src="/imgs/images/flower7.png"
+                  alt="右上角装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    right: -5,
+                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+
+                <CharacterImage
+                  src="/imgs/images/flower4_2.png"
+                  alt="左上角装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    transform: "rotate(180deg)",
+                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                    overflow: "hidden"
+                  }}
+                />
+
 
                 {/* 左侧 - 首个夜晚 */}
                 {!isMobile && (
-                  <Box sx={{
-                    padding: 1.5,
-                    flexShrink: 0,
-                    backgroundColor: THEME_COLORS.nightOrder.background,
-                    position: 'relative',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    pt: '33.33%',
-                    overflow: 'hidden',
-                    boxShadow: 'none',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 0,
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='6' seed='2' /%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 0 0 0 0 0.15 0 0.25 0 0 0.35 0 0 0.45'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")`,
-                      opacity: 0.5,
-                      pointerEvents: 'none',
-                      backgroundSize: '150px 150px',
-                    },
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 0,
-                      background: `
-                      radial-gradient(circle at 15% 25%, rgba(10, 12, 15, 0.9) 0%, transparent 3%),
-                      radial-gradient(circle at 45% 15%, rgba(8, 10, 12, 0.85) 0%, transparent 4%),
-                      radial-gradient(circle at 75% 35%, rgba(5, 8, 10, 0.95) 0%, transparent 2.5%),
-                      radial-gradient(circle at 35% 55%, rgba(12, 15, 18, 0.8) 0%, transparent 3.5%),
-                      radial-gradient(circle at 85% 65%, rgba(8, 10, 12, 0.9) 0%, transparent 3%),
-                      radial-gradient(circle at 20% 75%, rgba(6, 8, 10, 0.85) 0%, transparent 4%),
-                      radial-gradient(circle at 60% 85%, rgba(10, 12, 15, 0.95) 0%, transparent 2%),
-                      radial-gradient(circle at 90% 20%, rgba(8, 10, 12, 0.75) 0%, transparent 3.5%),
-                      radial-gradient(circle at 50% 45%, rgba(6, 8, 10, 0.9) 0%, transparent 3%),
-                      radial-gradient(circle at 10% 90%, rgba(10, 12, 15, 0.85) 0%, transparent 4%)
-                    `,
-                      backgroundSize: '100% 100%',
-                      pointerEvents: 'none',
-                    },
-                    '& > *': {
-                      position: 'relative',
-                      zIndex: 1,
-                    }
-                  }}>
+                  <Box sx={nightOrderStyle}>
                     <NightOrder title={t('night.first')} actions={script.firstnight} />
                   </Box>
                 )}
 
                 {/* 中间 - 主要内容区域 */}
                 <Paper
+                  id="main_script"
                   elevation={0}
                   sx={{
-                    pb: 2,
                     pt: 2,
                     flex: 1,
-                    maxWidth: '1200px',
-                    backgroundImage: 'url(/bg.png)',
-                    backgroundSize: 'cover',
+                    backgroundImage: 'url(/imgs/images/main_back.jpg)',
+                    backgroundSize: '100% 100%',          // 保持比例，铺满容器（可能略裁剪）
                     backgroundPosition: 'center',
                     backgroundRepeat: 'no-repeat',
                     borderRadius: 0,
@@ -416,109 +424,76 @@ const App = observer(() => {
                     boxShadow: 'none',
                   }}
                 >
-                  
-                  {/* 装饰性花纹 */}
-                  <CharacterImage
-                    src="/imgs/images/flower3.png"
-                    alt="装饰花纹"
-                    sx={{
-                      position: 'absolute',
-                      bottom: 0,
-                      left: 0,
-                      maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                      opacity: 0.25,
-                      pointerEvents: 'none',
-                    }}
-                  />
-                  <CharacterImage
-                    src="/imgs/images/flower4.png"
-                    alt="装饰花纹"
-                    sx={{
-                      position: 'absolute',
-                      bottom: 0,
-                      right: 0,
-                      maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                      opacity: 0.25,
-                      pointerEvents: 'none',
-                    }}
-                  />
 
-                  {/* 标题区域 */}
+                  {/* 标题区域（固定高度，统一图片/文字占位） */}
                   <Box sx={{ textAlign: 'center', mb: 0, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2 } }}>
-                    {/* 桌面端：右上角作者信息（绝对定位） */}
-                    {!isMobile && script.author && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          right: { sm: 20, md: 30 },
-                          textAlign: 'right',
-                        }}
-                      >
-                        <Typography
+                    {/* 固定高度包裹层，让图片/文本在同一高度内居中 */}
+                    <Box
+                      sx={{
+                        height: { xs: 90, sm: 100, md: 110 },
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        width: '100%',
+                      }}
+                    >
+                      {script.titleImage ? (
+                        <CharacterImage
+                          src={script.titleImage}
+                          alt={script.title}
                           sx={{
-                            color: THEME_COLORS.paper.secondary,
-                            fontSize: { sm: '0.85rem' },
-                            mb: 0.3,
+                            maxWidth: { xs: '70%', sm: '50%', md: '40%' },
+                            maxHeight: '100%',
+                            objectFit: 'contain',
+                            mb: 0,
+                          }}
+                        />
+                      ) : (
+                        <Typography
+                          variant="h3"
+                          sx={{
+                            fontWeight: 'bold',
+                            color: THEME_COLORS.paper.primary,
+                            fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
+                            lineHeight: 1.1,
+                            m: 0,
                           }}
                         >
-                        {t('script.author')}：{script.author}
-                        <br />
-                        {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : t('script.playerCount')}
+                          {script.title}
                         </Typography>
-                      </Box>
-                    )}
+                      )}
+                    </Box>
 
-                    {/* 标题 */}
-                    {script.titleImage ? (
-                      <CharacterImage
-                        src={script.titleImage}
-                        alt={script.title}
-                        sx={{
-                          maxWidth: { xs: '70%', sm: '50%', md: '40%' },
-                          maxHeight: { xs: '80px', sm: '90px', md: '100px' },
-                          objectFit: 'contain',
-                          mb: { xs: 0.5, sm: 0.5 },
-                        }}
-                      />
-                    ) : (
-                      <Typography
-                        variant="h3"
-                        sx={{
-                          fontWeight: 'bold',
-                          color: THEME_COLORS.paper.primary,
-                          fontSize: { xs: '1.5rem', sm: '1.8rem', md: '2rem' },
-                          mb: { xs: 0.5, sm: 0.5 },
-                        }}
-                      >
-                        {script.title}
-                      </Typography>
-                    )}
-
-                    {/* 移动端：标题下方作者信息 */}
-                    {isMobile && script.author && (
+                    {/* 标题下方作者与支持人数（统一移动端/桌面端） */}
+                    {(script?.author || script?.playerCount) && (
                       <Typography
                         sx={{
                           color: THEME_COLORS.paper.secondary,
-                          fontSize: '0.75rem',
+                          fontSize: { xs: '0.75rem', sm: '0.85rem' },
                           mt: 0.5,
                         }}
                       >
-                        {t('script.author2')}：{script.author}
-                        {script.playerCount && ` · ${t('script.playerCount')}：${script.playerCount}`}
+                        {script.author ? `${t('script.author2')}：${script.author}` : ''}
+                        {script.author && script.playerCount ? ' · ' : ''}
+                        {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : ''}
                       </Typography>
                     )}
                   </Box>
 
 
                   {/* 角色区域 */}
-                  <Box sx={{ position: 'relative', zIndex: 1 }}>
+                  <Box sx={{
+                    px: "20px",
+                    position: 'relative', zIndex: 1
+                  }}>
                     {/* 按固定顺序显示标准团队 */}
                     {['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].map(team => (
                       script.characters[team] && script.characters[team].length > 0 && (
                         <CharacterSection
                           key={team}
                           team={team}
+
                           characters={script.characters[team]}
                           script={script}
                           onReorder={handleReorderCharacters}
@@ -528,7 +503,7 @@ const App = observer(() => {
                         />
                       )
                     ))}
-                    
+
                     {/* 显示所有未知团队 */}
                     {Object.keys(script.characters)
                       .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
@@ -564,78 +539,210 @@ const App = observer(() => {
                     <SpecialRulesSection rules={script.specialRules} />
                   </Box>
 
-                  {/* 底部署名 */}
-                  {/* <Typography
+                  {/* 底部装饰框 */}
+                  <Box
+                    aria-hidden
                     sx={{
-                      textAlign: 'center',
-                      color: THEME_COLORS.paper.secondary,
-                      fontSize: { xs: '0.7rem', sm: '0.8rem' },
-                      opacity: 0.7,
+                      width: "100%",
+                      height: 130,
+                      zIndex: 1,
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                      position: "relative",
+                      mt: 2,
                     }}
                   >
-                    @bigonion 剧本工具制作
-                  </Typography> */}
+                    {/* 主装饰框 */}
+                    <Box
+                      sx={{
+                        position: "relative",
+                        width: { xs: "90%", sm: "80%", md: "70%" },
+                        height: "80%",
+                        border: "2px solid",
+                        borderRadius: "16px",
+                        backdropFilter: "blur(8px)",
+                        boxShadow: `
+                          0 8px 32px rgba(0, 0, 0, 0.3),
+                          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                          inset 0 -1px 0 rgba(0, 0, 0, 0.2)
+                        `,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        "&::before": {
+                          content: '""',
+                          position: "absolute",
+                          top: "-4px",
+                          left: "-4px",
+                          right: "-4px",
+                          bottom: "-4px",
+                          borderRadius: "20px",
+                          zIndex: -1,
+                          opacity: 0.6,
+                        },
+                        "&::after": {
+                          content: '""',
+                          position: "absolute",
+                          top: "8px",
+                          left: "8px",
+                          right: "8px",
+                          bottom: "8px",
+                          border: "1px solid rgba(255, 255, 255, 0.1)",
+                          borderRadius: "12px",
+                          pointerEvents: "none",
+                        }
+                      }}
+                    >
+                      {/* 装饰性角落元素 */}
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: "12px",
+                          left: "12px",
+                          width: "20px",
+                          height: "20px",
+                          border: "2px solid #d4af37",
+                          borderRight: "none",
+                          borderBottom: "none",
+                          borderRadius: "4px 0 0 0",
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          top: "12px",
+                          right: "12px",
+                          width: "20px",
+                          height: "20px",
+                          border: "2px solid #d4af37",
+                          borderLeft: "none",
+                          borderBottom: "none",
+                          borderRadius: "0 4px 0 0",
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: "12px",
+                          left: "12px",
+                          width: "20px",
+                          height: "20px",
+                          border: "2px solid #d4af37",
+                          borderRight: "none",
+                          borderTop: "none",
+                          borderRadius: "0 0 0 4px",
+                        }}
+                      />
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          bottom: "12px",
+                          right: "12px",
+                          width: "20px",
+                          height: "20px",
+                          border: "2px solid #d4af37",
+                          borderLeft: "none",
+                          borderTop: "none",
+                          borderRadius: "0 0 4px 0",
+                        }}
+                      />
+
+                      {/* 中心内容 */}
+                      <Box
+                        sx={{
+                          textAlign: "center",
+                          position: "relative",
+                          zIndex: 2,
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            color: '#000000',
+                            fontSize: { xs: '0.72rem', sm: '0.78rem', md: '1.2rem' },
+                            lineHeight: 1.2,
+                            letterSpacing: '0.02em',
+                            m: 0,
+                            fontWeight: 500,
+                            position: "relative",
+                            "&::before": {
+                              content: '"✦"',
+                              position: "absolute",
+                              left: "-24px",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              color: "#d4af37",
+                              fontSize: "0.8em",
+                            },
+                            "&::after": {
+                              content: '"✦"',
+                              position: "absolute",
+                              right: "-24px",
+                              top: "50%",
+                              transform: "translateY(-50%)",
+                              color: "#d4af37",
+                              fontSize: "0.8em",
+                            }
+                          }}
+                        >
+                          *代表非首个夜晚
+                        </Typography>
+                      </Box>
+                    </Box>
+
+                    {/* 背景装饰粒子 */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "20%",
+                        left: "10%",
+                        width: "4px",
+                        height: "4px",
+                        background: "#d4af37",
+                        borderRadius: "50%",
+                        opacity: 0.6,
+                        boxShadow: "0 0 8px #d4af37",
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "60%",
+                        right: "15%",
+                        width: "3px",
+                        height: "3px",
+                        background: "#2d5c4f",
+                        borderRadius: "50%",
+                        opacity: 0.5,
+                        boxShadow: "0 0 6px #2d5c4f",
+                      }}
+                    />
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        bottom: "30%",
+                        left: "20%",
+                        width: "2px",
+                        height: "2px",
+                        background: "#b21e1d",
+                        borderRadius: "50%",
+                        opacity: 0.4,
+                        boxShadow: "0 0 4px #b21e1d",
+                      }}
+                    />
+                  </Box>
                 </Paper>
 
                 {/* 右侧 - 其他夜晚 */}
                 {!isMobile && (
-                  <Box sx={{
-                    padding: 1.5,
-                    flexShrink: 0,
-                    backgroundColor: THEME_COLORS.nightOrder.background,
-                    position: 'relative',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    pt: '33.33%',
-                    overflow: 'hidden',
-                    boxShadow: 'none',
-                    '&::before': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 0,
-                      backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='6' seed='2' /%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='discrete' tableValues='0 0 0 0 0 0.15 0 0.25 0 0 0.35 0 0 0.45'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noiseFilter)' opacity='1'/%3E%3C/svg%3E")`,
-                      opacity: 0.5,
-                      pointerEvents: 'none',
-                      backgroundSize: '150px 150px',
-                    },
-                    '&::after': {
-                      content: '""',
-                      position: 'absolute',
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      zIndex: 0,
-                      background: `
-                      radial-gradient(circle at 15% 25%, rgba(10, 12, 15, 0.9) 0%, transparent 3%),
-                      radial-gradient(circle at 45% 15%, rgba(8, 10, 12, 0.85) 0%, transparent 4%),
-                      radial-gradient(circle at 75% 35%, rgba(5, 8, 10, 0.95) 0%, transparent 2.5%),
-                      radial-gradient(circle at 35% 55%, rgba(12, 15, 18, 0.8) 0%, transparent 3.5%),
-                      radial-gradient(circle at 85% 65%, rgba(8, 10, 12, 0.9) 0%, transparent 3%),
-                      radial-gradient(circle at 20% 75%, rgba(6, 8, 10, 0.85) 0%, transparent 4%),
-                      radial-gradient(circle at 60% 85%, rgba(10, 12, 15, 0.95) 0%, transparent 2%),
-                      radial-gradient(circle at 90% 20%, rgba(8, 10, 12, 0.75) 0%, transparent 3.5%),
-                      radial-gradient(circle at 50% 45%, rgba(6, 8, 10, 0.9) 0%, transparent 3%),
-                      radial-gradient(circle at 10% 90%, rgba(10, 12, 15, 0.85) 0%, transparent 4%)
-                    `,
-                      backgroundSize: '100% 100%',
-                      pointerEvents: 'none',
-                    },
-                    '& > *': {
-                      position: 'relative',
-                      zIndex: 1,
-                    }
-                  }}>
+                  <Box sx={nightOrderStyle}>
                     <NightOrder title={t('night.other')} actions={script?.othernight || []} />
                   </Box>
                 )}
               </Box>
             </Box>
-          )}
+          )
+          }
 
           {/* 空状态提示 */}
           {!script && (
@@ -657,11 +764,11 @@ const App = observer(() => {
               </Typography>
             </Paper>
           )}
-        </Container>
-      </Box>
+        </Container >
+      </Box >
 
       {/* 分享对话框 */}
-      <ShareDialog
+      < ShareDialog
         open={shareDialogOpen}
         onClose={() => setShareDialogOpen(false)}
         script={script}
@@ -669,7 +776,7 @@ const App = observer(() => {
       />
 
       {/* 角色编辑对话框 */}
-      <CharacterEditDialog
+      < CharacterEditDialog
         open={editDialogOpen}
         character={editingCharacter}
         onClose={handleCloseEditDialog}
@@ -677,7 +784,7 @@ const App = observer(() => {
       />
 
       {/* 角色库悬浮卡片 */}
-      <CharacterLibraryCard
+      < CharacterLibraryCard
         open={libraryCardOpen}
         onClose={() => setLibraryCardOpen(false)}
         onAddCharacter={handleAddCharacter}
@@ -690,8 +797,26 @@ const App = observer(() => {
         onClick={() => setLibraryCardOpen(!libraryCardOpen)}
         show={!!script} // 只要有剧本就显示
       />
-    </ThemeProvider>
+    </ThemeProvider >
   );
 });
 
 export default App;
+
+
+const nightOrderStyle = {
+  padding: 1.5,
+  flexShrink: 0,
+  position: 'relative',
+  backgroundImage: "url(/imgs/images/order_back2.png)",
+  display: 'flex',
+  alignItems: 'flex-start',
+  justifyContent: "center",
+  pt: '33.33%',
+  overflow: 'hidden',
+  boxShadow: 'none',
+  '& > *': {
+    position: 'relative',
+    zIndex: 3,
+  }
+}
