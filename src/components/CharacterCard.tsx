@@ -41,7 +41,7 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
     },
     // 文本区域配置
     textArea: {
-      gap: 0.5, // 名字、描述、相克规则之间的间距
+      gap: 0.3, // 名字、描述、相克规则之间的间距
     },
     // 角色名字配置
     name: {
@@ -63,8 +63,8 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
       iconGap: 0.5, // 图标与文字之间的间距
       // 相克规则中的角色图标
       icon: {
-        width: { xs: 24, sm: 28, md: 32 },
-        height: { xs: 24, sm: 28, md: 32 },
+        width: { xs: 24, sm: 28, md: 45 },
+        height: { xs: 24, sm: 28, md: 45},
         borderRadius: 0.5,
       },
       // 相克规则文字

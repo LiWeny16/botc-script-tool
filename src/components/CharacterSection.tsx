@@ -105,7 +105,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
       sx={{
         // mb: 2,
         // p: 1,
-        px: 1,
+        // px: 1,
         backgroundColor: 'transparent',
         // borderRadius: 1.5,
       }}
@@ -115,7 +115,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
         sx={{
           display: 'flex',
           alignItems: 'center',
-          // mb: 1.2,
+          // mb: 0.5,
         }}
       >
         <Typography
@@ -148,118 +148,120 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
       </Box>
 
       {/* 角色卡片 - 两列布局 + 拖拽排序 */}
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <Box>
-          <SortableContext
-            items={characters.map(c => c.id)}
-            strategy={rectSortingStrategy}
-          >
-            {/* 只有一个角色时居中显示 */}
-            {characters.length === 1 ? (
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  px: { xs: 0, sm: 2, md: 4 },
-                }}
-              >
+      <Box sx={{ px: 2 }}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <Box>
+            <SortableContext
+              items={characters.map(c => c.id)}
+              strategy={rectSortingStrategy}
+            >
+              {/* 只有一个角色时居中显示 */}
+              {characters.length === 1 ? (
                 <Box
                   sx={{
-                    width: { xs: '100%', sm: '50%' },
                     display: 'flex',
+                    justifyContent: 'center',
+                    px: { xs: 0, sm: 2, md: 4 },
                   }}
                 >
-                  <CharacterCard
-                    character={characters[0]}
-                    jinxInfo={script.jinx[characters[0].name]}
-                    allCharacters={script.all}
-                    onUpdate={onUpdateCharacter}
-                    onEdit={onEditCharacter}
-                    onDelete={onDeleteCharacter}
-                  />
+                  <Box
+                    sx={{
+                      width: { xs: '100%', sm: '50%' },
+                      display: 'flex',
+                    }}
+                  >
+                    <CharacterCard
+                      character={characters[0]}
+                      jinxInfo={script.jinx[characters[0].name]}
+                      allCharacters={script.all}
+                      onUpdate={onUpdateCharacter}
+                      onEdit={onEditCharacter}
+                      onDelete={onDeleteCharacter}
+                    />
+                  </Box>
                 </Box>
-              </Box>
-            ) : (
-              /* 多个角色时使用两列布局 */
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: 1,
-                  flexDirection: { xs: 'column', sm: 'row' },
-                }}
-              >
-                {/* 左列 - 前半部分角色 */}
+              ) : (
+                /* 多个角色时使用两列布局 */
                 <Box
                   sx={{
-                    flex: 1,
                     display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
+                    gap: 1,
+                    flexDirection: { xs: 'column', sm: 'row' },
                   }}
                 >
-                  {characters
-                    .slice(0, Math.ceil(characters.length / 2))
-                    .map((character, idx, arr) => (
-                      <Box
-                        key={character.id}
-                        sx={{
-                          flex: 1,
-                          display: 'flex',
-                          mb: idx < arr.length - 1 ? 1 : 0,
-                        }}
-                      >
-                        <CharacterCard
-                          character={character}
-                          jinxInfo={script.jinx[character.name]}
-                          allCharacters={script.all}
-                          onUpdate={onUpdateCharacter}
-                          onEdit={onEditCharacter}
-                          onDelete={onDeleteCharacter}
-                        />
-                      </Box>
-                    ))}
-                </Box>
+                  {/* 左列 - 前半部分角色 */}
+                  <Box
+                    sx={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    {characters
+                      .slice(0, Math.ceil(characters.length / 2))
+                      .map((character, idx, arr) => (
+                        <Box
+                          key={character.id}
+                          sx={{
+                            flex: 1,
+                            display: 'flex',
+                            mb: idx < arr.length - 1 ? 1 : 0,
+                          }}
+                        >
+                          <CharacterCard
+                            character={character}
+                            jinxInfo={script.jinx[character.name]}
+                            allCharacters={script.all}
+                            onUpdate={onUpdateCharacter}
+                            onEdit={onEditCharacter}
+                            onDelete={onDeleteCharacter}
+                          />
+                        </Box>
+                      ))}
+                  </Box>
 
-                {/* 右列 - 后半部分角色 */}
-                <Box
-                  sx={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                  }}
-                >
-                  {characters
-                    .slice(Math.ceil(characters.length / 2))
-                    .map((character, idx, arr) => (
-                      <Box
-                        key={character.id}
-                        sx={{
-                          flex: 1,
-                          display: 'flex',
-                          mb: idx < arr.length - 1 ? 1 : 0,
-                        }}
-                      >
-                        <CharacterCard
-                          character={character}
-                          jinxInfo={script.jinx[character.name]}
-                          allCharacters={script.all}
-                          onUpdate={onUpdateCharacter}
-                          onEdit={onEditCharacter}
-                          onDelete={onDeleteCharacter}
-                        />
-                      </Box>
-                    ))}
+                  {/* 右列 - 后半部分角色 */}
+                  <Box
+                    sx={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    {characters
+                      .slice(Math.ceil(characters.length / 2))
+                      .map((character, idx, arr) => (
+                        <Box
+                          key={character.id}
+                          sx={{
+                            flex: 1,
+                            display: 'flex',
+                            mb: idx < arr.length - 1 ? 1 : 0,
+                          }}
+                        >
+                          <CharacterCard
+                            character={character}
+                            jinxInfo={script.jinx[character.name]}
+                            allCharacters={script.all}
+                            onUpdate={onUpdateCharacter}
+                            onEdit={onEditCharacter}
+                            onDelete={onDeleteCharacter}
+                          />
+                        </Box>
+                      ))}
+                  </Box>
                 </Box>
-              </Box>
-            )}
-          </SortableContext>
-        </Box>
-      </DndContext>
+              )}
+            </SortableContext>
+          </Box>
+        </DndContext>
+      </Box>
     </Box>
   );
 });

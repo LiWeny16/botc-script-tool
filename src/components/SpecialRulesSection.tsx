@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Box, Divider, Typography } from '@mui/material';
 import type { SpecialRule } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 
@@ -41,11 +41,9 @@ export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps)
       <Box
         sx={{
           width: '100%',
-          maxWidth: 900,
+          maxWidth: 700,
           display: 'flex',
           flexDirection: displayRules.length === 1 ? 'column' : { xs: 'column', sm: 'row' },
-          gap: 1.5,
-          px: { xs: 1, sm: 2, md: 3 },
         }}
       >
         {displayRules.map((rule) => (
@@ -53,75 +51,103 @@ export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps)
             key={rule.id}
             sx={{
               flex: 1,
-              border: '2px solid rgba(61, 50, 38, 0.4)',
-              borderRadius: 2,
-              p: { xs: 1.5, sm: 2 },
-              backgroundColor: 'rgba(254, 250, 240, 0.5)',
+              position: 'relative',
+              // minHeight: { xs: 150, sm: 180, md: 220 },
+              aspectRatio: '820 / 150', // 根据卷轴图片比例设置
             }}
           >
-            {/* 如果有 rules 数组，显示多个规则项 */}
-            {rule.rules && rule.rules.length > 0 ? (
-              <>
-                {rule.rules.map((item, index) => (
-                  <Box key={index} sx={{ mb: index < rule.rules!.length - 1 ? 1.5 : 0 }}>
-                    <Typography
-                      component="span"
+            {/* 卷轴背景图片 */}
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: "url(/imgs/images/卷轴.png)",
+                backgroundSize: "100% 100%",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+                zIndex: 0,
+              }}
+            />
+
+            {/* 内容区域 */}
+            <Box
+              sx={{
+                position: 'relative',
+                zIndex: 1,
+                height: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                px: { xs: '15%', sm: '18%', md: '20' }, // 左右留出卷轴柱子的空间
+                py: { xs: 2, sm: 2.5, md: 3 },
+              }}
+            >
+              {/* 如果有 rules 数组，显示多个规则项 */}
+              {rule.rules && rule.rules.length > 0 ? (
+                <>
+                  {rule.rules.map((item, index) => (
+                    <Box
+                      key={index}
                       sx={{
-                        fontWeight: 'bold',
-                        color: THEME_COLORS.paper.secondary,
-                        fontSize: { xs: '0.9rem', sm: '1rem' },
-                        display: 'block',
-                        mb: 0.5,
+                        mb: index < rule.rules!.length - 1 ? 1.5 : 0,
                       }}
                     >
-                      {item.title}
-                    </Typography>
+                      <Typography
+                        component="div"
+                        sx={{
+                          fontWeight: 'bold',
+                          color: '#3d3226',
+                          fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' },
+                          mb: 0.3,
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                      <Divider
+                        sx={{
+                          flex: 1,
+                          ml: 1.5,
+                          borderColor: THEME_COLORS.paper,
+                          borderWidth: 1,
+                        }}
+                      />
+                      <Typography
+                        component="div"
+                        sx={{
+                          color: '#5a4a3a',
+                          fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
+                          lineHeight: 1.6,
+                          textAlign: 'justify',
+                        }}
+                      >
+                        {item.content}
+                      </Typography>
+                    </Box>
+                  ))}
+                </>
+              ) : (
+                /* 单个规则项（向后兼容） */
+                <>
+                  {rule.content && (
                     <Typography
-                      component="span"
+                      component="div"
                       sx={{
-                        color: THEME_COLORS.paper.secondary,
-                        fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                        display: 'block',
+                        color: '#5a4a3a',
+                        fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
                         lineHeight: 1.6,
+                        textAlign: 'justify',
                       }}
                     >
-                      {item.content}
+                      {rule.content}
                     </Typography>
-                  </Box>
-                ))}
-              </>
-            ) : (
-              /* 单个规则项（向后兼容） */
-              <>
-                {rule.title && (
-                  <Typography
-                    component="span"
-                    sx={{
-                      fontWeight: 'bold',
-                      color: THEME_COLORS.paper.secondary,
-                      fontSize: { xs: '0.9rem', sm: '1rem' },
-                      display: 'block',
-                      mb: 0.5,
-                    }}
-                  >
-                    {rule.title}
-                  </Typography>
-                )}
-                {rule.content && (
-                  <Typography
-                    component="span"
-                    sx={{
-                      color: THEME_COLORS.paper.secondary,
-                      fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                      display: 'block',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {rule.content}
-                  </Typography>
-                )}
-              </>
-            )}
+                  )}
+                </>
+              )}
+            </Box>
           </Box>
         ))}
       </Box>
