@@ -1,6 +1,7 @@
 import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useState } from 'react';
+import { observer } from 'mobx-react-lite';
 import type { Character } from '../types';
 import { highlightAbilityText } from '../utils/scriptGenerator';
 import { THEME_COLORS, getTeamColor } from '../theme/colors';
@@ -8,6 +9,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import CharacterImage from './CharacterImage';
 import { useTranslation } from '../utils/i18n';
+import { uiConfigStore } from '../stores/UIConfigStore';
 
 interface CharacterCardProps {
   character: Character;
@@ -18,59 +20,69 @@ interface CharacterCardProps {
   onDelete?: (character: Character) => void;
 }
 
-export default function CharacterCard({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete }: CharacterCardProps) {
+const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete }: CharacterCardProps) => {
   const { t } = useTranslation();
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
   } | null>(null);
 
+  // 从 uiConfigStore 获取配置
+  const config = uiConfigStore.config.characterCard;
+
+  // 判断是否是传奇角色
+  const isFabled = character.team === 'fabled';
+
   // 统一配置
   const CONFIG = {
     // 卡片配置
     card: {
-      padding: 1,
-      borderRadius: 1,
-      gap: 1, // 图标与文本区域间距
+      padding: config.cardPadding,
+      borderRadius: config.cardBorderRadius,
+      gap: config.cardGap,
     },
-    // 角色头像配置
-    avatar: {
-      width: { xs: 60, sm: 70, md: 99 },
-      height: { xs: 60, sm: 70, md: 79 },
-      borderRadius: 1,
+    // 角色头像配置 - 传奇角色使用专用图标大小
+    avatar: isFabled ? {
+      width: config.fabledIconWidthMd,
+      height: config.fabledIconHeightMd,
+      borderRadius: config.fabledIconBorderRadius,
+    } : {
+      width: config.avatarWidthMd,
+      height: config.avatarHeightMd,
+      borderRadius: config.avatarBorderRadius,
     },
     // 文本区域配置
     textArea: {
-      gap: 0.3, // 名字、描述、相克规则之间的间距
+      gap: config.textAreaGap,
     },
     // 角色名字配置
     name: {
-      fontSize: { xs: '1rem', sm: '1.05rem', md: '1.2rem' },
-      fontWeight: 'bold',
-      lineHeight: 1.2,
+      fontSize: config.nameFontSizeMd,
+      fontWeight: config.nameFontWeight,
+      lineHeight: config.nameLineHeight,
     },
     // 角色描述配置
     description: {
-      fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-      lineHeight: 1.5,
+      fontSize: config.descriptionFontSizeMd,
+      lineHeight: config.descriptionLineHeight,
     },
     // 相克规则配置
     jinx: {
-      gap: 0.3, // 多个相克规则之间的间距
-      padding: 0.3,
+      gap: config.jinxGap,
+      padding: config.jinxPadding,
       backgroundColor: '#EDE4D5',
-      borderRadius: 0.5,
-      iconGap: 0.5, // 图标与文字之间的间距
+      borderRadius: config.jinxBorderRadius,
+      iconGap: config.jinxIconGap,
       // 相克规则中的角色图标
       icon: {
-        width: { xs: 24, sm: 28, md: 45 },
-        height: { xs: 24, sm: 28, md: 45},
-        borderRadius: 0.5,
+        width: config.jinxIconWidthMd,
+        height: config.jinxIconHeightMd,
+        borderRadius: config.jinxIconBorderRadius,
       },
       // 相克规则文字
       text: {
-        fontSize: { xs: '0.7rem', sm: '0.75rem', md: '0.8rem' },
-        lineHeight: 1.4,
+        fontSize: config.jinxTextFontSizeMd,
+        lineHeight: config.jinxTextLineHeight,
         fontStyle: 'italic',
       },
     },
@@ -177,6 +189,7 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
           WebkitUserSelect: 'none',
           MozUserSelect: 'none',
           msUserSelect: 'none',
+          zIndex: 1,
           '&:hover': {
             backgroundColor: 'rgba(0, 0, 0, 0.02)',
             boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -240,52 +253,98 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
 
             {/* 相克规则 - 放在描述文本下方,与描述文本左对齐 */}
             {jinxInfo && Object.keys(jinxInfo).length > 0 && (
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
-                {Object.entries(jinxInfo).map(([targetName, jinxText]) => {
-                  const targetChar = allCharacters?.find((c) => c.name === targetName);
-                  return (
-                    <Box
-                      key={targetName}
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: CONFIG.jinx.iconGap,
-                        p: CONFIG.jinx.padding,
-                        backgroundColor: CONFIG.jinx.backgroundColor,
-                        borderRadius: CONFIG.jinx.borderRadius,
-                      }}
-                    >
-                      {targetChar && (
-                        <CharacterImage
-                          src={targetChar.image}
-                          alt={targetName}
-                          sx={{
-                            width: CONFIG.jinx.icon.width,
-                            height: CONFIG.jinx.icon.height,
-                            borderRadius: CONFIG.jinx.icon.borderRadius,
-                            flexShrink: 0,
-                            userDrag: 'none',
-                            WebkitUserDrag: 'none',
-                            pointerEvents: 'none',
-                          }}
-                        />
-                      )}
-                      <Typography
-                        variant="caption"
+              // 双页面模式：只显示灯神图标和相克角色图标的横排
+              uiConfigStore.config.enableTwoPageMode ? (
+                <Box sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: CONFIG.jinx.iconGap,
+                  flexWrap: 'wrap',
+                }}>
+                  {/* 灯神图标 */}
+                  <CharacterImage
+                    src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
+                    alt="Jinx Icon"
+                    sx={{
+                      width: CONFIG.jinx.icon.width,
+                      height: CONFIG.jinx.icon.height,
+                      borderRadius: CONFIG.jinx.icon.borderRadius,
+                      flexShrink: 0,
+                      userDrag: 'none',
+                      WebkitUserDrag: 'none',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                  {/* 所有相克的角色图标 */}
+                  {Object.keys(jinxInfo).map((targetName) => {
+                    const targetChar = allCharacters?.find((c) => c.name === targetName);
+                    return targetChar ? (
+                      <CharacterImage
+                        key={targetName}
+                        src={targetChar.image}
+                        alt={targetName}
                         sx={{
-                          fontSize: CONFIG.jinx.text.fontSize,
-                          color: THEME_COLORS.text.primary,
-                          lineHeight: CONFIG.jinx.text.lineHeight,
-                          fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
-                          flex: 1,
+                          width: CONFIG.jinx.icon.width,
+                          height: CONFIG.jinx.icon.height,
+                          borderRadius: CONFIG.jinx.icon.borderRadius,
+                          flexShrink: 0,
+                          userDrag: 'none',
+                          WebkitUserDrag: 'none',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                    ) : null;
+                  })}
+                </Box>
+              ) : (
+                // 单页面模式：保持原有的详细展示
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
+                  {Object.entries(jinxInfo).map(([targetName, jinxText]) => {
+                    const targetChar = allCharacters?.find((c) => c.name === targetName);
+                    return (
+                      <Box
+                        key={targetName}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: CONFIG.jinx.iconGap,
+                          p: CONFIG.jinx.padding,
+                          backgroundColor: CONFIG.jinx.backgroundColor,
+                          borderRadius: CONFIG.jinx.borderRadius,
                         }}
                       >
-                        {t('jinx.rule')}: {jinxText}
-                      </Typography>
-                    </Box>
-                  );
-                })}
-              </Box>
+                        {targetChar && (
+                          <CharacterImage
+                            src={targetChar.image}
+                            alt={targetName}
+                            sx={{
+                              width: CONFIG.jinx.icon.width,
+                              height: CONFIG.jinx.icon.height,
+                              borderRadius: CONFIG.jinx.icon.borderRadius,
+                              flexShrink: 0,
+                              userDrag: 'none',
+                              WebkitUserDrag: 'none',
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        )}
+                        <Typography
+                          variant="caption"
+                          sx={{
+                            fontSize: CONFIG.jinx.text.fontSize,
+                            color: THEME_COLORS.text.primary,
+                            lineHeight: CONFIG.jinx.text.lineHeight,
+                            fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
+                            flex: 1,
+                          }}
+                        >
+                          {t('jinx.rule')}: {jinxText}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
+                </Box>
+              )
             )}
           </Box>
         </Box>
@@ -317,4 +376,6 @@ export default function CharacterCard({ character, jinxInfo, allCharacters, onUp
       </Menu>
     </>
   );
-}
+});
+
+export default CharacterCard;

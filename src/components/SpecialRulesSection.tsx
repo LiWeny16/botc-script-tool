@@ -107,14 +107,7 @@ export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps)
                       >
                         {item.title}
                       </Typography>
-                      <Divider
-                        sx={{
-                          flex: 1,
-                          ml: 1.5,
-                          borderColor: THEME_COLORS.paper,
-                          borderWidth: 1,
-                        }}
-                      />
+                     
                       <Typography
                         component="div"
                         sx={{

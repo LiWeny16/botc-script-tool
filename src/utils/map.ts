@@ -27,7 +27,7 @@ export const translations = {
     'input.jsonPlaceholder': '粘贴官方剧本制作器导出的 JSON 数据...',
     'input.generateScript': '生成剧本',
     'input.uploadJson': '上传 JSON',
-  'input.exportImage': '导出图片',
+  'input.exportImage': '导出PDF',
   'input.exportJson': '导出 JSON',
   'input.shareScript': '分享剧本',
     'input.clear': '清空',
@@ -67,7 +67,7 @@ export const translations = {
     'team.outsider': '外来者',
     'team.minion': '爪牙',
     'team.demon': '恶魔',
-    'team.fabled': '传奇角色',
+    'team.fabled': '说书人·传奇角色',
     'team.traveler': '旅行者',
     
     // 夜晚顺序
@@ -145,10 +145,46 @@ export const translations = {
     
     // 相克规则
     'jinx.rule': '相克规则',
+    'jinx.title': '相克规则',
+    'jinx.section': '相克规则',
+    'jinx.and': '与',
     
     // 角色操作
     'character.edit': '编辑',
     'character.delete': '删除',
+    
+    // UI 设置
+    'ui.settings': 'UI 设置',
+    'ui.pinDrawer': '固定抽屉',
+    'ui.unpinDrawer': '解除固定',
+    'ui.nightOrderBackground': '夜晚顺序背景',
+    'ui.purpleBackground': '紫色背景',
+    'ui.yellowBackground': '黄色背景',
+    'ui.titleHeight': '标题区域高度',
+    'ui.desktopHeight': '桌面端 (md)',
+    'ui.characterCard': '角色卡片配置',
+    'ui.cardBasic': '卡片基础',
+    'ui.cardPadding': '内边距',
+    'ui.cardGap': '元素间距',
+    'ui.avatar': '头像配置',
+    'ui.avatarWidthMd': '头像宽度 (桌面)',
+    'ui.avatarHeightMd': '头像高度 (桌面)',
+    'ui.textConfig': '文字配置',
+    'ui.textAreaGap': '文本区域间距',
+    'ui.jinxConfig': '相克规则配置',
+    'ui.jinxIconWidthMd': '相克图标宽度 (桌面)',
+    'ui.jinxIconHeightMd': '相克图标高度 (桌面)',
+    'ui.fabledConfig': '传奇角色图标配置',
+    'ui.fabledIconWidthMd': '传奇图标宽度 (桌面)',
+    'ui.fabledIconHeightMd': '传奇图标高度 (桌面)',
+    'ui.resetAllSettings': '重置所有设置',
+    'ui.adjustUI': 'PDF导出设置（新双页模式）',
+    'ui.twoPageMode': '双页面模式',
+    'ui.enableTwoPageMode': '启用双页面模式（相克、传奇、旅行者单独一页）',
+    'dialog.resetUIMessage': '确定要重置所有UI设置吗？',
+    
+    // 装饰框文本
+    'decorative.page2Text': '相克规则 · 传奇角色 · 旅行者',
   },
   'en': {
     // Common
@@ -177,7 +213,7 @@ export const translations = {
     'input.jsonPlaceholder': 'Paste JSON data exported from official script maker...',
     'input.generateScript': 'Generate Script',
     'input.uploadJson': 'Upload JSON',
-    'input.exportImage': 'Export Image',
+    'input.exportImage': 'Export PDF',
     'input.exportJson': 'Export JSON',
     'input.shareScript': 'Share Script',
     'input.clear': 'Clear',
@@ -295,10 +331,46 @@ export const translations = {
     
     // Jinx Rules
     'jinx.rule': 'Jinx Rule',
+    'jinx.title': 'Jinx Rules',
+    'jinx.section': 'Jinx Rules',
+    'jinx.and': 'and',
     
     // Character Actions
     'character.edit': 'Edit',
     'character.delete': 'Delete',
+    
+    // UI Settings
+    'ui.settings': 'UI Settings',
+    'ui.pinDrawer': 'Pin Drawer',
+    'ui.unpinDrawer': 'Unpin Drawer',
+    'ui.nightOrderBackground': 'Night Order Background',
+    'ui.purpleBackground': 'Purple Background',
+    'ui.yellowBackground': 'Yellow Background',
+    'ui.titleHeight': 'Title Area Height',
+    'ui.desktopHeight': 'Desktop (md)',
+    'ui.characterCard': 'Character Card Config',
+    'ui.cardBasic': 'Card Basic',
+    'ui.cardPadding': 'Padding',
+    'ui.cardGap': 'Element Gap',
+    'ui.avatar': 'Avatar Config',
+    'ui.avatarWidthMd': 'Avatar Width (Desktop)',
+    'ui.avatarHeightMd': 'Avatar Height (Desktop)',
+    'ui.textConfig': 'Text Config',
+    'ui.textAreaGap': 'Text Area Gap',
+    'ui.jinxConfig': 'Jinx Config',
+    'ui.jinxIconWidthMd': 'Jinx Icon Width (Desktop)',
+    'ui.jinxIconHeightMd': 'Jinx Icon Height (Desktop)',
+    'ui.fabledConfig': 'Fabled Icon Config',
+    'ui.fabledIconWidthMd': 'Fabled Icon Width (Desktop)',
+    'ui.fabledIconHeightMd': 'Fabled Icon Height (Desktop)',
+    'ui.resetAllSettings': 'Reset All Settings',
+    'ui.adjustUI': 'PDF Export Settings (New Two-Page Mode)',
+    'ui.twoPageMode': 'Two-Page Mode',
+    'ui.enableTwoPageMode': 'Enable two-page mode (jinx, fabled, travelers on separate page)',
+    'dialog.resetUIMessage': 'Are you sure you want to reset all UI settings?',
+    
+    // Decorative Frame Text
+    'decorative.page2Text': 'Jinx Rules · Fabled · Travelers',
   },
 };
 

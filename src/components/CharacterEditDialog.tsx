@@ -131,6 +131,7 @@ export default function CharacterEditDialog({
     <Dialog
       open={open}
       onClose={onClose}
+      disableScrollLock={true}
       maxWidth="md"
       fullWidth
       fullScreen={isMobile}

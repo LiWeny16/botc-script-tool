@@ -1,3 +1,37 @@
+@font-face {
+  font-family: 'jicao';
+  src: url('/font/jicao/HYJiFengTiU.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F;
+}
+body {
+    font-family: 'Noto Serif SC', serif;
+}
+@font-face {
+  font-family: 'Dumbledor';
+  src: url('/font/dumbledor/dum1.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  unicode-range: U+0000-00FF, U+0100-017F, U+0180-024F, U+1E00-1EFF, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F, U+2150-218F;
+}
+
+@font-face {
+  font-family: 'Dumbledor';
+  src: url('/font/dumbledor/dum1ital.ttf') format('truetype');
+  font-weight: normal;
+  font-style: italic;
+  unicode-range: U+0000-00FF, U+0100-017F, U+0180-024F, U+1E00-1EFF, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F, U+2150-218F;
+}
+
+@font-face {
+  font-family: 'Dumbledor';
+  src: url('/font/dumbledor/dum2.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+  unicode-range: U+0000-00FF, U+0100-017F, U+0180-024F, U+1E00-1EFF, U+2000-206F, U+2070-209F, U+20A0-20CF, U+2100-214F, U+2150-218F;
+}
+
 :root {
   font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
   line-height: 1.5;

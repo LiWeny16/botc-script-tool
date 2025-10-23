@@ -4,6 +4,7 @@ import type { Character, Script } from '../types';
 import { TEAM_COLORS } from '../data/characters';
 import { THEME_COLORS, getTeamColor, getTeamName } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
+import { configStore } from '../stores/ConfigStore';
 import CharacterCard from './CharacterCard';
 import {
   DndContext,
@@ -34,6 +35,7 @@ interface CharacterSectionProps {
 
 const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, disableDrag = false }: CharacterSectionProps) => {
   const { t } = useTranslation();
+  const isChinese = configStore.language === 'zh-CN';
 
   if (characters.length === 0) return null;
 
@@ -121,8 +123,11 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
         <Typography
           variant="h5"
           sx={{
+            fontFamily: 'jicao, Dumbledor, serif',
             fontWeight: 'bold',
-            fontSize: { xs: '1rem', sm: '1.1rem', md: '1.2rem' },
+            fontSize: isChinese
+              ? { xs: '1rem', sm: '1.1rem', md: '1.4rem' }
+              : { xs: '1.1rem', sm: '1.2rem', md: '1.6rem' },
           }}
         >
           {!isStandardTeam || team === 'fabled' || team === 'traveler' ? (

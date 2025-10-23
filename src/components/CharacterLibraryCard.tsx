@@ -165,7 +165,7 @@ const getFabledCharacters = (language: string): Character[] => {
         },
         {
             id: 'djinn',
-            name: isEnglish ? 'Djinn' : '精灵',
+            name: isEnglish ? 'Djinn' : '灯神',
             ability: isEnglish ? "Use the Djinn's special rule. All players know what it is." : '使用灯神的相克规则。所有玩家都会知道其内容。',
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Djinn_icon.webp',

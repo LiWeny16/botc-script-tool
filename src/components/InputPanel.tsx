@@ -25,6 +25,7 @@ import {
   LibraryBooks,
   RestartAlt,
   Share,
+  Tune,
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
@@ -37,11 +38,12 @@ interface InputPanelProps {
   onExportJson: () => void;
   onShare: () => void;
   onClear?: () => void;
+  onOpenUISettings?: () => void;
   hasScript: boolean;
   currentJson?: string;
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, hasScript, currentJson }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, hasScript, currentJson }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -225,6 +227,19 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           </Button>
 
           <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            startIcon={<Tune />}
+            onClick={onOpenUISettings}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '0 1 auto' },
+            }}
+          >
+            {t('ui.adjustUI')}
+          </Button>
+
+          <Button
             variant="outlined"
             size="large"
             component="label"
@@ -357,6 +372,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
       <Dialog
         open={resetDialogOpen}
         onClose={handleCancelReset}
+        disableScrollLock={true}
         aria-labelledby="reset-dialog-title"
         aria-describedby="reset-dialog-description"
       >
@@ -382,6 +398,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
       <Dialog
         open={clearDialogOpen}
         onClose={handleCancelClear}
+        disableScrollLock={true}
         aria-labelledby="clear-dialog-title"
         aria-describedby="clear-dialog-description"
       >

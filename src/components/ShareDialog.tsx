@@ -126,6 +126,7 @@ const ShareDialog = observer(({ open, onClose, script, originalJson }: ShareDial
     <Dialog
       open={open}
       onClose={onClose}
+      disableScrollLock={true}
       maxWidth="md"
       fullWidth
       PaperProps={{

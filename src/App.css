@@ -5,6 +5,11 @@
   box-sizing: border-box;
 }
 
+.font-union,
+.font-union * {
+  font-family: 'jicao', 'Dumbledor', serif !important;
+}
+
 #root {
   width: 100%;
   min-height: 100vh;
@@ -35,7 +40,7 @@
   body {
     background: white;
   }
-  
+
   .no-print {
     display: none !important;
   }

@@ -4,31 +4,31 @@
 export const THEME_COLORS = {
   // 善良阵营 - 蓝色系
   good: '#0078ba',
-  
+
   // 邪恶阵营 - 红色系
   evil: '#b21e1d',
-  
+
   // 传奇角色 - 金色系
   fabled: '#d4af37',
-  
+
   // 未知团队 - 翠墨绿色
   unknown: '#2d5c4f',
-  
+
   // 其他颜色
   purple: '#dd38ca',  // 旅行者等特殊标记
   gray: '#999',       // 分割线等
-  
+
   // 背景色
   paper: {
     primary: '#2c2416',
     secondary: '#3d3226',
   },
-  
+
   // 夜晚顺序栏背景
   nightOrder: {
     background: '#1a1d20',
   },
-  
+
   // 文字颜色
   text: {
     primary: '#000000',     // 主要文字 - 黑色
@@ -41,10 +41,10 @@ export const THEME_COLORS = {
 export const THEME_FONTS = {
   // 主要字体系列
   fontFamily: '"Source Han Serif", "Source Han Serif SC", "Noto Serif CJK SC", "思源宋体", "Microsoft YaHei", "PingFang SC", serif',
-  
-  // 备用字体系列（用于特殊场景）
-  fallbackFontFamily: '"Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif',
-} as const;
+  // fontFamily: `'Noto Serif SC', serif`,
+// 备用字体系列（用于特殊场景）
+fallbackFontFamily: '"Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif',
+} as const ;
 
 // 团队颜色映射
 export const TEAM_COLORS: Record<string, string> = {
@@ -86,7 +86,7 @@ export function getTeamName(team: string): string {
     return TEAM_NAMES[team];
   }
   // 自动格式化团队名称
-  return team.split('_').map(word => 
+  return team.split('_').map(word =>
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');
 }

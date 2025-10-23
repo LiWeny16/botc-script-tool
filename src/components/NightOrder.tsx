@@ -30,7 +30,8 @@ export default function NightOrder({ title, actions, isMobile = false }: NightOr
         sx={{
           textAlign: 'center',
           fontWeight: 'bold',
-          fontSize: { xs: '1rem', sm: '1.1rem', md: '1.3rem' },
+          fontFamily: 'jicao, Dumbledor, serif',
+          fontSize: { xs: '1rem', sm: '1.1rem', md: '1.5rem' },
           mb: isMobile ? 1 : 1.5,
           mt: 0.5,
           color: isMobile ? '#fefefe' : 'inherit',
@@ -49,9 +50,11 @@ export default function NightOrder({ title, actions, isMobile = false }: NightOr
                 display: 'block',
                 lineHeight: char === '晚' ? 1.3 : 1,
                 mt: char === '晚' ? 0.3 : 0,
+                // 保留空格的高度,让空格在竖向排列时也能显示
+                minHeight: char === ' ' ? '0.5em' : 'auto',
               }}
             >
-              {char}
+              {char === ' ' ? '\u00A0' : char}
             </Box>
           ))
         )}

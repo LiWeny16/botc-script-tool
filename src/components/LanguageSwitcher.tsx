@@ -45,6 +45,7 @@ const LanguageSwitcher = observer(() => {
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
+        disableScrollLock={true}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'right',

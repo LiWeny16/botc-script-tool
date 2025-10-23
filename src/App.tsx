@@ -22,13 +22,79 @@ import FloatingAddButton from './components/FloatingAddButton';
 import CharacterLibraryCard from './components/CharacterLibraryCard';
 import CharacterImage from './components/CharacterImage';
 import { DecorativeFrame } from './components/DecorativeFrame';
+import JinxSection from './components/JinxSection';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
 import { SEOManager } from './components/SEOManager';
 import { scriptStore } from './stores/ScriptStore';
-import html2canvas from 'html2canvas';
+import { uiConfigStore } from './stores/UIConfigStore';
+import UISettingsDrawer from './components/UISettingsDrawer';
+import {
+  GlobalStyles, // 👈 增加这个
+} from '@mui/material';
 
+// 把它放在 App 组件上面，或者 theme 定义的下面
+const printStyles = {
+  '@media print': {
+    // 1. 定义打印页面，去除浏览器默认边距
+    '@page': {
+      size: 'A4 portrait', // 推荐 A4 纵向
+      margin: 0,           // 页面边距设为0，我们在容器内部控制
+    },
+
+    // 2. 隐藏页面上所有元素
+    'body *': {
+      visibility: 'hidden !important',
+    },
+
+    // 3. 仅显示你要打印的剧本核心区，以及它的所有子元素
+    '#script-preview, #script-preview *, #main_script, #main_script *, #script-preview-2, #script-preview-2 *': {
+      visibility: 'visible !important',
+    },
+
+    // 3.5. 移除Container的padding和margin
+    '.MuiContainer-root': {
+      padding: '0 !important',
+      margin: '0 !important',
+      maxWidth: '100% !important',
+    },
+
+    // 4. ⭐ 核心：设置第一页容器高度和布局
+    '#script-preview': {
+      // --- A. 定位和尺寸 ---
+      position: 'relative !important',
+      left: '0 !important',
+      top: '0 !important',
+      width: '100vw !important',  // 100% 打印视口宽度
+      height: '100vh !important', // 100% 打印视口高度
+      margin: '0 !important',
+      padding: '0 !important',
+
+      // --- B. 强制不溢出 ---
+      overflow: 'hidden !important', // 关键！裁剪任何超出一页的内容
+
+      // --- C. 分页 ---
+      pageBreakAfter: 'always !important', // 第一页后强制分页
+      pageBreakInside: 'avoid !important',
+    },
+
+    // 5. ⭐ 第二页容器
+    '#script-preview-2': {
+      position: 'relative !important',
+      left: '0 !important',
+      top: '0 !important',
+      width: '100vw !important',
+      height: '100vh !important',
+      margin: '0 !important',
+      padding: '0 !important',
+      overflow: 'hidden !important',
+      pageBreakBefore: 'always !important', // 第二页前强制分页
+      pageBreakInside: 'avoid !important',
+      marginTop: '0 !important', // 确保打印时没有上边距
+    }
+  },
+};
 // 创建主题
 const theme = createTheme({
   palette: {
@@ -68,6 +134,7 @@ const App = observer(() => {
   const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [libraryCardOpen, setLibraryCardOpen] = useState<boolean>(false);
+  const [uiSettingsOpen, setUiSettingsOpen] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -252,46 +319,9 @@ const App = observer(() => {
     }
   };
 
-  const handleExportImage = async () => {
-    if (!scriptRef.current) return;
-
-    try {
-      // 等待所有图片加载完成
-      const images = scriptRef.current.querySelectorAll('img');
-      await Promise.all(
-        Array.from(images).map((img) => {
-          if (img.complete) return Promise.resolve();
-          return new Promise((resolve) => {
-            img.onload = () => resolve(null);
-            img.onerror = () => resolve(null);
-            setTimeout(() => resolve(null), 5000);
-          });
-        })
-      );
-
-      const canvas = await html2canvas(scriptRef.current, {
-        scale: 2, // 2倍分辨率，确保文字清晰
-        backgroundColor: '#242424',
-        logging: false,
-        useCORS: true,
-        allowTaint: true, // 允许跨域图片
-        width: scriptRef.current.scrollWidth,
-        height: scriptRef.current.scrollHeight,
-        windowWidth: scriptRef.current.scrollWidth,
-        windowHeight: scriptRef.current.scrollHeight,
-        imageTimeout: 0, // 不设置超时
-        removeContainer: true,
-      });
-
-      // 压缩导出，减小文件大小
-      const link = document.createElement('a');
-      link.download = `${script?.title || '剧本'}.png`;
-      link.href = canvas.toDataURL('image/jpeg', 0.92); // 使用JPEG格式，92%质量压缩
-      link.click();
-    } catch (error) {
-      console.error('导出图片失败:', error);
-      alert(t('input.exportImageFailed'));
-    }
+  const handleExportPDF = () => {
+    // 触发浏览器打印功能，用户可以选择保存为PDF
+    window.print();
   };
 
   // 清空所有数据
@@ -301,23 +331,24 @@ const App = observer(() => {
 
   return (
     <ThemeProvider theme={theme}>
+      <GlobalStyles styles={printStyles} /> {/* 👈 在这里添加 */}
       <SEOManager />
       <CssBaseline />
       <Box
         sx={{
-          minHeight: '100vh',
+          height: "100svh",
           backgroundColor: 'background.default',
-          py: { xs: 2, sm: 3, md: 4 },
         }}
       >
         <Container maxWidth="xl">
           {/* 输入面板 */}
           <InputPanel
             onGenerate={handleGenerate}
-            onExportImage={handleExportImage}
+            onExportImage={handleExportPDF}
             onExportJson={handleExportJson}
             onShare={() => setShareDialogOpen(true)}
             onClear={handleClear}
+            onOpenUISettings={() => setUiSettingsOpen(true)}
             hasScript={script !== null}
             currentJson={originalJson}
           />
@@ -396,14 +427,27 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
-                    overflow: "hidden"
                   }}
                 />
 
 
                 {/* 左侧 - 首个夜晚 */}
                 {!isMobile && (
-                  <Box sx={nightOrderStyle}>
+                  <Box sx={{
+                    padding: 1.5,
+                    flexShrink: 0,
+                    position: 'relative',
+                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: "center",
+                    pt: '33.33%',
+                    boxShadow: 'none',
+                    '& > *': {
+                      position: 'relative',
+                      zIndex: 3,
+                    }
+                  }}>
                     <NightOrder title={t('night.first')} actions={script.firstnight} />
                   </Box>
                 )}
@@ -421,7 +465,6 @@ const App = observer(() => {
                     backgroundRepeat: 'no-repeat',
                     borderRadius: 0,
                     position: 'relative',
-                    overflow: 'hidden',
                     boxShadow: 'none',
                   }}
                 >
@@ -434,7 +477,7 @@ const App = observer(() => {
                     <Box
                       sx={{
                         position: 'relative',
-                        height: { xs: 90, sm: 100, md: 180 },
+                        height: uiConfigStore.titleHeight,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -448,7 +491,7 @@ const App = observer(() => {
                           right: 0,
                           bottom: 0,
                           backgroundImage: "url(/imgs/images/pattern.png)",
-                          backgroundSize: "50% 100%",
+                          backgroundSize: "48%",
                           backgroundPosition: "center",
                           backgroundRepeat: "no-repeat",
                           opacity: 0.6, // 这里可以调整背景图透明度，不影响子元素
@@ -477,15 +520,27 @@ const App = observer(() => {
                       ) : (
                         <Typography
                           variant="h3"
+                          component="div"
                           sx={{
+                            fontFamily: 'jicao, Dumbledor, serif',
                             fontWeight: 'bold',
                             color: THEME_COLORS.paper.primary,
                             fontSize: { xs: '1.5rem', sm: '1.8rem', md: '3rem' },
-                            lineHeight: 1.1,
+                            lineHeight: 1.38,
                             m: 0,
+                            maxWidth: { xs: '90%', sm: '80%', md: '70%' },
+                            wordWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            whiteSpace: 'pre-wrap',
+                            textAlign: 'center',
                           }}
                         >
-                          {script.title}
+                          {script.title.split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                            <span key={index}>
+                              {line}
+                              {index < array.length - 1 && <br />}
+                            </span>
+                          ))}
                         </Typography>
                       )}
                       <Box sx={{ position: 'relative', zIndex: 1 }}>
@@ -517,7 +572,7 @@ const App = observer(() => {
                   }}>
                     <Box sx={{ px: 3, }}>
                       {/* 按固定顺序显示标准团队 */}
-                      {['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].map(team => (
+                      {['townsfolk', 'outsider', 'minion', 'demon'].map(team => (
                         script.characters[team] && script.characters[team].length > 0 && (
                           <CharacterSection
                             key={team}
@@ -533,8 +588,25 @@ const App = observer(() => {
                         )
                       ))}
 
-                      {/* 显示所有未知团队 */}
-                      {Object.keys(script.characters)
+                      {/* 在非双页面模式下显示传奇和旅行者 */}
+                      {!uiConfigStore.config.enableTwoPageMode && ['fabled', 'traveler'].map(team => (
+                        script.characters[team] && script.characters[team].length > 0 && (
+                          <CharacterSection
+                            key={team}
+                            team={team}
+
+                            characters={script.characters[team]}
+                            script={script}
+                            onReorder={handleReorderCharacters}
+                            onUpdateCharacter={handleUpdateCharacter}
+                            onEditCharacter={handleEditCharacter}
+                            onDeleteCharacter={handleRemoveCharacter}
+                          />
+                        )
+                      ))}
+
+                      {/* 显示所有未知团队（非双页面模式） */}
+                      {!uiConfigStore.config.enableTwoPageMode && Object.keys(script.characters)
                         .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
                         .map(team => (
                           <CharacterSection
@@ -568,12 +640,45 @@ const App = observer(() => {
                   {/* <Box sx={{ position: 'relative', zIndex: 1 }}>
                     <SpecialRulesSection rules={script.specialRules} />
                   </Box> */}
-
+                  <CharacterImage
+                    component="img"
+                    src={"/imgs/images/back_tower.png"}
+                    alt={"2323"}
+                    sx={{
+                      position: "absolute",
+                      left: "0%",
+                      bottom: "0",
+                      display: "flex",
+                      width: "20%",
+                      zIndex: 0,
+                      opacity: 0.4,
+                      // width: 128,
+                      // height: 128,
+                    }}
+                  />
+                  <CharacterImage
+                    component="img"
+                    src={"/imgs/images/back_tower2.png"}
+                    alt={"2323"}
+                    sx={{
+                      position: "absolute",
+                      left: "36%",
+                      bottom: "0%",
+                      display: "flex",
+                      width: "50%",
+                      zIndex: 0,
+                      opacity: 0.8,
+                      // width: 128,
+                      // height: 128,
+                    }}
+                  />
                   {/* 底部装饰框 */}
-                  <DecorativeFrame
+                  {/* <DecorativeFrame
                     text="*代表非首个夜晚"
                     width={{ xs: "90%", sm: "80%", md: "20%" }}
-                    containerHeight={100}
+                    height={100}
+                    containerPt={uiConfigStore.decorativeFrameSpacing.pt}
+                    containerPb={uiConfigStore.decorativeFrameSpacing.pb}
                     borderColor="rgba(255, 255, 255, 0.3)"
                     cornerColor="#d4af37"
                     textColor="#000000"
@@ -582,12 +687,29 @@ const App = observer(() => {
                     showParticles={true}
                     showCorners={true}
                     decorativeSymbol="✦"
-                  />
+                  /> */}
+                  <Box sx={{ height: "20vh" }}>
+
+                  </Box>
                 </Paper>
 
                 {/* 右侧 - 其他夜晚 */}
                 {!isMobile && (
-                  <Box sx={nightOrderStyle}>
+                  <Box sx={{
+                    padding: 1.5,
+                    flexShrink: 0,
+                    position: 'relative',
+                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: "center",
+                    pt: '33.33%',
+                    boxShadow: 'none',
+                    '& > *': {
+                      position: 'relative',
+                      zIndex: 3,
+                    }
+                  }}>
                     <NightOrder title={t('night.other')} actions={script?.othernight || []} />
                   </Box>
                 )}
@@ -595,6 +717,238 @@ const App = observer(() => {
             </Box>
           )
           }
+
+          {/* 第二页 - 双页面模式下显示相克规则、传奇、旅行者 */}
+          {script && uiConfigStore.config.enableTwoPageMode && (
+            <Box
+              id="script-preview-2"
+              sx={{
+                display: "flex",
+                width: "100%",
+                mt: 4, // 屏幕上与第一页分隔
+                '@media print': {
+                  mt: 0, // 打印时取消间距
+                }
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  width: "100%",
+                  height: "100%",
+                  minHeight: '100vh', // 确保容器也有足够高度
+                  justifyContent: "center",
+                  position: 'relative',
+                  '@media print': {
+                    height: '100vh !important',
+                    minHeight: '100vh !important',
+                  }
+                }}>
+
+                {/* 装饰花纹 - 复用第一页的装饰 */}
+                <CharacterImage
+                  src="/imgs/images/flower3_2.png"
+                  alt="左下角装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+                <CharacterImage
+                  src="/imgs/images/flower4.png"
+                  alt="装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+                <CharacterImage
+                  src="/imgs/images/flower7.png"
+                  alt="右上角装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    right: -5,
+                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+                <CharacterImage
+                  src="/imgs/images/flower4_2.png"
+                  alt="左上角装饰花纹"
+                  sx={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    transform: "rotate(180deg)",
+                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                    opacity: 1,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }}
+                />
+
+                {/* 左侧占位 */}
+                {!isMobile && (
+                  <Box sx={{
+                    padding: 1.5,
+                    flexShrink: 0,
+                    position: 'relative',
+                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                    width: '200px',
+                    boxShadow: 'none',
+                  }}>
+                  </Box>
+                )}
+
+                {/* 中间 - 第二页内容区域 */}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    pt: 2,
+                    flex: 1,
+                    backgroundImage: 'url(/imgs/images/main_back.jpg)',
+                    backgroundSize: '100% 100%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    borderRadius: 0,
+                    position: 'relative',
+                    boxShadow: 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    minHeight: '100vh', // 确保第二页也是100vh高度
+                    '@media print': {
+                      height: '100vh !important',
+                      minHeight: '100vh !important',
+                    }
+                  }}
+                >
+                  {/* 中间撕纸效果装饰 */}
+                  <CharacterImage
+                    component="img"
+                    src={"/imgs/images/back_4.png"}
+                    alt="Decorative torn paper"
+                    sx={{
+                      position: "relotive",
+                      top: "0%",
+                      width: "30%",
+                      height: "auto",
+                      zIndex: 1,
+                      pointerEvents: 'none',
+                      opacity: 0.95,
+                    }}
+                  />
+
+                  {/* 第二页角色区域 */}
+                  <Box sx={{
+                    width: "100%",
+                    px: 3,
+                    position: 'relative',
+                    zIndex: 2,
+                  }}>
+                    {/* 显示传奇和旅行者 */}
+                    {['fabled', 'traveler'].map(team => (
+                      script.characters[team] && script.characters[team].length > 0 && (
+                        <CharacterSection
+                          key={team}
+                          team={team}
+                          characters={script.characters[team]}
+                          script={script}
+                          onReorder={handleReorderCharacters}
+                          onUpdateCharacter={handleUpdateCharacter}
+                          onEditCharacter={handleEditCharacter}
+                          onDeleteCharacter={handleRemoveCharacter}
+                        />
+                      )
+                    ))}
+
+                    {/* 显示所有未知团队（相克规则等） */}
+                    {Object.keys(script.characters)
+                      .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
+                      .map(team => (
+                        <CharacterSection
+                          key={team}
+                          team={team}
+                          characters={script.characters[team]}
+                          script={script}
+                          onReorder={handleReorderCharacters}
+                          onUpdateCharacter={handleUpdateCharacter}
+                          onEditCharacter={handleEditCharacter}
+                          onDeleteCharacter={handleRemoveCharacter}
+                        />
+                      ))
+                    }
+
+                    {/* 相克规则专区 */}
+                    <JinxSection script={script} />
+                    <Box sx={{ height: "20vh" }}></Box>
+                    <CharacterImage
+                      component="img"
+                      src={"/imgs/images/back_tower.png"}
+                      alt={"2323"}
+                      sx={{
+                        position: "absolute",
+                        left: "0%",
+                        bottom: "0",
+                        display: "flex",
+                        width: "20%",
+                        zIndex: 0,
+                        opacity: 0.4,
+                        // width: 128,
+                        // height: 128,
+                      }}
+                    />
+                    <CharacterImage
+                      component="img"
+                      src={"/imgs/images/back_tower2.png"}
+                      alt={"2323"}
+                      sx={{
+                        position: "absolute",
+                        left: "36%",
+                        bottom: "0%",
+                        display: "flex",
+                        width: "50%",
+                        zIndex: 0,
+                        opacity: 0.8,
+                        // width: 128,
+                        // height: 128,
+                      }}
+                    />
+                  </Box>
+
+
+                </Paper>
+
+                {/* 右侧占位 */}
+                {!isMobile && (
+                  <Box sx={{
+                    padding: 1.5,
+                    flexShrink: 0,
+                    position: 'relative',
+                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                    width: '200px',
+                    boxShadow: 'none',
+                  }}>
+                  </Box>
+                )}
+
+              </Box>
+            </Box>
+          )}
 
           {/* 空状态提示 */}
           {!script && (
@@ -649,26 +1003,14 @@ const App = observer(() => {
         onClick={() => setLibraryCardOpen(!libraryCardOpen)}
         show={!!script} // 只要有剧本就显示
       />
+
+      {/* UI设置抽屉 */}
+      <UISettingsDrawer
+        open={uiSettingsOpen}
+        onClose={() => setUiSettingsOpen(false)}
+      />
     </ThemeProvider >
   );
 });
 
 export default App;
-
-
-const nightOrderStyle = {
-  padding: 1.5,
-  flexShrink: 0,
-  position: 'relative',
-  backgroundImage: "url(/imgs/images/night_order/order_back_purple.png)",
-  display: 'flex',
-  alignItems: 'flex-start',
-  justifyContent: "center",
-  pt: '33.33%',
-  overflow: 'hidden',
-  boxShadow: 'none',
-  '& > *': {
-    position: 'relative',
-    zIndex: 3,
-  }
-}
