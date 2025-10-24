@@ -218,6 +218,268 @@ class ScriptStore {
     this.syncScriptToJson(updatedScript);
   }
 
+  // 更新标题信息
+  updateTitleInfo(data: {
+    title?: string;
+    titleImage?: string;
+    subtitle?: string;
+    author?: string;
+    playerCount?: string;
+  }) {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    if (data.title !== undefined) updatedScript.title = data.title;
+    
+    // 处理 titleImage：如果是 undefined 或空字符串，删除该字段
+    if ('titleImage' in data) {
+      if (data.titleImage) {
+        updatedScript.titleImage = data.titleImage;
+      } else {
+        delete updatedScript.titleImage;
+      }
+    }
+    
+    if (data.subtitle !== undefined) updatedScript.subtitle = data.subtitle;
+    if (data.author !== undefined) updatedScript.author = data.author;
+    if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
+
+    this.setScript(updatedScript);
+    this.syncTitleInfoToJson(data);
+  }
+
+  // 更新特殊规则
+  updateSpecialRule(rule: any) {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    // 更新 specialRules 中的规则
+    const firstPageIndex = updatedScript.specialRules.findIndex(r => r.id === rule.id);
+    if (firstPageIndex !== -1) {
+      updatedScript.specialRules[firstPageIndex] = rule;
+    }
+    
+    // 更新 secondPageRules 中的规则（如果存在）
+    if (updatedScript.secondPageRules) {
+      const secondPageIndex = updatedScript.secondPageRules.findIndex(r => r.id === rule.id);
+      if (secondPageIndex !== -1) {
+        updatedScript.secondPageRules[secondPageIndex] = rule;
+      }
+    }
+
+    this.setScript(updatedScript);
+    this.syncSpecialRuleUpdateToJson(rule);
+  }
+
+  // 删除特殊规则
+  removeSpecialRule(rule: any) {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    // 从 specialRules 中删除
+    updatedScript.specialRules = updatedScript.specialRules.filter(r => r.id !== rule.id);
+    
+    // 从 secondPageRules 中删除（如果存在）
+    if (updatedScript.secondPageRules) {
+      updatedScript.secondPageRules = updatedScript.secondPageRules.filter(r => r.id !== rule.id);
+    }
+
+    this.setScript(updatedScript);
+    this.syncSpecialRuleToJson(rule);
+  }
+
+  // 将标题信息同步到JSON
+  private syncTitleInfoToJson(data: {
+    title?: string;
+    titleImage?: string;
+    subtitle?: string;
+    author?: string;
+    playerCount?: string;
+  }) {
+    console.log('开始同步标题信息到JSON', data);
+    try {
+      const parsedJson = JSON.parse(this.originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      const newJsonArray = jsonArray.map((item: any) => {
+        if (item.id === '_meta') {
+          const updatedMeta = { ...item };
+          
+          if (data.title !== undefined) updatedMeta.name = data.title;
+          
+          // 处理图片标题：只要 titleImage 字段存在（即使是 undefined），就处理它
+          if ('titleImage' in data) {
+            console.log('处理 titleImage 字段:', data.titleImage);
+            if (data.titleImage) {
+              updatedMeta.titleImage = data.titleImage;
+              console.log('✅ 设置 titleImage:', data.titleImage);
+            } else {
+              delete updatedMeta.titleImage;
+              delete updatedMeta.logo;
+              console.log('✅ 删除 titleImage 和 logo 字段');
+            }
+          }
+          
+          if (data.subtitle !== undefined) {
+            if (data.subtitle) {
+              updatedMeta.subtitle = data.subtitle;
+            } else {
+              delete updatedMeta.subtitle;
+            }
+          }
+          if (data.author !== undefined) updatedMeta.author = data.author;
+          if (data.playerCount !== undefined) {
+            if (data.playerCount) {
+              updatedMeta.playerCount = data.playerCount;
+            } else {
+              delete updatedMeta.playerCount;
+            }
+          }
+          
+          console.log('更新后的 _meta:', updatedMeta);
+          return updatedMeta;
+        }
+        return item;
+      });
+
+      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      console.log('标题信息同步完成');
+      this.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步标题信息失败:', error);
+    }
+  }
+
+  // 将特殊规则的更新同步到JSON
+  private syncSpecialRuleUpdateToJson(updatedRule: any) {
+    console.log('开始同步更新特殊规则到JSON', updatedRule);
+    try {
+      const parsedJson = JSON.parse(this.originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      let newJsonArray: any[] = [];
+
+      if (updatedRule.sourceType === 'state' || updatedRule.sourceType === 'status') {
+        // 处理 state/status 类型
+        newJsonArray = jsonArray.map((item: any) => {
+          if (item.id === '_meta') {
+            const updatedMeta = { ...item };
+            
+            if (updatedRule.sourceType === 'state' && updatedMeta.state) {
+              updatedMeta.state = updatedMeta.state.map((state: any, index: number) => {
+                if (index === updatedRule.sourceIndex) {
+                  return {
+                    ...state,
+                    stateName: updatedRule.title,
+                    stateDescription: updatedRule.content,
+                  };
+                }
+                return state;
+              });
+            }
+            
+            if (updatedRule.sourceType === 'status' && updatedMeta.status) {
+              updatedMeta.status = updatedMeta.status.map((status: any, index: number) => {
+                if (index === updatedRule.sourceIndex) {
+                  return {
+                    ...status,
+                    name: updatedRule.title,
+                    skill: updatedRule.content,
+                  };
+                }
+                return status;
+              });
+            }
+            
+            return updatedMeta;
+          }
+          return item;
+        });
+      } else if (updatedRule.sourceType === 'special_rule') {
+        // 处理 special_rule 类型
+        newJsonArray = jsonArray.map((item: any) => {
+          if (item.id === updatedRule.id) {
+            return {
+              ...item,
+              title: updatedRule.title,
+              content: updatedRule.content,
+            };
+          }
+          return item;
+        });
+      } else {
+        // 未知类型，保持原样
+        newJsonArray = jsonArray;
+      }
+
+      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      console.log('特殊规则更新同步完成');
+      this.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步特殊规则更新失败:', error);
+    }
+  }
+
+  // 将特殊规则的删除同步到JSON
+  private syncSpecialRuleToJson(deletedRule: any) {
+    console.log('开始同步删除特殊规则到JSON', deletedRule);
+    try {
+      const parsedJson = JSON.parse(this.originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      let newJsonArray: any[] = [];
+
+      if (deletedRule.sourceType === 'state' || deletedRule.sourceType === 'status') {
+        // 处理 state/status 类型
+        newJsonArray = jsonArray.map((item: any) => {
+          if (item.id === '_meta') {
+            const updatedMeta = { ...item };
+            
+            if (deletedRule.sourceType === 'state' && updatedMeta.state) {
+              // 删除对应索引的 state
+              updatedMeta.state = updatedMeta.state.filter(
+                (_: any, index: number) => index !== deletedRule.sourceIndex
+              );
+              // 如果 state 数组为空，删除该字段
+              if (updatedMeta.state.length === 0) {
+                delete updatedMeta.state;
+              }
+            }
+            
+            if (deletedRule.sourceType === 'status' && updatedMeta.status) {
+              // 删除对应索引的 status
+              updatedMeta.status = updatedMeta.status.filter(
+                (_: any, index: number) => index !== deletedRule.sourceIndex
+              );
+              // 如果 status 数组为空，删除该字段
+              if (updatedMeta.status.length === 0) {
+                delete updatedMeta.status;
+              }
+            }
+            
+            return updatedMeta;
+          }
+          return item;
+        });
+      } else if (deletedRule.sourceType === 'special_rule') {
+        // 处理 special_rule 类型 - 删除整个对象
+        newJsonArray = jsonArray.filter((item: any) => item.id !== deletedRule.id);
+      } else {
+        // 未知类型，保持原样
+        newJsonArray = jsonArray;
+      }
+
+      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      console.log('特殊规则删除同步完成，更新originalJson');
+      this.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步特殊规则删除失败:', error);
+    }
+  }
+
   // 将Script同步回JSON
   private syncScriptToJson(updatedScript: Script) {
     console.log('开始同步Script到JSON');

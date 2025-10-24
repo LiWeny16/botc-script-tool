@@ -185,6 +185,19 @@ export const translations = {
     
     // 装饰框文本
     'decorative.page2Text': '相克规则 · 传奇角色 · 旅行者',
+    
+    // 特殊规则
+    'specialRules.title': '特殊规则',
+    'specialRules.add': '添加特殊规则',
+    'specialRules.edit': '编辑特殊规则',
+    'specialRules.delete': '删除规则',
+    'specialRules.stateRules': '状态规则',
+    'specialRules.dialogTitle': '添加自定义规则',
+    'specialRules.selectType': '选择规则类型',
+    'specialRules.specialRule': '特殊规则',
+    'specialRules.stateRule': '状态规则',
+    'specialRules.cancel': '取消',
+    'specialRules.confirm': '确定',
   },
   'en': {
     // Common
@@ -364,13 +377,26 @@ export const translations = {
     'ui.fabledIconWidthMd': 'Fabled Icon Width (Desktop)',
     'ui.fabledIconHeightMd': 'Fabled Icon Height (Desktop)',
     'ui.resetAllSettings': 'Reset All Settings',
-    'ui.adjustUI': 'PDF Export Settings (New Two-Page Mode)',
+    'ui.adjustUI': 'PDF Export Settings',
     'ui.twoPageMode': 'Two-Page Mode',
     'ui.enableTwoPageMode': 'Enable two-page mode (jinx, fabled, travelers on separate page)',
     'dialog.resetUIMessage': 'Are you sure you want to reset all UI settings?',
     
     // Decorative Frame Text
     'decorative.page2Text': 'Jinx Rules · Fabled · Travelers',
+    
+    // Special Rules
+    'specialRules.title': 'Special Rules',
+    'specialRules.add': 'Add Special Rule',
+    'specialRules.edit': 'Edit Special Rule',
+    'specialRules.delete': 'Delete Rule',
+    'specialRules.stateRules': 'State Rules',
+    'specialRules.dialogTitle': 'Add Custom Rule',
+    'specialRules.selectType': 'Select Rule Type',
+    'specialRules.specialRule': 'Special Rule',
+    'specialRules.stateRule': 'State Rule',
+    'specialRules.cancel': 'Cancel',
+    'specialRules.confirm': 'Confirm',
   },
 };
 

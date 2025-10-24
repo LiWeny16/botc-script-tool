@@ -9,6 +9,7 @@
  */
 
 @media print {
+
   /* 重置所有页面边距 - 无白边 */
   @page {
     margin: 0 !important;
@@ -17,7 +18,8 @@
   }
 
   /* 重置body和html的样式 */
-  html, body {
+  html,
+  body {
     margin: 0 !important;
     padding: 0 !important;
     overflow: visible !important;
@@ -32,7 +34,9 @@
 
   /* 只显示剧本预览区域及其子元素 */
   #script-preview,
-  #script-preview * {
+  #script-preview *,
+  #script-preview-2,
+  #script-preview-2 * {
     visibility: visible !important;
   }
 
@@ -82,6 +86,12 @@
     box-shadow: none !important;
   }
 
+  /* 屏蔽角色卡悬浮效果 */
+  .MuiPaper-root:hover {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+
   /* 隐藏所有工具组件 */
   .MuiFab-root,
   .floating-add-button,
@@ -103,4 +113,3 @@
     visibility: hidden !important;
   }
 }
-

@@ -1,0 +1,54 @@
+[
+  {
+    "id": "_meta",
+    "name": "State测试剧本",
+    "author": "测试作者",
+    "playerCount": "7-15",
+    "state": [
+      {
+        "stateName": "第一个特殊规则",
+        "stateDescription": "这是第一个特殊规则的描述，会显示在第一页。这个规则的内容应该比较简短。"
+      },
+      {
+        "stateName": "第二个特殊规则",
+        "stateDescription": "这是第二个特殊规则的描述，会显示在第二页的相克规则下方。这个规则可以包含更多的内容，因为第二页有更多的空间来展示详细信息。"
+      },
+      {
+        "stateName": "第三个特殊规则",
+        "stateDescription": "这是第三个特殊规则，也会显示在第二页。如果有多个规则，它们会按顺序在第二页展示。每个规则都有自己独立的标题和内容区域。"
+      }
+    ]
+  },
+  {
+    "id": "35addde2-e27a-4de2-9a9e-df0e78364717",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/upload/202304/c_1310810162861_4da173fa.jpg",
+    "edition": "custom",
+    "name": "私货商人",
+    "ability": "这个剧本包含有自制角色或自制规则。",
+    "team": "fabled",
+    "firstNight": 0,
+    "otherNight": 0
+  },
+  "washerwoman",
+  "librarian",
+  "investigator",
+  "chef",
+  "empath",
+  "fortuneteller",
+  "undertaker",
+  "monk",
+  "ravenkeeper",
+  "virgin",
+  "slayer",
+  "soldier",
+  "mayor",
+  "butler",
+  "drunk",
+  "recluse",
+  "saint",
+  "poisoner",
+  "spy",
+  "scarletwoman",
+  "baron",
+  "imp"
+]

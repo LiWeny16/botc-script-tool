@@ -1,31 +1,21 @@
-import { Box, Divider, Typography } from '@mui/material';
+import { Box, Divider, Typography, IconButton } from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { useState } from 'react';
 import type { SpecialRule } from '../types';
 import { THEME_COLORS } from '../theme/colors';
+import { useTranslation } from '../utils/i18n';
 
 interface SpecialRulesSectionProps {
   rules: SpecialRule[];
+  onDelete?: (rule: SpecialRule) => void;
+  onEdit?: (rule: SpecialRule) => void;
 }
 
-// 默认规则 - 可能和中毒合并在一个卡片
-const DEFAULT_RULES: SpecialRule[] = [
-  {
-    id: 'default_basic_rules',
-    title: '基础规则',
-    rules: [
-      {
-        title: '可能',
-        content: '某些事情"可能"发生。代表由说书人来决定该事情是否发生。',
-      },
-      {
-        title: '中毒',
-        content: '中毒的玩家会失去能力，但会认为自己仍具有能力，说书人会做出这些玩家仍然具有能力的行为。如果中毒玩家的角色能力会给他提供信息，说书人可能会给出错误信息，中毒的玩家不会得知自己中毒。',
-      },
-    ],
-  },
-];
-
-export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps) {
-  // 如果没有自定义规则，使用默认规则
+export default function SpecialRulesSection({ rules, onDelete, onEdit }: SpecialRulesSectionProps) {
+  const { t, language } = useTranslation();
+  const [hoveredRuleId, setHoveredRuleId] = useState<string | null>(null);
+  
+  // 如果没有自定义规则,使用默认规则
   const displayRules = rules.length > 0 ? rules : rules;
 
   return (
@@ -49,11 +39,17 @@ export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps)
         {displayRules.map((rule) => (
           <Box
             key={rule.id}
+            onMouseEnter={() => setHoveredRuleId(rule.id)}
+            onMouseLeave={() => setHoveredRuleId(null)}
+            onDoubleClick={() => onEdit && onEdit(rule)}
             sx={{
               flex: 1,
               position: 'relative',
-              // minHeight: { xs: 150, sm: 180, md: 220 },
-              aspectRatio: '820 / 150', // 根据卷轴图片比例设置
+              minWidth: { xs: 250, sm: 300, md: 350 },
+              maxWidth: { xs: 400, sm: 500, md: 600 },
+              minHeight: { xs: 80, sm: 100, md: 120 },
+              cursor: onEdit ? 'pointer' : 'default',
+              userSelect: 'none',
             }}
           >
             {/* 卷轴背景图片 */}
@@ -71,6 +67,49 @@ export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps)
                 zIndex: 0,
               }}
             />
+
+            {/* 编辑和删除按钮 */}
+            {hoveredRuleId === rule.id && (
+              <Box
+                sx={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  zIndex: 2,
+                  display: 'flex',
+                  gap: 1,
+                }}
+              >
+                {onEdit && (
+                  <IconButton
+                    onClick={() => onEdit(rule)}
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 1)',
+                      },
+                    }}
+                    size="small"
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                )}
+                {onDelete && (
+                  <IconButton
+                    onClick={() => onDelete(rule)}
+                    sx={{
+                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                      '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 1)',
+                      },
+                    }}
+                    size="small"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                )}
+              </Box>
+            )}
 
             {/* 内容区域 */}
             <Box
@@ -123,8 +162,22 @@ export default function SpecialRulesSection({ rules }: SpecialRulesSectionProps)
                   ))}
                 </>
               ) : (
-                /* 单个规则项（向后兼容） */
+                /* 单个规则项（向后兼容） - 包括 state/status */
                 <>
+                  {rule.title && (
+                    <Typography
+                      component="div"
+                      sx={{
+                        fontWeight: 'bold',
+                        color: '#3d3226',
+                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' },
+                        mb: 0.3,
+                        lineHeight: 1.4,
+                      }}
+                    >
+                      {rule.title}
+                    </Typography>
+                  )}
                   {rule.content && (
                     <Typography
                       component="div"

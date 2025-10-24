@@ -52,7 +52,18 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     jinx: {},
     all: [],
     specialRules: [],
+    secondPageRules: [],
   };
+
+  // 收集所有的特殊规则（state + special_rule），用于统一处理
+  const allMetaRules: Array<{
+    id?: string;
+    title: string;
+    content: string;
+    rules?: any[];
+    sourceType: 'state' | 'status' | 'special_rule';
+    sourceIndex: number;
+  }> = [];
 
   for (let item of json) {
     // 支持简化格式：如果 item 是字符串，转换为对象
@@ -64,18 +75,48 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     if (item.id === '_meta') {
       script.title = item.name || '自定义剧本';
       script.titleImage = item.titleImage || item.logo;  // 支持 titleImage 或 logo 字段
+      script.subtitle = item.subtitle;  // 解析副标题
       script.author = item.author || '';
       script.playerCount = item.playerCount;  // 解析玩家人数
+      
+      // 处理 state 字段
+      if (item.state && Array.isArray(item.state)) {
+        item.state.forEach((state: any, index: number) => {
+          allMetaRules.push({
+            id: `_meta_state_${index}`,
+            title: state.stateName,
+            content: state.stateDescription,
+            sourceType: 'state',
+            sourceIndex: index,
+          });
+        });
+      }
+      
+      // 处理 status 字段
+      if (item.status && Array.isArray(item.status)) {
+        item.status.forEach((status: any, index: number) => {
+          allMetaRules.push({
+            id: `_meta_status_${index}`,
+            title: status.name,
+            content: status.skill,
+            sourceType: 'status',
+            sourceIndex: index,
+          });
+        });
+      }
+      
       continue;
     }
 
-    // 处理特殊说明卡片
+    // 处理特殊说明卡片 (team = 'special_rule')
     if (item.team === 'special_rule') {
-      script.specialRules.push({
+      allMetaRules.push({
         id: item.id,
         title: item.title || item.name,
         content: item.content || item.ability,
-        rules: item.rules,  // 支持多个规则项
+        rules: item.rules,
+        sourceType: 'special_rule',
+        sourceIndex: allMetaRules.length,
       });
       continue;
     }
@@ -158,6 +199,48 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
           });
         }
       }
+    }
+  }
+
+  // 统一处理所有特殊规则（state + status + special_rule）
+  // 1. 去重：根据 title 去重
+  const uniqueRules = allMetaRules.filter((rule, index, self) => 
+    index === self.findIndex((r) => r.title === rule.title)
+  );
+
+  // 2. 第一条特殊规则：同时放到第一页和第二页
+  if (uniqueRules.length > 0) {
+    const firstRule = uniqueRules[0];
+    const firstRuleData = {
+      id: firstRule.id || `_meta_${firstRule.sourceType}_${firstRule.sourceIndex}`,
+      title: firstRule.title,
+      content: firstRule.content,
+      rules: firstRule.rules,
+      isState: firstRule.sourceType !== 'special_rule',
+      sourceType: firstRule.sourceType,
+      sourceIndex: firstRule.sourceIndex,
+    };
+    
+    // 第一页显示第一条规则
+    script.specialRules.push(firstRuleData);
+    
+    // 第二页也显示第一条规则
+    script.secondPageRules?.push({ ...firstRuleData });
+  }
+
+  // 3. 第二条及之后的规则：只放到第二页
+  if (uniqueRules.length > 1) {
+    for (let i = 1; i < uniqueRules.length; i++) {
+      const rule = uniqueRules[i];
+      script.secondPageRules?.push({
+        id: rule.id || `_meta_${rule.sourceType}_${rule.sourceIndex}`,
+        title: rule.title,
+        content: rule.content,
+        rules: rule.rules,
+        isState: rule.sourceType !== 'special_rule',
+        sourceType: rule.sourceType,
+        sourceIndex: rule.sourceIndex,
+      });
     }
   }
 

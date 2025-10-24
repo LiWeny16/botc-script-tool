@@ -1,0 +1,51 @@
+[
+  {
+    "id": "_meta",
+    "name": "去重测试剧本",
+    "author": "测试",
+    "playerCount": "7-15",
+    "state": [
+      {
+        "stateName": "重复规则",
+        "stateDescription": "这是第一次出现的规则（来自 state）。"
+      },
+      {
+        "stateName": "唯一规则A",
+        "stateDescription": "这是唯一的规则A（来自 state）。"
+      }
+    ],
+    "status": [
+      {
+        "name": "重复规则",
+        "skill": "这是第二次出现的规则（来自 status），应该被去重。"
+      },
+      {
+        "name": "唯一规则B",
+        "skill": "这是唯一的规则B（来自 status）。"
+      }
+    ]
+  },
+  {
+    "id": "special_rule_1",
+    "team": "special_rule",
+    "title": "重复规则",
+    "content": "这是第三次出现的规则（来自 special_rule），也应该被去重。"
+  },
+  {
+    "id": "special_rule_2",
+    "team": "special_rule",
+    "title": "唯一规则C",
+    "content": "这是唯一的规则C（来自 special_rule）。"
+  },
+  "washerwoman",
+  "librarian",
+  "investigator",
+  "chef",
+  "empath",
+  "fortuneteller",
+  "butler",
+  "drunk",
+  "poisoner",
+  "spy",
+  "imp"
+]

@@ -6,7 +6,7 @@ export const THEME_COLORS = {
   good: '#0078ba',
 
   // 邪恶阵营 - 红色系
-  evil: '#b21e1d',
+  evil: '#a32222ff',
 
   // 传奇角色 - 金色系
   fabled: '#d4af37',
@@ -15,7 +15,7 @@ export const THEME_COLORS = {
   unknown: '#2d5c4f',
 
   // 其他颜色
-  purple: '#dd38ca',  // 旅行者等特殊标记
+  purple: '#b463aaff',  // 旅行者等特殊标记
   gray: '#999',       // 分割线等
 
   // 背景色

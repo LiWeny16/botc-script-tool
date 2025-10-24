@@ -9,7 +9,9 @@ import {
   createTheme,
   Paper,
   useMediaQuery,
+  IconButton,
 } from '@mui/material';
+import { Edit as EditIcon } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import type { Script, Character } from './types';
 import InputPanel from './components/InputPanel';
@@ -23,6 +25,10 @@ import CharacterLibraryCard from './components/CharacterLibraryCard';
 import CharacterImage from './components/CharacterImage';
 import { DecorativeFrame } from './components/DecorativeFrame';
 import JinxSection from './components/JinxSection';
+import StateRulesSection from './components/StateRulesSection';
+import TitleEditDialog from './components/TitleEditDialog';
+import SpecialRuleEditDialog from './components/SpecialRuleEditDialog';
+import AddCustomRuleDialog from './components/AddCustomRuleDialog';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
@@ -135,7 +141,12 @@ const App = observer(() => {
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [libraryCardOpen, setLibraryCardOpen] = useState<boolean>(false);
   const [uiSettingsOpen, setUiSettingsOpen] = useState<boolean>(false);
+  const [titleEditDialogOpen, setTitleEditDialogOpen] = useState<boolean>(false);
+  const [specialRuleEditDialogOpen, setSpecialRuleEditDialogOpen] = useState<boolean>(false);
+  const [editingSpecialRule, setEditingSpecialRule] = useState<any>(null);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
+  const [titleHovered, setTitleHovered] = useState<boolean>(false);
+  const [addCustomRuleDialogOpen, setAddCustomRuleDialogOpen] = useState<boolean>(false);
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -236,6 +247,157 @@ const App = observer(() => {
   // 处理从剧本中删除角色
   const handleRemoveCharacter = (character: Character) => {
     scriptStore.removeCharacter(character);
+  };
+
+  // 处理标题编辑
+  const handleTitleEdit = () => {
+    setTitleEditDialogOpen(true);
+  };
+
+  // 处理标题保存
+  const handleTitleSave = (data: {
+    title: string;
+    titleImage?: string;
+    subtitle?: string;
+    author: string;
+    playerCount?: string;
+  }) => {
+    scriptStore.updateTitleInfo(data);
+  };
+
+  // 处理特殊规则编辑
+  const handleSpecialRuleEdit = (rule: any) => {
+    setEditingSpecialRule(rule);
+    setSpecialRuleEditDialogOpen(true);
+  };
+
+  // 处理特殊规则保存
+  const handleSpecialRuleSave = (rule: any) => {
+    scriptStore.updateSpecialRule(rule);
+  };
+
+  // 处理添加自定义规则
+  const handleAddCustomRule = () => {
+    setAddCustomRuleDialogOpen(true);
+  };
+
+  // 处理夜晚行动顺序重排
+  const handleNightOrderReorder = (nightType: 'first' | 'other', oldIndex: number, newIndex: number) => {
+    if (!script) return;
+
+    const actions = nightType === 'first' ? [...script.firstnight] : [...script.othernight];
+    
+    // 移除前三个固定图标（Dusk, Mi, Di 或 Dusk）
+    const fixedCount = nightType === 'first' ? 3 : 1;
+    if (oldIndex < fixedCount || newIndex < fixedCount) return;
+
+    // 获取被拖动的角色
+    const draggedAction = actions[oldIndex];
+    
+    // 获取固定图标中最大的 index 值，确保所有角色都在其之后
+    const minAllowedIndex = Math.max(...actions.slice(0, fixedCount).map(a => a.index));
+    
+    // 计算新的顺序值
+    let newOrderValue: number;
+    
+    if (newIndex === fixedCount) {
+      // 拖到固定图标之后的第一个位置
+      const nextAction = actions[fixedCount];
+      if (nextAction) {
+        // 确保新值在固定图标之后，且在下一个角色之前
+        const baseValue = Math.max(minAllowedIndex + 0.1, nextAction.index - 0.5);
+        newOrderValue = Math.max(minAllowedIndex + 0.1, baseValue);
+      } else {
+        newOrderValue = minAllowedIndex + 0.5;
+      }
+    } else if (newIndex === actions.length - 1) {
+      // 拖到最后面
+      const prevAction = actions[actions.length - 2];
+      newOrderValue = prevAction ? Math.max(prevAction.index + 0.5, minAllowedIndex + 0.5) : minAllowedIndex + 0.5;
+    } else {
+      // 拖到中间
+      const prevAction = actions[newIndex - 1];
+      const nextAction = actions[newIndex + (oldIndex < newIndex ? 1 : 0)];
+      
+      if (prevAction && nextAction) {
+        // 计算中间值
+        newOrderValue = (prevAction.index + nextAction.index) / 2;
+        
+        // 如果两个值相同或太接近，使用 +0.5 的策略
+        if (Math.abs(newOrderValue - prevAction.index) < 0.01) {
+          newOrderValue = prevAction.index + 0.5;
+        }
+        
+        // 确保不小于最小允许值
+        newOrderValue = Math.max(newOrderValue, minAllowedIndex + 0.1);
+      } else if (prevAction) {
+        newOrderValue = Math.max(prevAction.index + 0.5, minAllowedIndex + 0.5);
+      } else if (nextAction) {
+        newOrderValue = Math.max(nextAction.index - 0.5, minAllowedIndex + 0.5);
+      } else {
+        newOrderValue = minAllowedIndex + 0.5;
+      }
+    }
+
+    // 最终确保新值不小于最小允许值
+    newOrderValue = Math.max(newOrderValue, minAllowedIndex + 0.1);
+
+    // 更新角色的夜晚顺序
+    const characterImage = draggedAction.image;
+    const character = script.all.find(c => c.image === characterImage);
+    
+    if (character) {
+      const updates: Partial<Character> = {};
+      if (nightType === 'first') {
+        updates.firstNight = newOrderValue;
+      } else {
+        updates.otherNight = newOrderValue;
+      }
+      
+      // 更新角色并同步到 JSON
+      handleUpdateCharacter(character.id, updates);
+    }
+  };
+
+  // 处理添加新规则
+  const handleAddNewRule = (ruleType: 'special_rule') => {
+    if (ruleType === 'special_rule') {
+      // 创建默认的特殊规则
+      const newRule = {
+        id: `custom_rule_${Date.now()}`,
+        title: '第七把交椅',
+        team:"special_rule",
+        content: '在游戏开始时，第七个座位是空的，但正常发角色。每局游戏限一次，说书人可以代表第七个座位发言，并可以参与提名。说书人决定在扮演第七个座位的角色时，该如何行动。',
+        sourceType: 'special_rule' as const,
+        sourceIndex: 0,
+      };
+
+      // 添加到 script
+      if (script) {
+        const updatedScript = { ...script };
+        updatedScript.specialRules = [...updatedScript.specialRules, newRule];
+        if (updatedScript.secondPageRules) {
+          updatedScript.secondPageRules = [...updatedScript.secondPageRules, newRule];
+        }
+        scriptStore.setScript(updatedScript);
+
+        // 同步到 JSON
+        try {
+          const parsedJson = JSON.parse(originalJson);
+          const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+          jsonArray.push({
+            id: newRule.id,
+            team: 'special_rule',
+            title: newRule.title,
+            content: newRule.content,
+          });
+          const jsonString = JSON.stringify(jsonArray, null, 2);
+          scriptStore.setOriginalJson(jsonString);
+        } catch (error) {
+          console.error('同步新规则到JSON失败:', error);
+        }
+      }
+    }
   };
 
   // 将Script同步回JSON
@@ -349,6 +511,7 @@ const App = observer(() => {
             onShare={() => setShareDialogOpen(true)}
             onClear={handleClear}
             onOpenUISettings={() => setUiSettingsOpen(true)}
+            onAddCustomRule={handleAddCustomRule}
             hasScript={script !== null}
             currentJson={originalJson}
           />
@@ -448,7 +611,11 @@ const App = observer(() => {
                       zIndex: 3,
                     }
                   }}>
-                    <NightOrder title={t('night.first')} actions={script.firstnight} />
+                    <NightOrder 
+                      title={t('night.first')} 
+                      actions={script.firstnight}
+                      onReorder={(oldIndex, newIndex) => handleNightOrderReorder('first', oldIndex, newIndex)}
+                    />
                   </Box>
                 )}
 
@@ -494,10 +661,9 @@ const App = observer(() => {
                           backgroundSize: "48%",
                           backgroundPosition: "center",
                           backgroundRepeat: "no-repeat",
-                          opacity: 0.6, // 这里可以调整背景图透明度，不影响子元素
+                          opacity: 0.6,
                           zIndex: 0,
                         },
-                        // 确保子元素在背景之上
                         '& > *': {
                           position: 'relative',
                           zIndex: 1,
@@ -507,44 +673,138 @@ const App = observer(() => {
                       {/* 特殊说明卡片 */}
 
                       {script.titleImage ? (
-                        <CharacterImage
-                          src={script.titleImage}
-                          alt={script.title}
+                        <Box
+                          onMouseEnter={() => setTitleHovered(true)}
+                          onMouseLeave={() => setTitleHovered(false)}
+                          onDoubleClick={handleTitleEdit}
                           sx={{
-                            maxWidth: { xs: '70%', sm: '50%', md: '40%' },
-                            maxHeight: '100%',
-                            objectFit: 'contain',
-                            mb: 0,
-                          }}
-                        />
-                      ) : (
-                        <Typography
-                          variant="h3"
-                          component="div"
-                          sx={{
-                            fontFamily: 'jicao, Dumbledor, serif',
-                            fontWeight: 'bold',
-                            color: THEME_COLORS.paper.primary,
-                            fontSize: { xs: '1.5rem', sm: '1.8rem', md: '3rem' },
-                            lineHeight: 1.38,
-                            m: 0,
-                            maxWidth: { xs: '90%', sm: '80%', md: '70%' },
-                            wordWrap: 'break-word',
-                            wordBreak: 'break-word',
-                            whiteSpace: 'pre-wrap',
-                            textAlign: 'center',
+                            position: 'relative',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            userSelect: 'none',
+                            '&:hover': {
+                              opacity: 0.9,
+                            },
                           }}
                         >
-                          {script.title.split(/\\n|<br\s*\/?>/).map((line, index, array) => (
-                            <span key={index}>
-                              {line}
-                              {index < array.length - 1 && <br />}
-                            </span>
-                          ))}
-                        </Typography>
+                          <CharacterImage
+                            src={script.titleImage}
+                            alt={script.title}
+                            sx={{
+                              maxWidth: { xs: '70%', sm: '50%', md: '40%' },
+                              maxHeight: '100%',
+                              objectFit: 'contain',
+                              mb: 0,
+                            }}
+                          />
+                          {/* 标题编辑按钮 */}
+                          {titleHovered && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: 8,
+                                right: 8,
+                                zIndex: 3,
+                                display: 'flex',
+                                gap: 1,
+                              }}
+                            >
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTitleEdit();
+                                }}
+                                sx={{
+                                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                                  },
+                                }}
+                                size="small"
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          )}
+                        </Box>
+                      ) : (
+                        <Box
+                          onMouseEnter={() => setTitleHovered(true)}
+                          onMouseLeave={() => setTitleHovered(false)}
+                          onDoubleClick={handleTitleEdit}
+                          sx={{
+                            position: 'relative',
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            padding: 2,
+                            borderRadius: 2,
+                            userSelect: 'none',
+                            '&:hover': {
+                              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                            },
+                          }}
+                        >
+                          <Typography
+                            variant="h3"
+                            component="div"
+                            sx={{
+                              fontFamily: 'jicao, Dumbledor, serif',
+                              fontWeight: 'bold',
+                              color: THEME_COLORS.paper.primary,
+                              fontSize: { xs: '1.5rem', sm: '1.8rem', md: '3rem' },
+                              lineHeight: 1.38,
+                              m: 0,
+                              whiteSpace: 'pre',
+                              textAlign: 'center',
+                            }}
+                          >
+                            {script.title.split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                              <span key={index}>
+                                {line}
+                                {index < array.length - 1 && <br />}
+                              </span>
+                            ))}
+                          </Typography>
+                          {/* 标题编辑按钮 */}
+                          {titleHovered && (
+                            <Box
+                              sx={{
+                                position: 'absolute',
+                                top: 8,
+                                right: 8,
+                                zIndex: 3,
+                                display: 'flex',
+                                gap: 1,
+                              }}
+                            >
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleTitleEdit();
+                                }}
+                                sx={{
+                                  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                  '&:hover': {
+                                    backgroundColor: 'rgba(255, 255, 255, 1)',
+                                  },
+                                }}
+                                size="small"
+                              >
+                                <EditIcon fontSize="small" />
+                              </IconButton>
+                            </Box>
+                          )}
+                        </Box>
                       )}
+
                       <Box sx={{ position: 'relative', zIndex: 1 }}>
-                        <SpecialRulesSection rules={script.specialRules} />
+                        <SpecialRulesSection 
+                          rules={script.specialRules} 
+                          onDelete={(rule) => scriptStore.removeSpecialRule(rule)}
+                          onEdit={handleSpecialRuleEdit}
+                        />
                       </Box>
 
                     </Box>
@@ -628,10 +888,20 @@ const App = observer(() => {
                   {isMobile && (
                     <Box sx={{ mt: 2, display: 'flex', gap: 1.5, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2, md: 3 } }}>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <NightOrder title={t('night.first')} actions={script.firstnight} isMobile={true} />
+                        <NightOrder 
+                          title={t('night.first')} 
+                          actions={script.firstnight} 
+                          isMobile={true}
+                          onReorder={(oldIndex, newIndex) => handleNightOrderReorder('first', oldIndex, newIndex)}
+                        />
                       </Box>
                       <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <NightOrder title={t('night.other')} actions={script.othernight} isMobile={true} />
+                        <NightOrder 
+                          title={t('night.other')} 
+                          actions={script.othernight} 
+                          isMobile={true}
+                          onReorder={(oldIndex, newIndex) => handleNightOrderReorder('other', oldIndex, newIndex)}
+                        />
                       </Box>
                     </Box>
                   )}
@@ -710,7 +980,11 @@ const App = observer(() => {
                       zIndex: 3,
                     }
                   }}>
-                    <NightOrder title={t('night.other')} actions={script?.othernight || []} />
+                    <NightOrder 
+                      title={t('night.other')} 
+                      actions={script?.othernight || []}
+                      onReorder={(oldIndex, newIndex) => handleNightOrderReorder('other', oldIndex, newIndex)}
+                    />
                   </Box>
                 )}
               </Box>
@@ -895,6 +1169,16 @@ const App = observer(() => {
 
                     {/* 相克规则专区 */}
                     <JinxSection script={script} />
+                    
+                    {/* 第二页的特殊规则（state）*/}
+                    {script.secondPageRules && script.secondPageRules.length > 0 && (
+                      <StateRulesSection 
+                        rules={script.secondPageRules} 
+                        onDelete={(rule) => scriptStore.removeSpecialRule(rule)}
+                        onEdit={handleSpecialRuleEdit}
+                      />
+                    )}
+                    
                     <Box sx={{ height: "20vh" }}></Box>
                     <CharacterImage
                       component="img"
@@ -1008,6 +1292,33 @@ const App = observer(() => {
       <UISettingsDrawer
         open={uiSettingsOpen}
         onClose={() => setUiSettingsOpen(false)}
+      />
+
+      {/* 标题编辑对话框 */}
+      <TitleEditDialog
+        open={titleEditDialogOpen}
+        title={script?.title || ''}
+        titleImage={script?.titleImage}
+        subtitle={script?.subtitle}
+        author={script?.author || ''}
+        playerCount={script?.playerCount || ''}
+        onClose={() => setTitleEditDialogOpen(false)}
+        onSave={handleTitleSave}
+      />
+
+      {/* 特殊规则编辑对话框 */}
+      <SpecialRuleEditDialog
+        open={specialRuleEditDialogOpen}
+        rule={editingSpecialRule}
+        onClose={() => setSpecialRuleEditDialogOpen(false)}
+        onSave={handleSpecialRuleSave}
+      />
+
+      {/* 添加自定义规则对话框 */}
+      <AddCustomRuleDialog
+        open={addCustomRuleDialogOpen}
+        onClose={() => setAddCustomRuleDialogOpen(false)}
+        onAddRule={handleAddNewRule}
       />
     </ThemeProvider >
   );

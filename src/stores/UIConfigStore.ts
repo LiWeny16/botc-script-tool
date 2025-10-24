@@ -64,7 +64,7 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   titleHeightMd: 180,
   
   characterCard: {
-    cardPadding: 1,
+    cardPadding: 0.5,
     cardBorderRadius: 1,
     cardGap: 1,
     

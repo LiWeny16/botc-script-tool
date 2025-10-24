@@ -1,4 +1,20 @@
 import { Box, Typography, Paper } from '@mui/material';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  verticalListSortingStrategy,
+  horizontalListSortingStrategy,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { NightAction } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import CharacterImage from './CharacterImage';
@@ -7,9 +23,96 @@ interface NightOrderProps {
   title: string;
   actions: NightAction[];
   isMobile?: boolean;
+  onReorder?: (oldIndex: number, newIndex: number) => void;
 }
 
-export default function NightOrder({ title, actions, isMobile = false }: NightOrderProps) {
+// 可拖拽的行动项组件
+function SortableActionItem({ 
+  action, 
+  index, 
+  isMobile 
+}: { 
+  action: NightAction; 
+  index: number; 
+  isMobile: boolean;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: action.image + index });
+
+  // 只允许垂直方向的移动，禁用横向移动
+  const restrictedTransform = transform ? {
+    ...transform,
+    x: 0, // 强制 x 轴不移动
+  } : null;
+
+  const style = {
+    transform: CSS.Transform.toString(restrictedTransform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <Box
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      sx={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        cursor: 'grab',
+        touchAction: 'pan-y', // 只允许垂直触摸滚动
+        '&:active': {
+          cursor: 'grabbing',
+        },
+      }}
+    >
+      <CharacterImage
+        src={action.image}
+        alt={`Action ${index}`}
+        sx={{
+          width: { xs: 35, sm: 38, md: 52 },
+          height: { xs: 35, sm: 38, md: 52 },
+          transition: 'all 0.2s',
+          '&:hover': {
+            transform: 'scale(1.05)',
+            backgroundColor: 'rgba(255, 255, 255, 0.15)',
+          },
+        }}
+      />
+    </Box>
+  );
+}
+
+export default function NightOrder({ title, actions, isMobile = false, onReorder }: NightOrderProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id && onReorder) {
+      const oldIndex = actions.findIndex((action, idx) => action.image + idx === active.id);
+      const newIndex = actions.findIndex((action, idx) => action.image + idx === over.id);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        onReorder(oldIndex, newIndex);
+      }
+    }
+  };
+
   return (
     <Paper
       elevation={0}
@@ -61,53 +164,43 @@ export default function NightOrder({ title, actions, isMobile = false }: NightOr
       </Typography>
 
       {/* 行动图标列表 */}
-      <Box
-        sx={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: isMobile ? 'row' : 'column',
-          flexWrap: isMobile ? 'wrap' : 'nowrap',
-          // gap: 0.5,
-          overflowY: isMobile ? 'visible' : 'auto',
-          // px: 0.3,
-          justifyContent: isMobile ? 'center' : 'flex-start',
-          '&::-webkit-scrollbar': {
-            width: 3,
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-            borderRadius: 1.5,
-          },
-        }}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
       >
-        {actions.map((action, index) => (
+        <SortableContext
+          items={actions.map((action, idx) => action.image + idx)}
+          strategy={verticalListSortingStrategy}
+        >
           <Box
-            key={index}
             sx={{
+              flex: 1,
               display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              flexDirection: 'column',
+              flexWrap: 'nowrap',
+              overflowY: 'auto',
+              justifyContent: 'flex-start',
+              '&::-webkit-scrollbar': {
+                width: 3,
+              },
+              '&::-webkit-scrollbar-thumb': {
+                backgroundColor: 'rgba(255, 255, 255, 0.3)',
+                borderRadius: 1.5,
+              },
             }}
           >
-            <CharacterImage
-              src={action.image}
-              alt={`Action ${index}`}
-              sx={{
-                width: { xs: 35, sm: 38, md: 52 },
-                height: { xs: 35, sm: 38, md: 52 },
-                // borderRadius: 1,
-                // backgroundColor: 'rgba(255, 255, 255, 0.08)',
-                // p: 0.2,
-                transition: 'all 0.2s',
-                '&:hover': {
-                  transform: 'scale(1.05)',
-                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
-                },
-              }}
-            />
+            {actions.map((action, index) => (
+              <SortableActionItem
+                key={action.image + index}
+                action={action}
+                index={index}
+                isMobile={isMobile}
+              />
+            ))}
           </Box>
-        ))}
-      </Box>
+        </SortableContext>
+      </DndContext>
     </Paper>
   );
 }

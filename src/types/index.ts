@@ -35,17 +35,27 @@ export interface SpecialRuleItem {
   content: string;
 }
 
+// state 状态项
+export interface StateItem {
+  stateName: string;
+  stateDescription: string;
+}
+
 // 特殊说明卡片（可包含多个规则项）
 export interface SpecialRule {
   id: string;
   title?: string;  // 卡片标题（可选，如果没有则显示第一个规则项的标题）
   rules?: SpecialRuleItem[];  // 多个规则项
   content?: string;  // 单个规则内容（向后兼容）
+  isState?: boolean;  // 是否是 state 类型的规则
+  sourceType?: 'state' | 'status' | 'special_rule';  // 来源类型
+  sourceIndex?: number;  // 在来源数组中的索引
 }
 
 export interface Script {
   title: string;
   titleImage?: string;  // 可选的标题图片链接
+  subtitle?: string;  // 可选的副标题（英文或其他语言）
   author: string;
   playerCount?: string;  // 玩家人数范围，如 "7-15"
   characters: {
@@ -56,4 +66,5 @@ export interface Script {
   jinx: Record<string, Record<string, string>>;
   all: Character[];
   specialRules: SpecialRule[];
+  secondPageRules?: SpecialRule[];  // 第二页的特殊规则
 }

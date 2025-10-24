@@ -8,7 +8,6 @@ import {
   Typography,
   Alert,
   Stack,
-  Collapse,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -19,13 +18,11 @@ import {
   Upload,
   Download,
   Refresh,
-  Settings,
-  ExpandMore,
-  ExpandLess,
   LibraryBooks,
   RestartAlt,
   Share,
   Tune,
+  Add,
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
@@ -39,18 +36,18 @@ interface InputPanelProps {
   onShare: () => void;
   onClear?: () => void;
   onOpenUISettings?: () => void;
+  onAddCustomRule?: () => void;
   hasScript: boolean;
   currentJson?: string;
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, hasScript, currentJson }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, hasScript, currentJson }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
   const [titleInput, setTitleInput] = useState('');
   const [authorInput, setAuthorInput] = useState('');
   const [error, setError] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
 
@@ -205,7 +202,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           </Alert>
         )}
 
-        {/* 主要操作按钮 */}
+        {/* 第一行：核心操作 - 生成和上传 */}
         <Box
           sx={{
             display: 'flex',
@@ -219,24 +216,11 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             startIcon={<Refresh />}
             onClick={handleGenerate}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 auto' },
-              minWidth: { sm: 120 },
+              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              minHeight: 48,
             }}
           >
             {t('input.generateScript')}
-          </Button>
-
-          <Button
-            variant="contained"
-            color="secondary"
-            size="large"
-            startIcon={<Tune />}
-            onClick={onOpenUISettings}
-            sx={{
-              flex: { xs: '1 1 100%', sm: '0 1 auto' },
-            }}
-          >
-            {t('ui.adjustUI')}
           </Button>
 
           <Button
@@ -245,7 +229,8 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             component="label"
             startIcon={<Upload />}
             sx={{
-              flex: { xs: '1 1 100%', sm: '0 1 auto' },
+              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              minHeight: 48,
             }}
           >
             {t('input.uploadJson')}
@@ -256,7 +241,54 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
               onChange={handleFileUpload}
             />
           </Button>
+        </Box>
 
+        {/* 第二行：编辑功能 - 自定义规则和UI设置 */}
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            flexWrap: 'wrap',
+          }}
+        >
+          <Button
+            variant="contained"
+            color="success"
+            size="large"
+            startIcon={<Add />}
+            onClick={onAddCustomRule}
+            disabled={!hasScript}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              minHeight: 48,
+            }}
+          >
+            {t('specialRules.add')}
+          </Button>
+
+          <Button
+            variant="contained"
+            color="secondary"
+            size="large"
+            startIcon={<Tune />}
+            onClick={onOpenUISettings}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              minHeight: 48,
+            }}
+          >
+            {t('ui.adjustUI')}
+          </Button>
+        </Box>
+
+        {/* 第三行：导出和分享 */}
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            flexWrap: 'wrap',
+          }}
+        >
           <Button
             variant="outlined"
             size="large"
@@ -264,7 +296,8 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             onClick={onExportImage}
             disabled={!hasScript}
             sx={{
-              flex: { xs: '1 1 100%', sm: '0 1 auto' },
+              flex: { xs: '1 1 100%', sm: '1 1 30%' },
+              minHeight: 48,
             }}
           >
             {t('input.exportImage')}
@@ -277,7 +310,8 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             onClick={onExportJson}
             disabled={!hasScript}
             sx={{
-              flex: { xs: '1 1 100%', sm: '0 1 auto' },
+              flex: { xs: '1 1 100%', sm: '1 1 30%' },
+              minHeight: 48,
             }}
           >
             {t('input.exportJson')}
@@ -290,72 +324,49 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             onClick={onShare}
             disabled={!hasScript}
             sx={{
-              flex: { xs: '1 1 100%', sm: '0 1 auto' },
+              flex: { xs: '1 1 100%', sm: '1 1 30%' },
+              minHeight: 48,
             }}
           >
             {t('input.shareScript')}
           </Button>
+        </Box>
 
+        {/* 第四行：清理和重置 */}
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            flexWrap: 'wrap',
+          }}
+        >
           <Button
             variant="outlined"
             size="large"
-            color="secondary"
+            color="error"
             startIcon={<Refresh />}
             onClick={handleClearClick}
             sx={{
-              flex: { xs: '1 1 100%', sm: '0 1 auto' },
+              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              minHeight: 48,
             }}
           >
             {t('input.clear')}
           </Button>
-        </Box>
 
-        {/* 高级选项 */}
-        <Box>
           <Button
-            size="small"
-            onClick={() => setShowAdvanced(!showAdvanced)}
-            endIcon={showAdvanced ? <ExpandLess /> : <ExpandMore />}
-            sx={{ mb: 1 }}
+            variant="outlined"
+            color="warning"
+            size="large"
+            startIcon={<RestartAlt />}
+            onClick={handleResetSettings}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              minHeight: 48,
+            }}
           >
-            <Settings sx={{ mr: 1, fontSize: 20 }} />
-            {t('input.advancedOptions')}
+            {t('ui.resetAllSettings')}
           </Button>
-
-          <Collapse in={showAdvanced}>
-            <Stack spacing={2} sx={{ mt: 2 }}>
-              <TextField
-                fullWidth
-                label={t('input.titleLabel')}
-                placeholder={t('input.titlePlaceholder')}
-                value={titleInput}
-                onChange={(e) => setTitleInput(e.target.value)}
-                variant="outlined"
-                size="small"
-              />
-
-              <TextField
-                fullWidth
-                label={t('input.authorLabel')}
-                placeholder={t('input.authorPlaceholder')}
-                value={authorInput}
-                onChange={(e) => setAuthorInput(e.target.value)}
-                variant="outlined"
-                size="small"
-              />
-
-              <Button
-                variant="outlined"
-                color="warning"
-                startIcon={<RestartAlt />}
-                onClick={handleResetSettings}
-                size="small"
-                fullWidth
-              >
-                {t('input.resetSettings')}
-              </Button>
-            </Stack>
-          </Collapse>
         </Box>
 
         {/* 提示信息 */}
