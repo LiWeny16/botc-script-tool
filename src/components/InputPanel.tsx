@@ -202,7 +202,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           </Alert>
         )}
 
-        {/* 第一行：核心操作 - 生成和上传 */}
+        {/* 第一行：生成剧本、上传JSON、导出JSON、分享剧本、导出PDF */}
         <Box
           sx={{
             display: 'flex',
@@ -216,7 +216,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             startIcon={<Refresh />}
             onClick={handleGenerate}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              flex: { xs: '1 1 100%', sm: '1 1 50%' },
               minHeight: 48,
             }}
           >
@@ -229,7 +229,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             component="label"
             startIcon={<Upload />}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
               minHeight: 48,
             }}
           >
@@ -241,67 +241,6 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
               onChange={handleFileUpload}
             />
           </Button>
-        </Box>
-
-        {/* 第二行：编辑功能 - 自定义规则和UI设置 */}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            flexWrap: 'wrap',
-          }}
-        >
-          <Button
-            variant="contained"
-            color="success"
-            size="large"
-            startIcon={<Add />}
-            onClick={onAddCustomRule}
-            disabled={!hasScript}
-            sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 45%' },
-              minHeight: 48,
-            }}
-          >
-            {t('specialRules.add')}
-          </Button>
-
-          <Button
-            variant="contained"
-            color="secondary"
-            size="large"
-            startIcon={<Tune />}
-            onClick={onOpenUISettings}
-            sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 45%' },
-              minHeight: 48,
-            }}
-          >
-            {t('ui.adjustUI')}
-          </Button>
-        </Box>
-
-        {/* 第三行：导出和分享 */}
-        <Box
-          sx={{
-            display: 'flex',
-            gap: 2,
-            flexWrap: 'wrap',
-          }}
-        >
-          <Button
-            variant="outlined"
-            size="large"
-            startIcon={<Download />}
-            onClick={onExportImage}
-            disabled={!hasScript}
-            sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 30%' },
-              minHeight: 48,
-            }}
-          >
-            {t('input.exportImage')}
-          </Button>
 
           <Button
             variant="outlined"
@@ -310,7 +249,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             onClick={onExportJson}
             disabled={!hasScript}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 30%' },
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
               minHeight: 48,
             }}
           >
@@ -324,15 +263,29 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             onClick={onShare}
             disabled={!hasScript}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 30%' },
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
               minHeight: 48,
             }}
           >
             {t('input.shareScript')}
           </Button>
+
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<Download />}
+            onClick={onExportImage}
+            disabled={!hasScript}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
+              minHeight: 48,
+            }}
+          >
+            {t('input.exportImage')}
+          </Button>
         </Box>
 
-        {/* 第四行：清理和重置 */}
+        {/* 第二行：清空、添加特殊规则、PDF导出设置 */}
         <Box
           sx={{
             display: 'flex',
@@ -347,7 +300,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             startIcon={<Refresh />}
             onClick={handleClearClick}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              flex: { xs: '1 1 100%', sm: '1 1 44%' },
               minHeight: 48,
             }}
           >
@@ -355,13 +308,55 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           </Button>
 
           <Button
-            variant="outlined"
-            color="warning"
+            variant="contained"
+            color="success"
+            size="large"
+            startIcon={<Add />}
+            onClick={onAddCustomRule}
+            disabled={!hasScript}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
+              minHeight: 48,
+            }}
+          >
+            {t('specialRules.add')}
+          </Button>
+
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<Tune />}
+            onClick={onOpenUISettings}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
+              minHeight: 48,
+              // backgroundColor: '#0078BA',
+              color: '#fff',
+              '&:hover': {
+                backgroundColor: '#005583ff',
+              },
+            }}
+          >
+            {t('ui.adjustUI')}
+          </Button>
+        </Box>
+
+        {/* 第三行：重置所有设置 */}
+        <Box
+          sx={{
+            display: 'flex',
+            gap: 2,
+            flexWrap: 'wrap',
+          }}
+        >
+          <Button
+            variant="contained"
+            color="error"
             size="large"
             startIcon={<RestartAlt />}
             onClick={handleResetSettings}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 45%' },
+              flex: { xs: '1 1 100%' },
               minHeight: 48,
             }}
           >

@@ -1,9 +1,10 @@
 import { Box, Typography, Paper, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useState } from 'react';
-import type { SpecialRule } from '../types';
+import type { SpecialRule, I18nText } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import { uiConfigStore } from '../stores/UIConfigStore';
+import { useTranslation } from '../utils/i18n';
 
 interface StateRulesSectionProps {
   rules: SpecialRule[];
@@ -12,9 +13,18 @@ interface StateRulesSectionProps {
 }
 
 const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) => {
+  const { language } = useTranslation();
   const [hoveredRuleId, setHoveredRuleId] = useState<string | null>(null);
   
   if (!rules || rules.length === 0) return null;
+
+  // 辅助函数：获取本地化文本
+  const getLocalizedText = (text: string | I18nText | undefined): string => {
+    if (!text) return '';
+    if (typeof text === 'string') return text;
+    // 优先使用当前语言，如果不存在则使用中文，再不存在则使用英文，最后返回空字符串
+    return text[language] || text['zh-CN'] || text['en'] || '';
+  };
 
   return (
     <Box sx={{ mt: 4, mb: 2 }}>
@@ -118,11 +128,13 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
                   fontFamily: 'jicao, Dumbledor, serif',
                   fontWeight: 'bold',
                   color: THEME_COLORS.paper.primary,
-                  fontSize: { xs: '1.2rem', sm: '1.5rem', md: '2rem' },
+                  fontSize: language === 'en' 
+                    ? { xs: '1.4rem', sm: '1.7rem', md: '2.4rem' }
+                    : { xs: '1.2rem', sm: '1.5rem', md: '2rem' },
                   mb: 2,
                 }}
               >
-                {rule.title}
+                {getLocalizedText(rule.title)}
               </Typography>
             )}
             
@@ -131,7 +143,9 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
               <Typography
                 variant="body1"
                 sx={{
-                  fontSize: { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
+                  fontSize: language === 'en'
+                    ? { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
+                    : { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
                   lineHeight: 1.8,
                   color: THEME_COLORS.text.primary,
                   maxWidth: '90%',
@@ -140,7 +154,7 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
                   wordBreak: 'break-word',
                 }}
               >
-                {rule.content}
+                {getLocalizedText(rule.content)}
               </Typography>
             )}
             

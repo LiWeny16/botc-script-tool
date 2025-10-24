@@ -41,12 +41,18 @@ export interface StateItem {
   stateDescription: string;
 }
 
+// 国际化文本内容
+export interface I18nText {
+  'zh-CN'?: string;
+  'en'?: string;
+}
+
 // 特殊说明卡片（可包含多个规则项）
 export interface SpecialRule {
   id: string;
-  title?: string;  // 卡片标题（可选，如果没有则显示第一个规则项的标题）
+  title?: string | I18nText;  // 卡片标题（支持国际化）
   rules?: SpecialRuleItem[];  // 多个规则项
-  content?: string;  // 单个规则内容（向后兼容）
+  content?: string | I18nText;  // 单个规则内容（支持国际化）
   isState?: boolean;  // 是否是 state 类型的规则
   sourceType?: 'state' | 'status' | 'special_rule';  // 来源类型
   sourceIndex?: number;  // 在来源数组中的索引

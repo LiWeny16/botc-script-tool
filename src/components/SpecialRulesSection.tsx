@@ -1,7 +1,7 @@
 import { Box, Divider, Typography, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useState } from 'react';
-import type { SpecialRule } from '../types';
+import type { SpecialRule, I18nText } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 
@@ -14,189 +14,162 @@ interface SpecialRulesSectionProps {
 export default function SpecialRulesSection({ rules, onDelete, onEdit }: SpecialRulesSectionProps) {
   const { t, language } = useTranslation();
   const [hoveredRuleId, setHoveredRuleId] = useState<string | null>(null);
-  
-  // 如果没有自定义规则,使用默认规则
-  const displayRules = rules.length > 0 ? rules : rules;
+
+  // 如果没有规则则不显示
+  if (!rules || rules.length === 0) return null;
+
+  // 辅助函数：获取本地化文本
+  const getLocalizedText = (text: string | I18nText | undefined): string => {
+    if (!text) return '';
+    if (typeof text === 'string') return text;
+    // 优先使用当前语言，如果不存在则使用中文，再不存在则使用英文，最后返回空字符串
+    return text[language] || text['zh-CN'] || text['en'] || '';
+  };
 
   return (
     <Box
       sx={{
+        width: '100%',
+        height: '100%',
         display: 'flex',
-        justifyContent: 'center',
-        zIndex: 1,
-        mt: { xs: 5, sm: 0.3 },
-        mb: 1,
+        flexDirection: 'column',
+        overflow: 'auto',
+        '&::-webkit-scrollbar': {
+          width: '4px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+          backgroundColor: 'rgba(0,0,0,0.2)',
+          borderRadius: '4px',
+        },
       }}
     >
-      <Box
-        sx={{
-          width: '100%',
-          maxWidth: 700,
-          display: 'flex',
-          flexDirection: displayRules.length === 1 ? 'column' : { xs: 'column', sm: 'row' },
-        }}
-      >
-        {displayRules.map((rule) => (
+      {rules.map((rule) => (
+        <Box
+          key={rule.id}
+          onMouseEnter={() => setHoveredRuleId(rule.id)}
+          onMouseLeave={() => setHoveredRuleId(null)}
+          onDoubleClick={() => onEdit && onEdit(rule)}
+          sx={{
+            position: 'relative',
+            width: '100%',
+            minHeight: 150,
+            minWidth: 500,
+            cursor: onEdit ? 'pointer' : 'default',
+            userSelect: 'none',
+            flexShrink: 0,
+          }}
+        >
+          {/* 卷轴背景图片 */}
           <Box
-            key={rule.id}
-            onMouseEnter={() => setHoveredRuleId(rule.id)}
-            onMouseLeave={() => setHoveredRuleId(null)}
-            onDoubleClick={() => onEdit && onEdit(rule)}
             sx={{
-              flex: 1,
-              position: 'relative',
-              minWidth: { xs: 250, sm: 300, md: 350 },
-              maxWidth: { xs: 400, sm: 500, md: 600 },
-              minHeight: { xs: 80, sm: 100, md: 120 },
-              cursor: onEdit ? 'pointer' : 'default',
-              userSelect: 'none',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundImage: "url(/imgs/images/卷轴.png)",
+              backgroundSize: "100% 100%",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              zIndex: 0,
             }}
-          >
-            {/* 卷轴背景图片 */}
+          />
+
+          {/* 编辑和删除按钮 */}
+          {hoveredRuleId === rule.id && (
             <Box
               sx={{
                 position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundImage: "url(/imgs/images/卷轴.png)",
-                backgroundSize: "100% 100%",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-                zIndex: 0,
-              }}
-            />
-
-            {/* 编辑和删除按钮 */}
-            {hoveredRuleId === rule.id && (
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
-                  zIndex: 2,
-                  display: 'flex',
-                  gap: 1,
-                }}
-              >
-                {onEdit && (
-                  <IconButton
-                    onClick={() => onEdit(rule)}
-                    sx={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 1)',
-                      },
-                    }}
-                    size="small"
-                  >
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                )}
-                {onDelete && (
-                  <IconButton
-                    onClick={() => onDelete(rule)}
-                    sx={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.9)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 1)',
-                      },
-                    }}
-                    size="small"
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                )}
-              </Box>
-            )}
-
-            {/* 内容区域 */}
-            <Box
-              sx={{
-                position: 'relative',
-                zIndex: 1,
-                height: '100%',
+                top: 8,
+                right: 8,
+                zIndex: 2,
                 display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                px: { xs: '15%', sm: '18%', md: '20' }, // 左右留出卷轴柱子的空间
-                py: { xs: 2, sm: 2.5, md: 3 },
+                gap: 1,
               }}
             >
-              {/* 如果有 rules 数组，显示多个规则项 */}
-              {rule.rules && rule.rules.length > 0 ? (
-                <>
-                  {rule.rules.map((item, index) => (
-                    <Box
-                      key={index}
-                      sx={{
-                        mb: index < rule.rules!.length - 1 ? 1.5 : 0,
-                      }}
-                    >
-                      <Typography
-                        component="div"
-                        sx={{
-                          fontWeight: 'bold',
-                          color: '#3d3226',
-                          fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' },
-                          mb: 0.3,
-                          lineHeight: 1.4,
-                        }}
-                      >
-                        {item.title}
-                      </Typography>
-                     
-                      <Typography
-                        component="div"
-                        sx={{
-                          color: '#5a4a3a',
-                          fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                          lineHeight: 1.6,
-                          textAlign: 'justify',
-                        }}
-                      >
-                        {item.content}
-                      </Typography>
-                    </Box>
-                  ))}
-                </>
-              ) : (
-                /* 单个规则项（向后兼容） - 包括 state/status */
-                <>
-                  {rule.title && (
-                    <Typography
-                      component="div"
-                      sx={{
-                        fontWeight: 'bold',
-                        color: '#3d3226',
-                        fontSize: { xs: '0.9rem', sm: '1rem', md: '1.25rem' },
-                        mb: 0.3,
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {rule.title}
-                    </Typography>
-                  )}
-                  {rule.content && (
-                    <Typography
-                      component="div"
-                      sx={{
-                        color: '#5a4a3a',
-                        fontSize: { xs: '0.8rem', sm: '0.85rem', md: '0.9rem' },
-                        lineHeight: 1.6,
-                        textAlign: 'justify',
-                      }}
-                    >
-                      {rule.content}
-                    </Typography>
-                  )}
-                </>
+              {onEdit && (
+                <IconButton
+                  onClick={() => onEdit(rule)}
+                  sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 1)',
+                    },
+                  }}
+                  size="small"
+                >
+                  <EditIcon fontSize="small" />
+                </IconButton>
+              )}
+              {onDelete && (
+                <IconButton
+                  onClick={() => onDelete(rule)}
+                  sx={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    '&:hover': {
+                      backgroundColor: 'rgba(255, 255, 255, 1)',
+                    },
+                  }}
+                  size="small"
+                >
+                  <DeleteIcon fontSize="small" />
+                </IconButton>
               )}
             </Box>
+          )}
+
+          {/* 内容区域 - 固定宽度，自动换行 */}
+          <Box
+            sx={{
+              position: 'relative',
+              zIndex: 1,
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              px: '17%', // 左右留出卷轴柱子的空间
+              py: 2,
+            }}
+          >
+            <>
+              {rule.title && (
+                <Typography
+                  component="div"
+                  sx={{
+                    fontFamily: 'jicao, Dumbledor, serif',
+                    fontWeight: 'bold',
+                    color: '#3d3226',
+                    fontSize: language === 'en' ? '1.5rem' : '1.3rem',
+                    mb: 0.3,
+                    lineHeight: 1.3,
+                    wordBreak: 'break-word',
+                    whiteSpace: 'normal',
+                  }}
+                >
+                  {getLocalizedText(rule.title)}
+                </Typography>
+              )}
+              <Divider></Divider>
+              {rule.content && (
+                <Typography
+                  component="div"
+                  sx={{
+                    fontFamily: 'jicao, Dumbledor, serif',
+                    color: '#5a4a3a',
+                    fontSize: language === 'en' ? '1.1rem' : '0.85rem',
+                    lineHeight: language === 'en' ? 1 : 1.3,
+                    textAlign: 'justify',
+                    wordBreak: 'break-word',
+                    whiteSpace: 'normal',
+                  }}
+                >
+                  {getLocalizedText(rule.content)}
+                </Typography>
+              )}
+            </>
           </Box>
-        ))}
-      </Box>
+        </Box>
+      ))}
     </Box>
   );
 }
