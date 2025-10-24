@@ -49,6 +49,12 @@ export default function CharacterEditDialog({
         ...defaultData,
         ...character,
       };
+      console.log('CharacterEditDialog - 角色数据:', {
+        characterId: character.id,
+        characterReminders: character.reminders,
+        defaultReminders: defaultData.reminders,
+        mergedReminders: mergedData.reminders,
+      });
       setEditData(mergedData);
     }
   }, [character]);
@@ -102,7 +108,11 @@ export default function CharacterEditDialog({
 
       // 如果有任何更改，则保存
       if (Object.keys(updates).length > 0) {
-        console.log('保存角色更新:', updates); // 调试日志
+        console.log('CharacterEditDialog - 保存角色更新:', {
+          characterId: character.id,
+          updates,
+          remindersInUpdates: updates.reminders,
+        });
         onSave(character.id, updates);
       }
       onClose();

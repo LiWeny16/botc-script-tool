@@ -40,6 +40,7 @@ import UISettingsDrawer from './components/UISettingsDrawer';
 import {
   GlobalStyles, // 👈 增加这个
 } from '@mui/material';
+import { initGlobalShortcuts, cleanupGlobalShortcuts, registerSaveCallback, unregisterSaveCallback, showSaveAlert, alertUseMui } from './utils/event';
 
 // 把它放在 App 组件上面，或者 theme 定义的下面
 const printStyles = {
@@ -187,6 +188,82 @@ const App = observer(() => {
 
     initializeApp();
   }, [searchParams, navigate]);
+
+  // 初始化全局快捷键（只初始化一次）
+  useEffect(() => {
+    // 初始化快捷键监听
+    initGlobalShortcuts();
+
+    // 清理函数
+    return () => {
+      unregisterSaveCallback();
+      cleanupGlobalShortcuts();
+    };
+  }, []); // 空依赖数组，只在组件挂载时执行一次
+
+  // 注册保存回调（当语言变化时更新）
+  useEffect(() => {
+    const handleSave = () => {
+      // 直接保存 scriptStore 中的 originalJson
+      const jsonToSave = scriptStore.originalJson;
+      
+      if (jsonToSave) {
+        try {
+          // 验证JSON格式
+          JSON.parse(jsonToSave);
+          
+          // scriptStore.setOriginalJson 已经在 handleJsonChange 中调用了
+          // 这里只需要显示保存成功的提示
+          const stored = localStorage.getItem('botc-script-data');
+          if (stored) {
+            const message = language === 'zh-CN' 
+              ? `✓ 已保存到本地存储 (${new Date().toLocaleTimeString()})` 
+              : `✓ Saved to local storage (${new Date().toLocaleTimeString()})`;
+            showSaveAlert(message, 2500);
+          }
+        } catch (error) {
+          console.error('JSON格式错误:', error);
+          const message = language === 'zh-CN' ? '✗ JSON格式错误，无法保存' : '✗ Invalid JSON format';
+          alertUseMui(message, 2500, { kind: 'error' });
+        }
+      } else {
+        console.log('没有可保存的JSON数据');
+        const message = language === 'zh-CN' ? '⚠ 没有可保存的JSON' : '⚠ No JSON to save';
+        alertUseMui(message, 2000, { kind: 'warning' });
+      }
+    };
+
+    registerSaveCallback(handleSave);
+
+    // 当语言变化时，需要重新注册回调
+    return () => {
+      unregisterSaveCallback();
+    };
+  }, [language]); // 只依赖 language
+
+  // 处理JSON输入变化 - 实时同步到 scriptStore
+  const handleJsonChange = (json: string) => {
+    // 总是先更新 originalJson，保证输入框内容被保存
+    scriptStore.setOriginalJson(json);
+    
+    try {
+      // 尝试解析JSON，如果格式正确则自动生成剧本
+      JSON.parse(json);
+      
+      // 自动生成剧本
+      const generatedScript = generateScript(json, language);
+      
+      // 恢复自定义标题和作者
+      if (customTitle) generatedScript.title = customTitle;
+      if (customAuthor) generatedScript.author = customAuthor;
+      
+      // 更新剧本（不再调用 updateScript，避免重复保存）
+      scriptStore.setScript(generatedScript);
+    } catch (error) {
+      // JSON 格式不正确时，不更新剧本，但保留输入内容
+      console.log('JSON格式暂时不正确，等待用户继续编辑');
+    }
+  };
 
   const handleGenerate = (json: string, title?: string, author?: string) => {
     const generatedScript = generateScript(json, language);
@@ -486,6 +563,7 @@ const App = observer(() => {
             onClear={handleClear}
             onOpenUISettings={() => setUiSettingsOpen(true)}
             onAddCustomRule={handleAddCustomRule}
+            onJsonChange={handleJsonChange}
             hasScript={script !== null}
             currentJson={originalJson}
           />
@@ -1091,7 +1169,7 @@ const App = observer(() => {
                       />
                     )}
 
-                    <Box sx={{ height: "20vh" }}></Box>
+                    {/* <Box sx={{ height: "20vh" }}></Box> */}
                     <CharacterImage
                       component="img"
                       src={"/imgs/images/back_tower.png"}

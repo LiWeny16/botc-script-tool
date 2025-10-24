@@ -177,6 +177,10 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         teamColor: character.teamColor,  // 保存自定义颜色
         firstNight: character.firstNight || 0,
         otherNight: character.otherNight || 0,
+        firstNightReminder: character.firstNightReminder,
+        otherNightReminder: character.otherNightReminder,
+        reminders: character.reminders,
+        setup: character.setup,
       });
 
       // 标准团队类型中，传奇角色和旅行者不参与夜晚行动顺序

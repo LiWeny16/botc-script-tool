@@ -54,7 +54,12 @@ class ScriptStore {
   updateCharacter(characterId: string, updates: Partial<Character>) {
     if (!this.script) return;
     
-    console.log('ScriptStore.updateCharacter 被调用:', { characterId, updates });
+    console.log('ScriptStore.updateCharacter 被调用:', { 
+      characterId, 
+      updates,
+      hasReminders: 'reminders' in updates,
+      remindersValue: updates.reminders,
+    });
 
     // 创建新的script对象，避免直接修改observable
     const updatedScript = { ...this.script };
@@ -132,7 +137,10 @@ class ScriptStore {
 
     if (updated) {
       this.setScript(updatedScript);
-      console.log('角色更新成功，开始同步JSON');
+      console.log('ScriptStore - 角色更新成功，准备同步JSON:', {
+        characterId,
+        updatedCharacter: updatedScript.all.find(c => c.id === characterId),
+      });
       this.syncScriptToJson(updatedScript);
     } else {
       console.log('没有找到要更新的角色:', characterId);
@@ -515,6 +523,13 @@ class ScriptStore {
               reminders: character.reminders !== undefined ? character.reminders : (originalItem.reminders || []),
               setup: character.setup !== undefined ? character.setup : (originalItem.setup || false),
             };
+            
+            console.log('ScriptStore.syncScriptToJson - 同步角色到JSON:', {
+              characterId: character.id,
+              characterReminders: character.reminders,
+              updatedItemReminders: updatedItem.reminders,
+            });
+            
             newJsonArray.push(updatedItem);
           } else {
             // 如果是新添加的角色，创建新的JSON项

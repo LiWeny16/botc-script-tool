@@ -40,8 +40,8 @@ export const specialRuleTemplates: SpecialRuleTemplate[] = [
             'en': 'God in Play',
         },
         content: {
-            'zh-CN': '上帝宣布将会与一名玩家同阵营，如果处决说书人，那么该玩家的阵营获胜。',
-            'en': 'God announces they will be on the same team as a player. If the Storyteller is executed, that player\'s team wins.',
+            'zh-CN': '上帝宣布将会与一名玩家同阵营，如果处决说书人，那么该玩家的阵营落败。',
+            'en': 'God announces they will be on the same team as a player. If the Storyteller is executed, that player\'s team loses.',
         },
         description: {
             'zh-CN': '适用于娱乐剧本。',

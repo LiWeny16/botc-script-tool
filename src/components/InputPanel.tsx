@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -37,11 +37,12 @@ interface InputPanelProps {
   onClear?: () => void;
   onOpenUISettings?: () => void;
   onAddCustomRule?: () => void;
+  onJsonChange?: (json: string) => void;  // 新增：JSON输入变化回调
   hasScript: boolean;
   currentJson?: string;
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, hasScript, currentJson }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, onJsonChange, hasScript, currentJson }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -50,13 +51,56 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   const [error, setError] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  
+  // 用于防抖的 ref
+  const debounceTimerRef = useRef<number | null>(null);
+  const isUpdatingFromPropRef = useRef(false);
 
-  // 同步currentJson到jsonInput
+  // 同步currentJson到jsonInput（只在外部更新时）
   useEffect(() => {
     if (currentJson && currentJson !== jsonInput) {
+      isUpdatingFromPropRef.current = true;
       setJsonInput(currentJson);
+      // 短暂延迟后重置标记，避免影响后续用户输入
+      setTimeout(() => {
+        isUpdatingFromPropRef.current = false;
+      }, 100);
     }
   }, [currentJson]);
+
+  // 防抖处理 JSON 变化
+  const debouncedOnJsonChange = useCallback((value: string) => {
+    // 清除之前的定时器
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // 设置新的定时器
+    debounceTimerRef.current = setTimeout(() => {
+      if (onJsonChange && !isUpdatingFromPropRef.current) {
+        onJsonChange(value);
+      }
+    }, 500); // 500ms 防抖延迟
+  }, [onJsonChange]);
+
+  // 组件卸载时清除定时器
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  // 当 jsonInput 变化时通知父组件（带防抖）
+  const handleJsonInputChange = (value: string) => {
+    setJsonInput(value);
+    
+    // 只在用户主动输入时才触发防抖更新
+    if (!isUpdatingFromPropRef.current) {
+      debouncedOnJsonChange(value);
+    }
+  };
 
   const handleGenerate = () => {
     try {
@@ -73,12 +117,16 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
 
   const handleResetSettings = () => {
     setResetDialogOpen(true);
+
   };
 
   const handleConfirmReset = () => {
     configStore.resetToDefault();
     setResetDialogOpen(false);
+    handleClear()
+
     alert(t('dialog.resetSuccess'));
+
   };
 
   const handleCancelReset = () => {
@@ -91,7 +139,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
       const reader = new FileReader();
       reader.onload = (e) => {
         const content = e.target?.result as string;
-        setJsonInput(content);
+        handleJsonInputChange(content);
       };
       reader.readAsText(file);
     }
@@ -185,7 +233,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           label={t('input.jsonLabel')}
           placeholder={t('input.jsonPlaceholder')}
           value={jsonInput}
-          onChange={(e) => setJsonInput(e.target.value)}
+          onChange={(e) => handleJsonInputChange(e.target.value)}
           variant="outlined"
           sx={{
             '& .MuiOutlinedInput-root': {
@@ -350,7 +398,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           }}
         >
           <Button
-            variant="contained"
+            variant="outlined"
             color="error"
             size="large"
             startIcon={<RestartAlt />}
