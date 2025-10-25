@@ -84,8 +84,13 @@ const printStyles = {
       overflow: 'hidden !important', // 关键！裁剪任何超出一页的内容
 
       // --- C. 分页 ---
-      pageBreakAfter: 'always !important', // 第一页后强制分页
+      // 注意：只有当第二页存在时才强制分页
       pageBreakInside: 'avoid !important',
+    },
+    
+    // 4.1 当存在第二页时，第一页强制分页
+    '#script-preview:has(~ #script-preview-2)': {
+      pageBreakAfter: 'always !important',
     },
 
     // 5. ⭐ 第二页容器
