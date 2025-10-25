@@ -125,7 +125,7 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
               <Typography
                 variant="h5"
                 sx={{
-                  fontFamily: 'jicao, Dumbledor, serif',
+                  fontFamily: uiConfigStore.stateRuleTitleFont,
                   fontWeight: 'bold',
                   color: THEME_COLORS.paper.primary,
                   fontSize: language === 'en' 
@@ -143,6 +143,7 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
               <Typography
                 variant="body1"
                 sx={{
+                  fontFamily: uiConfigStore.stateRuleContentFont,
                   fontSize: language === 'en'
                     ? { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
                     : { xs: '0.9rem', sm: '1rem', md: '1.1rem' },

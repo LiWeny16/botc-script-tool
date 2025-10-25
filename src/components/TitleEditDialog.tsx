@@ -12,9 +12,11 @@ import {
   Switch,
   FormControlLabel,
   Paper,
+  Slider,
 } from '@mui/material';
 import { Close as CloseIcon, CloudUpload as UploadIcon } from '@mui/icons-material';
 import { useTranslation } from '../utils/i18n';
+import { uiConfigStore } from '../stores/UIConfigStore';
 
 interface TitleEditDialogProps {
   open: boolean;
@@ -53,6 +55,11 @@ const TitleEditDialog = ({
     playerCount: playerCount || '',
   });
   const [dragActive, setDragActive] = useState(false);
+  const [fontSizes, setFontSizes] = useState({
+    xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
+    sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
+    md: parseFloat(uiConfigStore.config.titleFontSize.md),
+  });
 
   // 当 props 变化时更新表单数据
   useEffect(() => {
@@ -63,6 +70,11 @@ const TitleEditDialog = ({
       subtitle: subtitle || '',
       author: author || '',
       playerCount: playerCount || '',
+    });
+    setFontSizes({
+      xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
+      sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
+      md: parseFloat(uiConfigStore.config.titleFontSize.md),
     });
   }, [open, title, titleImage, subtitle, author, playerCount]);
 
@@ -113,6 +125,16 @@ const TitleEditDialog = ({
       ...formData,
       titleImage: useImage ? formData.titleImage : undefined,
     };
+    
+    // 保存字体大小到 UIConfigStore
+    uiConfigStore.updateConfig({
+      titleFontSize: {
+        xs: `${fontSizes.xs}rem`,
+        sm: `${fontSizes.sm}rem`,
+        md: `${fontSizes.md}rem`,
+      },
+    });
+    
     onSave(dataToSave);
     onClose();
   };
@@ -121,7 +143,7 @@ const TitleEditDialog = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6">编辑剧本标题</Typography>
+          <Typography variant="h6">{t('title.edit')}</Typography>
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
           </IconButton>
@@ -138,14 +160,14 @@ const TitleEditDialog = ({
                 onChange={(e) => setUseImage(e.target.checked)}
               />
             }
-            label="使用图片标题"
+            label={t('title.titleImage').replace('（可选）', '')}
           />
 
           {useImage ? (
             /* 图片上传区域 */
             <Box>
               <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                标题图片
+                {t('title.titleImage')}
               </Typography>
               <Paper
                 variant="outlined"
@@ -176,18 +198,18 @@ const TitleEditDialog = ({
                     <Box>
                       <img
                         src={formData.titleImage}
-                        alt="标题预览"
+                        alt={t('preview')}
                         style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain' }}
                       />
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        点击或拖拽替换图片
+                        {t('share.copyJson')}
                       </Typography>
                     </Box>
                   ) : (
                     <Box>
                       <UploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
                       <Typography variant="body1" color="text.secondary">
-                        点击或拖拽上传图片
+                        {t('input.uploadJson')}
                       </Typography>
                     </Box>
                   )}
@@ -197,7 +219,7 @@ const TitleEditDialog = ({
               {/* 图片URL输入框 */}
               <TextField
                 fullWidth
-                label="或输入图片URL"
+                label={t('title.titleImage')}
                 value={formData.titleImage}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, titleImage: e.target.value }))
@@ -210,57 +232,81 @@ const TitleEditDialog = ({
             /* 文本标题输入 */
             <TextField
               fullWidth
-              label="标题"
+              label={t('title.title')}
               value={formData.title}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
-              placeholder="请输入剧本标题"
+              placeholder={t('input.titlePlaceholder')}
             />
+          )}
+
+          {/* 字体大小设置 - 仅在文本模式显示 */}
+          {!useImage && (
+            <Box>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                {t('title.fontSize')}
+              </Typography>
+              
+              
+              <Box>
+                <Typography variant="caption" gutterBottom>
+                  {t('title.fontSizeMd')}: {fontSizes.md}rem
+                </Typography>
+                <Slider
+                  value={fontSizes.md}
+                  onChange={(_, value) => setFontSizes(prev => ({ ...prev, md: value as number }))}
+                  min={2.0}
+                  max={7.0}
+                  step={0.1}
+                  valueLabelDisplay="auto"
+                />
+              </Box>
+            </Box>
           )}
 
           {/* 副标题 */}
           <TextField
             fullWidth
-            label="副标题（可选）"
+            label={t('title.subtitle')}
             value={formData.subtitle}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, subtitle: e.target.value }))
             }
-            placeholder="例如：英文名称或其他说明"
+            placeholder={t('title.subtitle')}
             size="small"
           />
 
           {/* 作者 */}
           <TextField
             fullWidth
-            label="作者"
+            label={t('title.author')}
             value={formData.author}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, author: e.target.value }))
             }
-            placeholder="请输入作者名称"
+            placeholder={t('input.authorPlaceholder')}
             size="small"
           />
 
           {/* 玩家人数 */}
           <TextField
             fullWidth
-            label="玩家人数（可选）"
+            label={t('title.playerCount')}
             value={formData.playerCount}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, playerCount: e.target.value }))
             }
-            placeholder="例如：7-15"
+            placeholder={t('title.playerCount')}
             size="small"
           />
         </Box>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>取消</Button>
+        <Button onClick={onClose}>{t('title.cancel')}</Button>
         <Button onClick={handleSave} variant="contained">
-          保存
+          {t('title.save')}
         </Button>
       </DialogActions>
     </Dialog>

@@ -8,6 +8,7 @@ import ScriptRepository from './pages/ScriptRepository.tsx'
 import ScriptPreview from './pages/ScriptPreview.tsx'
 import { I18nProvider } from './utils/i18n.tsx'
 
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <I18nProvider>

@@ -234,6 +234,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                 fontSize: CONFIG.name.fontSize,
                 color: nameColor,
                 lineHeight: CONFIG.name.lineHeight,
+                fontFamily: uiConfigStore.characterNameFont,
               }}
             >
               {character.name}
@@ -245,6 +246,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                 fontSize: CONFIG.description.fontSize,
                 lineHeight: CONFIG.description.lineHeight,
                 color: THEME_COLORS.text.tertiary,
+                fontFamily: uiConfigStore.characterAbilityFont,
               }}
               dangerouslySetInnerHTML={{
                 __html: highlightAbilityText(character.ability),

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import type { SpecialRule, I18nText } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
+import { uiConfigStore } from '../stores/UIConfigStore';
 
 interface SpecialRulesSectionProps {
   rules: SpecialRule[];
@@ -136,7 +137,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
                 <Typography
                   component="div"
                   sx={{
-                    fontFamily: 'jicao, Dumbledor, serif',
+                    fontFamily: uiConfigStore.specialRuleTitleFont,
                     fontWeight: 'bold',
                     color: '#3d3226',
                     fontSize: language === 'en' ? '1.5rem' : '1.3rem',
@@ -154,7 +155,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
                 <Typography
                   component="div"
                   sx={{
-                    fontFamily: 'jicao, Dumbledor, serif',
+                    fontFamily: uiConfigStore.specialRuleContentFont,
                     color: '#5a4a3a',
                     fontSize: language === 'en' ? '1.1rem' : '0.85rem',
                     lineHeight: language === 'en' ? 1 : 1.3,

@@ -1651,6 +1651,11 @@ optionator@^0.9.3:
     type-check "^0.4.0"
     word-wrap "^1.2.5"
 
+overlayscrollbars@^2.12.0:
+  version "2.12.0"
+  resolved "https://registry.npmmirror.com/overlayscrollbars/-/overlayscrollbars-2.12.0.tgz#b6447716246cb62a32a43193b354bd423a85fa21"
+  integrity sha512-mWJ5MOkcZ/ljHwfLw8+bN0V9ziGCoNoqULcp994j5DTGNQvnkWKWkA7rnO29Kyew5AoHxUnJ4Ndqfcl0HSQjXg==
+
 p-limit@^3.0.2:
   version "3.1.0"
   resolved "https://registry.npmmirror.com/p-limit/-/p-limit-3.1.0.tgz#e1daccbe78d0d1388ca18c64fea38e3e57e3706b"

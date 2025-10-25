@@ -5,6 +5,7 @@ import { TEAM_COLORS } from '../data/characters';
 import { THEME_COLORS, getTeamColor, getTeamName } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import { configStore } from '../stores/ConfigStore';
+import { uiConfigStore } from '../stores/UIConfigStore';
 import CharacterCard from './CharacterCard';
 import {
   DndContext,
@@ -123,7 +124,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
         <Typography
           variant="h5"
           sx={{
-            fontFamily: 'jicao, Dumbledor, serif',
+            fontFamily: uiConfigStore.teamDividerFont,
             fontWeight: 'bold',
             fontSize: isChinese
               ? { xs: '1rem', sm: '1.1rem', md: '1.4rem' }

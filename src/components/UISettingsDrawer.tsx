@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { observer } from 'mobx-react-lite';
 import {
   Drawer,
@@ -20,6 +20,9 @@ import {
   AccordionDetails,
   Stack,
   Tooltip,
+  Select,
+  MenuItem,
+  InputAdornment,
 } from '@mui/material';
 import {
   Close as CloseIcon,
@@ -27,18 +30,66 @@ import {
   RestartAlt as RestartAltIcon,
   LockOpen as LockOpenIcon,
   Lock as LockIcon,
+  Search as SearchIcon,
+  FontDownload as FontDownloadIcon,
 } from '@mui/icons-material';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { useTranslation } from '../utils/i18n';
+import FontUploader from './FontUploader';
 
 interface UISettingsDrawerProps {
   open: boolean;
   onClose: () => void;
 }
 
+// 配置项分类
+interface SettingCategory {
+  id: string;
+  title: string;
+  keywords: string[]; // 用于搜索的关键词（中英文）
+}
+
 const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => {
   const { t } = useTranslation();
   const [isPinned, setIsPinned] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [fontUploaderOpen, setFontUploaderOpen] = useState(false);
+
+  // 定义配置分类及其关键词（中英文）
+  const categories: SettingCategory[] = [
+    {
+      id: 'pageLayout',
+      title: t('ui.category.pageLayout'),
+      keywords: [
+        '页面', '布局', '双页', '背景', '夜晚', '顺序', '标题', '高度', '模式',
+        'page', 'layout', 'two-page', 'two page', 'background', 'night', 'order', 'title', 'height', 'mode'
+      ],
+    },
+    {
+      id: 'cardLayout',
+      title: t('ui.category.cardLayout'),
+      keywords: [
+        '卡片', '布局', '内边距', '间距', '文本', '区域', 'padding', 'gap',
+        'card', 'layout', 'padding', 'gap', 'text', 'area', 'spacing', 'margin'
+      ],
+    },
+    {
+      id: 'iconSize',
+      title: t('ui.category.iconSize'),
+      keywords: [
+        '图标', '大小', '头像', '相克', '传奇', '宽度', '高度', 'icon', 'size',
+        'icon', 'size', 'avatar', 'jinx', 'fabled', 'width', 'height', 'image'
+      ],
+    },
+    {
+      id: 'fontSettings',
+      title: t('ui.category.fontSettings'),
+      keywords: [
+        '字体', '标题', '阵营', '角色', '技能', '相克', 'jinx', '特殊规则', '内容',
+        'font', 'title', 'team', 'character', 'ability', 'rule', 'content', 'text', 'typography'
+      ],
+    },
+  ];
 
   const handleClose = () => {
     if (!isPinned) {
@@ -56,12 +107,53 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
     setIsPinned(!isPinned);
   };
 
+  // 搜索过滤逻辑
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return categories.map(cat => ({ ...cat, show: true }));
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return categories.map(cat => ({
+      ...cat,
+      show: cat.keywords.some(keyword => keyword.toLowerCase().includes(query)) ||
+            cat.title.toLowerCase().includes(query),
+    }));
+  }, [searchQuery, categories]);
+
+  // 字体选择器组件
+  const FontSelector = ({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) => (
+    <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+      <FormLabel sx={{ fontSize: '0.875rem', mb: 0.5 }}>{label}</FormLabel>
+      <Select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        sx={{
+          '& .MuiSelect-select': {
+            fontFamily: value,
+          },
+        }}
+      >
+        {uiConfigStore.availableFonts.map((font) => (
+          <MenuItem
+            key={font.value}
+            value={font.value}
+            sx={{ fontFamily: font.value }}
+          >
+            {font.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+  );
+
   return (
-    <Drawer
-      anchor="left"
-      open={open}
-      onClose={handleClose}
-      hideBackdrop={isPinned} // 固定时隐藏背景，未固定时显示背景
+    <>
+      <Drawer
+        anchor="left"
+        open={open}
+        onClose={handleClose}
+        hideBackdrop={isPinned} // 固定时隐藏背景，未固定时显示背景
       disableScrollLock={true} // 禁用滚动锁定，不隐藏页面滚动条
       ModalProps={{
         keepMounted: true, // 保持组件挂载
@@ -73,8 +165,8 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
         // 固定时让整个 Drawer 容器不阻止交互
         pointerEvents: isPinned ? 'none' : 'auto',
         '& .MuiDrawer-paper': {
-          width: { xs: '90%', sm: 400 },
-          maxWidth: 400,
+          width: { xs: '90%', sm: 420 },
+          maxWidth: 420,
           boxShadow: 3,
           // 但抽屉本身可以交互
           pointerEvents: 'auto',
@@ -124,63 +216,59 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
 
         <Divider />
 
+        {/* 搜索框 */}
+        <Box sx={{ p: 2, pb: 1 }}>
+          <TextField
+            fullWidth
+            size="small"
+            placeholder={t('ui.searchSettings')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+
         {/* 内容区域 */}
-        <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
+        <Box sx={{ flex: 1, overflow: 'auto', p: 2, pt: 1 }}>
           <Stack spacing={2}>
-            {/* 双页面模式 */}
-            <Accordion defaultExpanded>
+            {/* 1. 页面布局 */}
+            {filteredCategories.find(c => c.id === 'pageLayout')?.show && (
+            <Accordion defaultExpanded={!searchQuery}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                  {t('ui.twoPageMode')}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <FormControl component="fieldset" fullWidth>
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <FormLabel component="legend">
-                      {t('ui.enableTwoPageMode')}
-                    </FormLabel>
-                    <Switch
-                      checked={uiConfigStore.config.enableTwoPageMode}
-                      onChange={(e) => uiConfigStore.updateConfig({ enableTwoPageMode: e.target.checked })}
-                    />
-                  </Box>
-                </FormControl>
-              </AccordionDetails>
-            </Accordion>
-
-            {/* Night Order 背景 */}
-            <Accordion defaultExpanded>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                  {t('ui.nightOrderBackground') || '夜晚顺序背景'}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <FormControl component="fieldset">
-                  <RadioGroup
-                    value={uiConfigStore.config.nightOrderBackground}
-                    onChange={(e) => uiConfigStore.updateConfig({ nightOrderBackground: e.target.value as 'purple' | 'yellow' })}
-                  >
-                    <FormControlLabel value="purple" control={<Radio />} label={t('ui.purpleBackground') || '紫色背景'} />
-                    <FormControlLabel value="yellow" control={<Radio />} label={t('ui.yellowBackground') || '黄色背景'} />
-                  </RadioGroup>
-                </FormControl>
-              </AccordionDetails>
-            </Accordion>
-
-            {/* 标题区域高度 */}
-            <Accordion defaultExpanded>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                  {t('ui.titleHeight') || '标题区域高度'}
+                  {t('ui.category.pageLayout')}
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
+                  {/* 双页面模式 */}
+                  <FormControl component="fieldset" fullWidth>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box>
+                        <FormLabel component="legend">
+                          {t('ui.enableTwoPageMode')}
+                        </FormLabel>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                          {t('ui.twoPageModeDesc')}
+                        </Typography>
+                      </Box>
+                      <Switch
+                        checked={uiConfigStore.config.enableTwoPageMode}
+                        onChange={(e) => uiConfigStore.updateConfig({ enableTwoPageMode: e.target.checked })}
+                      />
+                    </Box>
+                  </FormControl>
+
+                  {/* 标题区域高度 */}
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.desktopHeight') || '桌面端 (md)'}: {uiConfigStore.config.titleHeightMd}px
+                      {t('ui.titleHeight')}: {uiConfigStore.config.titleHeightMd}px
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.titleHeightMd}
@@ -190,26 +278,38 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                       valueLabelDisplay="auto"
                     />
                   </Box>
+
+                  {/* Night Order 背景 */}
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">{t('ui.nightOrderBackground')}</FormLabel>
+                    <RadioGroup
+                      value={uiConfigStore.config.nightOrderBackground}
+                      onChange={(e) => uiConfigStore.updateConfig({ nightOrderBackground: e.target.value as 'purple' | 'yellow' | 'green' })}
+                    >
+                      <FormControlLabel value="purple" control={<Radio size="small" />} label={t('ui.purpleBackground')} />
+                      <FormControlLabel value="yellow" control={<Radio size="small" />} label={t('ui.yellowBackground')} />
+                      <FormControlLabel value="green" control={<Radio size="small" />} label={t('ui.greenBackground')} />
+                    </RadioGroup>
+                  </FormControl>
                 </Stack>
               </AccordionDetails>
             </Accordion>
+            )}
 
-            {/* 角色卡片配置 */}
-            <Accordion defaultExpanded>
+            {/* 2. 角色卡片布局 */}
+            {filteredCategories.find(c => c.id === 'cardLayout')?.show && (
+            <Accordion defaultExpanded={!searchQuery}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                  {t('ui.characterCard') || '角色卡片配置'}
+                  {t('ui.category.cardLayout')}
                 </Typography>
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
-                  {/* 卡片基础配置 */}
-                  <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 1 }}>
-                    {t('ui.cardBasic') || '卡片基础'}
-                  </Typography>
+                  {/* 卡片内边距 */}
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.cardPadding') || '内边距'}: {uiConfigStore.config.characterCard.cardPadding}
+                      {t('ui.cardPadding')}: {uiConfigStore.config.characterCard.cardPadding}
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.cardPadding}
@@ -220,9 +320,11 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                       valueLabelDisplay="auto"
                     />
                   </Box>
+
+                  {/* 卡片元素间距 */}
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.cardGap') || '元素间距'}: {uiConfigStore.config.characterCard.cardGap}
+                      {t('ui.cardGap')}: {uiConfigStore.config.characterCard.cardGap}
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.cardGap}
@@ -234,13 +336,42 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     />
                   </Box>
 
-                  {/* 头像配置 */}
-                  <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 2 }}>
-                    {t('ui.avatar') || '头像配置'}
+                  {/* 文本区域间距 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.textAreaGap')}: {uiConfigStore.config.characterCard.textAreaGap}
+                    </Typography>
+                    <Slider
+                      value={uiConfigStore.config.characterCard.textAreaGap}
+                      onChange={(_, value) => uiConfigStore.updateCharacterCardConfig({ textAreaGap: value as number })}
+                      min={0}
+                      max={2}
+                      step={0.1}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
+            {/* 3. 图标大小配置 */}
+            {filteredCategories.find(c => c.id === 'iconSize')?.show && (
+            <Accordion defaultExpanded={!searchQuery}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                  {t('ui.category.iconSize')}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={2}>
+                  {/* 角色头像 */}
+                  <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 1 }}>
+                    {t('ui.avatarSize')}
                   </Typography>
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.avatarWidthMd') || '头像宽度 (桌面)'}: {uiConfigStore.config.characterCard.avatarWidthMd}px
+                      {t('ui.avatarWidthMd')}: {uiConfigStore.config.characterCard.avatarWidthMd}px
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.avatarWidthMd}
@@ -252,7 +383,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                   </Box>
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.avatarHeightMd') || '头像高度 (桌面)'}: {uiConfigStore.config.characterCard.avatarHeightMd}px
+                      {t('ui.avatarHeightMd')}: {uiConfigStore.config.characterCard.avatarHeightMd}px
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.avatarHeightMd}
@@ -263,31 +394,13 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     />
                   </Box>
 
-                  {/* 文字配置 */}
+                  {/* 相克图标 */}
                   <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 2 }}>
-                    {t('ui.textConfig') || '文字配置'}
+                    {t('ui.jinxIconSize')}
                   </Typography>
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.textAreaGap') || '文本区域间距'}: {uiConfigStore.config.characterCard.textAreaGap}
-                    </Typography>
-                    <Slider
-                      value={uiConfigStore.config.characterCard.textAreaGap}
-                      onChange={(_, value) => uiConfigStore.updateCharacterCardConfig({ textAreaGap: value as number })}
-                      min={0}
-                      max={2}
-                      step={0.1}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
-
-                  {/* 相克规则配置 */}
-                  <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 2 }}>
-                    {t('ui.jinxConfig') || '相克规则配置'}
-                  </Typography>
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      {t('ui.jinxIconWidthMd') || '相克图标宽度 (桌面)'}: {uiConfigStore.config.characterCard.jinxIconWidthMd}px
+                      {t('ui.jinxIconWidthMd')}: {uiConfigStore.config.characterCard.jinxIconWidthMd}px
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.jinxIconWidthMd}
@@ -299,7 +412,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                   </Box>
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.jinxIconHeightMd') || '相克图标高度 (桌面)'}: {uiConfigStore.config.characterCard.jinxIconHeightMd}px
+                      {t('ui.jinxIconHeightMd')}: {uiConfigStore.config.characterCard.jinxIconHeightMd}px
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.jinxIconHeightMd}
@@ -310,13 +423,13 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     />
                   </Box>
 
-                  {/* 传奇角色图标配置 */}
+                  {/* 传奇图标 */}
                   <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 2 }}>
-                    {t('ui.fabledConfig') || '传奇角色图标配置'}
+                    {t('ui.fabledIconSize')}
                   </Typography>
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.fabledIconWidthMd') || '传奇图标宽度 (桌面)'}: {uiConfigStore.config.characterCard.fabledIconWidthMd}px
+                      {t('ui.fabledIconWidthMd')}: {uiConfigStore.config.characterCard.fabledIconWidthMd}px
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.fabledIconWidthMd}
@@ -328,7 +441,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                   </Box>
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.fabledIconHeightMd') || '传奇图标高度 (桌面)'}: {uiConfigStore.config.characterCard.fabledIconHeightMd}px
+                      {t('ui.fabledIconHeightMd')}: {uiConfigStore.config.characterCard.fabledIconHeightMd}px
                     </Typography>
                     <Slider
                       value={uiConfigStore.config.characterCard.fabledIconHeightMd}
@@ -341,6 +454,115 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                 </Stack>
               </AccordionDetails>
             </Accordion>
+            )}
+
+            {/* 4. 字体设置 */}
+            {filteredCategories.find(c => c.id === 'fontSettings')?.show && (
+            <Accordion defaultExpanded={false}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                  {t('ui.category.fontSettings')}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={2}>
+                  {/* 自定义字体管理按钮 */}
+                  <Button
+                    variant="outlined"
+                    startIcon={<FontDownloadIcon />}
+                    onClick={() => setFontUploaderOpen(true)}
+                    fullWidth
+                  >
+                    {t('ui.manageCustomFonts')}
+                  </Button>
+
+                  <Divider />
+
+                  {/* 剧本标题字体 */}
+                  <FontSelector
+                    label={t('ui.font.scriptTitle')}
+                    value={uiConfigStore.config.fonts.scriptTitle}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ scriptTitle: value })}
+                  />
+
+                  {/* 阵营分割文字字体 */}
+                  <FontSelector
+                    label={t('ui.font.teamDivider')}
+                    value={uiConfigStore.config.fonts.teamDivider}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ teamDivider: value })}
+                  />
+
+                  {/* 角色名称字体 */}
+                  <FontSelector
+                    label={t('ui.font.characterName')}
+                    value={uiConfigStore.config.fonts.characterName}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ characterName: value })}
+                  />
+
+                  {/* 角色技能描述字体 */}
+                  <FontSelector
+                    label={t('ui.font.characterAbility')}
+                    value={uiConfigStore.config.fonts.characterAbility}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ characterAbility: value })}
+                  />
+
+                  {/* Jinx相克规则字体 */}
+                  <FontSelector
+                    label={t('ui.font.jinxText')}
+                    value={uiConfigStore.config.fonts.jinxText}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ jinxText: value })}
+                  />
+
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
+                    {t('ui.font.page1Rules')}
+                  </Typography>
+
+                  {/* 第一页特殊规则标题字体 */}
+                  <FontSelector
+                    label={t('ui.font.titleFont')}
+                    value={uiConfigStore.config.fonts.stateRuleTitle}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ stateRuleTitle: value })}
+                  />
+
+                  {/* 第一页特殊规则内容字体 */}
+                  <FontSelector
+                    label={t('ui.font.contentFont')}
+                    value={uiConfigStore.config.fonts.stateRuleContent}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ stateRuleContent: value })}
+                  />
+
+                  <Divider sx={{ my: 1 }} />
+                  <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
+                    {t('ui.font.page2Rules')}
+                  </Typography>
+
+                  {/* 第二页特殊规则标题字体 */}
+                  <FontSelector
+                    label={t('ui.font.titleFont')}
+                    value={uiConfigStore.config.fonts.specialRuleTitle}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ specialRuleTitle: value })}
+                  />
+
+                  {/* 第二页特殊规则内容字体 */}
+                  <FontSelector
+                    label={t('ui.font.contentFont')}
+                    value={uiConfigStore.config.fonts.specialRuleContent}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ specialRuleContent: value })}
+                  />
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
+            {/* 没有搜索结果提示 */}
+            {searchQuery && !filteredCategories.some(c => c.show) && (
+              <Box sx={{ textAlign: 'center', py: 4 }}>
+                <Typography variant="body2" color="text.secondary">
+                  {t('ui.noResults')}
+                </Typography>
+              </Box>
+            )}
           </Stack>
         </Box>
 
@@ -355,11 +577,18 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
             startIcon={<RestartAltIcon />}
             onClick={handleReset}
           >
-            {t('ui.resetAllSettings') || '重置所有设置'}
+            {t('ui.resetAllSettings')}
           </Button>
         </Box>
       </Box>
     </Drawer>
+
+    {/* 字体上传对话框 */}
+    <FontUploader
+      open={fontUploaderOpen}
+      onClose={() => setFontUploaderOpen(false)}
+    />
+    </>
   );
 });
 

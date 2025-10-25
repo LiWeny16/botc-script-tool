@@ -23,6 +23,8 @@
  * closeAlert();
  */
 
+import { OverlayScrollbars } from "overlayscrollbars";
+
 // 提示类型
 type AlertKind = 'success' | 'error' | 'warning' | 'info';
 
@@ -88,7 +90,7 @@ const createIcon = (kind: AlertKind) => {
     margin-right: 6px;
     flex-shrink: 0;
   `;
-  
+
   const icons = {
     success: {
       html: `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
@@ -119,7 +121,7 @@ const createIcon = (kind: AlertKind) => {
   const iconConfig = icons[kind] || icons.success;
   iconElement.innerHTML = iconConfig.html;
   iconElement.style.color = iconConfig.color;
-  
+
   return iconElement;
 };
 
@@ -163,7 +165,7 @@ export const alertUseMui = (
   const alertElement = document.createElement('div');
   alertElement.className = 'mui-alert-item';
   alertElement.setAttribute('data-alert-id', String(++alertCount));
-  
+
   alertElement.style.cssText = `
     min-width: 200px;
     max-width: 400px;
@@ -190,7 +192,7 @@ export const alertUseMui = (
 
   // 添加图标
   const iconElement = createIcon(_kind);
-  
+
   // 添加消息文本
   const messageSpan = document.createElement('span');
   messageSpan.textContent = msg;
@@ -219,11 +221,11 @@ export const alertUseMui = (
   const handleClose = () => {
     alertElement.style.opacity = '0';
     alertElement.style.transform = 'translateY(-20px) scale(0.9)';
-    
+
     setTimeout(() => {
       if (alertElement.parentNode) {
         container.removeChild(alertElement);
-        
+
         // 如果容器为空，移除容器
         if (container.children.length === 0) {
           document.body.removeChild(container);
@@ -260,7 +262,7 @@ const handleGlobalKeyDown = (event: KeyboardEvent) => {
   if ((event.ctrlKey || event.metaKey) && event.key === 's') {
     // 阻止浏览器默认的保存行为
     event.preventDefault();
-    
+
     // 执行保存回调
     if (globalSaveCallback) {
       globalSaveCallback();
@@ -275,6 +277,8 @@ const handleGlobalKeyDown = (event: KeyboardEvent) => {
 export const initGlobalShortcuts = () => {
   // 添加全局键盘事件监听
   window.addEventListener('keydown', handleGlobalKeyDown);
+  // 在你的JS文件中
+  
   console.log('全局快捷键已初始化');
 };
 
@@ -285,12 +289,12 @@ export const cleanupGlobalShortcuts = () => {
   // 移除全局键盘事件监听
   window.removeEventListener('keydown', handleGlobalKeyDown);
   globalSaveCallback = null;
-  
+
   // 清理提示容器
   if (alertContainer && alertContainer.parentNode) {
     document.body.removeChild(alertContainer);
     alertContainer = null;
   }
-  
+
   console.log('全局快捷键已清理');
 };

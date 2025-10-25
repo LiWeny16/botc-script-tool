@@ -88,7 +88,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                 <Typography
                     variant="h5"
                     sx={{
-                        fontFamily: 'jicao, Dumbledor, serif',
+                        fontFamily: uiConfigStore.jinxTextFont,
                         fontWeight: 'bold',
                         color: THEME_COLORS.paper.primary,
                         textAlign: 'center',
@@ -177,7 +177,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                             <Typography
                                 variant="body2"
                                 sx={{
-                                    fontFamily: 'jicao, Dumbledor, serif',
+                                    fontFamily: uiConfigStore.jinxTextFont,
                                     fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1.14rem' },
                                     lineHeight: 1.6,
                                     color: THEME_COLORS.text.primary,

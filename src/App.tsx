@@ -41,6 +41,7 @@ import {
   GlobalStyles, // 👈 增加这个
 } from '@mui/material';
 import { initGlobalShortcuts, cleanupGlobalShortcuts, registerSaveCallback, unregisterSaveCallback, showSaveAlert, alertUseMui } from './utils/event';
+import { OverlayScrollbars } from 'overlayscrollbars';
 
 // 把它放在 App 组件上面，或者 theme 定义的下面
 const printStyles = {
@@ -157,6 +158,7 @@ const App = observer(() => {
 
   // 初始化加载数据
   useEffect(() => {
+ 
     const initializeApp = async () => {
       // 检测URL中的json参数，如果存在则跳转到preview页面
       const jsonParam = searchParams.get('json');
@@ -206,18 +208,18 @@ const App = observer(() => {
     const handleSave = () => {
       // 直接保存 scriptStore 中的 originalJson
       const jsonToSave = scriptStore.originalJson;
-      
+
       if (jsonToSave) {
         try {
           // 验证JSON格式
           JSON.parse(jsonToSave);
-          
+
           // scriptStore.setOriginalJson 已经在 handleJsonChange 中调用了
           // 这里只需要显示保存成功的提示
           const stored = localStorage.getItem('botc-script-data');
           if (stored) {
-            const message = language === 'zh-CN' 
-              ? `✓ 已保存到本地存储 (${new Date().toLocaleTimeString()})` 
+            const message = language === 'zh-CN'
+              ? `✓ 已保存到本地存储 (${new Date().toLocaleTimeString()})`
               : `✓ Saved to local storage (${new Date().toLocaleTimeString()})`;
             showSaveAlert(message, 2500);
           }
@@ -245,18 +247,18 @@ const App = observer(() => {
   const handleJsonChange = (json: string) => {
     // 总是先更新 originalJson，保证输入框内容被保存
     scriptStore.setOriginalJson(json);
-    
+
     try {
       // 尝试解析JSON，如果格式正确则自动生成剧本
       JSON.parse(json);
-      
+
       // 自动生成剧本
       const generatedScript = generateScript(json, language);
-      
+
       // 恢复自定义标题和作者
       if (customTitle) generatedScript.title = customTitle;
       if (customAuthor) generatedScript.author = customAuthor;
-      
+
       // 更新剧本（不再调用 updateScript，避免重复保存）
       scriptStore.setScript(generatedScript);
     } catch (error) {
@@ -445,7 +447,7 @@ const App = observer(() => {
       if (templateId) {
         // 使用模板创建规则
         const template = getSpecialRuleTemplate(templateId);
-        
+
         if (!template) {
           console.error('未找到特殊规则模板:', templateId);
           return;
@@ -770,7 +772,35 @@ const App = observer(() => {
                           </Box>
                         ) : (
                           <Box onMouseEnter={() => setTitleHovered(true)} onMouseLeave={() => setTitleHovered(false)} onDoubleClick={handleTitleEdit} sx={{ position: 'relative', cursor: 'pointer', display: 'flex', padding: { xs: 1, sm: 1.5, md: 2 }, borderRadius: 2, userSelect: 'none', width: '100%', justifyContent: 'center' }}>
-                            <Typography variant="h3" component="div" sx={{ fontFamily: 'jicao, Dumbledor, serif', fontWeight: 'bold', color: THEME_COLORS.paper.primary, fontSize: { xs: '1.2rem', sm: '1.6rem', md: '2.6rem' }, lineHeight: 1.38, m: 0, whiteSpace: 'pre-wrap', textAlign: 'center', wordBreak: 'break-word' }}>
+                            <Typography
+                              variant="h3"
+                              component="div"
+                              sx={{
+                                fontFamily: uiConfigStore.scriptTitleFont,
+                                fontWeight: 'bold',
+                                fontSize: {
+                                  xs: uiConfigStore.titleFontSizeXs,
+                                  sm: uiConfigStore.titleFontSizeSm,
+                                  md: uiConfigStore.titleFontSizeMd
+                                },
+                                lineHeight: 1.38,
+                                m: 0,
+                                whiteSpace: 'pre-wrap',
+                                textAlign: 'center',
+                                wordBreak: 'break-word',
+                                // 文字镂空效果 - 透过文字看到背景图
+                                background: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                                backgroundSize: 'cover',
+                                backgroundPosition: 'center',
+                                backgroundClip: 'text',
+                                WebkitBackgroundClip: 'text',
+                                WebkitTextFillColor: 'transparent',
+                                // 添加描边效果增强可读性（可选）
+                                // textShadow: '0 0 1px rgba(0,0,0,0.3)',
+                                // 或者使用 -webkit-text-stroke 添加轮廓
+                                // WebkitTextStroke: '0.5px rgba(0,0,0,0.2)',
+                              }}
+                            >
                               {script.title.split(/\\n|<br\s*\/?>/).map((line, index, array) => (<span key={index}>{line}{index < array.length - 1 && <br />}</span>))}
                             </Typography>
                             {titleHovered && (

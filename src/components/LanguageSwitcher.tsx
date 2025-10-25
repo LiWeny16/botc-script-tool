@@ -1,5 +1,5 @@
 import { observer } from 'mobx-react-lite';
-import { IconButton, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Button, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import LanguageIcon from '@mui/icons-material/Language';
 import CheckIcon from '@mui/icons-material/Check';
 import { useState } from 'react';
@@ -23,13 +23,19 @@ const LanguageSwitcher = observer(() => {
     handleClose();
   };
 
+  // 显示切换到的目标语言
+  const displayText = language === 'zh-CN' ? 'English' : '中文';
+
   return (
     <>
-      <IconButton
+      <Button
         onClick={handleClick}
+        startIcon={<LanguageIcon />}
         size="small"
         sx={{
           color: 'inherit',
+          textTransform: 'none',
+          fontSize: '0.9rem',
           '&:hover': {
             backgroundColor: 'rgba(0, 0, 0, 0.04)',
           },
@@ -38,8 +44,8 @@ const LanguageSwitcher = observer(() => {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
       >
-        <LanguageIcon />
-      </IconButton>
+        {displayText}
+      </Button>
       <Menu
         id="language-menu"
         anchorEl={anchorEl}

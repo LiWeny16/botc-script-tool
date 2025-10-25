@@ -14,6 +14,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
+import SettingsIcon from '@mui/icons-material/Settings';
 import {
   Upload,
   Download,
@@ -51,7 +52,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   const [error, setError] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
-  
+
   // 用于防抖的 ref
   const debounceTimerRef = useRef<number | null>(null);
   const isUpdatingFromPropRef = useRef(false);
@@ -95,7 +96,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   // 当 jsonInput 变化时通知父组件（带防抖）
   const handleJsonInputChange = (value: string) => {
     setJsonInput(value);
-    
+
     // 只在用户主动输入时才触发防抖更新
     if (!isUpdatingFromPropRef.current) {
       debouncedOnJsonChange(value);
@@ -264,7 +265,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             startIcon={<Refresh />}
             onClick={handleGenerate}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 50%' },
+              flex: { xs: '1 1 100%', sm: '1 1 30%' },
               minHeight: 48,
             }}
           >
@@ -373,7 +374,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           <Button
             variant="contained"
             size="large"
-            startIcon={<Tune />}
+            startIcon={<SettingsIcon />}
             onClick={onOpenUISettings}
             sx={{
               flex: { xs: '1 1 100%', sm: '1 1 auto' },
