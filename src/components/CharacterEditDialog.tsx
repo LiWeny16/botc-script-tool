@@ -23,6 +23,7 @@ import type { Character } from '../types';
 import { CHARACTERS } from '../data/characters';
 import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
+import { configStore } from '../stores/ConfigStore';
 
 interface CharacterEditDialogProps {
   open: boolean;
@@ -41,6 +42,9 @@ export default function CharacterEditDialog({
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [editData, setEditData] = useState<Partial<Character>>({});
+  
+  // 官方ID解析模式下禁用所有编辑
+  const isEditDisabled = configStore.config.officialIdParseMode;
 
   useEffect(() => {
     if (character) {
@@ -60,6 +64,12 @@ export default function CharacterEditDialog({
   }, [character]);
 
   const handleSave = () => {
+    // 官方ID解析模式下禁止保存编辑
+    if (configStore.config.officialIdParseMode) {
+      onClose();
+      return;
+    }
+    
     if (character) {
       const updates: Partial<Character> = {};
       const defaultData = CHARACTERS[character.id] || {};
@@ -205,8 +215,9 @@ export default function CharacterEditDialog({
                   label={t('characterName')}
                   value={editData.name || ''}
                   onChange={(e) => handleChange('name', e.target.value)}
+                  disabled={isEditDisabled}
                 />
-                <FormControl sx={{ flex: 1 }}>
+                <FormControl sx={{ flex: 1 }} disabled={isEditDisabled}>
                   <InputLabel>{t('team')}</InputLabel>
                   <Select
                     value={editData.team || ''}
@@ -226,12 +237,14 @@ export default function CharacterEditDialog({
                 rows={2}
                 value={editData.ability || ''}
                 onChange={(e) => handleChange('ability', e.target.value)}
+                disabled={isEditDisabled}
               />
               <TextField
                 fullWidth
                 label={t('imageUrl')}
                 value={editData.image || ''}
                 onChange={(e) => handleChange('image', e.target.value)}
+                disabled={isEditDisabled}
               />
             </Box>
           </Box>
@@ -248,6 +261,7 @@ export default function CharacterEditDialog({
                 type="number"
                 value={editData.firstNight || 0}
                 onChange={(e) => handleChange('firstNight', Number(e.target.value))}
+                disabled={isEditDisabled}
               />
               <TextField
                 sx={{ flex: 1 }}
@@ -255,6 +269,7 @@ export default function CharacterEditDialog({
                 type="number"
                 value={editData.otherNight || 0}
                 onChange={(e) => handleChange('otherNight', Number(e.target.value))}
+                disabled={isEditDisabled}
               />
             </Box>
           </Box>
@@ -272,6 +287,7 @@ export default function CharacterEditDialog({
                 rows={2}
                 value={editData.firstNightReminder || ''}
                 onChange={(e) => handleChange('firstNightReminder', e.target.value)}
+                disabled={isEditDisabled}
               />
               <TextField
                 fullWidth
@@ -280,6 +296,7 @@ export default function CharacterEditDialog({
                 rows={2}
                 value={editData.otherNightReminder || ''}
                 onChange={(e) => handleChange('otherNightReminder', e.target.value)}
+                disabled={isEditDisabled}
               />
             </Box>
             <>
@@ -296,7 +313,7 @@ export default function CharacterEditDialog({
                       <Chip
                         key={index}
                         label={reminder}
-                        onDelete={() => {
+                        onDelete={isEditDisabled ? undefined : () => {
                           const newReminders = [...(editData.reminders || [])];
                           newReminders.splice(index, 1);
                           handleChange('reminders', newReminders);
@@ -308,6 +325,7 @@ export default function CharacterEditDialog({
                     fullWidth
                     label={t('addReminder')}
                     placeholder={t('addReminderPlaceholder')}
+                    disabled={isEditDisabled}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -333,7 +351,7 @@ export default function CharacterEditDialog({
         <Button onClick={onClose}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={handleSave} variant="contained">
+        <Button onClick={handleSave} variant="contained" disabled={isEditDisabled}>
           {t('common.save')}
         </Button>
       </DialogActions>

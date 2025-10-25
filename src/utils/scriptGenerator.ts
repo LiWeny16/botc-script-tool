@@ -4,6 +4,7 @@ import { CHARACTERS_EN } from '../data/charactersEn';
 import { hasJinx, getJinx } from '../data/jinx';
 import { THEME_COLORS } from '../theme/colors';
 import { normalizeCharacterId } from '../data/characterIdMapping';
+import { configStore } from '../stores/ConfigStore';
 
 // 解析 JSON 并生成剧本对象
 export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'zh-CN'): Script {
@@ -15,6 +16,9 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
   // 根据语言选择角色字典
   const charactersDict = language === 'en' ? CHARACTERS_EN : CHARACTERS;
+  
+  // 获取官方ID解析模式配置
+  const officialIdParseMode = configStore.config.officialIdParseMode;
 
   const script: Script = {
     title: '自定义剧本',
@@ -131,10 +135,23 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       dictKey = normalizeCharacterId(item.id, language);
     }
 
-    if (dictKey in charactersDict && !item.image) {
-      character = { ...charactersDict[dictKey], ...item };
-      // 保持原始ID，这样用户的JSON格式不会被改变
-      character.id = item.id;
+    // 根据官方ID解析模式决定角色信息来源
+    if (dictKey in charactersDict) {
+      if (officialIdParseMode) {
+        // 官方ID解析模式：完全使用官方数据，忽略JSON中的自定义信息
+        character = { ...charactersDict[dictKey] };
+        character.id = item.id; // 保持原始ID
+        // 只保留 team 字段（如果JSON中有自定义team）
+        if (item.team) {
+          character.team = item.team;
+        }
+      } else {
+        // 普通模式：JSON自定义信息优先，但如果JSON中没有image字段，使用官方数据
+        if (!item.image) {
+          character = { ...charactersDict[dictKey], ...item };
+          character.id = item.id; // 保持原始ID
+        }
+      }
     }
 
     // 处理相克规则

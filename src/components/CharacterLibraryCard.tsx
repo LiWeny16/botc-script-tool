@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
 import {
     Card,
     CardContent,
@@ -26,6 +27,8 @@ import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
 import type { Character } from '../types';
 import { THEME_COLORS } from '../theme/colors';
+import { getFabledCharacters } from '../data/fabled';
+import { configStore } from '../stores/ConfigStore';
 
 interface CharacterLibraryCardProps {
     open: boolean;
@@ -81,295 +84,15 @@ const pinyinMap: Record<string, string> = {
 };
 
 // 传奇角色数据 - 支持多语言
-const getFabledCharacters = (language: string): Character[] => {
-    const isEnglish = language === 'en';
 
-    return [
-        {
-            id: 'angel',
-            name: isEnglish ? 'Angel' : '天使',
-            ability: isEnglish ? "Something bad might happen to whoever is most responsible for the death of a new player. " : "对新玩家的死亡负最大责任的人，可能会遭遇一些不好的事情。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Angel_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['Protected'] : ['保护'],
-            setup: false,
-        },
-        {
-            id: 'bootlegger',
-            name: isEnglish ? 'Bootlegger' : '私酒贩',
-            ability: isEnglish ? "This script has homebrew characters or rules. " : "这个剧本包含有自制角色或自制规则。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Bootlegger_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'bootlegger2',
-            name: isEnglish ? 'Village King' : '我是村规王',
-            ability: isEnglish ? "This script has homebrew characters or rules. " : "这个剧本采用村规。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Bootlegger_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'buddhist',
-            name: isEnglish ? 'Buddhist' : '佛陀',
-            ability: isEnglish ? "For the first 2 minutes of each day, veteran players may not talk. " : "每个白天的前两分钟，老玩家不能发言。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Buddhist_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'deus_ex_fiasco',
-            name: isEnglish ? 'Deus Ex Fiasco' : '失败的上帝',
-            ability: isEnglish ? 'At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it.' : '每局游戏限一次，说书人可能会犯一个“错误”但会将其纠正，并公开承认自己曾处理有误',
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/deusexfiasco.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'deus_ex_fiasco2',
-            name: isEnglish ? 'Deus Ex Fiasco 2' : '强权上帝',
-            ability: isEnglish ? 'At least once per game, the Storyteller will make a mistake, correct it, and publicly admit to it.' : '上帝在本场游戏就是规则的主宰，但是一旦宣布了特殊规则就必须遵守，否则可能会被玩家群殴。',
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/deusexfiasco.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'djinn',
-            name: isEnglish ? 'Djinn' : '灯神',
-            ability: isEnglish ? "Use the Djinn's special rule. All players know what it is." : '使用灯神的相克规则。所有玩家都会知道其内容。',
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Djinn_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'doomsayer',
-            name: isEnglish ? 'Doomsayer' : '末日降临',
-            ability: isEnglish ? "If 4 ormore players live,each livingplayermaypubliclychoose(oncepergame)that aplayerof theirown alignment dies." : '如果大于等于四名玩家存活，每名当前存活的玩家可以公开要求你杀死一名与他阵营相同的玩家（每名玩家限一次）',
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Doomsayer_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'duchess',
-            name: isEnglish ? 'Duchess' : '公爵夫人',
-            ability: isEnglish ? 'Each day, 3 players may choose to visit you. At night,each visitor learns how many visitors are evil, but 1 gets false info.' : '每个白天，三名玩家可以一起拜访你。当晚*他们会得知他们之中有几个是邪恶的，但其中一人的信息是错的。',
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Duchess_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['No nomination 1', 'No nomination 2', 'No nomination 3'] : ['提名1', '提名2', '提名3'],
-            setup: false,
-        },
-        {
-            id: 'ferryman',
-            name: isEnglish ? 'Ferryman' : '摆渡人',
-            ability: isEnglish ? "On the final day, all dead players regain their vote token." : '在游戏的最后一天所有已死亡玩家会重新获得投票标记。',
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Ferryman_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'fiddler',
-            name: isEnglish ? 'Fiddler' : '小提琴手',
-            ability: isEnglish ? "Once per game, the Demon secretly chooses an opposing player: all players choose which of these 2 players win. " : '每局游戏限一次，恶魔可以秘密选择一名对立阵营的玩家，所有玩家要表决：这两名玩家中谁的阵营获胜。（平局邪恶阵营获胜)',
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Fiddler_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['Used'] : ['已使用'],
-            setup: false,
-        },
-        {
-            id: 'fibbin',
-            name: isEnglish ? 'fibbin' : '骗人精',
-            ability: isEnglish ? "Once per game, the Demon secretly chooses an opposing player: all players choose which of these 2 players win. " : `每局游戏限一次，一名善良玩家可能会得知“有问题”的信息。`,
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Fibbin_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['Used'] : ['已使用'],
-            setup: false,
-        },
-        {
-            id: 'gardener',
-            name: isEnglish ? 'Gardener' : '园丁',
-            ability: isEnglish ? "The Storyteller assigns 1 or more players'characters. " : "由说书人来为一名或更多玩家派发角色。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Gardener_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['Used'] : ['已使用'],
-            setup: false,
-        },
-        {
-            id: 'hell_librarian',
-            name: isEnglish ? 'Hell\'s Librarian' : '地狱图书管理员',
-            ability: isEnglish ? 'Something bad might happen to whoever talks when the Storyteller has asked for silence. ' : "当说书人宣布安静时，仍在说话的玩家可能会遭遇一些不好的事情。",
-            team: 'fabled',
-            image: "https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Hell's%20Librarian_icon.webp",
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['False info'] : ['错误信息'],
-            setup: false,
-        },
-        {
-            id: 'revolutionary',
-            name: isEnglish ? 'Revolutionary' : '革命者',
-            ability: isEnglish ? "2 neighboring players are known to be the same alignment. Once per game, 1 of them registers falsely." : "公开声明—对邻座玩家本局游戏一直保持同一阵营。每局游戏限一次，他们中的一人可能被当作其他的角色/阵营。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Revolutionary_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['Know'] : ['知道'],
-            setup: false,
-        },
-        {
-            id: 'sentinel',
-            name: isEnglish ? 'Sentinel' : '哨兵',
-            ability: isEnglish ? "There might be 1 extra or 1 fewer Outsider in play. " : "在初始设置时，可能会额外增加或减少一个外来者。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Sentinel_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'spirit_of_ivory',
-            name: isEnglish ? 'Spirit of Ivory' : '圣洁之魂',
-            ability: isEnglish ? "There can't be more than 1 extra evil player. " : "游戏过程中邪恶玩家的总数最多能比初始设置多一名。",
-            team: 'fabled',
-            image: "https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Spirit%20Of%20Ivory_icon.webp",
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: 'storm_catcher',
-            name: isEnglish ? 'Storm Catcher' : '暴风捕手',
-            ability: isEnglish ? "Name a good character. If in play, they can only die by execution, but evil players learn which player it is. " : "游戏开始时，你要宣布一个善良角色。如果该角色在场，他只能死于处决，但所有邪恶玩家会在首个夜晚得知他是哪—名玩家。",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Storm%20Catcher_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: isEnglish ? ['Drunk'] : ['改名'],
-            setup: false,
-        },
-        {
-            id: 'toymaker',
-            name: isEnglish ? 'Toymaker' : '玩具匠',
-            ability: isEnglish ? "The Demon may choose not to attack must do this at least once per game. Evil players get normal starting info. " : "恶魔可以在夜晚选择放弃攻击（每局游戏至少一次)。邪恶玩家照常获取初始信息",
-            team: 'fabled',
-            image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Toymaker_icon.webp',
-            firstNight: 0,
-            otherNight: 0,
-            firstNightReminder: '',
-            otherNightReminder: '',
-            reminders: [],
-            setup: false,
-        },
-        {
-            id: "qilin",
-            image: "https://oss.gstonegames.com/data_file/clocktower/web/icons/qilin.png",
-            name: isEnglish ? "Qilin" : "麒麟",
-            ability: isEnglish ? "On the last day of the game, something good happens to the luckiest players." : "在游戏的最后一天，最幸运的玩家身上会发生一些好的事情。",
-            team: "fabled",
-            firstNight: 0,
-            otherNight: 0
-        },
-        {
-            id: "zuiyingdeshangdi",
-            image: "https://botcgrimoire.top/img/duck.bd99fd34.png",
-            name: isEnglish ? "The Stubborn God" : "嘴硬的上帝",
-            ability: isEnglish ? `"I may have a problem, but I won't admit it or talk about it."` : `“我可能有问题，但我就是不承认也不说”`,
-            team: "fabled",
-            firstNight: 0,
-            otherNight: 0
-        },
-        {
-            id: "fabled_charactor",
-            image: "https://botcgrimoire.top/img/fableds.efacc32a.png",
-            name: isEnglish ? "Fabled Charactor" : "传奇角色",
-            ability: isEnglish ? `This is a fabled character.` : `这是一个传奇角色。`,
-            team: "fabled",
-            firstNight: 0,
-            otherNight: 0
-        },
 
-    ];
-};
-
-export default function CharacterLibraryCard({
+const CharacterLibraryCard = observer(({
     open,
     onClose,
     onAddCharacter,
     onRemoveCharacter,
     selectedCharacters = [],
-}: CharacterLibraryCardProps) {
+}: CharacterLibraryCardProps) => {
     const { t, language } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTab, setSelectedTab] = useState(0);
@@ -913,4 +636,6 @@ export default function CharacterLibraryCard({
             </Card>
         </Box>
     );
-}
+});
+
+export default CharacterLibraryCard;

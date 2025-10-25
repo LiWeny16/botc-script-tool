@@ -23,6 +23,7 @@ interface NightOrderProps {
   title: string;
   actions: NightAction[];
   isMobile?: boolean;
+  disabled?: boolean; // 是否禁用拖拽
   onReorder?: (oldIndex: number, newIndex: number) => void;
 }
 
@@ -30,11 +31,13 @@ interface NightOrderProps {
 function SortableActionItem({ 
   action, 
   index, 
-  isMobile 
+  isMobile,
+  disabled = false,
 }: { 
   action: NightAction; 
   index: number; 
   isMobile: boolean;
+  disabled?: boolean;
 }) {
   const {
     attributes,
@@ -43,7 +46,7 @@ function SortableActionItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: action.image + index });
+  } = useSortable({ id: action.image + index, disabled });
 
   // 只允许垂直方向的移动，禁用横向移动
   const restrictedTransform = transform ? {
@@ -62,15 +65,15 @@ function SortableActionItem({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...listeners}
+      {...(!disabled ? listeners : {})} // 禁用时不传递 listeners
       sx={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        cursor: 'grab',
-        touchAction: 'pan-y', // 只允许垂直触摸滚动
+        cursor: disabled ? 'default' : 'grab', // 禁用时使用默认鼠标样式
+        touchAction: disabled ? 'auto' : 'pan-y', // 禁用时恢复正常触摸行为
         '&:active': {
-          cursor: 'grabbing',
+          cursor: disabled ? 'default' : 'grabbing',
         },
       }}
     >
@@ -91,7 +94,7 @@ function SortableActionItem({
   );
 }
 
-export default function NightOrder({ title, actions, isMobile = false, onReorder }: NightOrderProps) {
+export default function NightOrder({ title, actions, isMobile = false, disabled = false, onReorder }: NightOrderProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -196,6 +199,7 @@ export default function NightOrder({ title, actions, isMobile = false, onReorder
                 action={action}
                 index={index}
                 isMobile={isMobile}
+                disabled={disabled}
               />
             ))}
           </Box>

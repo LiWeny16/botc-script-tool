@@ -42,6 +42,10 @@ export const translations = {
     'input.jsonCopied': 'JSON已复制到剪贴板！',
     'input.exportJsonFailed': '导出JSON失败，请重试',
     'input.exportImageFailed': '导出图片失败，请重试。如果问题持续，请刷新页面后重试。',
+    'input.officialIdParseMode': '只以官方ID解析（双语）',
+    'input.officialIdParseModeWarning': '开启后无法自定义编辑角色',
+    'input.twoPageMode': '双页模式',
+    'input.twoPageModeDesc': '相克、传奇、旅行者单独一页',
 
     // 确认对话框
     'dialog.resetTitle': '确认恢复初始设置',
@@ -302,6 +306,10 @@ export const translations = {
     'input.jsonCopied': 'JSON copied to clipboard!',
     'input.exportJsonFailed': 'Failed to export JSON, please retry',
     'input.exportImageFailed': 'Failed to export image, please retry. If the problem persists, please refresh the page and try again.',
+    'input.officialIdParseMode': 'Official ID Only Parsing (Bilingual)',
+    'input.officialIdParseModeWarning': 'Cannot edit characters when enabled',
+    'input.twoPageMode': 'Two-Page Mode',
+    'input.twoPageModeDesc': 'Jinx, Fabled, Traveler on separate page',
 
     // Confirm Dialog
     'dialog.resetTitle': 'Confirm Reset to Default',

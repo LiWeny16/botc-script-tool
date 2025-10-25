@@ -27,5 +27,15 @@ rolesData.forEach((role: any) => {
   };
 });
 
-export const CHARACTERS_EN: any = _charactersEn;
+// 导入传奇角色
+import { getFabledCharacters } from './fabled';
+
+// 将传奇角色整合到角色字典中
+const fabledCharacters = getFabledCharacters('en');
+const fabledDict = fabledCharacters.reduce((acc, char) => {
+  acc[char.id] = char;
+  return acc;
+}, {} as any);
+
+export const CHARACTERS_EN: any = { ..._charactersEn, ...fabledDict };
 

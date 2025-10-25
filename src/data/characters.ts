@@ -3499,4 +3499,14 @@ const _characters = {
   }
 }
 
-export const CHARACTERS: any = _characters
+// 导入传奇角色
+import { getFabledCharacters } from './fabled';
+
+// 将传奇角色整合到角色字典中
+const fabledCharacters = getFabledCharacters('zh-CN');
+const fabledDict = fabledCharacters.reduce((acc, char) => {
+  acc[char.id] = char;
+  return acc;
+}, {} as any);
+
+export const CHARACTERS: any = { ..._characters, ...fabledDict }

@@ -34,6 +34,7 @@ import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
 import { SEOManager } from './components/SEOManager';
 import { scriptStore } from './stores/ScriptStore';
+import { configStore } from './stores/ConfigStore';
 import { getSpecialRuleTemplate } from './data/specialRules';
 import { uiConfigStore } from './stores/UIConfigStore';
 import UISettingsDrawer from './components/UISettingsDrawer';
@@ -155,6 +156,7 @@ const App = observer(() => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [titleHovered, setTitleHovered] = useState<boolean>(false);
   const [addCustomRuleDialogOpen, setAddCustomRuleDialogOpen] = useState<boolean>(false);
+  const [jsonParseError, setJsonParseError] = useState<string>(''); // 添加 JSON 解析错误状态
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -257,6 +259,9 @@ const App = observer(() => {
       // 尝试解析JSON，如果格式正确则自动生成剧本
       JSON.parse(json);
 
+      // 清除之前的错误提示
+      setJsonParseError('');
+
       // 自动生成剧本
       const generatedScript = generateScript(json, language);
 
@@ -267,8 +272,10 @@ const App = observer(() => {
       // 更新剧本（不再调用 updateScript，避免重复保存）
       scriptStore.setScript(generatedScript);
     } catch (error) {
-      // JSON 格式不正确时，不更新剧本，但保留输入内容
-      console.log('JSON格式暂时不正确，等待用户继续编辑');
+      // JSON 格式不正确时，显示错误提示但不阻止用户继续编辑
+      const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
+      setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
+      console.log('JSON格式暂时不正确，等待用户继续编辑:', errorMessage);
     }
   };
 
@@ -368,6 +375,12 @@ const App = observer(() => {
 
   // 处理夜晚行动顺序重排
   const handleNightOrderReorder = (nightType: 'first' | 'other', oldIndex: number, newIndex: number) => {
+    // 如果开启了官方ID解析模式，禁止重排
+    if (configStore.config.officialIdParseMode) {
+      console.log('官方ID解析模式已开启，禁止修改夜间行动顺序');
+      return;
+    }
+    
     if (!script) return;
 
     const actions = nightType === 'first' ? [...script.firstnight] : [...script.othernight];
@@ -573,6 +586,7 @@ const App = observer(() => {
             onJsonChange={handleJsonChange}
             hasScript={script !== null}
             currentJson={originalJson}
+            jsonParseError={jsonParseError}
           />
 
           {/* 剧本展示区域 */}
@@ -673,6 +687,7 @@ const App = observer(() => {
                     <NightOrder
                       title={t('night.first')}
                       actions={script.firstnight}
+                      disabled={configStore.config.officialIdParseMode}
                       onReorder={(oldIndex, newIndex) => handleNightOrderReorder('first', oldIndex, newIndex)}
                     />
                   </Box>
@@ -917,6 +932,7 @@ const App = observer(() => {
                           title={t('night.first')}
                           actions={script.firstnight}
                           isMobile={true}
+                          disabled={configStore.config.officialIdParseMode}
                           onReorder={(oldIndex, newIndex) => handleNightOrderReorder('first', oldIndex, newIndex)}
                         />
                       </Box>
@@ -925,6 +941,7 @@ const App = observer(() => {
                           title={t('night.other')}
                           actions={script.othernight}
                           isMobile={true}
+                          disabled={configStore.config.officialIdParseMode}
                           onReorder={(oldIndex, newIndex) => handleNightOrderReorder('other', oldIndex, newIndex)}
                         />
                       </Box>
@@ -1008,6 +1025,7 @@ const App = observer(() => {
                     <NightOrder
                       title={t('night.other')}
                       actions={script?.othernight || []}
+                      disabled={configStore.config.officialIdParseMode}
                       onReorder={(oldIndex, newIndex) => handleNightOrderReorder('other', oldIndex, newIndex)}
                     />
                   </Box>

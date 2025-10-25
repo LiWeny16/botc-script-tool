@@ -2,11 +2,13 @@ import { makeAutoObservable } from 'mobx';
 
 export interface AppConfig {
   language: 'zh-CN' | 'en';
+  officialIdParseMode: boolean; // 是否开启官方ID解析模式
   // 可以在此添加更多配置项
 }
 
 const DEFAULT_CONFIG: AppConfig = {
   language: 'zh-CN',
+  officialIdParseMode: false, // 默认关闭官方ID解析模式
 };
 
 const STORAGE_KEY = 'botc-app-config';
@@ -86,6 +88,12 @@ class ConfigStore {
     this.config.language = language;
     this.saveConfig();
     this.updateUrlLanguage(language);
+  }
+
+  // 设置官方ID解析模式
+  setOfficialIdParseMode(enabled: boolean) {
+    this.config.officialIdParseMode = enabled;
+    this.saveConfig();
   }
 
   // 恢复默认设置

@@ -10,6 +10,7 @@ import { CSS } from '@dnd-kit/utilities';
 import CharacterImage from './CharacterImage';
 import { useTranslation } from '../utils/i18n';
 import { uiConfigStore } from '../stores/UIConfigStore';
+import { configStore } from '../stores/ConfigStore';
 
 interface CharacterCardProps {
   character: Character;
@@ -127,6 +128,10 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   // 处理双击事件
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    // 官方ID解析模式下禁止编辑
+    if (configStore.config.officialIdParseMode) {
+      return;
+    }
     if (onEdit) {
       onEdit(character);
     }
@@ -136,6 +141,10 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
+    // 官方ID解析模式下禁止显示右键菜单
+    if (configStore.config.officialIdParseMode) {
+      return;
+    }
     setContextMenu(
       contextMenu === null
         ? {

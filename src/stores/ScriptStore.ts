@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import type { Script, Character } from '../types';
+import { configStore } from './ConfigStore';
 
 class ScriptStore {
   script: Script | null = null;
@@ -488,78 +489,105 @@ class ScriptStore {
     }
   }
 
-  // 将Script同步回JSON
+  // 将Script同步回JSON - 增量更新版本，任何修改都升级为完整格式
   private syncScriptToJson(updatedScript: Script) {
-    console.log('开始同步Script到JSON');
+    console.log('开始增量同步Script到JSON');
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 创建新的JSON数组
+      // 创建新的JSON数组，保持原有顺序和格式
       const newJsonArray: any[] = [];
+      const processedCharacterIds = new Set<string>();
 
-      // 添加元数据
-      const metaItem = jsonArray.find((item: any) => item.id === '_meta');
+      // 首先保留元数据
+      const metaItem = jsonArray.find((item: any) => {
+        const itemObj = typeof item === 'string' ? { id: item } : item;
+        return itemObj.id === '_meta';
+      });
       if (metaItem) {
         newJsonArray.push(metaItem);
       }
 
-      // 按照script中的顺序添加角色，并更新角色信息
-      Object.keys(updatedScript.characters).forEach(team => {
-        updatedScript.characters[team].forEach(character => {
-          const originalItem = jsonArray.find((item: any) => item.id === character.id);
-          if (originalItem) {
-            // 合并原始数据和更新后的数据
-            const updatedItem = {
-              ...originalItem,
-              name: character.name,
-              ability: character.ability,
-              team: character.team,
-              image: character.image,
-              firstNight: character.firstNight !== undefined ? character.firstNight : (originalItem.firstNight || 0),
-              otherNight: character.otherNight !== undefined ? character.otherNight : (originalItem.otherNight || 0),
-              firstNightReminder: character.firstNightReminder !== undefined ? character.firstNightReminder : (originalItem.firstNightReminder || ''),
-              otherNightReminder: character.otherNightReminder !== undefined ? character.otherNightReminder : (originalItem.otherNightReminder || ''),
-              reminders: character.reminders !== undefined ? character.reminders : (originalItem.reminders || []),
-              setup: character.setup !== undefined ? character.setup : (originalItem.setup || false),
-            };
-            
-            console.log('ScriptStore.syncScriptToJson - 同步角色到JSON:', {
-              characterId: character.id,
-              characterReminders: character.reminders,
-              updatedItemReminders: updatedItem.reminders,
-            });
-            
-            newJsonArray.push(updatedItem);
-          } else {
-            // 如果是新添加的角色，创建新的JSON项
-            const newItem = {
-              id: character.id,
-              name: character.name,
-              ability: character.ability,
-              team: character.team,
-              image: character.image,
-              firstNight: character.firstNight || 0,
-              otherNight: character.otherNight || 0,
-              firstNightReminder: character.firstNightReminder || '',
-              otherNightReminder: character.otherNightReminder || '',
-              reminders: character.reminders || [],
-              setup: character.setup || false,
-            };
-            newJsonArray.push(newItem);
-          }
-        });
+      // 遍历原JSON，更新或保留角色
+      jsonArray.forEach((item: any) => {
+        // 支持简化格式
+        const itemObj = typeof item === 'string' ? { id: item } : item;
+        
+        // 跳过元数据
+        if (itemObj.id === '_meta') {
+          return;
+        }
+
+        // 跳过相克规则和特殊规则
+        if (itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
+          newJsonArray.push(item); // 保持原格式
+          return;
+        }
+
+        // 检查角色是否还在 updatedScript 中
+        const character = updatedScript.all.find(c => c.id === itemObj.id);
+        
+        if (character) {
+          // 角色仍然存在，统一使用完整格式
+          processedCharacterIds.add(character.id);
+          
+          // 使用完整格式，保留原有字段并更新
+          const updatedItem: any = typeof item === 'string' ? { id: item } : { ...item };
+          
+          // 更新字段
+          updatedItem.id = character.id;
+          updatedItem.name = character.name;
+          updatedItem.ability = character.ability;
+          updatedItem.team = character.team;
+          updatedItem.image = character.image;
+          updatedItem.firstNight = character.firstNight !== undefined ? character.firstNight : (updatedItem.firstNight || 0);
+          updatedItem.otherNight = character.otherNight !== undefined ? character.otherNight : (updatedItem.otherNight || 0);
+          updatedItem.firstNightReminder = character.firstNightReminder !== undefined ? character.firstNightReminder : (updatedItem.firstNightReminder || '');
+          updatedItem.otherNightReminder = character.otherNightReminder !== undefined ? character.otherNightReminder : (updatedItem.otherNightReminder || '');
+          updatedItem.reminders = character.reminders !== undefined ? character.reminders : (updatedItem.reminders || []);
+          updatedItem.setup = character.setup !== undefined ? character.setup : (updatedItem.setup || false);
+          
+          console.log('ScriptStore.syncScriptToJson - 更新角色到JSON (完整格式):', {
+            characterId: character.id,
+            updatedItemReminders: updatedItem.reminders,
+          });
+          
+          newJsonArray.push(updatedItem);
+        }
+        // 如果角色不存在了，就不添加到新数组（相当于删除）
       });
 
-      // 添加相克规则和特殊规则
+      // 添加新增的角色（在原JSON中不存在的）- 统一使用完整格式
+      updatedScript.all.forEach(character => {
+        if (!processedCharacterIds.has(character.id)) {
+          // 这是新增的角色，使用完整格式
+          newJsonArray.push({
+            id: character.id,
+            name: character.name,
+            ability: character.ability,
+            team: character.team,
+            image: character.image,
+            firstNight: character.firstNight || 0,
+            otherNight: character.otherNight || 0,
+            firstNightReminder: character.firstNightReminder || '',
+            otherNightReminder: character.otherNightReminder || '',
+            reminders: character.reminders || [],
+            setup: character.setup || false,
+          });
+        }
+      });
+
+      // 保留原JSON末尾的相克规则和特殊规则（如果之前没有添加）
       jsonArray.forEach((item: any) => {
-        if (item.team === 'a jinxed' || item.team === 'special_rule') {
+        const itemObj = typeof item === 'string' ? { id: item } : item;
+        if ((itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') && !newJsonArray.includes(item)) {
           newJsonArray.push(item);
         }
       });
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
-      console.log('JSON同步完成，更新originalJson');
+      console.log('JSON增量同步完成，更新originalJson');
       this.setOriginalJson(jsonString);
     } catch (error) {
       console.error('同步JSON失败:', error);

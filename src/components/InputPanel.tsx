@@ -27,8 +27,10 @@ import {
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
+import { uiConfigStore } from '../stores/UIConfigStore';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
+import IOSSwitch from './IOSSwitch';
 
 interface InputPanelProps {
   onGenerate: (json: string, title?: string, author?: string) => void;
@@ -41,9 +43,10 @@ interface InputPanelProps {
   onJsonChange?: (json: string) => void;  // 新增：JSON输入变化回调
   hasScript: boolean;
   currentJson?: string;
+  jsonParseError?: string; // 新增：JSON 解析错误信息
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, onJsonChange, hasScript, currentJson }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, onJsonChange, hasScript, currentJson, jsonParseError }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -56,6 +59,31 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   // 用于防抖的 ref
   const debounceTimerRef = useRef<number | null>(null);
   const isUpdatingFromPropRef = useRef(false);
+  const previousOfficialIdParseModeRef = useRef(configStore.config.officialIdParseMode);
+
+  // 监听官方ID解析模式的变化，触发重新解析JSON
+  useEffect(() => {
+    const currentMode = configStore.config.officialIdParseMode;
+    const previousMode = previousOfficialIdParseModeRef.current;
+    
+    // 只在模式真正变化时触发，且当前有JSON内容时才重新生成
+    if (currentMode !== previousMode && currentJson && currentJson.trim()) {
+      console.log('官方ID解析模式变化，重新生成剧本', { 
+        from: previousMode, 
+        to: currentMode 
+      });
+      
+      // 触发重新生成剧本
+      try {
+        onGenerate(currentJson);
+      } catch (error) {
+        console.error('重新生成剧本失败:', error);
+      }
+    }
+    
+    // 更新 ref
+    previousOfficialIdParseModeRef.current = currentMode;
+  }, [configStore.config.officialIdParseMode, currentJson, onGenerate]);
 
   // 同步currentJson到jsonInput（只在外部更新时）
   useEffect(() => {
@@ -245,9 +273,9 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
         />
 
         {/* 错误提示 */}
-        {error && (
+        {(error || jsonParseError) && (
           <Alert severity="error" onClose={() => setError('')}>
-            {error}
+            {error || jsonParseError}
           </Alert>
         )}
 
@@ -415,11 +443,66 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
 
         {/* 提示信息 */}
         <Alert severity="info" sx={{ mt: 2 }}>
-          <Typography variant="body2" sx={{ fontSize: { xs: '0.8rem', sm: '0.85rem' } }}>
-            {t('info.supportOfficial')}<br />
-            {t('info.supportFormats')}<br />
-            {t('info.experimentalCharacters')}
-          </Typography>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' }, 
+            gap:30, 
+            alignItems: { xs: 'flex-start', md: 'center' },
+            justifyContent: 'space-between'
+          }}>
+            {/* 左侧文字说明 */}
+            <Box sx={{ flex: 1 }}>
+              <Typography variant="body2" sx={{
+                fontSize: { xs: '0.8rem', sm: '0.85rem' }
+              }}>
+                {t('info.supportOfficial')}<br />
+                {t('info.supportFormats')}<br />
+                {t('info.experimentalCharacters')}
+              </Typography>
+            </Box>
+
+            {/* 右侧开关区域 */}
+            <Box sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 1.5,
+              minWidth: { xs: '100%', md: 'auto' },
+            }}>
+              {/* 官方ID解析模式 */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                    {t('input.officialIdParseMode')}
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'warning.main' }}>
+                    {t('input.officialIdParseModeWarning')}
+                  </Typography>
+                </Box>
+                <IOSSwitch
+                  checked={configStore.config.officialIdParseMode}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => configStore.setOfficialIdParseMode(e.target.checked)}
+                />
+              </Box>
+
+              {/* 双页模式 */}
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                    {t('input.twoPageMode')}
+                  </Typography>
+                  <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
+                    {t('input.twoPageModeDesc')}
+                  </Typography>
+                </Box>
+                <IOSSwitch
+                  checked={uiConfigStore.config.enableTwoPageMode}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    uiConfigStore.updateConfig({ enableTwoPageMode: e.target.checked })
+                  }
+                />
+              </Box>
+            </Box>
+          </Box>
         </Alert>
       </Stack>
 
