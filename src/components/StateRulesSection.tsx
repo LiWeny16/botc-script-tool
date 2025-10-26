@@ -57,7 +57,7 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
               opacity: 0.6,
-              zIndex: 0,
+              zIndex: 1 ,
             },
             // 确保子元素在背景之上
             '& > *': {

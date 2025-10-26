@@ -277,6 +277,15 @@ export const getFabledCharacters = (language: string): Character[] => {
             firstNight: 0,
             otherNight: 0
         },
+        {
+            id: "onion",
+            image: "/imgs/icons/fabled/onion.png",
+            name: isEnglish ? "Big Onion" : "大聪花",
+            ability: isEnglish ? `This is a big onion.` : `这是一个传奇大聪花。`,
+            team: "fabled",
+            firstNight: 0,
+            otherNight: 0
+        },
 
     ];
 };

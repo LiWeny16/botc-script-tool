@@ -249,7 +249,14 @@ export const translations = {
     'fontUploader.errorUpload': '上传字体失败，请重试',
 
     // 装饰框文本
+        // Decorative Frame Text
     'decorative.page2Text': '相克规则 · 传奇角色 · 旅行者',
+
+    // Credits
+    'credits.designTitle': '美术设计 & 参考',
+    'credits.designers': '大聪花 & 钟楼博物馆',
+
+    // Special Rules
 
     // 特殊规则
     'specialRules.title': '特殊规则',
@@ -514,6 +521,10 @@ export const translations = {
 
     // Decorative Frame Text
     'decorative.page2Text': 'Jinx Rules · Fabled · Travelers',
+
+    // Credits
+    'credits.designTitle': 'Design & Reference',
+    'credits.designers': 'Onion & Lei',
 
     // Special Rules
     'specialRules.title': 'Special Rules',
