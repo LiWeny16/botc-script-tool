@@ -57,7 +57,7 @@ export const translations = {
     // 提示信息
     'info.supportOfficial': '• 支持官方剧本制作器的剧本 JSON',
     'info.supportFormats': '• 支持鸦木布拉夫、汀西维尔、福波斯等各个人数的剧本格式',
-    'info.experimentalCharacters': '• 2025/1/3 之后的实验性角色暂未录入，请使用完整 JSON 信息',
+    'info.experimentalCharacters': '• 原创角色部分未收录，请使用完整 JSON 信息',
 
     // 剧本信息
     'script.author': '剧本作者',
@@ -328,7 +328,7 @@ export const translations = {
     // Info
     'info.supportOfficial': '• Support official script maker JSON format',
     'info.supportFormats': '• Support Trouble Brewing, Sects & Violets, Bad Moon Rising and other formats',
-    'info.experimentalCharacters': '• Experimental characters after 2025/1/3 are not included, please use complete JSON info',
+    'info.experimentalCharacters': '• Some original characters are not included, please use full JSON data',
 
     // Script Info
     'script.author': 'Script Author',
