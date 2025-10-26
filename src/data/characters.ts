@@ -1926,6 +1926,19 @@ const _characters = {
     "remindersGlobal": [],
     "setup": false
   },
+  "princess": {
+    "id": "princess",
+    "name": "公主",
+    "ability": "在你的首个白天，如果你提名并处决了一名玩家，当晚恶魔不会造成死亡。",
+    "team": "townsfolk",
+    "image": "https://botc.letshare.fun/imgs/icons/townsfolk/princess.png",
+    "firstNight": 0,
+    "otherNight": 35,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": ["没有死亡"],
+    "setup": false
+  },
   "butler": {
     "id": "butler",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/butler.png",
@@ -2430,6 +2443,19 @@ const _characters = {
     "remindersGlobal": [],
     "setup": false
   },
+  "hermit": {
+    "id": "hermit",
+    "name": "隐士",
+    "ability": "你拥有所有外来者能力。[-0~1外来者]",
+    "team": "outsider",
+    "image": "https://botc.letshare.fun/imgs/icons/outsider/hermit.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "0",
+    "otherNightReminder": "0",
+    "reminders": [],
+    "setup": false
+  },
   "poisoner": {
     "id": "poisoner",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/poisoner.png",
@@ -2757,7 +2783,7 @@ const _characters = {
   },
   "vizier": {
     "id": "vizier",
-    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/vizier.png",
+    "image": "https://wiki.bloodontheclocktower.com/images/a/a4/Icon_vizier.png",
     "edition": "custom",
     "name": "维齐尔",
     "ability": "所有玩家都知道你是维齐尔。你在白天时不会死亡。如果一次提名中有善良玩家投票，你可以让被提名者立即被处决。",
@@ -2835,7 +2861,7 @@ const _characters = {
     "setup": true
   },
   "xaan": {
-    "id": "poisoner",
+    "id": "xaan",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/xaan.png",
     "edition": "custom",
     "name": "限",
@@ -2992,6 +3018,19 @@ const _characters = {
     "reminders": [
       "微醺"
     ],
+    "setup": false
+  },
+  "wraith": {
+    "id": "wraith",
+    "name": "亡魂",
+    "ability": "你可以在夜晚睁眼。当其他邪恶玩家被唤醒时，你也会被唤醒。",
+    "team": "minion",
+    "image": "https://botc.letshare.fun/imgs/icons/minion/wraith.png",
+    "firstNight": 1.4,
+    "otherNight": 1.4,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
     "setup": false
   },
   "imp": {
@@ -3443,7 +3482,7 @@ const _characters = {
     "setup": false
   },
   "guhuoniao": {
-    "id": "guhuoniaoiasod0pap2u490rjqawpf9ru389",
+    "id": "guhuoniao",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/guhuoniao.png",
     "edition": "custom",
     "name": "姑获鸟",
@@ -3496,7 +3535,10 @@ const _characters = {
       "死亡"
     ],
     "setup": false
-  }
+  },
+
+
+
 }
 
 // 导入传奇角色

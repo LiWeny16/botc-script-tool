@@ -144,10 +144,15 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
                     mb: 0.3,
                     lineHeight: 1.3,
                     wordBreak: 'break-word',
-                    whiteSpace: 'normal',
+                    whiteSpace: 'pre-wrap',
                   }}
                 >
-                  {getLocalizedText(rule.title)}
+                  {getLocalizedText(rule.title).split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                    <span key={index}>
+                      {line}
+                      {index < array.length - 1 && <br />}
+                    </span>
+                  ))}
                 </Typography>
               )}
               <Divider></Divider>
@@ -161,10 +166,15 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
                     lineHeight: language === 'en' ? 1 : 1.3,
                     textAlign: 'justify',
                     wordBreak: 'break-word',
-                    whiteSpace: 'normal',
+                    whiteSpace: 'pre-wrap',
                   }}
                 >
-                  {getLocalizedText(rule.content)}
+                  {getLocalizedText(rule.content).split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                    <span key={index}>
+                      {line}
+                      {index < array.length - 1 && <br />}
+                    </span>
+                  ))}
                 </Typography>
               )}
             </>

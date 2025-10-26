@@ -65,14 +65,14 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   useEffect(() => {
     const currentMode = configStore.config.officialIdParseMode;
     const previousMode = previousOfficialIdParseModeRef.current;
-    
+
     // 只在模式真正变化时触发，且当前有JSON内容时才重新生成
     if (currentMode !== previousMode && currentJson && currentJson.trim()) {
-      console.log('官方ID解析模式变化，重新生成剧本', { 
-        from: previousMode, 
-        to: currentMode 
+      console.log('官方ID解析模式变化，重新生成剧本', {
+        from: previousMode,
+        to: currentMode
       });
-      
+
       // 触发重新生成剧本
       try {
         onGenerate(currentJson);
@@ -80,7 +80,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
         console.error('重新生成剧本失败:', error);
       }
     }
-    
+
     // 更新 ref
     previousOfficialIdParseModeRef.current = currentMode;
   }, [configStore.config.officialIdParseMode, currentJson, onGenerate]);
@@ -121,14 +121,10 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
     };
   }, []);
 
-  // 当 jsonInput 变化时通知父组件（带防抖）
+  // 当 jsonInput 变化时只更新本地状态，不触发自动解析
   const handleJsonInputChange = (value: string) => {
     setJsonInput(value);
-
-    // 只在用户主动输入时才触发防抖更新
-    if (!isUpdatingFromPropRef.current) {
-      debouncedOnJsonChange(value);
-    }
+    // 移除自动解析，只在点击生成剧本时才解析
   };
 
   const handleGenerate = () => {
@@ -138,6 +134,13 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
         setError(t('input.errorEmpty'));
         return;
       }
+
+      // 点击生成按钮时，先通知父组件更新 JSON（如果有回调）
+      if (onJsonChange && !isUpdatingFromPropRef.current) {
+        onJsonChange(jsonInput);
+      }
+
+      // 然后触发生成剧本
       onGenerate(jsonInput, titleInput, authorInput);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('input.errorParse'));
@@ -151,6 +154,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
 
   const handleConfirmReset = () => {
     configStore.resetToDefault();
+    uiConfigStore.resetToDefault(); // 同时重置 UI 设置
     setResetDialogOpen(false);
     handleClear()
 
@@ -445,8 +449,8 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
         <Alert severity="info" sx={{ mt: 2 }}>
           <Box sx={{
             display: 'flex',
-            flexDirection: { xs: 'column', md: 'row' }, 
-            gap:30, 
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 30,
             alignItems: { xs: 'flex-start', md: 'center' },
             justifyContent: 'space-between'
           }}>

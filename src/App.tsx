@@ -114,15 +114,11 @@ const printStyles = {
       visibility: 'visible !important',
     },
 
-    // 7. 打印时移除模糊效果，使用实色背景（因为backdrop-filter在打印时不被支持）
-    // 使用更好看的渐变背景替代模糊效果
-    '@media print': {
-      '.MuiBox-root[style*="backdropFilter"]': {
-        backdropFilter: 'none !important',
-        background: 'linear-gradient(135deg, rgba(245, 230, 200, 0.95) 0%, rgba(255, 248, 220, 0.9) 100%) !important',
-        border: '2px solid rgba(212, 175, 55, 0.6) !important',
-      },
+    // 7. 隐藏标题悬浮时的编辑按钮
+    '.MuiIconButton-root': {
+      display: 'none !important',
     },
+
   },
 };
 // 创建主题
@@ -200,10 +196,16 @@ const App = observer(() => {
       } else {
         // 如果有存储的数据，重新生成剧本（适应语言变化）
         if (originalJson) {
-          const generatedScript = generateScript(originalJson, language);
-          if (customTitle) generatedScript.title = customTitle;
-          if (customAuthor) generatedScript.author = customAuthor;
-          scriptStore.setScript(generatedScript);
+          try {
+            const generatedScript = generateScript(originalJson, language);
+            if (customTitle) generatedScript.title = customTitle;
+            if (customAuthor) generatedScript.author = customAuthor;
+            scriptStore.setScript(generatedScript);
+          } catch (error) {
+            console.error('重新生成剧本失败:', error);
+            // 如果存储的JSON有问题，清除它
+            scriptStore.clear();
+          }
         }
       }
 
@@ -265,61 +267,57 @@ const App = observer(() => {
     };
   }, [language]); // 只依赖 language
 
-  // 处理JSON输入变化 - 实时同步到 scriptStore
+  // 处理JSON输入变化 - 只保存到 store，不自动解析
   const handleJsonChange = (json: string) => {
-    // 总是先更新 originalJson，保证输入框内容被保存
+    // 只更新 originalJson，保存输入框内容，不触发自动生成
     scriptStore.setOriginalJson(json);
-
-    try {
-      // 尝试解析JSON，如果格式正确则自动生成剧本
-      JSON.parse(json);
-
-      // 清除之前的错误提示
-      setJsonParseError('');
-
-      // 自动生成剧本
-      const generatedScript = generateScript(json, language);
-
-      // 恢复自定义标题和作者
-      if (customTitle) generatedScript.title = customTitle;
-      if (customAuthor) generatedScript.author = customAuthor;
-
-      // 更新剧本（不再调用 updateScript，避免重复保存）
-      scriptStore.setScript(generatedScript);
-    } catch (error) {
-      // JSON 格式不正确时，显示错误提示但不阻止用户继续编辑
-      const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
-      setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
-      console.log('JSON格式暂时不正确，等待用户继续编辑:', errorMessage);
-    }
+    
+    // 清除之前的错误提示（因为用户可能正在编辑中）
+    setJsonParseError('');
   };
 
   const handleGenerate = (json: string, title?: string, author?: string) => {
-    const generatedScript = generateScript(json, language);
+    try {
+      const generatedScript = generateScript(json, language);
 
-    // 覆写标题和作者
-    if (title) generatedScript.title = title;
-    if (author) generatedScript.author = author;
+      // 覆写标题和作者
+      if (title) generatedScript.title = title;
+      if (author) generatedScript.author = author;
 
-    // 更新 store
-    scriptStore.updateScript({
-      script: generatedScript,
-      originalJson: json,
-      customTitle: title || '',
-      customAuthor: author || '',
-    });
+      // 更新 store
+      scriptStore.updateScript({
+        script: generatedScript,
+        originalJson: json,
+        customTitle: title || '',
+        customAuthor: author || '',
+      });
+      
+      // 清除错误提示
+      setJsonParseError('');
+    } catch (error) {
+      // 生成失败时显示错误
+      const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
+      setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
+    }
   };
 
   // 监听语言变化，重新生成剧本
   useEffect(() => {
     if (originalJson && isInitialized) {
-      const generatedScript = generateScript(originalJson, language);
+      try {
+        const generatedScript = generateScript(originalJson, language);
 
-      // 恢复自定义标题和作者
-      if (customTitle) generatedScript.title = customTitle;
-      if (customAuthor) generatedScript.author = customAuthor;
+        // 恢复自定义标题和作者
+        if (customTitle) generatedScript.title = customTitle;
+        if (customAuthor) generatedScript.author = customAuthor;
 
-      scriptStore.setScript(generatedScript);
+        scriptStore.setScript(generatedScript);
+      } catch (error) {
+        console.error('语言切换时重新生成剧本失败:', error);
+        // 设置错误提示
+        const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
+        setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
+      }
     }
   }, [language, originalJson, customTitle, customAuthor, isInitialized]);
 
@@ -1053,11 +1051,10 @@ const App = observer(() => {
                         pl: { xs: 3, sm: 4, md: 5 },
                         pr: { xs: 2, sm: 3, md: 4 },
                         py: { xs: 1, sm: 1.5, md: 2 },
-                        background: 'linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(212, 175, 55, 0.05) 100%)',
-                        backdropFilter: 'blur(10px)',
-                        border: '2px solid rgba(212, 175, 55, 0.3)',
+                        background: 'linear-gradient(135deg, rgba(245, 235, 210, 0.98) 0%, rgba(255, 248, 230, 0.95) 100%)',
+                        border: '2px solid rgba(212, 175, 55, 0.6)',
                         borderRadius: '0 20px 20px 0',
-                        boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
                         position: 'relative',
                         zIndex: 1,
                       }}>
@@ -1066,19 +1063,30 @@ const App = observer(() => {
                           color: '#d4af37',
                           fontWeight: 600,
                           textAlign: 'center',
+                          height:20,
                           textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                          whiteSpace: 'nowrap',
+                          whiteSpace: 'pre-wrap',
                         }}>
-                          {t('credits.designTitle')}
+                          {t('credits.designTitle').split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                            <span key={index}>
+                              {line}
+                              {index < array.length - 1 && <br />}
+                            </span>
+                          ))}
                         </Typography>
                         <Typography sx={{
                           fontSize: { xs: '0.7rem', sm: '0.85rem', md: '0.95rem' },
                           color: '#a08850',
                           textAlign: 'center',
                           mt: 0.5,
-                          whiteSpace: 'nowrap',
+                          whiteSpace: 'pre-wrap',
                         }}>
-                          {t('credits.designers')}
+                          {t('credits.designers').split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                            <span key={index}>
+                              {line}
+                              {index < array.length - 1 && <br />}
+                            </span>
+                          ))}
                         </Typography>
                       </Box>
                     </Box>

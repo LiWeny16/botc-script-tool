@@ -132,9 +132,15 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
                     ? { xs: '1.4rem', sm: '1.7rem', md: '2.4rem' }
                     : { xs: '1.2rem', sm: '1.5rem', md: '2rem' },
                   mb: 2,
+                  whiteSpace: 'pre-wrap',
                 }}
               >
-                {getLocalizedText(rule.title)}
+                {getLocalizedText(rule.title).split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                  <span key={index}>
+                    {line}
+                    {index < array.length - 1 && <br />}
+                  </span>
+                ))}
               </Typography>
             )}
             
@@ -155,7 +161,12 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
                   wordBreak: 'break-word',
                 }}
               >
-                {getLocalizedText(rule.content)}
+                {getLocalizedText(rule.content).split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                  <span key={index}>
+                    {line}
+                    {index < array.length - 1 && <br />}
+                  </span>
+                ))}
               </Typography>
             )}
             

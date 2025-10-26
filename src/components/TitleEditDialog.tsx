@@ -202,14 +202,14 @@ const TitleEditDialog = ({
                         style={{ maxWidth: '100%', maxHeight: 200, objectFit: 'contain' }}
                       />
                       <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                        {t('share.copyJson')}
+                        {t('input.reuploadImage')}
                       </Typography>
                     </Box>
                   ) : (
                     <Box>
                       <UploadIcon sx={{ fontSize: 48, color: 'text.secondary', mb: 1 }} />
                       <Typography variant="body1" color="text.secondary">
-                        {t('input.uploadJson')}
+                        {t('input.uploadImage')}
                       </Typography>
                     </Box>
                   )}
