@@ -646,7 +646,7 @@ const App = observer(() => {
               ref={scriptRef}
               sx={{
                 display: "flex",
-                userSelect:"none",
+                userSelect: "none",
                 width: "100%",
               }}
             >
@@ -1107,9 +1107,10 @@ const App = observer(() => {
                     showCorners={true}
                     decorativeSymbol="✦"
                   /> */}
-
+                  <Box sx={{ height: "20vh" }}>
+                  </Box>
                   {/* 底部空白区域，用于背景装饰 */}
-                  
+
                 </Paper>
 
                 {/* 右侧 - 其他夜晚 */}
