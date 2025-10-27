@@ -15,6 +15,7 @@ import {
   DialogActions,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
+import InfoIcon from '@mui/icons-material/Info';
 import {
   Upload,
   Download,
@@ -40,13 +41,14 @@ interface InputPanelProps {
   onClear?: () => void;
   onOpenUISettings?: () => void;
   onAddCustomRule?: () => void;
+  onOpenAboutDialog?: () => void;
   onJsonChange?: (json: string) => void;  // 新增：JSON输入变化回调
   hasScript: boolean;
   currentJson?: string;
   jsonParseError?: string; // 新增：JSON 解析错误信息
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, onJsonChange, hasScript, currentJson, jsonParseError }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, onOpenAboutDialog, onJsonChange, hasScript, currentJson, jsonParseError }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -239,6 +241,21 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <LanguageSwitcher />
+          <Button
+            variant="outlined"
+            startIcon={<InfoIcon />}
+            onClick={onOpenAboutDialog}
+            sx={{
+              borderColor: '#4caf50',
+              color: '#4caf50',
+              '&:hover': {
+                borderColor: '#388e3c',
+                backgroundColor: 'rgba(76, 175, 80, 0.08)',
+              },
+            }}
+          >
+            {t('repo.aboutAndThanks')}
+          </Button>
           <Button
             variant="outlined"
             startIcon={<LibraryBooks />}

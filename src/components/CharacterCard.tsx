@@ -1,4 +1,4 @@
-import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText, IconButton } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
@@ -178,34 +178,96 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
 
   return (
     <>
-      <Paper
-        ref={setNodeRef}
-        style={style}
-        {...attributes}
-        {...listeners}
-        elevation={isDragging ? 6 : 0}
-        onDoubleClick={handleDoubleClick}
-        onContextMenu={handleContextMenu}
+      <Box
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          p: CONFIG.card.padding,
-          backgroundColor: 'transparent',
-          borderRadius: CONFIG.card.borderRadius,
-          transition: 'all 0.2s',
-          cursor: isDragging ? 'grabbing' : 'grab',
-          userSelect: 'none',
-          WebkitUserSelect: 'none',
-          MozUserSelect: 'none',
-          msUserSelect: 'none',
-          zIndex: 1,
-          '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.02)',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          position: 'relative',
+          width: '100%',
+          // 使用 CSS 控制按钮显示，避免 React 状态更新
+          '&:hover .action-buttons': {
+            opacity: configStore.config.officialIdParseMode ? 0 : 1,
+            pointerEvents: configStore.config.officialIdParseMode ? 'none' : 'auto',
           },
         }}
       >
-        {/* 上半部分: 角色头像 + 角色信息 */}
+        {/* 悬浮时显示的编辑和删除按钮 - 使用 CSS 控制显示 */}
+        <Box
+          className="action-buttons"
+          sx={{
+            position: 'absolute',
+            top: 8,
+            right: 8,
+            zIndex: 10,
+            display: 'flex',
+            gap: 1,
+            opacity: 0,
+            pointerEvents: 'none',
+            transition: 'opacity 0.2s',
+          }}
+        >
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onEdit) {
+                onEdit(character);
+              }
+            }}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+              },
+            }}
+            size="small"
+          >
+            <EditIcon fontSize="small" />
+          </IconButton>
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onDelete) {
+                onDelete(character);
+              }
+            }}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.9)',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 1)',
+              },
+            }}
+            size="small"
+          >
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Box>
+
+        <Paper
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
+          {...listeners}
+          elevation={isDragging ? 6 : 0}
+          onDoubleClick={handleDoubleClick}
+          onContextMenu={handleContextMenu}
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            p: CONFIG.card.padding,
+            backgroundColor: 'transparent',
+            borderRadius: CONFIG.card.borderRadius,
+            transition: 'all 0.2s',
+            cursor: isDragging ? 'grabbing' : 'grab',
+            userSelect: 'none',
+            WebkitUserSelect: 'none',
+            MozUserSelect: 'none',
+            msUserSelect: 'none',
+            zIndex: 1,
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.02)',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+            },
+          }}
+        >
         <Box sx={{
           width: "100%",
           display: "flex",
@@ -360,6 +422,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
           </Box>
         </Box>
       </Paper>
+      </Box>
 
       {/* 右键菜单 */}
       <Menu

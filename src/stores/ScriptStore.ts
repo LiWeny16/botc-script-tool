@@ -491,14 +491,13 @@ class ScriptStore {
 
   // 将Script同步回JSON - 增量更新版本，任何修改都升级为完整格式
   private syncScriptToJson(updatedScript: Script) {
-    console.log('开始增量同步Script到JSON');
+    // console.log('开始增量同步Script到JSON');
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
       // 创建新的JSON数组，保持原有顺序和格式
       const newJsonArray: any[] = [];
-      const processedCharacterIds = new Set<string>();
 
       // 首先保留元数据
       const metaItem = jsonArray.find((item: any) => {
@@ -509,31 +508,22 @@ class ScriptStore {
         newJsonArray.push(metaItem);
       }
 
-      // 遍历原JSON，更新或保留角色
+      // 创建原JSON的映射，方便查找
+      const originalJsonMap = new Map<string, any>();
       jsonArray.forEach((item: any) => {
-        // 支持简化格式
         const itemObj = typeof item === 'string' ? { id: item } : item;
-        
-        // 跳过元数据
-        if (itemObj.id === '_meta') {
-          return;
+        if (itemObj.id !== '_meta' && itemObj.team !== 'a jinxed' && itemObj.team !== 'special_rule') {
+          originalJsonMap.set(itemObj.id, item);
         }
+      });
 
-        // 跳过相克规则和特殊规则
-        if (itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
-          newJsonArray.push(item); // 保持原格式
-          return;
-        }
-
-        // 检查角色是否还在 updatedScript 中
-        const character = updatedScript.all.find(c => c.id === itemObj.id);
+      // ⭐ 按照 updatedScript.all 的顺序添加角色（这样可以保持拖拽后的顺序）
+      updatedScript.all.forEach(character => {
+        const originalItem = originalJsonMap.get(character.id);
         
-        if (character) {
-          // 角色仍然存在，统一使用完整格式
-          processedCharacterIds.add(character.id);
-          
-          // 使用完整格式，保留原有字段并更新
-          const updatedItem: any = typeof item === 'string' ? { id: item } : { ...item };
+        if (originalItem) {
+          // 角色在原JSON中存在，更新它
+          const updatedItem: any = typeof originalItem === 'string' ? { id: originalItem } : { ...originalItem };
           
           // 更新字段
           updatedItem.id = character.id;
@@ -548,19 +538,8 @@ class ScriptStore {
           updatedItem.reminders = character.reminders !== undefined ? character.reminders : (updatedItem.reminders || []);
           updatedItem.setup = character.setup !== undefined ? character.setup : (updatedItem.setup || false);
           
-          console.log('ScriptStore.syncScriptToJson - 更新角色到JSON (完整格式):', {
-            characterId: character.id,
-            updatedItemReminders: updatedItem.reminders,
-          });
-          
           newJsonArray.push(updatedItem);
-        }
-        // 如果角色不存在了，就不添加到新数组（相当于删除）
-      });
-
-      // 添加新增的角色（在原JSON中不存在的）- 统一使用完整格式
-      updatedScript.all.forEach(character => {
-        if (!processedCharacterIds.has(character.id)) {
+        } else {
           // 这是新增的角色，使用完整格式
           newJsonArray.push({
             id: character.id,
@@ -578,16 +557,16 @@ class ScriptStore {
         }
       });
 
-      // 保留原JSON末尾的相克规则和特殊规则（如果之前没有添加）
+      // 保留原JSON中的相克规则和特殊规则
       jsonArray.forEach((item: any) => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
-        if ((itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') && !newJsonArray.includes(item)) {
+        if (itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
           newJsonArray.push(item);
         }
       });
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
-      console.log('JSON增量同步完成，更新originalJson');
+      // console.log('JSON增量同步完成，更新originalJson');
       this.setOriginalJson(jsonString);
     } catch (error) {
       console.error('同步JSON失败:', error);

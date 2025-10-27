@@ -89,6 +89,20 @@ export const translations = {
     'repo.backToRepository': '返回剧本仓库',
     'repo.exportJson': '导出JSON',
     'repo.author': '作者',
+    'repo.aboutAndThanks': '关于 & 致谢',
+
+    // 关于和致谢
+    'about.title': '关于 & 致谢',
+    'about.aboutProject': '关于项目',
+    'about.projectDescription': '这是一个完全免费且开源的血染钟楼剧本生成工具，旨在为钟楼爱好者提供便捷的剧本制作体验。本项目不收取任何费用，所有功能均可免费使用。如果您觉得这个工具对您有帮助，欢迎通过捐赠支持项目的持续开发和维护。',
+    'about.donate': '支持我们',
+    'about.acknowledgments': '致谢',
+    'about.thankValen': 'Valen - 美术建议与 Bug 修复',
+    'about.specialThanks': '特别鸣谢',
+    'about.nusClub': 'NUS 桌游社',
+    'about.designReference': '美工设计参考',
+    'about.museum': '钟楼博物馆',
+    'about.letterClosing': '怀着感恩的心，BigOnion 敬上',
 
     // 错误信息
     'error.scriptNotFound': '未找到剧本',
@@ -362,6 +376,20 @@ export const translations = {
     'repo.backToRepository': 'Back to Repository',
     'repo.exportJson': 'Export JSON',
     'repo.author': 'Author',
+    'repo.aboutAndThanks': 'About & Thanks',
+
+    // About and Acknowledgments
+    'about.title': 'About & Thanks',
+    'about.aboutProject': 'About the Project',
+    'about.projectDescription': 'This is a completely free and open-source Blood on the Clocktower script generation tool, designed to provide clocktower enthusiasts with a convenient script creation experience. This project does not charge any fees, and all features are available for free. If you find this tool helpful, you are welcome to support the ongoing development and maintenance of the project through donations.',
+    'about.donate': 'Support Us',
+    'about.acknowledgments': 'Acknowledgments',
+    'about.thankValen': 'Valen - Art Advice & Bug Fixes',
+    'about.specialThanks': 'Special Thanks',
+    'about.nusClub': 'NUS Board Game Society',
+    'about.designReference': 'Design Reference',
+    'about.museum': 'Clocktower Museum',
+    'about.letterClosing': 'With a grateful heart, BigOnion',
 
     // Errors
     'error.scriptNotFound': 'Script not found',

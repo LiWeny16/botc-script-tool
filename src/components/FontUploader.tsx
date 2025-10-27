@@ -81,23 +81,29 @@ const FontUploader = observer(({ open, onClose }: FontUploaderProps) => {
     try {
       // 读取文件为 base64
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target?.result as string;
+      reader.onload = async (e) => {
+        try {
+          const dataUrl = e.target?.result as string;
 
-        const newFont: CustomFont = {
-          id: `custom-${Date.now()}`,
-          name: fontName.trim(),
-          fontFamily: fontFamily.trim(),
-          dataUrl,
-        };
+          const newFont: CustomFont = {
+            id: `custom-${Date.now()}`,
+            name: fontName.trim(),
+            fontFamily: fontFamily.trim(),
+            dataUrl,
+          };
 
-        uiConfigStore.addCustomFont(newFont);
+          await uiConfigStore.addCustomFont(newFont);
 
-        // 重置表单
-        setFontName('');
-        setFontFamily('');
-        setSelectedFile(null);
-        setUploading(false);
+          // 重置表单
+          setFontName('');
+          setFontFamily('');
+          setSelectedFile(null);
+          setUploading(false);
+        } catch (err) {
+          console.error('Failed to save font:', err);
+          setError(t('fontUploader.errorUpload'));
+          setUploading(false);
+        }
       };
 
       reader.onerror = () => {
@@ -112,9 +118,14 @@ const FontUploader = observer(({ open, onClose }: FontUploaderProps) => {
     }
   };
 
-  const handleDelete = (fontId: string) => {
+  const handleDelete = async (fontId: string) => {
     if (window.confirm(t('fontUploader.deleteConfirm'))) {
-      uiConfigStore.removeCustomFont(fontId);
+      try {
+        await uiConfigStore.removeCustomFont(fontId);
+      } catch (err) {
+        console.error('Failed to delete font:', err);
+        setError(t('fontUploader.errorUpload'));
+      }
     }
   };
 

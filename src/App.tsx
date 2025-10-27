@@ -38,6 +38,7 @@ import { configStore } from './stores/ConfigStore';
 import { getSpecialRuleTemplate } from './data/specialRules';
 import { uiConfigStore } from './stores/UIConfigStore';
 import UISettingsDrawer from './components/UISettingsDrawer';
+import AboutDialog from './components/AboutDialog';
 import {
   GlobalStyles, // 👈 增加这个
 } from '@mui/material';
@@ -167,6 +168,7 @@ const App = observer(() => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [titleHovered, setTitleHovered] = useState<boolean>(false);
   const [addCustomRuleDialogOpen, setAddCustomRuleDialogOpen] = useState<boolean>(false);
+  const [aboutDialogOpen, setAboutDialogOpen] = useState<boolean>(false);
   const [jsonParseError, setJsonParseError] = useState<string>(''); // 添加 JSON 解析错误状态
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -243,8 +245,8 @@ const App = observer(() => {
           const stored = localStorage.getItem('botc-script-data');
           if (stored) {
             const message = language === 'zh-CN'
-              ? `✓ 已保存到本地存储 (${new Date().toLocaleTimeString()})`
-              : `✓ Saved to local storage (${new Date().toLocaleTimeString()})`;
+              ? `已保存到本地存储`
+              : `Saved to local storage`;
             showSaveAlert(message, 2500);
           }
         } catch (error) {
@@ -596,6 +598,7 @@ const App = observer(() => {
             onClear={handleClear}
             onOpenUISettings={() => setUiSettingsOpen(true)}
             onAddCustomRule={handleAddCustomRule}
+            onOpenAboutDialog={() => setAboutDialogOpen(true)}
             onJsonChange={handleJsonChange}
             hasScript={script !== null}
             currentJson={originalJson}
@@ -1449,6 +1452,12 @@ const App = observer(() => {
         open={addCustomRuleDialogOpen}
         onClose={() => setAddCustomRuleDialogOpen(false)}
         onAddRule={handleAddNewRule}
+      />
+
+      {/* 关于&致谢对话框 */}
+      <AboutDialog
+        open={aboutDialogOpen}
+        onClose={() => setAboutDialogOpen(false)}
       />
     </ThemeProvider >
   );

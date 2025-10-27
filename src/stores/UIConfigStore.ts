@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx';
+import { fontStorage } from '../utils/fontStorage';
 
 // 自定义字体接口
 export interface CustomFont {
@@ -169,7 +170,7 @@ class UIConfigStore {
   constructor() {
     makeAutoObservable(this);
     this.loadConfig();
-    this.loadCustomFonts(); // 加载自定义字体
+    this.loadCustomFontsFromIndexedDB(); // 从 IndexedDB 加载自定义字体
   }
 
   // 从 localStorage 加载配置
@@ -178,17 +179,49 @@ class UIConfigStore {
       const savedConfig = localStorage.getItem(STORAGE_KEY);
       if (savedConfig) {
         const parsed = JSON.parse(savedConfig);
-        this.config = { ...DEFAULT_UI_CONFIG, ...parsed };
+        // 不从 localStorage 加载 customFonts，改用 IndexedDB
+        const { customFonts, ...restConfig } = parsed;
+        this.config = { ...DEFAULT_UI_CONFIG, ...restConfig };
+        
+        // 如果 localStorage 中有旧的字体数据，迁移到 IndexedDB
+        if (customFonts && Array.isArray(customFonts) && customFonts.length > 0) {
+          this.migrateFontsToIndexedDB(customFonts);
+        }
       }
     } catch (error) {
       console.error('Failed to load UI config from localStorage:', error);
+    }
+  }
+  
+  // 迁移旧的字体数据到 IndexedDB
+  private async migrateFontsToIndexedDB(fonts: CustomFont[]) {
+    console.log(`Migrating ${fonts.length} fonts from localStorage to IndexedDB...`);
+    try {
+      for (const font of fonts) {
+        await fontStorage.saveFont({
+          ...font,
+          createdAt: Date.now(),
+        });
+      }
+      
+      // 更新内存中的配置
+      this.config.customFonts = fonts;
+      
+      // 重新保存配置（不包含 customFonts）
+      this.saveConfig();
+      
+      console.log('Font migration completed successfully');
+    } catch (error) {
+      console.error('Failed to migrate fonts:', error);
     }
   }
 
   // 保存配置到 localStorage
   saveConfig() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.config));
+      // 保存配置时不包含 customFonts（它们存在 IndexedDB 中）
+      const { customFonts, ...configToSave } = this.config;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(configToSave));
     } catch (error) {
       console.error('Failed to save UI config to localStorage:', error);
     }
@@ -213,42 +246,97 @@ class UIConfigStore {
   }
 
   // 添加自定义字体
-  addCustomFont(font: CustomFont) {
-    this.config.customFonts = [...this.config.customFonts, font];
-    this.saveConfig();
-    this.loadCustomFonts();
+  async addCustomFont(font: CustomFont) {
+    // 保存到 IndexedDB
+    try {
+      await fontStorage.saveFont({
+        ...font,
+        createdAt: Date.now(),
+      });
+      
+      // 更新内存中的配置
+      this.config.customFonts = [...this.config.customFonts, font];
+      
+      // 加载字体到页面
+      this.loadSingleFont(font);
+      
+      console.log('Font saved to IndexedDB successfully:', font.name);
+    } catch (error) {
+      console.error('Failed to save font to IndexedDB:', error);
+      throw error;
+    }
   }
 
   // 删除自定义字体
-  removeCustomFont(fontId: string) {
-    this.config.customFonts = this.config.customFonts.filter(f => f.id !== fontId);
-    this.saveConfig();
-    // 移除已加载的字体样式
-    const styleId = `custom-font-${fontId}`;
-    const existingStyle = document.getElementById(styleId);
-    if (existingStyle) {
-      existingStyle.remove();
+  async removeCustomFont(fontId: string) {
+    // 从 IndexedDB 删除
+    try {
+      await fontStorage.deleteFont(fontId);
+      
+      // 更新内存中的配置
+      this.config.customFonts = this.config.customFonts.filter(f => f.id !== fontId);
+      
+      // 移除已加载的字体样式
+      const styleId = `custom-font-${fontId}`;
+      const existingStyle = document.getElementById(styleId);
+      if (existingStyle) {
+        existingStyle.remove();
+      }
+      
+      console.log('Font removed from IndexedDB successfully:', fontId);
+    } catch (error) {
+      console.error('Failed to remove font from IndexedDB:', error);
+      throw error;
     }
+  }
+
+  // 从 IndexedDB 加载所有自定义字体
+  async loadCustomFontsFromIndexedDB() {
+    try {
+      const fonts = await fontStorage.getAllFonts();
+      
+      // 转换为 CustomFont 格式
+      this.config.customFonts = fonts.map(font => ({
+        id: font.id,
+        name: font.name,
+        fontFamily: font.fontFamily,
+        dataUrl: font.dataUrl,
+      }));
+      
+      // 加载所有字体到页面
+      this.loadCustomFonts();
+      
+      console.log(`Loaded ${fonts.length} custom fonts from IndexedDB`);
+    } catch (error) {
+      console.error('Failed to load fonts from IndexedDB:', error);
+      // 如果 IndexedDB 加载失败，继续使用空数组
+      this.config.customFonts = [];
+    }
+  }
+
+  // 加载单个字体到页面
+  loadSingleFont(font: CustomFont) {
+    const styleId = `custom-font-${font.id}`;
+    // 如果已经加载则跳过
+    if (document.getElementById(styleId)) {
+      return;
+    }
+
+    const style = document.createElement('style');
+    style.id = styleId;
+    style.textContent = `
+      @font-face {
+        font-family: '${font.fontFamily}';
+        src: url('${font.dataUrl}');
+      }
+    `;
+    document.head.appendChild(style);
   }
 
   // 加载所有自定义字体到页面
   loadCustomFonts() {
     this.config.customFonts.forEach(font => {
-      const styleId = `custom-font-${font.id}`;
-      // 如果已经加载则跳过
-      if (document.getElementById(styleId)) {
-        return;
-      }
-
-      const style = document.createElement('style');
-      style.id = styleId;
-      style.textContent = `
-        @font-face {
-          font-family: '${font.fontFamily}';
-          src: url('${font.dataUrl}');
-        }
-      `;
-      document.head.appendChild(style);
+      this.loadSingleFont(font);
     });
   }
 
