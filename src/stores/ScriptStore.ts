@@ -300,6 +300,151 @@ class ScriptStore {
     this.syncSpecialRuleToJson(rule);
   }
 
+  // 添加自定义相克关系
+  addCustomJinx(characterA: Character, characterB: Character, description: string) {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    // 更新相克关系（使用角色名称作为主键）
+    if (description) {
+      if (!updatedScript.jinx[characterA.name]) {
+        updatedScript.jinx[characterA.name] = {};
+      }
+      updatedScript.jinx[characterA.name][characterB.name] = description;
+    }
+
+    this.setScript(updatedScript);
+    this.syncCustomJinxToJson(characterA, characterB, description, 'add');
+  }
+
+  // 删除自定义相克关系
+  removeCustomJinx(characterA: Character, characterB: Character) {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    // 从中文相克关系中删除
+    if (updatedScript.jinx[characterA.name]) {
+      delete updatedScript.jinx[characterA.name][characterB.name];
+      
+      // 如果该角色没有其他相克关系，删除该键
+      if (Object.keys(updatedScript.jinx[characterA.name]).length === 0) {
+        delete updatedScript.jinx[characterA.name];
+      }
+    }
+
+    // 同时检查反向关系
+    if (updatedScript.jinx[characterB.name]) {
+      delete updatedScript.jinx[characterB.name][characterA.name];
+      
+      if (Object.keys(updatedScript.jinx[characterB.name]).length === 0) {
+        delete updatedScript.jinx[characterB.name];
+      }
+    }
+
+    this.setScript(updatedScript);
+    this.syncCustomJinxToJson(characterA, characterB, '', 'remove');
+  }
+
+  // 将自定义相克关系同步到JSON
+  private syncCustomJinxToJson(
+    characterA: Character,
+    characterB: Character,
+    description: string,
+    action: 'add' | 'remove'
+  ) {
+    console.log('开始同步自定义相克关系到JSON', { characterA: characterA.name, characterB: characterB.name, action });
+    try {
+      const parsedJson = JSON.parse(this.originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      if (action === 'add') {
+        // 添加相克关系
+        // 检查是否已存在相克关系
+        const existingJinxIndex = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return false;
+          return item.team === 'a jinxed' && 
+                 item.id === characterA.id && 
+                 item.jinx && 
+                 item.jinx.some((j: any) => j.id === characterB.id);
+        });
+
+        if (existingJinxIndex >= 0) {
+          // 更新现有的相克关系
+          const jinxItem = jsonArray[existingJinxIndex];
+          const jinxEntry = jinxItem.jinx.find((j: any) => j.id === characterB.id);
+          if (jinxEntry && description) {
+            // 更新描述
+            jinxEntry.reason = description;
+          }
+        } else {
+          // 添加新的相克关系
+          // 查找是否已有该角色的jinx对象
+          const characterJinxIndex = jsonArray.findIndex((item: any) => {
+            if (typeof item === 'string') return false;
+            return item.team === 'a jinxed' && item.id === characterA.id;
+          });
+
+          const newJinxEntry: any = {
+            id: characterB.id,
+          };
+          if (description) newJinxEntry.reason = description;
+
+          if (characterJinxIndex >= 0) {
+            // 该角色已有jinx对象，添加到jinx数组中
+            jsonArray[characterJinxIndex].jinx.push(newJinxEntry);
+          } else {
+            // 创建新的jinx对象
+            const newJinxObject: any = {
+              id: characterA.id,
+              team: 'a jinxed',
+              jinx: [newJinxEntry],
+            };
+            jsonArray.push(newJinxObject);
+          }
+        }
+      } else if (action === 'remove') {
+        // 删除相克关系
+        const characterJinxIndex = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return false;
+          return item.team === 'a jinxed' && item.id === characterA.id;
+        });
+
+        if (characterJinxIndex >= 0) {
+          const jinxItem = jsonArray[characterJinxIndex];
+          jinxItem.jinx = jinxItem.jinx.filter((j: any) => j.id !== characterB.id);
+          
+          // 如果该角色没有其他相克关系，删除整个对象
+          if (jinxItem.jinx.length === 0) {
+            jsonArray.splice(characterJinxIndex, 1);
+          }
+        }
+
+        // 同时检查反向关系
+        const reverseJinxIndex = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return false;
+          return item.team === 'a jinxed' && item.id === characterB.id;
+        });
+
+        if (reverseJinxIndex >= 0) {
+          const jinxItem = jsonArray[reverseJinxIndex];
+          jinxItem.jinx = jinxItem.jinx.filter((j: any) => j.id !== characterA.id);
+          
+          if (jinxItem.jinx.length === 0) {
+            jsonArray.splice(reverseJinxIndex, 1);
+          }
+        }
+      }
+
+      const jsonString = JSON.stringify(jsonArray, null, 2);
+      console.log('自定义相克关系同步完成');
+      this.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步自定义相克关系失败:', error);
+    }
+  }
+
   // 将标题信息同步到JSON
   private syncTitleInfoToJson(data: {
     title?: string;
@@ -579,7 +724,13 @@ class ScriptStore {
     this.originalJson = '';
     this.customTitle = '';
     this.customAuthor = '';
-    this.saveToStorage();
+    // 删除 localStorage 中的剧本数据
+    try {
+      localStorage.removeItem('botc-script-data');
+      console.log('已删除 localStorage 键: botc-script-data');
+    } catch (error) {
+      console.warn('删除剧本数据失败:', error);
+    }
   }
 
   // 保存到 localStorage

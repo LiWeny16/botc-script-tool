@@ -29,6 +29,7 @@ import StateRulesSection from './components/StateRulesSection';
 import TitleEditDialog from './components/TitleEditDialog';
 import SpecialRuleEditDialog from './components/SpecialRuleEditDialog';
 import AddCustomRuleDialog from './components/AddCustomRuleDialog';
+import CustomJinxDialog from './components/CustomJinxDialog';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
@@ -170,6 +171,7 @@ const App = observer(() => {
   const [addCustomRuleDialogOpen, setAddCustomRuleDialogOpen] = useState<boolean>(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState<boolean>(false);
   const [jsonParseError, setJsonParseError] = useState<string>(''); // 添加 JSON 解析错误状态
+  const [customJinxDialogOpen, setCustomJinxDialogOpen] = useState<boolean>(false);
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -273,7 +275,7 @@ const App = observer(() => {
   const handleJsonChange = (json: string) => {
     // 只更新 originalJson，保存输入框内容，不触发自动生成
     scriptStore.setOriginalJson(json);
-    
+
     // 清除之前的错误提示（因为用户可能正在编辑中）
     setJsonParseError('');
   };
@@ -293,7 +295,7 @@ const App = observer(() => {
         customTitle: title || '',
         customAuthor: author || '',
       });
-      
+
       // 清除错误提示
       setJsonParseError('');
     } catch (error) {
@@ -473,7 +475,14 @@ const App = observer(() => {
   };
 
   // 处理添加新规则
-  const handleAddNewRule = (ruleType: 'special_rule', templateId?: string) => {
+  const handleAddNewRule = (ruleType: 'special_rule' | 'custom_jinx', templateId?: string) => {
+    if (ruleType === 'custom_jinx') {
+      // 打开自定义相克对话框
+      setAddCustomRuleDialogOpen(false);
+      setCustomJinxDialogOpen(true);
+      return;
+    }
+
     if (ruleType === 'special_rule') {
       let newRule: any;
 
@@ -572,9 +581,34 @@ const App = observer(() => {
     window.print();
   };
 
-  // 清空所有数据
+  // 清空所有数据，但保留默认JSON框架
   const handleClear = () => {
-    scriptStore.clear();
+    // 创建一个默认的JSON框架
+    const defaultJson = JSON.stringify([
+      {
+        "id": "_meta",
+        "author": "",
+        "name": "Custom Your Script!"
+      }
+    ], null, 2);
+
+    // 解析默认JSON，生成空剧本（这样加号按钮才能添加角色）
+    try {
+      const generatedScript = generateScript(defaultJson, language);
+      scriptStore.updateScript({
+        script: generatedScript,
+        originalJson: defaultJson,
+        customTitle: '',
+        customAuthor: '',
+      });
+    } catch (error) {
+      console.error('生成默认空剧本失败:', error);
+      // 如果生成失败，至少保存JSON
+      scriptStore.setOriginalJson(defaultJson);
+      scriptStore.setScript(null);
+      scriptStore.setCustomTitle('');
+      scriptStore.setCustomAuthor('');
+    }
   };
 
   return (
@@ -612,7 +646,9 @@ const App = observer(() => {
               ref={scriptRef}
               sx={{
                 display: "flex",
+                userSelect:"none",
                 width: "100%",
+                height:"200vh",
               }}
             >
 
@@ -637,6 +673,8 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
                 <CharacterImage
@@ -650,6 +688,8 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
 
@@ -664,6 +704,8 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
 
@@ -679,9 +721,59 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
 
+                {/* 美术设计盒子 - 左上角固定位置，上下布局 */}
+                <Box sx={{
+                  position: 'absolute',
+                  top: { xs: 12, sm: 16, md: 95 },
+                  left: { xs: 12, sm: 16, md: 140 },
+                  zIndex: 5,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  pointerEvents: 'none',
+                }}>
+                  {/* 圆形头像 */}
+                  <Box
+                    component="img"
+                    src="/imgs/icons/fabled/onion.png"
+                    alt="Onion Avatar"
+                    sx={{
+                      width: { xs: 50, sm: 60, md: 70 },
+                      height: { xs: 50, sm: 60, md: 70 },
+                      borderRadius: '50%',
+                      border: '2px solid #d4af37',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                      objectFit: 'cover',
+                      mb: { xs: -1, sm: -1.5, md: -2 }, // 负边距让文字框与头像重叠
+                      position: 'relative',
+                      zIndex: 2,
+                    }}
+                  />
+
+                  {/* 下方文字框 */}
+                  <Box sx={{
+                    pt: { xs: 1.5, sm: 2, md: 2.5 },
+                    pb: { xs: 0.75, sm: 1, md: 1.25 },
+                    position: 'relative',
+                    zIndex: 1,
+                    minWidth: { xs: '80px', sm: '90px', md: '100px' },
+                  }}>
+                    <Typography sx={{
+                      fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                      color: '#404040ff',
+                      fontWeight: 700,
+                      textAlign: 'center',
+                      whiteSpace: 'nowrap',
+                    }}>
+                      {t('credits.designTitle')}: {t('credits.designers')}
+                    </Typography>
+                  </Box>
+                </Box>
 
                 {/* 左侧 - 首个夜晚 */}
                 {!isMobile && (
@@ -980,14 +1072,14 @@ const App = observer(() => {
                       width: "20%",
                       zIndex: 0,
                       opacity: 0.4,
-                      // width: 128,
-                      // height: 128,
+                      userSelect: 'none',
+                      WebkitUserDrag: 'none',
                     }}
                   />
                   <CharacterImage
                     component="img"
                     src={"/imgs/images/back_tower2.png"}
-                    alt={"2323"}
+                    alt={"back_tower2"}
                     sx={{
                       position: "absolute",
                       left: "36%",
@@ -996,8 +1088,8 @@ const App = observer(() => {
                       width: "50%",
                       zIndex: 0,
                       opacity: 0.8,
-                      // width: 128,
-                      // height: 128,
+                      userSelect: 'none',
+                      WebkitUserDrag: 'none',
                     }}
                   />
                   {/* 底部装饰框 */}
@@ -1016,84 +1108,9 @@ const App = observer(() => {
                     showCorners={true}
                     decorativeSymbol="✦"
                   /> */}
-                  
-                  {/* 底部空白区域，用于放置美工设计框 */}
-                  <Box sx={{ 
-                    height: "20vh",
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    position: 'relative',
-                    zIndex: 10,
-                  }}>
-                    {/* 圆形头像和文字框 - 在剩余空间居中展示 */}
-                    <Box sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                    }}>
-                      {/* 圆形头像 */}
-                      <Box
-                        component="img"
-                        src="/imgs/icons/fabled/onion.png"
-                        alt="Onion Avatar"
-                        sx={{
-                          width: { xs: 60, sm: 80, md: 100 },
-                          height: { xs: 60, sm: 80, md: 100 },
-                          borderRadius: '50%',
-                          border: '3px solid #d4af37',
-                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                          objectFit: 'cover',
-                          position: 'relative',
-                          zIndex: 2,
-                        }}
-                      />
 
-                      {/* 右侧延展文字框 */}
-                      <Box sx={{
-                        ml: { xs: -2, sm: -3, md: -4 },
-                        pl: { xs: 3, sm: 4, md: 5 },
-                        pr: { xs: 2, sm: 3, md: 4 },
-                        py: { xs: 1, sm: 1.5, md: 2 },
-                        background: 'linear-gradient(135deg, rgba(245, 235, 210, 0.98) 0%, rgba(255, 248, 230, 0.95) 100%)',
-                        border: '2px solid rgba(212, 175, 55, 0.6)',
-                        borderRadius: '0 20px 20px 0',
-                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
-                        position: 'relative',
-                        zIndex: 1,
-                      }}>
-                        <Typography sx={{
-                          fontSize: { xs: '0.75rem', sm: '0.9rem', md: '1rem' },
-                          color: '#d4af37',
-                          fontWeight: 600,
-                          textAlign: 'center',
-                          height:20,
-                          textShadow: '0 1px 2px rgba(0, 0, 0, 0.3)',
-                          whiteSpace: 'pre-wrap',
-                        }}>
-                          {t('credits.designTitle').split(/\\n|<br\s*\/?>/).map((line, index, array) => (
-                            <span key={index}>
-                              {line}
-                              {index < array.length - 1 && <br />}
-                            </span>
-                          ))}
-                        </Typography>
-                        <Typography sx={{
-                          fontSize: { xs: '0.7rem', sm: '0.85rem', md: '0.95rem' },
-                          color: '#a08850',
-                          textAlign: 'center',
-                          mt: 0.5,
-                          whiteSpace: 'pre-wrap',
-                        }}>
-                          {t('credits.designers').split(/\\n|<br\s*\/?>/).map((line, index, array) => (
-                            <span key={index}>
-                              {line}
-                              {index < array.length - 1 && <br />}
-                            </span>
-                          ))}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
+                  {/* 底部空白区域，用于背景装饰 */}
+                  
                 </Paper>
 
                 {/* 右侧 - 其他夜晚 */}
@@ -1165,6 +1182,8 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
                 <CharacterImage
@@ -1178,6 +1197,8 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
                 <CharacterImage
@@ -1191,6 +1212,8 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
                 <CharacterImage
@@ -1205,6 +1228,8 @@ const App = observer(() => {
                     opacity: 1,
                     pointerEvents: 'none',
                     zIndex: 2,
+                    userSelect: 'none',
+                    WebkitUserDrag: 'none',
                   }}
                 />
 
@@ -1257,6 +1282,8 @@ const App = observer(() => {
                       zIndex: 1,
                       pointerEvents: 'none',
                       opacity: 0.95,
+                      userSelect: 'none',
+                      WebkitUserDrag: 'none',
                     }}
                   />
 
@@ -1325,8 +1352,8 @@ const App = observer(() => {
                         width: "20%",
                         zIndex: -1,
                         opacity: 0.4,
-                        // width: 128,
-                        // height: 128,
+                        userSelect: 'none',
+                        WebkitUserDrag: 'none',
                       }}
                     />
                     <CharacterImage
@@ -1341,8 +1368,8 @@ const App = observer(() => {
                         width: "50%",
                         zIndex: -1,
                         opacity: 0.8,
-                        // width: 128,
-                        // height: 128,
+                        userSelect: 'none',
+                        WebkitUserDrag: 'none',
                       }}
                     />
                   </Box>
@@ -1418,7 +1445,7 @@ const App = observer(() => {
       {/* 悬浮添加按钮 */}
       <FloatingAddButton
         onClick={() => setLibraryCardOpen(!libraryCardOpen)}
-        show={!!script} // 只要有剧本就显示
+        show={!!script || !!originalJson} // 有剧本或有JSON输入时显示
       />
 
       {/* UI设置抽屉 */}
@@ -1458,6 +1485,17 @@ const App = observer(() => {
       <AboutDialog
         open={aboutDialogOpen}
         onClose={() => setAboutDialogOpen(false)}
+      />
+
+      {/* 自定义相克关系对话框 */}
+      <CustomJinxDialog
+        open={customJinxDialogOpen}
+        onClose={() => setCustomJinxDialogOpen(false)}
+        onSave={(characterA, characterB, description) => {
+          scriptStore.addCustomJinx(characterA, characterB, description);
+          setCustomJinxDialogOpen(false);
+        }}
+        characters={script?.all || []}
       />
     </ThemeProvider >
   );

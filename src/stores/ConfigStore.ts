@@ -99,7 +99,13 @@ class ConfigStore {
   // 恢复默认设置
   resetToDefault() {
     this.config = { ...DEFAULT_CONFIG };
-    this.saveConfig();
+    // 删除 localStorage 中的配置，而不是保存默认值
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      console.log('已删除 localStorage 键:', STORAGE_KEY);
+    } catch (error) {
+      console.error('删除配置失败:', error);
+    }
     this.updateUrlLanguage(DEFAULT_CONFIG.language);
   }
 

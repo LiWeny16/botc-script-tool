@@ -17,14 +17,14 @@ import {
   ListItemText,
   Divider,
 } from '@mui/material';
-import { Close as CloseIcon, Description as DescriptionIcon } from '@mui/icons-material';
+import { Close as CloseIcon, Description as DescriptionIcon, LinkOff as LinkOffIcon } from '@mui/icons-material';
 import { useTranslation } from '../utils/i18n';
 import { getAllSpecialRuleTemplates, type SpecialRuleTemplate } from '../data/specialRules';
 
 interface AddCustomRuleDialogProps {
   open: boolean;
   onClose: () => void;
-  onAddRule: (ruleType: 'special_rule', templateId?: string) => void;
+  onAddRule: (ruleType: 'special_rule' | 'custom_jinx', templateId?: string) => void;
 }
 
 const AddCustomRuleDialog = ({
@@ -33,7 +33,7 @@ const AddCustomRuleDialog = ({
   onAddRule,
 }: AddCustomRuleDialogProps) => {
   const { t, language } = useTranslation();
-  const [selectedType, setSelectedType] = useState<'special_rule' | null>(null);
+  const [selectedType, setSelectedType] = useState<'special_rule' | 'custom_jinx' | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const templates = getAllSpecialRuleTemplates();
 
@@ -63,6 +63,16 @@ const AddCustomRuleDialog = ({
       example: language === 'zh-CN' ? '第七把交椅' : 'The Seventh Chair',
       disabled: false,
     },
+    {
+      type: 'custom_jinx' as const,
+      title: t('customJinx.addTitle'),
+      description: language === 'zh-CN' 
+        ? '添加自定义角色相克关系规则'
+        : 'Add custom character jinx relationships',
+      icon: <LinkOffIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
+      example: language === 'zh-CN' ? '公主 & 食人族' : 'Princess & Cannibal',
+      disabled: false,
+    },
   ];
 
   return (
@@ -77,7 +87,7 @@ const AddCustomRuleDialog = ({
       </DialogTitle>
 
       <DialogContent dividers>
-        {!selectedType ? (
+        {!selectedType || selectedType === 'custom_jinx' ? (
           <>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               {t('specialRules.selectType')}

@@ -195,6 +195,7 @@ export const translations = {
     'ui.noResults': '没有找到匹配的设置',
     'ui.manageCustomFonts': '管理自定义字体',
     'ui.resetAllSettings': '重置所有设置',
+    'ui.resetUISettings': '重置所有UI设置',
     'dialog.resetUIMessage': '确定要重置所有UI设置吗？',
 
     // 分类1: 页面布局
@@ -209,7 +210,8 @@ export const translations = {
 
     // 分类2: 角色卡片布局
     'ui.category.cardLayout': '角色卡片布局',
-    'ui.cardPadding': '卡片内边距',
+    'ui.cardPaddingX': '卡片内边距（水平）',
+    'ui.cardPaddingY': '卡片内边距（竖直）',
     'ui.cardGap': '卡片元素间距',
     'ui.textAreaGap': '文本区域间距',
 
@@ -269,8 +271,8 @@ export const translations = {
     'decorative.page2Text': '相克规则 · 传奇角色 · 旅行者',
 
     // Credits
-    'credits.designTitle': '美术设计 & 参考',
-    'credits.designers': '大聪花 & 钟楼博物馆',
+    'credits.designTitle': '美术设计',
+    'credits.designers': '大聪花',
 
     // Special Rules
 
@@ -286,6 +288,29 @@ export const translations = {
     'specialRules.stateRule': '状态规则',
     'specialRules.cancel': '取消',
     'specialRules.confirm': '确定',
+
+    // Custom Jinx
+    'customJinx.addTitle': '添加自定义相克关系',
+    'customJinx.editTitle': '编辑相克关系',
+    'customJinx.characterA': '角色 A',
+    'customJinx.characterB': '角色 B',
+    'customJinx.description': '相克规则描述',
+    'customJinx.descriptionZh': '中文描述',
+    'customJinx.descriptionEn': '英文描述',
+    'customJinx.descriptionPlaceholder': '输入相克规则描述...',
+    'customJinx.selectCharacter': '选择角色',
+    'customJinx.selectTarget': '选择相克角色',
+    'customJinx.selectCharactersError': '请选择两个角色',
+    'customJinx.sameCharacterError': '不能选择相同的角色',
+    'customJinx.descriptionError': '请填写相克规则描述',
+    'customJinx.hint': '提示：中文使用角色名称作为主键，英文使用角色ID作为主键。请至少填写一种语言的描述。',
+    'customJinx.addCustomJinx': '添加自定义相克',
+    'customJinx.delete': '删除',
+    'customJinx.custom': '自定义',
+    'customJinx.official': '官方',
+    'customJinx.management': '相克关系管理',
+    'customJinx.addNew': '添加新相克关系',
+    'customJinx.add': '添加',
   },
   'en': {
     // Common
@@ -482,6 +507,7 @@ export const translations = {
     'ui.noResults': 'No matching settings found',
     'ui.manageCustomFonts': 'Manage Custom Fonts',
     'ui.resetAllSettings': 'Reset All Settings',
+    'ui.resetUISettings': 'Reset All UI Settings',
     'dialog.resetUIMessage': 'Are you sure you want to reset all UI settings?',
 
     // Category 1: Page Layout
@@ -496,7 +522,8 @@ export const translations = {
 
     // Category 2: Character Card Layout
     'ui.category.cardLayout': 'Character Card Layout',
-    'ui.cardPadding': 'Card Padding',
+    'ui.cardPaddingX': 'Card Padding (Horizontal)',
+    'ui.cardPaddingY': 'Card Padding (Vertical)',
     'ui.cardGap': 'Card Element Gap',
     'ui.textAreaGap': 'Text Area Gap',
 
@@ -555,8 +582,8 @@ export const translations = {
     'decorative.page2Text': 'Jinx Rules · Fabled · Travelers',
 
     // Credits
-    'credits.designTitle': 'Design & Reference',
-    'credits.designers': 'Onion & Lei',
+    'credits.designTitle': 'Design',
+    'credits.designers': 'Onion',
 
     // Special Rules
     'specialRules.title': 'Special Rules',
@@ -570,6 +597,29 @@ export const translations = {
     'specialRules.stateRule': 'State Rule',
     'specialRules.cancel': 'Cancel',
     'specialRules.confirm': 'Confirm',
+
+    // Custom Jinx
+    'customJinx.addTitle': 'Add Custom Jinx',
+    'customJinx.editTitle': 'Edit Jinx',
+    'customJinx.characterA': 'Character A',
+    'customJinx.characterB': 'Character B',
+    'customJinx.description': 'Jinx Rule Description',
+    'customJinx.descriptionZh': 'Chinese Description',
+    'customJinx.descriptionEn': 'English Description',
+    'customJinx.descriptionPlaceholder': 'Enter jinx rule description...',
+    'customJinx.selectCharacter': 'Select Character',
+    'customJinx.selectTarget': 'Select Target Character',
+    'customJinx.selectCharactersError': 'Please select two characters',
+    'customJinx.sameCharacterError': 'Cannot select the same character',
+    'customJinx.descriptionError': 'Please fill in the jinx rule description',
+    'customJinx.hint': 'Hint: Chinese uses character names as keys, English uses character IDs. Please fill in at least one language description.',
+    'customJinx.addCustomJinx': 'Add Custom Jinx',
+    'customJinx.delete': 'Delete',
+    'customJinx.custom': 'Custom',
+    'customJinx.official': 'Official',
+    'customJinx.management': 'Jinx Management',
+    'customJinx.addNew': 'Add New Jinx',
+    'customJinx.add': 'Add',
   },
 };
 

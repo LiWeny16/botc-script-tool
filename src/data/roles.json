@@ -2266,5 +2266,20 @@
     ],
     "setup": false,
     "ability": "All players start knowing a player of your alignment. You may choose to kill anyone who nominates them."
+  },
+  {
+    "id": "xizi",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/xizi.png",
+    "edition": "custom",
+    "name": "Actor",
+    "ability": "All Actors know each other. Regardless of how many Actors are in play or alive, the win condition is reversed. [All good players are Actors]",
+    "team": "townsfolk",
+    "sch_team": "Townsfolk",
+    "firstNight": 3012,
+    "otherNight": 0,
+    "firstNightReminder": "Wake all Actors and have them acknowledge each other.",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": true
   }
 ]

@@ -29,6 +29,7 @@ import {
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
+import { scriptStore } from '../stores/ScriptStore';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
 import IOSSwitch from './IOSSwitch';
@@ -57,11 +58,15 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   const [error, setError] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [textareaHeight, setTextareaHeight] = useState(200); // JSON编辑框高度
+  const [isResizing, setIsResizing] = useState(false);
 
   // 用于防抖的 ref
   const debounceTimerRef = useRef<number | null>(null);
   const isUpdatingFromPropRef = useRef(false);
   const previousOfficialIdParseModeRef = useRef(configStore.config.officialIdParseMode);
+  const resizeStartY = useRef<number>(0);
+  const resizeStartHeight = useRef<number>(0);
 
   // 监听官方ID解析模式的变化，触发重新解析JSON
   useEffect(() => {
@@ -154,14 +159,50 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
 
   };
 
-  const handleConfirmReset = () => {
-    configStore.resetToDefault();
-    uiConfigStore.resetToDefault(); // 同时重置 UI 设置
-    setResetDialogOpen(false);
-    handleClear()
-
-    alert(t('dialog.resetSuccess'));
-
+  const handleConfirmReset = async () => {
+    try {
+      // 1. 完全清空 ScriptStore（删除 localStorage）
+      scriptStore.clear();
+      
+      // 2. 重置所有配置 store（删除 localStorage）
+      configStore.resetToDefault();
+      await uiConfigStore.resetToDefault(); // 异步清理字体和 localStorage
+      
+      // 3. 额外保险：手动清理所有可能的 localStorage 键
+      const keysToRemove = [
+        'botc-script-data',
+        'botc-app-config',
+        'botc-ui-config'
+      ];
+      
+      keysToRemove.forEach(key => {
+        try {
+          localStorage.removeItem(key);
+          console.log(`✓ 已删除 localStorage 键: ${key}`);
+        } catch (error) {
+          console.error(`删除 ${key} 失败:`, error);
+        }
+      });
+      
+      // 4. 清空输入框
+      setJsonInput('');
+      setTitleInput('');
+      setAuthorInput('');
+      setError('');
+      
+      setResetDialogOpen(false);
+      
+      console.log('🎉 所有设置和数据已重置！');
+      
+      // 5. 刷新页面，让应用重新初始化（作为新用户）
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } catch (error) {
+      console.error('重置过程中出现错误:', error);
+      alert('重置失败，请刷新页面后重试');
+      setResetDialogOpen(false);
+    }
   };
 
   const handleCancelReset = () => {
@@ -191,7 +232,8 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   };
 
   const handleClear = () => {
-    setJsonInput('');
+    // 不清空JSON输入框，保留从父组件传来的默认JSON框架
+    // setJsonInput(''); // 注释掉，让父组件控制JSON内容
     setTitleInput('');
     setAuthorInput('');
     setError('');
@@ -205,6 +247,36 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
   const handleCancelClear = () => {
     setClearDialogOpen(false);
   };
+
+  // 拖动调整大小的处理函数
+  const handleResizeStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsResizing(true);
+    resizeStartY.current = e.clientY;
+    resizeStartHeight.current = textareaHeight;
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaY = e.clientY - resizeStartY.current;
+      const newHeight = Math.max(100, Math.min(800, resizeStartHeight.current + deltaY));
+      setTextareaHeight(newHeight);
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing]);
 
   return (
     <Paper
@@ -276,22 +348,60 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
 
       <Stack spacing={2}>
         {/* JSON 输入框 */}
-        <TextField
-          multiline
-          rows={6}
-          fullWidth
-          label={t('input.jsonLabel')}
-          placeholder={t('input.jsonPlaceholder')}
-          value={jsonInput}
-          onChange={(e) => handleJsonInputChange(e.target.value)}
-          variant="outlined"
-          sx={{
-            '& .MuiOutlinedInput-root': {
-              fontFamily: 'monospace',
-              fontSize: { xs: '0.8rem', sm: '0.9rem' },
-            },
-          }}
-        />
+        <Box sx={{ position: 'relative' }}>
+          <TextField
+            multiline
+            fullWidth
+            label={t('input.jsonLabel')}
+            placeholder={t('input.jsonPlaceholder')}
+            value={jsonInput}
+            onChange={(e) => handleJsonInputChange(e.target.value)}
+            variant="outlined"
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                fontFamily: 'monospace',
+                fontSize: { xs: '0.8rem', sm: '0.9rem' },
+                height: `${textareaHeight}px`,
+                alignItems: 'flex-start',
+              },
+              '& .MuiInputBase-input': {
+                height: '100% !important',
+                overflow: 'auto !important',
+              },
+            }}
+          />
+          {/* 拖动手柄 */}
+          <Box
+            onMouseDown={handleResizeStart}
+            sx={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '12px',
+              cursor: 'ns-resize',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: isResizing ? 'rgba(25, 118, 210, 0.1)' : 'transparent',
+              transition: 'background-color 0.2s',
+              '&:hover': {
+                backgroundColor: 'rgba(25, 118, 210, 0.08)',
+              },
+              '&::before': {
+                content: '""',
+                width: '40px',
+                height: '4px',
+                borderRadius: '2px',
+                backgroundColor: isResizing ? '#1976d2' : '#bdbdbd',
+                transition: 'background-color 0.2s',
+              },
+              '&:hover::before': {
+                backgroundColor: '#1976d2',
+              },
+            }}
+          />
+        </Box>
 
         {/* 错误提示 */}
         {(error || jsonParseError) && (

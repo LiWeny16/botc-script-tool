@@ -17,13 +17,20 @@ import {
   Chip,
   useMediaQuery,
   useTheme,
+  Autocomplete,
+  Paper,
+  List,
+  ListItem,
 } from '@mui/material';
-import { Close as CloseIcon } from '@mui/icons-material';
+import { Close as CloseIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
 import type { Character } from '../types';
 import { CHARACTERS } from '../data/characters';
 import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
 import { configStore } from '../stores/ConfigStore';
+import { scriptStore } from '../stores/ScriptStore';
+import { observer } from 'mobx-react-lite';
+import { JINX_DATA, JINX_DATA_EN } from '../data/jinx';
 
 interface CharacterEditDialogProps {
   open: boolean;
@@ -32,22 +39,38 @@ interface CharacterEditDialogProps {
   onSave: (characterId: string, updates: Partial<Character>) => void;
 }
 
-export default function CharacterEditDialog({
+// 相克关系项接口
+interface JinxItem {
+  targetCharacter: Character;
+  description: string;
+  isCustom: boolean;
+}
+
+export default observer(function CharacterEditDialog({
   open,
   character,
   onClose,
   onSave,
 }: CharacterEditDialogProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [editData, setEditData] = useState<Partial<Character>>({});
+  const [jinxItems, setJinxItems] = useState<JinxItem[]>([]);
+  const [newJinxTarget, setNewJinxTarget] = useState<Character | null>(null);
+  const [newJinxDescription, setNewJinxDescription] = useState('');
   
   // 官方ID解析模式下禁用所有编辑
   const isEditDisabled = configStore.config.officialIdParseMode;
 
+  // 获取当前剧本中的所有角色（排除当前编辑的角色）
+  const availableCharacters = scriptStore.script?.all.filter(c => c.id !== character?.id) || [];
+
+  // 获取官方相克数据
+  const officialJinxData = language === 'en' ? JINX_DATA_EN : JINX_DATA;
+
   useEffect(() => {
-    if (character) {
+    if (character && scriptStore.script) {
       const defaultData = CHARACTERS[character.id] || {};
       const mergedData = {
         ...defaultData,
@@ -60,8 +83,74 @@ export default function CharacterEditDialog({
         mergedReminders: mergedData.reminders,
       });
       setEditData(mergedData);
+
+      // 加载该角色相关的相克关系
+      const jinxes: JinxItem[] = [];
+      const currentCharName = character.name;
+      const currentCharId = character.id;
+
+      // 遍历剧本中的相克关系
+      if (scriptStore.script.jinx[currentCharName]) {
+        Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, description]) => {
+          const targetChar = scriptStore.script!.all.find(c => c.name === targetName);
+          if (targetChar) {
+            // 检查是否为官方相克
+            const isCustom = language === 'en'
+              ? !(officialJinxData[currentCharId]?.[targetChar.id] || officialJinxData[targetChar.id]?.[currentCharId])
+              : !(officialJinxData[currentCharName]?.[targetName] || officialJinxData[targetName]?.[currentCharName]);
+
+            jinxes.push({
+              targetCharacter: targetChar,
+              description,
+              isCustom,
+            });
+          }
+        });
+      }
+
+      setJinxItems(jinxes);
     }
-  }, [character]);
+  }, [character, scriptStore.script, language]);
+
+  const handleAddJinx = () => {
+    if (newJinxTarget && newJinxDescription.trim() && character) {
+      scriptStore.addCustomJinx(character, newJinxTarget, newJinxDescription.trim());
+      setNewJinxTarget(null);
+      setNewJinxDescription('');
+      
+      // 重新加载相克关系
+      setTimeout(() => {
+        const jinxes: JinxItem[] = [];
+        const currentCharName = character.name;
+        const currentCharId = character.id;
+
+        if (scriptStore.script && scriptStore.script.jinx[currentCharName]) {
+          Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, description]) => {
+            const targetChar = scriptStore.script!.all.find(c => c.name === targetName);
+            if (targetChar) {
+              const isCustom = language === 'en'
+                ? !(officialJinxData[currentCharId]?.[targetChar.id] || officialJinxData[targetChar.id]?.[currentCharId])
+                : !(officialJinxData[currentCharName]?.[targetName] || officialJinxData[targetName]?.[currentCharName]);
+
+              jinxes.push({
+                targetCharacter: targetChar,
+                description,
+                isCustom,
+              });
+            }
+          });
+        }
+        setJinxItems(jinxes);
+      }, 100);
+    }
+  };
+
+  const handleDeleteJinx = (jinx: JinxItem) => {
+    if (character && jinx.isCustom) {
+      scriptStore.removeCustomJinx(character, jinx.targetCharacter);
+      setJinxItems(prev => prev.filter(j => j.targetCharacter.id !== jinx.targetCharacter.id));
+    }
+  };
 
   const handleSave = () => {
     // 官方ID解析模式下禁止保存编辑
@@ -343,6 +432,127 @@ export default function CharacterEditDialog({
             </>
           </Box>
 
+          <Divider />
+
+          {/* 自定义相克关系区块 */}
+          <Box component="section">
+            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>
+              {t('customJinx.management')}
+            </Typography>
+            
+            {/* 现有相克关系列表 */}
+            {jinxItems.length > 0 && (
+              <List sx={{ mb: 2, p: 0 }}>
+                {jinxItems.map((jinx, index) => (
+                  <ListItem
+                    key={index}
+                    sx={{
+                      border: 1,
+                      borderColor: 'divider',
+                      borderRadius: 1,
+                      mb: 1,
+                      p: 1.5,
+                      backgroundColor: jinx.isCustom ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5 }}>
+                      <CharacterImage
+                        src={jinx.targetCharacter.image}
+                        alt={jinx.targetCharacter.name}
+                        sx={{ width: 40, height: 40, borderRadius: 1, flexShrink: 0 }}
+                      />
+                      <Box sx={{ flex: 1, minWidth: 0 }}>
+                        <Typography variant="subtitle2" fontWeight="bold">
+                          {jinx.targetCharacter.name}
+                          {!jinx.isCustom && (
+                            <Chip 
+                              label={t('customJinx.official')} 
+                              size="small" 
+                              sx={{ ml: 1, height: 20 }}
+                            />
+                          )}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                          {jinx.description}
+                        </Typography>
+                      </Box>
+                      {jinx.isCustom && !isEditDisabled && (
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteJinx(jinx)}
+                          sx={{ flexShrink: 0 }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      )}
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
+            )}
+
+            {/* 添加新相克关系 */}
+            {!isEditDisabled && (
+              <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.02)' }}>
+                <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+                  {t('customJinx.addNew')}
+                </Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Autocomplete
+                    value={newJinxTarget}
+                    onChange={(_, newValue) => setNewJinxTarget(newValue)}
+                    options={availableCharacters}
+                    getOptionLabel={(option) => option.name}
+                    renderOption={(props, option) => (
+                      <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <CharacterImage
+                          src={option.image}
+                          alt={option.name}
+                          sx={{ width: 32, height: 32, borderRadius: 1 }}
+                        />
+                        <Typography>{option.name}</Typography>
+                      </Box>
+                    )}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label={t('customJinx.selectTarget')}
+                        placeholder={t('customJinx.selectCharacter')}
+                        InputProps={{
+                          ...params.InputProps,
+                          startAdornment: newJinxTarget && (
+                            <CharacterImage
+                              src={newJinxTarget.image}
+                              alt={newJinxTarget.name}
+                              sx={{ width: 32, height: 32, ml: 1, borderRadius: 1 }}
+                            />
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                  <TextField
+                    fullWidth
+                    multiline
+                    rows={3}
+                    label={t('customJinx.description')}
+                    placeholder={t('customJinx.descriptionPlaceholder')}
+                    value={newJinxDescription}
+                    onChange={(e) => setNewJinxDescription(e.target.value)}
+                  />
+                  <Button
+                    variant="contained"
+                    startIcon={<AddIcon />}
+                    onClick={handleAddJinx}
+                    disabled={!newJinxTarget || !newJinxDescription.trim()}
+                    fullWidth
+                  >
+                    {t('customJinx.add')}
+                  </Button>
+                </Box>
+              </Paper>
+            )}
+          </Box>
 
         </Box>
       </DialogContent>
@@ -357,4 +567,4 @@ export default function CharacterEditDialog({
       </DialogActions>
     </Dialog>
   );
-}
+});

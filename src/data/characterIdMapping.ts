@@ -21,6 +21,10 @@ export const CN_TO_EN_ID_MAP: Record<string, string> = {
   'lil_monsta': 'lilmonsta',
   'al-hadikhia': 'alhadikhia',
   'lord_of_typhon': 'lordoftyphon',
+  'high_priestess': 'highpriestess',
+  'village_idiot': 'villageidiot',
+  'plague_doctor': 'plaguedoctor',
+  'organ_grinder': 'organgrinder'
 };
 
 // 英文ID -> 中文ID 的映射（反向映射）

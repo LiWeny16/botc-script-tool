@@ -306,14 +306,29 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={2}>
-                  {/* 卡片内边距 */}
+                  {/* 卡片内边距（水平） */}
                   <Box>
                     <Typography variant="caption" gutterBottom>
-                      {t('ui.cardPadding')}: {uiConfigStore.config.characterCard.cardPadding}
+                      {t('ui.cardPaddingX')}: {uiConfigStore.config.characterCard.cardPaddingX}
                     </Typography>
                     <Slider
-                      value={uiConfigStore.config.characterCard.cardPadding}
-                      onChange={(_, value) => uiConfigStore.updateCharacterCardConfig({ cardPadding: value as number })}
+                      value={uiConfigStore.config.characterCard.cardPaddingX}
+                      onChange={(_, value) => uiConfigStore.updateCharacterCardConfig({ cardPaddingX: value as number })}
+                      min={0}
+                      max={5}
+                      step={0.5}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+
+                  {/* 卡片内边距（竖直） */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.cardPaddingY')}: {uiConfigStore.config.characterCard.cardPaddingY}
+                    </Typography>
+                    <Slider
+                      value={uiConfigStore.config.characterCard.cardPaddingY}
+                      onChange={(_, value) => uiConfigStore.updateCharacterCardConfig({ cardPaddingY: value as number })}
                       min={0}
                       max={5}
                       step={0.5}
@@ -577,7 +592,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
             startIcon={<RestartAltIcon />}
             onClick={handleReset}
           >
-            {t('ui.resetAllSettings')}
+            {t('ui.resetUISettings')}
           </Button>
         </Box>
       </Box>

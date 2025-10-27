@@ -6,6 +6,100 @@ import { THEME_COLORS } from '../theme/colors';
 import { normalizeCharacterId } from '../data/characterIdMapping';
 import { configStore } from '../stores/ConfigStore';
 
+/**
+ * 根据角色名称查找角色ID（仅用于中文模式）
+ * @param name 角色中文名称
+ * @param charactersDict 角色字典
+ * @returns 找到的角色ID，如果没找到返回 null
+ */
+function findCharacterIdByName(name: string, charactersDict: Record<string, Character>): string | null {
+  for (const [id, character] of Object.entries(charactersDict)) {
+    if (character.name === name) {
+      return id;
+    }
+  }
+  return null;
+}
+
+/**
+ * 获取角色的字典键（考虑语言模式和匹配策略）
+ * @param item JSON中的角色项
+ * @param language 当前语言
+ * @param charactersDict 当前语言的角色字典
+ * @param officialIdParseMode 是否启用官方ID解析模式
+ * @returns 字典中的键，如果找不到返回原始ID；同时返回是否找到
+ */
+function getCharacterDictKey(
+  item: any,
+  language: 'zh-CN' | 'en',
+  charactersDict: Record<string, Character>,
+  officialIdParseMode: boolean = false
+): { dictKey: string; found: boolean } {
+  // 英文模式：需要特殊处理切换语言的情况
+  if (language === 'en') {
+    // 如果启用官方解析模式，且 JSON 有中文 name
+    if (officialIdParseMode && item.name && typeof item.name === 'string') {
+      // 1. 先尝试在中文库中通过 name 查找
+      const cnId = findCharacterIdByName(item.name, CHARACTERS);
+      if (cnId) {
+        // 2. 找到了，将中文 ID 转换为英文 ID
+        const enId = normalizeCharacterId(cnId, 'en');
+        // 3. 在英文库中查找
+        if (enId in charactersDict) {
+          return { dictKey: enId, found: true };
+        }
+        // 4. 转换后的 ID 也找不到，尝试直接用原 cnId
+        if (cnId in charactersDict) {
+          return { dictKey: cnId, found: true };
+        }
+      }
+    }
+
+    // 普通流程：基于 ID 查找
+    let dictKey = item.id;
+
+    // 直接匹配
+    if (dictKey in charactersDict) {
+      return { dictKey, found: true };
+    }
+
+    // 使用ID映射
+    const normalizedKey = normalizeCharacterId(item.id, language);
+    if (normalizedKey in charactersDict) {
+      return { dictKey: normalizedKey, found: true };
+    }
+
+    return { dictKey: item.id, found: false };
+  }
+
+  // 中文模式：优先基于 name，回退到 id
+  // 1. 如果有 name 字段，优先使用 name 查找（官方解析模式和普通模式都适用）
+  if (item.name && typeof item.name === 'string') {
+    const foundId = findCharacterIdByName(item.name, charactersDict);
+    if (foundId) {
+      return { dictKey: foundId, found: true };
+    }
+    // 如果通过 name 没找到，继续尝试 id
+  }
+
+  // 2. 使用 id 字段查找（兼容官方只有ID的格式）
+  let dictKey = item.id;
+
+  // 尝试直接匹配
+  if (dictKey in charactersDict) {
+    return { dictKey, found: true };
+  }
+
+  // 尝试使用ID映射
+  const normalizedKey = normalizeCharacterId(item.id, language);
+  if (normalizedKey in charactersDict) {
+    return { dictKey: normalizedKey, found: true };
+  }
+
+  // 3. 如果都找不到，返回原始ID和未找到标记
+  return { dictKey: item.id, found: false };
+}
+
 // 解析 JSON 并生成剧本对象
 export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'zh-CN'): Script {
   const json = JSON.parse(jsonString);
@@ -16,7 +110,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
   // 根据语言选择角色字典
   const charactersDict = language === 'en' ? CHARACTERS_EN : CHARACTERS;
-  
+
   // 获取官方ID解析模式配置
   const officialIdParseMode = configStore.config.officialIdParseMode;
 
@@ -40,11 +134,11 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       },
       {
         image: '/imgs/icons/75px-Mi.png',
-        index: 1,
+        index: 0.0001,
       },
       {
         image: '/imgs/icons/75px-Di.png',
-        index: 2,
+        index: 0.0002,
       },
     ],
     othernight: [
@@ -69,6 +163,9 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     sourceIndex: number;
   }> = [];
 
+  // 收集所有的相克规则项，延后处理
+  const jinxItems: Array<any> = [];
+
   for (let item of json) {
     // 支持简化格式：如果 item 是字符串，转换为对象
     if (typeof item === 'string') {
@@ -82,7 +179,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       script.subtitle = item.subtitle;  // 解析副标题
       script.author = item.author || '';
       script.playerCount = item.playerCount;  // 解析玩家人数
-      
+
       // 处理 state 字段
       if (item.state && Array.isArray(item.state)) {
         item.state.forEach((state: any, index: number) => {
@@ -95,7 +192,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
           });
         });
       }
-      
+
       // 处理 status 字段
       if (item.status && Array.isArray(item.status)) {
         item.status.forEach((status: any, index: number) => {
@@ -108,7 +205,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
           });
         });
       }
-      
+
       continue;
     }
 
@@ -128,15 +225,13 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     // 从字典中获取角色信息，或使用 JSON 中的完整信息
     let character: Character = item;
 
-    // 尝试直接匹配ID
-    let dictKey = item.id;
-    if (!(dictKey in charactersDict)) {
-      // 如果直接匹配失败，尝试使用ID映射
-      dictKey = normalizeCharacterId(item.id, language);
-    }
+    // 使用新的智能匹配函数获取字典键和匹配结果
+    // 中文模式：优先基于 name，回退到 id
+    // 英文模式：基于 id，但在官方解析模式下会先尝试通过中文 name 查找
+    const { dictKey, found } = getCharacterDictKey(item, language, charactersDict, officialIdParseMode);
 
-    // 根据官方ID解析模式决定角色信息来源
-    if (dictKey in charactersDict) {
+    // 根据是否找到和官方ID解析模式决定角色信息来源
+    if (found) {
       if (officialIdParseMode) {
         // 官方ID解析模式：完全使用官方数据，忽略JSON中的自定义信息
         character = { ...charactersDict[dictKey] };
@@ -152,13 +247,15 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
           character.id = item.id; // 保持原始ID
         }
       }
+    } else {
+      // 如果字典中找不到，使用 JSON 中的完整信息（自定义角色）
+      // 这种情况下 character 已经等于 item，不需要额外处理
+      console.warn(`角色 "${item.id}" (name: "${item.name || 'N/A'}") 在字典中未找到，使用JSON自定义数据`);
     }
 
-    // 处理相克规则
+    // 处理相克规则 - 先收集，稍后统一处理
     if (item.team === 'a jinxed') {
-      const [charA, charB] = item.name.split('&');
-      if (!script.jinx[charA]) script.jinx[charA] = {};
-      script.jinx[charA][charB] = item.ability;
+      jinxItems.push(item);
       continue;
     }
 
@@ -223,9 +320,83 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     }
   }
 
+  // 处理自定义相克规则（在所有角色解析完成后）
+  for (const item of jinxItems) {
+    // 辅助函数：根据ID查找角色名称
+    const findCharacterName = (id: string): string | null => {
+      // 1. 尝试从官方角色库查找
+      const officialChar = charactersDict[id];
+      if (officialChar) {
+        return language === 'zh-CN' ? officialChar.name : id;
+      }
+
+      // 2. 尝试使用ID映射
+      const normalizedId = normalizeCharacterId(id, language);
+      const mappedChar = charactersDict[normalizedId];
+      if (mappedChar) {
+        return language === 'zh-CN' ? mappedChar.name : normalizedId;
+      }
+
+      // 3. 在已解析的角色列表中查找（处理自定义ID的情况，如 "chefbutton"）
+      const foundChar = script.all.find(c => c.id === id);
+      if (foundChar) {
+        return language === 'zh-CN' ? foundChar.name : foundChar.id;
+      }
+
+      // 4. 都找不到，返回null
+      return null;
+    };
+
+    // 新格式：使用 jinx 数组
+    if (item.jinx && Array.isArray(item.jinx)) {
+      // 获取主角色名称
+      const mainCharName = findCharacterName(item.id);
+      if (!mainCharName) {
+        console.warn(`相克规则中的主角色 "${item.id}" 未找到，跳过该相克关系`);
+        continue;
+      }
+
+      item.jinx.forEach((jinxEntry: any) => {
+        const targetCharName = findCharacterName(jinxEntry.id);
+        if (!targetCharName) {
+          console.warn(`相克规则中的目标角色 "${jinxEntry.id}" 未找到，跳过该相克关系`);
+          return;
+        }
+
+        // 优先使用 reason，如果没有则使用 reasonEn
+        const description = jinxEntry.reason || jinxEntry.reasonEn || '';
+
+        // 存储双向关系，与官方相克逻辑保持一致
+        // 方向1: mainCharName -> targetCharName
+        if (!script.jinx[mainCharName]) {
+          script.jinx[mainCharName] = {};
+        }
+        script.jinx[mainCharName][targetCharName] = description;
+
+        // 方向2: targetCharName -> mainCharName（反向关系）
+        if (!script.jinx[targetCharName]) {
+          script.jinx[targetCharName] = {};
+        }
+        script.jinx[targetCharName][mainCharName] = description;
+      });
+    }
+    // 旧格式：使用 name 字段和 & 分隔符（向后兼容）
+    else if (item.name && typeof item.name === 'string' && item.name.includes('&')) {
+      const [charA, charB] = item.name.split('&');
+      const description = item.ability || '';
+
+      // 存储双向关系
+      if (!script.jinx[charA]) script.jinx[charA] = {};
+      script.jinx[charA][charB] = description;
+
+      if (!script.jinx[charB]) script.jinx[charB] = {};
+      script.jinx[charB][charA] = description;
+    }
+  }
+
   // 统一处理所有特殊规则（state + status + special_rule）
   // 1. 去重：根据 title 去重
-  const uniqueRules = allMetaRules.filter((rule, index, self) => 
+  const uniqueRules = allMetaRules.filter((rule, index, self) =>
     index === self.findIndex((r) => r.title === rule.title)
   );
 
@@ -241,10 +412,10 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       sourceType: firstRule.sourceType,
       sourceIndex: firstRule.sourceIndex,
     };
-    
+
     // 第一页显示第一条规则
     script.specialRules.push(firstRuleData);
-    
+
     // 第二页也显示第一条规则
     script.secondPageRules?.push({ ...firstRuleData });
   }
@@ -315,7 +486,7 @@ export function highlightAbilityText(text: string): string {
     '外来者角色', '善良玩家', '善良阵营', '善良角色', '镇民角色',
     '恢复健康', '起死回生', '落难少女', '有且只有', '有多准确',
     '守夜人', '外来者', '农夫', '书生', '疯子', '国王',
-    '醉酒', '复活', '反刍', '镇民', '善良', '正确', '存活', '获胜', '大法官','暗影筹码','梭哈',
+    '醉酒', '复活', '反刍', '镇民', '善良', '正确', '存活', '获胜', '大法官', '暗影筹码', '梭哈',
   ];
 
   const purpleKeywords = ['非旅行者', '旅行者', '疯狂'];

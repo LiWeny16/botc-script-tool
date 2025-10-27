@@ -38,7 +38,8 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   const CONFIG = {
     // 卡片配置
     card: {
-      padding: config.cardPadding,
+      paddingX: config.cardPaddingX,
+      paddingY: config.cardPaddingY,
       borderRadius: config.cardBorderRadius,
       gap: config.cardGap,
     },
@@ -252,7 +253,8 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
-            p: CONFIG.card.padding,
+            px: CONFIG.card.paddingX,
+            py: CONFIG.card.paddingY,
             backgroundColor: 'transparent',
             borderRadius: CONFIG.card.borderRadius,
             transition: 'all 0.2s',
@@ -268,160 +270,162 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             },
           }}
         >
-        <Box sx={{
-          width: "100%",
-          display: "flex",
-          gap: CONFIG.card.gap,
-          alignItems: 'center',
-        }}>
-          {/* 角色头像 */}
-          <CharacterImage
-            src={character.image}
-            alt={character.name}
-            sx={{
-              width: CONFIG.avatar.width,
-              height: CONFIG.avatar.height,
-              borderRadius: CONFIG.avatar.borderRadius,
-              objectFit: 'cover',
-              flexShrink: 0,
-              userDrag: 'none',
-              WebkitUserDrag: 'none',
-              pointerEvents: 'none',
-            }}
-          />
-
-          {/* 角色信息：名字 + 描述 + 相克规则 */}
           <Box sx={{
-            flex: 1,
-            minWidth: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: CONFIG.textArea.gap,
+            width: "100%",
+            display: "flex",
+            gap: CONFIG.card.gap,
+            alignItems: 'center',
+            zIndex: 5,
           }}>
-            <Typography
-              variant="h6"
+            {/* 角色头像 */}
+            <CharacterImage
+              src={character.image}
+              alt={character.name}
               sx={{
-                fontWeight: CONFIG.name.fontWeight,
-                fontSize: CONFIG.name.fontSize,
-                color: nameColor,
-                lineHeight: CONFIG.name.lineHeight,
-                fontFamily: uiConfigStore.characterNameFont,
-              }}
-            >
-              {character.name}
-            </Typography>
-
-            <Typography
-              variant="body2"
-              sx={{
-                fontSize: CONFIG.description.fontSize,
-                lineHeight: CONFIG.description.lineHeight,
-                color: THEME_COLORS.text.tertiary,
-                fontFamily: uiConfigStore.characterAbilityFont,
-              }}
-              dangerouslySetInnerHTML={{
-                __html: highlightAbilityText(character.ability),
+                width: CONFIG.avatar.width,
+                height: CONFIG.avatar.height,
+                borderRadius: CONFIG.avatar.borderRadius,
+                objectFit: 'cover',
+                flexShrink: 0,
+                userDrag: 'none',
+                WebkitUserDrag: 'none',
+                pointerEvents: 'none',
               }}
             />
 
-            {/* 相克规则 - 放在描述文本下方,与描述文本左对齐 */}
-            {jinxInfo && Object.keys(jinxInfo).length > 0 && (
-              // 双页面模式：只显示灯神图标和相克角色图标的横排
-              uiConfigStore.config.enableTwoPageMode ? (
-                <Box sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: CONFIG.jinx.iconGap,
-                  flexWrap: 'wrap',
-                }}>
-                  {/* 灯神图标 */}
-                  <CharacterImage
-                    src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
-                    alt="Jinx Icon"
-                    sx={{
-                      width: CONFIG.jinx.icon.width,
-                      height: CONFIG.jinx.icon.height,
-                      borderRadius: CONFIG.jinx.icon.borderRadius,
-                      flexShrink: 0,
-                      userDrag: 'none',
-                      WebkitUserDrag: 'none',
-                      pointerEvents: 'none',
-                    }}
-                  />
-                  {/* 所有相克的角色图标 */}
-                  {Object.keys(jinxInfo).map((targetName) => {
-                    const targetChar = allCharacters?.find((c) => c.name === targetName);
-                    return targetChar ? (
-                      <CharacterImage
-                        key={targetName}
-                        src={targetChar.image}
-                        alt={targetName}
-                        sx={{
-                          width: CONFIG.jinx.icon.width,
-                          height: CONFIG.jinx.icon.height,
-                          borderRadius: CONFIG.jinx.icon.borderRadius,
-                          flexShrink: 0,
-                          userDrag: 'none',
-                          WebkitUserDrag: 'none',
-                          pointerEvents: 'none',
-                        }}
-                      />
-                    ) : null;
-                  })}
-                </Box>
-              ) : (
-                // 单页面模式：保持原有的详细展示
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
-                  {Object.entries(jinxInfo).map(([targetName, jinxText]) => {
-                    const targetChar = allCharacters?.find((c) => c.name === targetName);
-                    return (
-                      <Box
-                        key={targetName}
-                        sx={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: CONFIG.jinx.iconGap,
-                          p: CONFIG.jinx.padding,
-                          backgroundColor: CONFIG.jinx.backgroundColor,
-                          borderRadius: CONFIG.jinx.borderRadius,
-                        }}
-                      >
-                        {targetChar && (
-                          <CharacterImage
-                            src={targetChar.image}
-                            alt={targetName}
-                            sx={{
-                              width: CONFIG.jinx.icon.width,
-                              height: CONFIG.jinx.icon.height,
-                              borderRadius: CONFIG.jinx.icon.borderRadius,
-                              flexShrink: 0,
-                              userDrag: 'none',
-                              WebkitUserDrag: 'none',
-                              pointerEvents: 'none',
-                            }}
-                          />
-                        )}
-                        <Typography
-                          variant="caption"
+            {/* 角色信息：名字 + 描述 + 相克规则 */}
+            <Box sx={{
+              flex: 1,
+              minWidth: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: CONFIG.textArea.gap,
+            }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  fontWeight: CONFIG.name.fontWeight,
+                  fontSize: CONFIG.name.fontSize,
+                  color: nameColor,
+                  lineHeight: CONFIG.name.lineHeight,
+                  fontFamily: uiConfigStore.characterNameFont,
+                }}
+              >
+                {character.name}
+              </Typography>
+
+              <Typography
+                variant="body2"
+                sx={{
+                  fontSize: CONFIG.description.fontSize,
+                  lineHeight: CONFIG.description.lineHeight,
+                  color: THEME_COLORS.text.tertiary,
+                  fontFamily: uiConfigStore.characterAbilityFont,
+                }}
+                dangerouslySetInnerHTML={{
+                  __html: highlightAbilityText(character.ability),
+                }}
+              />
+
+              {/* 相克规则 - 放在描述文本下方,与描述文本左对齐 */}
+              {jinxInfo && Object.keys(jinxInfo).length > 0 && (
+                // 双页面模式：只显示灯神图标和相克角色图标的横排
+                uiConfigStore.config.enableTwoPageMode ? (
+                  <Box sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: CONFIG.jinx.iconGap,
+                    flexWrap: 'wrap',
+                  }}>
+                    {/* 灯神图标 */}
+                    <CharacterImage
+                      src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
+                      alt="Jinx Icon"
+                      sx={{
+                        width: CONFIG.jinx.icon.width,
+                        height: CONFIG.jinx.icon.height,
+                        borderRadius: CONFIG.jinx.icon.borderRadius,
+                        flexShrink: 0,
+                        userDrag: 'none',
+                        WebkitUserDrag: 'none',
+                        pointerEvents: 'none',
+                      }}
+                    />
+                    {/* 所有相克的角色图标 */}
+                    {Object.keys(jinxInfo).map((targetName) => {
+                      const targetChar = allCharacters?.find((c) => c.name === targetName);
+                      return targetChar ? (
+                        <CharacterImage
+                          key={targetName}
+                          src={targetChar.image}
+                          alt={targetName}
                           sx={{
-                            fontSize: CONFIG.jinx.text.fontSize,
-                            color: THEME_COLORS.text.primary,
-                            lineHeight: CONFIG.jinx.text.lineHeight,
-                            fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
-                            flex: 1,
+                            width: CONFIG.jinx.icon.width,
+                            height: CONFIG.jinx.icon.height,
+                            borderRadius: CONFIG.jinx.icon.borderRadius,
+                            flexShrink: 0,
+                            userDrag: 'none',
+                            WebkitUserDrag: 'none',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                      ) : null;
+                    })}
+                  </Box>
+                ) : (
+                  // 单页面模式：保持原有的详细展示
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
+                    {Object.entries(jinxInfo).map(([targetName, jinxText]) => {
+                      const targetChar = allCharacters?.find((c) => c.name === targetName);
+                      return (
+                        <Box
+                          key={targetName}
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            borderRadius: 1.7,
+                            gap: CONFIG.jinx.iconGap,
+                            p: CONFIG.jinx.padding,
+                            backgroundColor: CONFIG.jinx.backgroundColor,
+                            // borderRadius: CONFIG.jinx.borderRadius,
                           }}
                         >
-                          {t('jinx.rule')}: {jinxText}
-                        </Typography>
-                      </Box>
-                    );
-                  })}
-                </Box>
-              )
-            )}
+                          {targetChar && (
+                            <CharacterImage
+                              src={targetChar.image}
+                              alt={targetName}
+                              sx={{
+                                width: CONFIG.jinx.icon.width,
+                                height: CONFIG.jinx.icon.height,
+                                borderRadius: CONFIG.jinx.icon.borderRadius,
+                                flexShrink: 0,
+                                userDrag: 'none',
+                                WebkitUserDrag: 'none',
+                                pointerEvents: 'none',
+                              }}
+                            />
+                          )}
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              fontSize: CONFIG.jinx.text.fontSize,
+                              color: THEME_COLORS.text.primary,
+                              lineHeight: CONFIG.jinx.text.lineHeight,
+                              fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
+                              flex: 1,
+                            }}
+                          >
+                            {t('jinx.rule')}: {jinxText}
+                          </Typography>
+                        </Box>
+                      );
+                    })}
+                  </Box>
+                )
+              )}
+            </Box>
           </Box>
-        </Box>
-      </Paper>
+        </Paper>
       </Box>
 
       {/* 右键菜单 */}
