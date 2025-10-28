@@ -15,7 +15,7 @@ export const CN_TO_EN_ID_MAP: Record<string, string> = {
   'cult_leader': 'cultleader',
   'poppy_grower': 'poppygrower',
   'devils_advocate': 'devilsadvocate',
-  'pit_hag': 'pithag',
+  'pit-hag': 'pithag',
   'fang_gu': 'fanggu',
   'no_dashii': 'nodashii',
   'lil_monsta': 'lilmonsta',

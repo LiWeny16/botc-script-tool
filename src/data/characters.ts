@@ -3,7 +3,7 @@ import { TEAM_COLORS, TEAM_NAMES } from '../theme/colors';
 // 导出团队颜色和名称（从统一配置导入）
 export { TEAM_COLORS, TEAM_NAMES };
 
-// 这里是核心角色数据，完整数据可以从原项目的 dict.js 复制过来
+
 
 
 const _characters = {
@@ -254,7 +254,6 @@ const _characters = {
   "jiaohuazi": {
     "id": "jiaohuazi",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/jiaohuazi.png",
-    "edition": "custom",
     "name": "叫花子",
     "ability": "每个白天限一次，你可以公开选择一名其他玩家，让他选择一个非恶魔角色：你可能会获得这个角色的能力，直到下个黎明。",
     "team": "traveler",
@@ -267,6 +266,30 @@ const _characters = {
       "是叫花子"
     ],
     "setup": false
+  },
+  "gnome": {
+    "id": "gnome",
+    "name": "侏儒",
+    "image": "https://wiki.bloodontheclocktower.com/images/e/e0/Icon_gnome.png",
+    "team": "traveler",
+    "firstNight": 0,
+    "firstNightReminder": "",
+    "otherNight": 0,
+    "otherNightReminder": "",
+    "reminders": [
+      "同伴"
+    ],
+    "setup": false,
+    "ability": "当你加入游戏时，所有玩家会得知一名与你阵营相同的玩家。每当他被提名时，你可以杀死提名者。"
+  },
+  "cacklejack": {
+    "id": "cacklejack",
+    "image": "https://wiki.bloodontheclocktower.com/images/d/d7/Icon_cacklejack.png",
+    "name": "笑匠",
+    "team": "traveler",
+    "otherNightReminder": "在今晚，将你今天选的玩家之外的任意玩家的角色标记替换为其他角色标记。唤醒该玩家，展示给他们“你是”卡片以及他们的新角色标记。",
+    "reminders": ["不是我"],
+    "ability": "每天晚上选择一名玩家，今晚一名除了他以外的其他玩家将更换角色。"
   },
   "washerwoman": {
     "id": "washerwoman",
@@ -2846,7 +2869,7 @@ const _characters = {
     "setup": true
   },
   "wizard": {
-    "id": "poisoner",
+    "id": "wizard",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/wizard.png",
     "edition": "custom",
     "name": "巫师",
@@ -2923,10 +2946,10 @@ const _characters = {
     "reminders": []
   },
   "jinweijun2": {
-    "id": "jinweijun",
+    "id": "jinweijun2",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/jinweijun.png",
     "edition": "custom",
-    "name": "禁卫军",
+    "name": "禁卫军Ⅱ",
     "ability": "在你的首个夜晚，你要选择存活或死亡。“疯狂”地想要这样做的玩家可能会立即被处决。",
     "team": "minion",
     "sch_team": "爪牙",

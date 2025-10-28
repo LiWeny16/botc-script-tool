@@ -22,6 +22,53 @@ function findCharacterIdByName(name: string, charactersDict: Record<string, Char
 }
 
 /**
+ * 获取角色的行动顺序数值（始终从中文库获取）
+ * @param characterId 角色ID
+ * @param jsonItem JSON中的角色项（可能包含自定义的行动顺序）
+ * @param currentLanguage 当前语言
+ * @returns 包含 firstNight 和 otherNight 的对象
+ */
+function getNightOrderFromChinese(
+  characterId: string,
+  jsonItem: any,
+  currentLanguage: 'zh-CN' | 'en'
+): { firstNight: number; otherNight: number } {
+  // 优先级1: 如果 JSON 中明确定义了行动顺序（不为undefined），则使用 JSON 中的值
+  if (jsonItem.firstNight !== undefined && jsonItem.otherNight !== undefined) {
+    return {
+      firstNight: jsonItem.firstNight || 0,
+      otherNight: jsonItem.otherNight || 0,
+    };
+  }
+
+  // 优先级2: 从中文角色库中获取
+  // 先将角色ID转换为中文格式
+  const cnId = normalizeCharacterId(characterId, 'zh-CN');
+  
+  // 在中文库中查找
+  if (CHARACTERS[cnId]) {
+    return {
+      firstNight: CHARACTERS[cnId].firstNight || 0,
+      otherNight: CHARACTERS[cnId].otherNight || 0,
+    };
+  }
+
+  // 优先级3: 尝试使用原始ID在中文库中查找
+  if (CHARACTERS[characterId]) {
+    return {
+      firstNight: CHARACTERS[characterId].firstNight || 0,
+      otherNight: CHARACTERS[characterId].otherNight || 0,
+    };
+  }
+
+  // 优先级4: 都找不到，返回默认值0
+  return {
+    firstNight: 0,
+    otherNight: 0,
+  };
+}
+
+/**
  * 获取角色的字典键（考虑语言模式和匹配策略）
  * @param item JSON中的角色项
  * @param language 当前语言
@@ -282,6 +329,9 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         continue;
       }
 
+      // ⭐ 获取行动顺序：始终使用中文角色库的数值
+      const nightOrder = getNightOrderFromChinese(character.id, item, language);
+
       script.characters[character.team].push({
         name: character.name,
         ability: character.ability,
@@ -289,8 +339,8 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         id: character.id,
         team: character.team,
         teamColor: character.teamColor,  // 保存自定义颜色
-        firstNight: character.firstNight || 0,
-        otherNight: character.otherNight || 0,
+        firstNight: nightOrder.firstNight,
+        otherNight: nightOrder.otherNight,
         firstNightReminder: character.firstNightReminder,
         otherNightReminder: character.otherNightReminder,
         reminders: character.reminders,
@@ -301,19 +351,19 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       // 未知团队类型默认不参与夜晚行动
       const standardTeams: string[] = ['townsfolk', 'outsider', 'minion', 'demon'];
       if (standardTeams.includes(character.team)) {
-        // 添加首夜行动
-        if (character.firstNight && character.firstNight > 0) {
+        // ⭐ 添加首夜行动：使用从中文库获取的数值
+        if (nightOrder.firstNight && nightOrder.firstNight > 0) {
           script.firstnight.push({
             image: character.image,
-            index: character.firstNight,
+            index: nightOrder.firstNight,
           });
         }
 
-        // 添加其他夜晚行动
-        if (character.otherNight && character.otherNight > 0) {
+        // ⭐ 添加其他夜晚行动：使用从中文库获取的数值
+        if (nightOrder.otherNight && nightOrder.otherNight > 0) {
           script.othernight.push({
             image: character.image,
-            index: character.otherNight,
+            index: nightOrder.otherNight,
           });
         }
       }

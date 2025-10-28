@@ -29,6 +29,7 @@ import type { Character } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import { getFabledCharacters } from '../data/fabled';
 import { configStore } from '../stores/ConfigStore';
+import { PINYIN_MAP } from '../data/pinyinMap';
 
 interface CharacterLibraryCardProps {
     open: boolean;
@@ -38,52 +39,6 @@ interface CharacterLibraryCardProps {
     selectedCharacters?: Character[];
     anchorEl?: HTMLElement | null;
 }
-
-// 拼音搜索支持
-const pinyinMap: Record<string, string> = {
-    '洗衣妇': 'xiyifu',
-    '图书管理员': 'tushugualiyuan',
-    '调查员': 'diachayuan',
-    '厨师': 'chushi',
-    '共情者': 'gongqingzhe',
-    '占卜师': 'zhanbuishi',
-    '送葬者': 'songzangzhe',
-    '僧侣': 'senglv',
-    '守鸦人': 'shouyaren',
-    '贞洁者': 'zhenjiezhe',
-    '猎手': 'lieshou',
-    '士兵': 'shibing',
-    '镇长': 'zhenchang',
-    '管家': 'guanjia',
-    '酒鬼': 'jiugui',
-    '陌客': 'moke',
-    '圣徒': 'shengtu',
-    '修补匠': 'xiubugjiang',
-    '投毒者': 'touduzhe',
-    '间谍': 'jiandie',
-    '红唇女郎': 'hongchunnvlang',
-    '男爵': 'nanjue',
-    '小恶魔': 'xiaoemo',
-    // 传奇角色
-    '天使': 'tianshi',
-    '私酒贩': 'sijiufan',
-    '佛陀': 'fotuo',
-    '末日审判': 'moriishenban',
-    '精灵': 'jingling',
-    '末日使者': 'morishi',
-    '公爵夫人': 'gongkefuren',
-    '农夫': 'nongfu',
-    '小提琴手': 'xiaotiqinshou',
-    '园丁': 'yuanding',
-    '地狱图书管理员': 'diyutushugualiyuan',
-    '革命者': 'gemingzhe',
-    '哨兵': 'shaobing',
-    '象牙之魂': 'xiangyazhihun',
-    '捕风者': 'bufengzhe',
-    '玩具匠': 'wanjujiang',
-};
-
-// 传奇角色数据 - 支持多语言
 
 
 const CharacterLibraryCard = observer(({
@@ -167,7 +122,7 @@ const CharacterLibraryCard = observer(({
             filtered[teamKey] = characters.filter((char) => {
                 const nameMatch = char.name.toLowerCase().includes(term);
                 const abilityMatch = char.ability.toLowerCase().includes(term);
-                const pinyinMatch = pinyinMap[char.name]?.includes(term);
+                const pinyinMatch = PINYIN_MAP[char.name]?.includes(term);
                 const idMatch = char.id.toLowerCase().includes(term);
 
                 return nameMatch || abilityMatch || pinyinMatch || idMatch;
@@ -202,7 +157,7 @@ const CharacterLibraryCard = observer(({
             return selectedCharacters.filter((char) => {
                 const nameMatch = char.name.toLowerCase().includes(term);
                 const abilityMatch = char.ability.toLowerCase().includes(term);
-                const pinyinMatch = pinyinMap[char.name]?.includes(term);
+                const pinyinMatch = PINYIN_MAP[char.name]?.includes(term);
                 const idMatch = char.id.toLowerCase().includes(term);
 
                 return nameMatch || abilityMatch || pinyinMatch || idMatch;
