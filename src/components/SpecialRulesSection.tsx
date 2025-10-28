@@ -35,6 +35,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile 
         height: isMobile ? 'auto' : '100%',
         display: 'flex',
         flexDirection: 'column',
+        minWidth: "350px",
         overflow: isMobile ? 'visible' : 'auto',
         gap: isMobile ? 2 : 0,
         '&::-webkit-scrollbar': {
@@ -141,7 +142,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile 
                     fontFamily: uiConfigStore.specialRuleTitleFont,
                     fontWeight: 'bold',
                     color: '#3d3226',
-                    fontSize: { 
+                    fontSize: {
                       xs: language === 'en' ? '1.1rem' : '1rem',
                       sm: language === 'en' ? '1.3rem' : '1.15rem',
                       md: language === 'en' ? '1.5rem' : '1.3rem'
@@ -167,7 +168,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile 
                   sx={{
                     fontFamily: uiConfigStore.specialRuleContentFont,
                     color: '#5a4a3a',
-                    fontSize: { 
+                    fontSize: {
                       xs: language === 'en' ? '0.85rem' : '0.7rem',
                       sm: language === 'en' ? '0.95rem' : '0.78rem',
                       md: language === 'en' ? '1.1rem' : '0.85rem'

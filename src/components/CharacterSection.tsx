@@ -31,10 +31,11 @@ interface CharacterSectionProps {
   onUpdateCharacter?: (characterId: string, updates: Partial<Character>) => void;  // 更新角色信息
   onEditCharacter?: (character: Character) => void;  // 编辑角色信息
   onDeleteCharacter?: (character: Character) => void;  // 删除角色
+  onReplaceCharacter?: (character: Character, position: { x: number; y: number }) => void;  // 更换角色
   disableDrag?: boolean;  // 是否禁用拖拽功能
 }
 
-const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, disableDrag = false }: CharacterSectionProps) => {
+const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, disableDrag = false }: CharacterSectionProps) => {
   const { t } = useTranslation();
   const isChinese = configStore.language === 'zh-CN';
 
@@ -190,6 +191,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                       onUpdate={onUpdateCharacter}
                       onEdit={onEditCharacter}
                       onDelete={onDeleteCharacter}
+                      onReplace={onReplaceCharacter}
                     />
                   </Box>
                 </Box>
@@ -229,6 +231,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                             onUpdate={onUpdateCharacter}
                             onEdit={onEditCharacter}
                             onDelete={onDeleteCharacter}
+                            onReplace={onReplaceCharacter}
                           />
                         </Box>
                       ))}
@@ -261,6 +264,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                             onUpdate={onUpdateCharacter}
                             onEdit={onEditCharacter}
                             onDelete={onDeleteCharacter}
+                            onReplace={onReplaceCharacter}
                           />
                         </Box>
                       ))}

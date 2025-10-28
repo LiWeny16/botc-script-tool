@@ -1,5 +1,5 @@
 import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText, IconButton, useMediaQuery, useTheme } from '@mui/material';
-import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Edit as EditIcon, Delete as DeleteIcon, ContentCopy as CopyIcon, SwapHoriz as SwapIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import type { Character } from '../types';
@@ -11,6 +11,7 @@ import CharacterImage from './CharacterImage';
 import { useTranslation } from '../utils/i18n';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { configStore } from '../stores/ConfigStore';
+import { alertSuccess, alertError } from '../utils/alert';
 
 interface CharacterCardProps {
   character: Character;
@@ -19,9 +20,10 @@ interface CharacterCardProps {
   onUpdate?: (characterId: string, updates: Partial<Character>) => void;
   onEdit?: (character: Character) => void;
   onDelete?: (character: Character) => void;
+  onReplace?: (character: Character, position: { x: number; y: number }) => void;
 }
 
-const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete }: CharacterCardProps) => {
+const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete, onReplace }: CharacterCardProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -177,6 +179,27 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     if (onDelete) {
       onDelete(character);
     }
+  };
+
+  // 处理复制JSON
+  const handleCopyJson = async () => {
+    handleClose();
+    try {
+      const characterJson = JSON.stringify(character, null, 2);
+      await navigator.clipboard.writeText(characterJson);
+      alertSuccess(t('character.jsonCopied'));
+    } catch (err) {
+      console.error('Failed to copy character JSON:', err);
+      alertError(t('character.jsonCopyFailed'));
+    }
+  };
+
+  // 处理更换角色
+  const handleReplaceClick = () => {
+    if (onReplace && contextMenu) {
+      onReplace(character, { x: contextMenu.mouseX, y: contextMenu.mouseY });
+    }
+    handleClose();
   };
 
   return (
@@ -444,18 +467,112 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
             : undefined
         }
+        disableScrollLock={true}
+        slotProps={{
+          paper: {
+            elevation: 8,
+            sx: {
+              minWidth: 180,
+              borderRadius: 2,
+              overflow: 'hidden',
+              mt: 0.5,
+              '& .MuiList-root': {
+                padding: '6px',
+              },
+            }
+          }
+        }}
+        TransitionProps={{
+          timeout: 200,
+        }}
       >
-        <MenuItem onClick={handleEditClick}>
-          <ListItemIcon>
-            <EditIcon fontSize="small" />
+        <MenuItem
+          onClick={handleEditClick}
+          sx={{
+            borderRadius: 1,
+            mx: 0.5,
+            px: 1.5,
+            py: 1,
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            <EditIcon fontSize="small" sx={{ color: 'primary.main' }} />
           </ListItemIcon>
-          <ListItemText>{t('character.edit')}</ListItemText>
+          <ListItemText
+            primary={t('character.edit')}
+            primaryTypographyProps={{
+              fontSize: '0.9rem',
+            }}
+          />
         </MenuItem>
-        <MenuItem onClick={handleDeleteClick}>
-          <ListItemIcon>
-            <DeleteIcon fontSize="small" />
+        <MenuItem
+          onClick={handleCopyJson}
+          sx={{
+            borderRadius: 1,
+            mx: 0.5,
+            px: 1.5,
+            py: 1,
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            <CopyIcon fontSize="small" sx={{ color: 'success.main' }} />
           </ListItemIcon>
-          <ListItemText>{t('character.delete')}</ListItemText>
+          <ListItemText
+            primary={t('character.copyJson')}
+            primaryTypographyProps={{
+              fontSize: '0.9rem',
+            }}
+          />
+        </MenuItem>
+        <MenuItem
+          onClick={handleReplaceClick}
+          sx={{
+            borderRadius: 1,
+            mx: 0.5,
+            px: 1.5,
+            py: 1,
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            <SwapIcon fontSize="small" sx={{ color: 'warning.main' }} />
+          </ListItemIcon>
+          <ListItemText
+            primary={t('character.replace')}
+            primaryTypographyProps={{
+              fontSize: '0.9rem',
+            }}
+          />
+        </MenuItem>
+        <MenuItem
+          onClick={handleDeleteClick}
+          sx={{
+            borderRadius: 1,
+            mx: 0.5,
+            px: 1.5,
+            py: 1,
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            <DeleteIcon fontSize="small" sx={{ color: 'error.main' }} />
+          </ListItemIcon>
+          <ListItemText
+            primary={t('character.delete')}
+            primaryTypographyProps={{
+              fontSize: '0.9rem',
+            }}
+          />
         </MenuItem>
       </Menu>
     </>

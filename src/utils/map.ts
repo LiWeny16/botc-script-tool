@@ -157,7 +157,10 @@ export const translations = {
 
     // 标题编辑对话框
     'title.edit': '编辑标题',
+    'title.editFirstPage': '编辑第一页标题',
+    'title.editSecondPage': '编辑第二页标题',
     'title.title': '剧本标题',
+    'title.titleText': '标题文本',
     'title.titleImage': '标题图片链接（可选）',
     'title.subtitle': '副标题（可选）',
     'title.author': '作者',
@@ -166,6 +169,11 @@ export const translations = {
     'title.fontSizeXs': '手机端',
     'title.fontSizeSm': '平板端',
     'title.fontSizeMd': '桌面端',
+    'title.imageSize': '图片大小',
+    'title.useImage': '使用图片标题',
+    'title.imageUrl': '图片链接',
+    'title.dragDropHint': '拖拽图片到此处或',
+    'title.clickUpload': '点击上传',
     'title.save': '保存',
     'title.cancel': '取消',
 
@@ -197,6 +205,14 @@ export const translations = {
     // 角色操作
     'character.edit': '编辑',
     'character.delete': '删除',
+    'character.copyJson': '复制角色JSON',
+    'character.jsonCopied': '角色JSON已复制到剪贴板！',
+    'character.jsonCopyFailed': '复制失败，请重试',
+    'character.replace': '更换角色',
+
+    // 角色库
+    'library.pin': '固定',
+    'library.unpin': '解除固定',
 
     // UI 设置
     'ui.settings': 'UI 设置',
@@ -322,6 +338,19 @@ export const translations = {
     'customJinx.management': '相克关系管理',
     'customJinx.addNew': '添加新相克关系',
     'customJinx.add': '添加',
+
+    // 第二页组件
+    'secondPage.addComponent': '添加组件',
+    'secondPage.title': '第二页标题',
+    'secondPage.playerTable1': '玩家配置表（标准）',
+    'secondPage.playerTable2': '玩家配置表（6-9人）',
+    
+    // 玩家配置表
+    'playerTable.playerCount': '玩家数量',
+    'playerTable.townsfolk': '镇民',
+    'playerTable.outsider': '外来者',
+    'playerTable.minion': '爪牙',
+    'playerTable.demon': '恶魔',
   },
   'en': {
     // Common
@@ -480,7 +509,10 @@ export const translations = {
 
     // Title Edit Dialog
     'title.edit': 'Edit Title',
+    'title.editFirstPage': 'Edit First Page Title',
+    'title.editSecondPage': 'Edit Second Page Title',
     'title.title': 'Script Title',
+    'title.titleText': 'Title Text',
     'title.titleImage': 'Title Image URL (Optional)',
     'title.subtitle': 'Subtitle (Optional)',
     'title.author': 'Author',
@@ -489,6 +521,11 @@ export const translations = {
     'title.fontSizeXs': 'Mobile',
     'title.fontSizeSm': 'Tablet',
     'title.fontSizeMd': 'Desktop',
+    'title.imageSize': 'Image Size',
+    'title.useImage': 'Use Image Title',
+    'title.imageUrl': 'Image URL',
+    'title.dragDropHint': 'Drag image here or',
+    'title.clickUpload': 'click to upload',
     'title.save': 'Save',
     'title.cancel': 'Cancel',
 
@@ -520,6 +557,14 @@ export const translations = {
     // Character Actions
     'character.edit': 'Edit',
     'character.delete': 'Delete',
+    'character.copyJson': 'Copy Character JSON',
+    'character.jsonCopied': 'Character JSON copied to clipboard!',
+    'character.jsonCopyFailed': 'Copy failed, please try again',
+    'character.replace': 'Replace Character',
+
+    // Character Library
+    'library.pin': 'Pin',
+    'library.unpin': 'Unpin',
 
     // UI Settings
     'ui.settings': 'UI Settings',
@@ -642,6 +687,19 @@ export const translations = {
     'customJinx.management': 'Jinx Management',
     'customJinx.addNew': 'Add New Jinx',
     'customJinx.add': 'Add',
+
+    // Second Page Components
+    'secondPage.addComponent': 'Add Component',
+    'secondPage.title': 'Second Page Title',
+    'secondPage.playerTable1': 'Player Configuration (Standard)',
+    'secondPage.playerTable2': 'Player Configuration (6-9 Players)',
+    
+    // Player Count Table
+    'playerTable.playerCount': 'Player Count',
+    'playerTable.townsfolk': 'Townsfolk',
+    'playerTable.outsider': 'Outsider',
+    'playerTable.minion': 'Minion',
+    'playerTable.demon': 'Demon',
   },
 };
 

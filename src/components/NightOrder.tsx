@@ -85,8 +85,8 @@ function SortableActionItem({
           height: { xs: 35, sm: 38, md: 52 },
           transition: 'all 0.2s',
           '&:hover': {
-            transform: 'scale(1.05)',
             backgroundColor: 'rgba(255, 255, 255, 0.15)',
+            filter: 'brightness(1.1)',
           },
         }}
       />
@@ -183,6 +183,7 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
               flexDirection: 'column',
               flexWrap: 'nowrap',
               overflowY: 'auto',
+              overscrollBehavior: 'contain',
               justifyContent: 'flex-start',
               '&::-webkit-scrollbar': {
                 width: 3,

@@ -26,6 +26,7 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
     <Dialog
       open={open}
       onClose={onClose}
+      disableScrollLock
       maxWidth="sm"
       fullWidth
       PaperProps={{

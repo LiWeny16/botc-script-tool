@@ -81,13 +81,15 @@ body {
 /* 全局滚动条样式 */
 * {
   /* Firefox */
-  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
 }
 
 /* Webkit浏览器 (Chrome, Safari, Edge等) */
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-track {
@@ -96,21 +98,17 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.15);
   border-radius: 10px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-  transition: background 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 0, 0, 0.5);
-  background-clip: content-box;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 *::-webkit-scrollbar-thumb:active {
-  background: rgba(0, 0, 0, 0.6);
-  background-clip: content-box;
+  background: rgba(0, 0, 0, 0.4);
 }
 
 /* 隐藏滚动条上下箭头按钮 */
@@ -128,21 +126,23 @@ body {
 /* 暗色主题下的滚动条 */
 @media (prefers-color-scheme: dark) {
   * {
-    scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    background: transparent;
   }
 
   *::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    background-clip: content-box;
+    background: rgba(255, 255, 255, 0.15);
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-    background-clip: content-box;
+    background: rgba(255, 255, 255, 0.3);
   }
 
   *::-webkit-scrollbar-thumb:active {
-    background: rgba(255, 255, 255, 0.6);
-    background-clip: content-box;
+    background: rgba(255, 255, 255, 0.4);
   }
 }

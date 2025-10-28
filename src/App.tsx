@@ -8,8 +8,6 @@ import {
   ThemeProvider,
   createTheme,
   Paper,
-  useMediaQuery,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,7 +16,6 @@ import {
   Button,
 } from '@mui/material';
 import {
-  Edit as EditIcon,
   Print as PrintIcon,
   CheckCircleOutline as CheckIcon,
   InfoOutlined as InfoIcon,
@@ -26,21 +23,16 @@ import {
 import { observer } from 'mobx-react-lite';
 import type { Script, Character } from './types';
 import InputPanel from './components/InputPanel';
-import CharacterSection from './components/CharacterSection';
-import NightOrder from './components/NightOrder';
-import SpecialRulesSection from './components/SpecialRulesSection';
 import ShareDialog from './components/ShareDialog';
 import CharacterEditDialog from './components/CharacterEditDialog';
 import FloatingAddButton from './components/FloatingAddButton';
 import CharacterLibraryCard from './components/CharacterLibraryCard';
-import CharacterImage from './components/CharacterImage';
-import { DecorativeFrame } from './components/DecorativeFrame';
-import JinxSection from './components/JinxSection';
-import StateRulesSection from './components/StateRulesSection';
 import TitleEditDialog from './components/TitleEditDialog';
+import SecondPageTitleEditDialog from './components/SecondPageTitleEditDialog';
 import SpecialRuleEditDialog from './components/SpecialRuleEditDialog';
 import AddCustomRuleDialog from './components/AddCustomRuleDialog';
 import CustomJinxDialog from './components/CustomJinxDialog';
+import ScriptRenderer from './components/ScriptRenderer';
 import { generateScript } from './utils/scriptGenerator';
 import { THEME_COLORS, THEME_FONTS } from './theme/colors';
 import { useTranslation } from './utils/i18n';
@@ -48,11 +40,10 @@ import { SEOManager } from './components/SEOManager';
 import { scriptStore } from './stores/ScriptStore';
 import { configStore } from './stores/ConfigStore';
 import { getSpecialRuleTemplate } from './data/specialRules';
-import { uiConfigStore } from './stores/UIConfigStore';
 import UISettingsDrawer from './components/UISettingsDrawer';
 import AboutDialog from './components/AboutDialog';
 import {
-  GlobalStyles, // 👈 增加这个
+  GlobalStyles,
 } from '@mui/material';
 import { initGlobalShortcuts, cleanupGlobalShortcuts, registerSaveCallback, unregisterSaveCallback, showSaveAlert, alertUseMui } from './utils/event';
 import { OverlayScrollbars } from 'overlayscrollbars';
@@ -132,6 +123,11 @@ const printStyles = {
       display: 'none !important',
     },
 
+    // 8. 隐藏第二页添加组件按钮
+    '.second-page-add-component': {
+      display: 'none !important',
+    },
+
   },
 };
 // 创建主题
@@ -173,19 +169,19 @@ const App = observer(() => {
   const [editDialogOpen, setEditDialogOpen] = useState<boolean>(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(null);
   const [libraryCardOpen, setLibraryCardOpen] = useState<boolean>(false);
+  const [replacingCharacter, setReplacingCharacter] = useState<Character | null>(null);
+  const [libraryPosition, setLibraryPosition] = useState<{ x: number; y: number } | undefined>(undefined);
   const [uiSettingsOpen, setUiSettingsOpen] = useState<boolean>(false);
   const [titleEditDialogOpen, setTitleEditDialogOpen] = useState<boolean>(false);
+  const [secondPageTitleEditDialogOpen, setSecondPageTitleEditDialogOpen] = useState<boolean>(false);
   const [specialRuleEditDialogOpen, setSpecialRuleEditDialogOpen] = useState<boolean>(false);
   const [editingSpecialRule, setEditingSpecialRule] = useState<any>(null);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
-  const [titleHovered, setTitleHovered] = useState<boolean>(false);
   const [addCustomRuleDialogOpen, setAddCustomRuleDialogOpen] = useState<boolean>(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState<boolean>(false);
   const [jsonParseError, setJsonParseError] = useState<string>(''); // 添加 JSON 解析错误状态
   const [customJinxDialogOpen, setCustomJinxDialogOpen] = useState<boolean>(false);
   const [printDialogOpen, setPrintDialogOpen] = useState<boolean>(false); // 添加打印对话框状态
-  const scriptRef = useRef<HTMLDivElement>(null);
-  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   // 从 MobX store 获取状态
   const { script, originalJson, customTitle, customAuthor } = scriptStore;
@@ -361,8 +357,20 @@ const App = observer(() => {
 
   // 处理添加角色到剧本
   const handleAddCharacter = (character: Character) => {
-    scriptStore.addCharacter(character);
-    // 不再自动关闭角色库
+    // 如果是替换模式
+    if (replacingCharacter) {
+      // 使用 replaceCharacter 方法替换，保持原位置
+      const success = scriptStore.replaceCharacter(replacingCharacter, character);
+      if (success) {
+        // 清除替换状态并关闭角色库
+        setReplacingCharacter(null);
+        setLibraryCardOpen(false);
+      }
+    } else {
+      // 正常添加模式
+      scriptStore.addCharacter(character);
+      // 不再自动关闭角色库
+    }
   };
 
   // 处理从剧本中删除角色
@@ -370,20 +378,57 @@ const App = observer(() => {
     scriptStore.removeCharacter(character);
   };
 
-  // 处理标题编辑
+  // 处理更换角色
+  const handleReplaceCharacter = (character: Character, position: { x: number; y: number }) => {
+    setReplacingCharacter(character);
+    setLibraryPosition(position);
+    setLibraryCardOpen(true);
+  };
+
+  // 处理第一页标题编辑
   const handleTitleEdit = () => {
     setTitleEditDialogOpen(true);
   };
 
-  // 处理标题保存
+  // 处理第二页标题编辑
+  const handleSecondPageTitleEdit = () => {
+    setSecondPageTitleEditDialogOpen(true);
+  };
+
+  // 处理第一页标题保存
   const handleTitleSave = (data: {
     title: string;
     titleImage?: string;
-    subtitle?: string;
+    titleImageSize?: number;
+    useTitleImage: boolean;
     author: string;
     playerCount?: string;
   }) => {
-    scriptStore.updateTitleInfo(data);
+    scriptStore.updateTitleInfo({
+      title: data.title,
+      titleImage: data.titleImage,
+      titleImageSize: data.titleImageSize,
+      useTitleImage: data.useTitleImage,
+      author: data.author,
+      playerCount: data.playerCount,
+    });
+  };
+
+  // 处理第二页标题保存
+  const handleSecondPageTitleSave = (data: {
+    title: string;
+    titleImage?: string;
+    fontSize?: number;
+    imageSize?: number;
+    useImage: boolean;
+  }) => {
+    scriptStore.updateTitleInfo({
+      secondPageTitleText: data.title,
+      secondPageTitleImage: data.titleImage,
+      secondPageTitleFontSize: data.fontSize,
+      secondPageTitleImageSize: data.imageSize,
+      useSecondPageTitleImage: data.useImage,
+    });
   };
 
   // 处理特殊规则编辑
@@ -658,777 +703,25 @@ const App = observer(() => {
             jsonParseError={jsonParseError}
           />
 
-          {/* 剧本展示区域 */}
+          {/* 剧本展示区域 - 使用 ScriptRenderer 组件 */}
           {script && (
-            <Box
-              id="script-preview"
-              ref={scriptRef}
-              sx={{
-                display: "flex",
-                userSelect: "none",
-                width: "100%",
-              }}
-            >
-
-              <Box
-                sx={{
-                  display: "flex",
-                  width: "100%",
-                  height: "100%",
-                  justifyContent: "center",
-                  position: 'relative',
-
-                }}>
-
-                <CharacterImage
-                  src="/imgs/images/flower3_2.png"
-                  alt="左下角装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-                <CharacterImage
-                  src="/imgs/images/flower4.png"
-                  alt="装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-
-                <CharacterImage
-                  src="/imgs/images/flower7.png"
-                  alt="右上角装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: -5,
-                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-
-                <CharacterImage
-                  src="/imgs/images/flower4_2.png"
-                  alt="左上角装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    transform: "rotate(180deg)",
-                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-
-                {/* 美术设计盒子 - 左上角固定位置，上下布局 */}
-                <Box sx={{
-                  position: 'absolute',
-                  top: { xs: 12, sm: 16, md: 95 },
-                  left: { xs: 12, sm: 16, md: 140 },
-                  zIndex: 5,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  pointerEvents: 'none',
-                }}>
-                  {/* 圆形头像 */}
-                  <Box
-                    component="img"
-                    src="/imgs/icons/fabled/onion.png"
-                    alt="Onion Avatar"
-                    sx={{
-                      width: { xs: 50, sm: 60, md: 70 },
-                      height: { xs: 50, sm: 60, md: 70 },
-                      borderRadius: '50%',
-                      border: '2px solid #d4af37',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                      objectFit: 'cover',
-                      mb: { xs: -1, sm: -1.5, md: -2 }, // 负边距让文字框与头像重叠
-                      position: 'relative',
-                      zIndex: 2,
-                    }}
-                  />
-
-                  {/* 下方文字框 */}
-                  <Box sx={{
-                    pt: { xs: 1.5, sm: 2, md: 2.5 },
-                    pb: { xs: 0.75, sm: 1, md: 1.25 },
-                    position: 'relative',
-                    zIndex: 1,
-                    minWidth: { xs: '80px', sm: '90px', md: '100px' },
-                  }}>
-                    <Typography sx={{
-                      fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
-                      color: '#404040ff',
-                      fontWeight: 700,
-                      textAlign: 'center',
-                      whiteSpace: 'nowrap',
-                    }}>
-                      {t('credits.designTitle')}: {t('credits.designers')}
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* 左侧 - 首个夜晚 */}
-                {!isMobile && (
-                  <Box sx={{
-                    padding: 1.5,
-                    flexShrink: 0,
-                    position: 'relative',
-                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: "center",
-                    pt: '33.33%',
-                    boxShadow: 'none',
-                    '& > *': {
-                      position: 'relative',
-                      zIndex: 3,
-                    }
-                  }}>
-                    <NightOrder
-                      title={t('night.first')}
-                      actions={script.firstnight}
-                      disabled={configStore.config.officialIdParseMode}
-                      onReorder={(oldIndex, newIndex) => handleNightOrderReorder('first', oldIndex, newIndex)}
-                    />
-                  </Box>
-                )}
-
-                {/* 中间 - 主要内容区域 */}
-                <Paper
-                  id="main_script"
-                  elevation={0}
-                  sx={{
-                    pt: 2,
-                    flex: 1,
-                    backgroundImage: 'url(/imgs/images/main_back.jpg)',
-                    backgroundSize: '100% 100%',          // 保持比例，铺满容器（可能略裁剪）
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    borderRadius: 0,
-                    position: 'relative',
-                    boxShadow: 'none',
-                  }}
-                >
-
-                  {/* 标题区域 - 父容器带默认 px，内部使用绝对定位实现左/中/右布局 */}
-                  <Box sx={{
-                    textAlign: 'center',
-                    mb: 0,
-                    position: 'relative',
-                    zIndex: 1,
-                    px: { xs: 2, sm: 3, md: 4 }, // 默认左右内边距
-                  }}>
-                    {/* 标题与特殊规则父层：桌面端固定高度，移动端自适应高度 */}
-                    <Box
-                      sx={{
-                        position: 'relative',
-                        height: { xs: 'auto', md: uiConfigStore.titleHeight },
-                        width: '100%',
-                        display: { xs: 'flex', md: 'block' },
-                        flexDirection: { xs: 'column', md: 'row' },
-                        alignItems: { xs: 'center', md: 'unset' },
-                        gap: { xs: 2, md: 0 },
-                        py: { xs: 2, md: 0 },
-                        // 背景图案层
-                        '&::before': {
-                          content: '""',
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          backgroundImage: "url(/imgs/images/pattern.png)",
-                          backgroundSize: { xs: "80%", md: "48%" },
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                          opacity: 0.6,
-                          zIndex: 0,
-                        },
-                      }}
-                    >
-                      {/* 标题 - 移动端相对定位，桌面端绝对定位 */}
-                      <Box
-                        sx={{
-                          position: { xs: 'relative', md: 'absolute' },
-                          top: { xs: 'auto', md: '50%' },
-                          left: { xs: 'auto', md: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%' },
-                          transform: { xs: 'none', md: 'translate(-50%, -50%)' },
-                          zIndex: 1,
-                          maxWidth: {
-                            xs: '100%',
-                            md: script?.specialRules && script.specialRules.length > 0 ? '32%' : '70%'
-                          },
-                          width: {
-                            xs: '100%',
-                            md: script?.specialRules && script.specialRules.length > 0 ? 'auto' : '100%'
-                          },
-                          display: 'flex',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        {script.titleImage ? (
-                          <Box
-                            onMouseEnter={() => setTitleHovered(true)}
-                            onMouseLeave={() => setTitleHovered(false)}
-                            onDoubleClick={handleTitleEdit}
-                            sx={{
-                              position: 'relative',
-                              cursor: 'pointer',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              userSelect: 'none',
-                              width: '100%',
-                            }}
-                          >
-                            <CharacterImage
-                              src={script.titleImage}
-                              alt={script.title}
-                              sx={{
-                                maxWidth: '100%',
-                                maxHeight: { xs: '120px', sm: '140px', md: '160px' },
-                                width: 'auto',
-                                height: 'auto',
-                                objectFit: 'contain',
-                              }}
-                            />
-                            {titleHovered && (
-                              <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 3, display: 'flex', gap: 1 }}>
-                                <IconButton onClick={(e) => { e.stopPropagation(); handleTitleEdit(); }} sx={{ backgroundColor: 'rgba(255,255,255,0.9)', '&:hover': { backgroundColor: 'rgba(255,255,255,1)' } }} size="small">
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            )}
-                          </Box>
-                        ) : (
-                          <Box onMouseEnter={() => setTitleHovered(true)} onMouseLeave={() => setTitleHovered(false)} onDoubleClick={handleTitleEdit} sx={{ position: 'relative', cursor: 'pointer', display: 'flex', padding: { xs: 1, sm: 1.5, md: 2 }, borderRadius: 2, userSelect: 'none', width: '100%', justifyContent: 'center' }}>
-                            <Typography
-                              variant="h3"
-                              component="div"
-                              sx={{
-                                fontFamily: uiConfigStore.scriptTitleFont,
-                                fontWeight: 'bold',
-                                fontSize: {
-                                  xs: uiConfigStore.titleFontSizeXs,
-                                  sm: uiConfigStore.titleFontSizeSm,
-                                  md: uiConfigStore.titleFontSizeMd
-                                },
-                                lineHeight: 1.38,
-                                m: 0,
-                                whiteSpace: 'pre-wrap',
-                                textAlign: 'center',
-                                wordBreak: 'break-word',
-                                // 文字镂空效果 - 透过文字看到背景图
-                                background: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                backgroundClip: 'text',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent',
-                                // 添加描边效果增强可读性（可选）
-                                // textShadow: '0 0 1px rgba(0,0,0,0.3)',
-                                // 或者使用 -webkit-text-stroke 添加轮廓
-                                // WebkitTextStroke: '0.5px rgba(0,0,0,0.2)',
-                              }}
-                            >
-                              {script.title.split(/\\n|<br\s*\/?>/).map((line, index, array) => (<span key={index}>{line}{index < array.length - 1 && <br />}</span>))}
-                            </Typography>
-                            {titleHovered && (
-                              <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 3, display: 'flex', gap: 1 }}>
-                                <IconButton onClick={(e) => { e.stopPropagation(); handleTitleEdit(); }} sx={{ backgroundColor: 'rgba(255,255,255,0.9)', '&:hover': { backgroundColor: 'rgba(255,255,255,1)' } }} size="small">
-                                  <EditIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            )}
-                          </Box>
-                        )}
-                      </Box>
-
-                      {/* 特殊规则 - 移动端相对定位，桌面端绝对定位 */}
-                      {script?.specialRules && script.specialRules.length > 0 && (
-                        <Box sx={{
-                          position: { xs: 'relative', md: 'absolute' },
-                          top: { xs: 'auto', md: '50%' },
-                          left: { xs: 'auto', md: '66.67%' },
-                          transform: { xs: 'none', md: 'translate(-50%, -50%)' },
-                          zIndex: 1,
-                          overflow: 'hidden',
-                          width: { xs: '100%', md: 'auto' },
-                          maxWidth: { xs: '100%', md: '32%' },
-                        }}>
-                          <SpecialRulesSection
-                            rules={script.specialRules}
-                            onDelete={(rule) => scriptStore.removeSpecialRule(rule)}
-                            onEdit={handleSpecialRuleEdit}
-                            isMobile={isMobile}
-                          />
-                        </Box>
-                      )}
-                    </Box>
-
-                    {/* 标题下方作者与支持人数（统一移动端/桌面端） */}
-                    {(script?.author || script?.playerCount) && (
-                      <Typography
-                        sx={{
-                          color: THEME_COLORS.paper.secondary,
-                          fontSize: { xs: '0.75rem', sm: '0.95rem' },
-                          mt: 0.5,
-                        }}
-                      >
-                        {script.author ? `${t('script.author2')}：${script.author}` : ''}
-                        {script.author && script.playerCount ? ' · ' : ''}
-                        {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : ''}
-                      </Typography>
-                    )}
-                  </Box>
-
-
-                  {/* 角色区域 */}
-                  <Box sx={{
-                    width: "100%",
-                  }}>
-                    <Box sx={{ px: 3, }}>
-                      {/* 按固定顺序显示标准团队 */}
-                      {['townsfolk', 'outsider', 'minion', 'demon'].map(team => (
-                        script.characters[team] && script.characters[team].length > 0 && (
-                          <CharacterSection
-                            key={team}
-                            team={team}
-
-                            characters={script.characters[team]}
-                            script={script}
-                            onReorder={handleReorderCharacters}
-                            onUpdateCharacter={handleUpdateCharacter}
-                            onEditCharacter={handleEditCharacter}
-                            onDeleteCharacter={handleRemoveCharacter}
-                          />
-                        )
-                      ))}
-
-                      {/* 在非双页面模式下显示传奇和旅行者 */}
-                      {!uiConfigStore.config.enableTwoPageMode && ['fabled', 'traveler'].map(team => (
-                        script.characters[team] && script.characters[team].length > 0 && (
-                          <CharacterSection
-                            key={team}
-                            team={team}
-
-                            characters={script.characters[team]}
-                            script={script}
-                            onReorder={handleReorderCharacters}
-                            onUpdateCharacter={handleUpdateCharacter}
-                            onEditCharacter={handleEditCharacter}
-                            onDeleteCharacter={handleRemoveCharacter}
-                          />
-                        )
-                      ))}
-
-                      {/* 显示所有未知团队（非双页面模式） */}
-                      {!uiConfigStore.config.enableTwoPageMode && Object.keys(script.characters)
-                        .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
-                        .map(team => (
-                          <CharacterSection
-                            key={team}
-                            team={team}
-                            characters={script.characters[team]}
-                            script={script}
-                            onReorder={handleReorderCharacters}
-                            onUpdateCharacter={handleUpdateCharacter}
-                            onEditCharacter={handleEditCharacter}
-                            onDeleteCharacter={handleRemoveCharacter}
-                          />
-                        ))
-                      }
-                    </Box>
-                  </Box>
-
-                  {/* 移动端夜晚行动顺序 */}
-                  {isMobile && (
-                    <Box sx={{ mt: 2, display: 'flex', gap: 1.5, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2, md: 3 } }}>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <NightOrder
-                          title={t('night.first')}
-                          actions={script.firstnight}
-                          isMobile={true}
-                          disabled={configStore.config.officialIdParseMode}
-                          onReorder={(oldIndex, newIndex) => handleNightOrderReorder('first', oldIndex, newIndex)}
-                        />
-                      </Box>
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <NightOrder
-                          title={t('night.other')}
-                          actions={script.othernight}
-                          isMobile={true}
-                          disabled={configStore.config.officialIdParseMode}
-                          onReorder={(oldIndex, newIndex) => handleNightOrderReorder('other', oldIndex, newIndex)}
-                        />
-                      </Box>
-                    </Box>
-                  )}
-
-                  {/* 特殊说明卡片 */}
-                  {/* <Box sx={{ position: 'relative', zIndex: 1 }}>
-                    <SpecialRulesSection rules={script.specialRules} />
-                  </Box> */}
-                  <CharacterImage
-                    component="img"
-                    src={"/imgs/images/back_tower.png"}
-                    alt={"2323"}
-                    sx={{
-                      position: "absolute",
-                      left: "0%",
-                      bottom: "0",
-                      display: "flex",
-                      width: "20%",
-                      zIndex: 0,
-                      opacity: 0.4,
-                      userSelect: 'none',
-                      WebkitUserDrag: 'none',
-                    }}
-                  />
-                  <CharacterImage
-                    component="img"
-                    src={"/imgs/images/back_tower2.png"}
-                    alt={"back_tower2"}
-                    sx={{
-                      position: "absolute",
-                      left: "36%",
-                      bottom: "0%",
-                      display: "flex",
-                      width: "50%",
-                      zIndex: 0,
-                      opacity: 0.8,
-                      userSelect: 'none',
-                      WebkitUserDrag: 'none',
-                    }}
-                  />
-                  {/* 底部装饰框 */}
-                  {/* <DecorativeFrame
-                    text="*代表非首个夜晚"
-                    width={{ xs: "90%", sm: "80%", md: "20%" }}
-                    height={100}
-                    containerPt={uiConfigStore.decorativeFrameSpacing.pt}
-                    containerPb={uiConfigStore.decorativeFrameSpacing.pb}
-                    borderColor="rgba(255, 255, 255, 0.3)"
-                    cornerColor="#d4af37"
-                    textColor="#000000"
-                    fontSize={{ xs: '0.72rem', sm: '0.78rem', md: '1.2rem' }}
-                    particleColors={['#d4af37', '#2d5c4f', '#b21e1d']}
-                    showParticles={true}
-                    showCorners={true}
-                    decorativeSymbol="✦"
-                  /> */}
-                  <Box sx={{ height: "20vh" }}>
-                  </Box>
-                  {/* 底部空白区域，用于背景装饰 */}
-
-                </Paper>
-
-                {/* 右侧 - 其他夜晚 */}
-                {!isMobile && (
-                  <Box sx={{
-                    padding: 1.5,
-                    flexShrink: 0,
-                    position: 'relative',
-                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: "center",
-                    pt: '33.33%',
-                    boxShadow: 'none',
-                    '& > *': {
-                      position: 'relative',
-                      zIndex: 3,
-                    }
-                  }}>
-                    <NightOrder
-                      title={t('night.other')}
-                      actions={script?.othernight || []}
-                      disabled={configStore.config.officialIdParseMode}
-                      onReorder={(oldIndex, newIndex) => handleNightOrderReorder('other', oldIndex, newIndex)}
-                    />
-                  </Box>
-                )}
-              </Box>
-            </Box>
+            <ScriptRenderer
+              script={script}
+              theme={theme}
+              readOnly={false}
+              onReorderCharacters={handleReorderCharacters}
+              onUpdateCharacter={handleUpdateCharacter}
+              onEditCharacter={handleEditCharacter}
+              onDeleteCharacter={handleRemoveCharacter}
+              onReplaceCharacter={handleReplaceCharacter}
+              onTitleEdit={handleTitleEdit}
+              onSecondPageTitleEdit={handleSecondPageTitleEdit}
+              onSpecialRuleEdit={handleSpecialRuleEdit}
+              onSpecialRuleDelete={(rule) => scriptStore.removeSpecialRule(rule)}
+              onNightOrderReorder={handleNightOrderReorder}
+            />
           )
           }
-
-          {/* 第二页 - 双页面模式下显示相克规则、传奇、旅行者 */}
-          {script && uiConfigStore.config.enableTwoPageMode && (
-            <Box
-              id="script-preview-2"
-              sx={{
-                display: "flex",
-                width: "100%",
-                mt: 4, // 屏幕上与第一页分隔
-                '@media print': {
-                  mt: 0, // 打印时取消间距
-                }
-              }}
-            >
-              <Box
-                sx={{
-                  display: "flex",
-                  width: "100%",
-                  height: "100%",
-                  minHeight: '100vh', // 确保容器也有足够高度
-                  justifyContent: "center",
-                  position: 'relative',
-                  '@media print': {
-                    height: '100vh !important',
-                    minHeight: '100vh !important',
-                  }
-                }}>
-
-                {/* 装饰花纹 - 复用第一页的装饰 */}
-                <CharacterImage
-                  src="/imgs/images/flower3_2.png"
-                  alt="左下角装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-                <CharacterImage
-                  src="/imgs/images/flower4.png"
-                  alt="装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    right: 0,
-                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-                <CharacterImage
-                  src="/imgs/images/flower7.png"
-                  alt="右上角装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    right: -5,
-                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-                <CharacterImage
-                  src="/imgs/images/flower4_2.png"
-                  alt="左上角装饰花纹"
-                  sx={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    transform: "rotate(180deg)",
-                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                    opacity: 1,
-                    pointerEvents: 'none',
-                    zIndex: 2,
-                    userSelect: 'none',
-                    WebkitUserDrag: 'none',
-                  }}
-                />
-
-                {/* 左侧占位 */}
-                {!isMobile && (
-                  <Box sx={{
-                    padding: 1.5,
-                    flexShrink: 0,
-                    position: 'relative',
-                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                    width: '200px',
-                    boxShadow: 'none',
-                  }}>
-                  </Box>
-                )}
-
-                {/* 中间 - 第二页内容区域 */}
-                <Paper
-                  elevation={0}
-                  sx={{
-                    pt: 2,
-                    flex: 1,
-                    backgroundImage: 'url(/imgs/images/main_back.jpg)',
-                    backgroundSize: '100% 100%',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    borderRadius: 0,
-                    position: 'relative',
-                    boxShadow: 'none',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    minHeight: '100vh', // 确保第二页也是100vh高度
-                    '@media print': {
-                      height: '100vh !important',
-                      minHeight: '100vh !important',
-                    }
-                  }}
-                >
-                  <CharacterImage
-                    component="img"
-                    src={"/imgs/images/back_4.png"}
-                    alt="Decorative torn paper"
-                    sx={{
-                      position: "relotive",
-                      top: "0%",
-                      width: "30%",
-                      height: "auto",
-                      zIndex: 1,
-                      pointerEvents: 'none',
-                      opacity: 0.95,
-                      userSelect: 'none',
-                      WebkitUserDrag: 'none',
-                    }}
-                  />
-
-                  {/* 第二页角色区域 */}
-                  <Box sx={{
-                    width: "100%",
-                    px: 3,
-                    position: 'relative',
-                    zIndex: 2,
-                  }}>
-                    {/* 显示传奇和旅行者 */}
-                    {['fabled', 'traveler'].map(team => (
-                      script.characters[team] && script.characters[team].length > 0 && (
-                        <CharacterSection
-                          key={team}
-                          team={team}
-                          characters={script.characters[team]}
-                          script={script}
-                          onReorder={handleReorderCharacters}
-                          onUpdateCharacter={handleUpdateCharacter}
-                          onEditCharacter={handleEditCharacter}
-                          onDeleteCharacter={handleRemoveCharacter}
-                        />
-                      )
-                    ))}
-
-                    {/* 显示所有未知团队（相克规则等） */}
-                    {Object.keys(script.characters)
-                      .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
-                      .map(team => (
-                        <CharacterSection
-                          key={team}
-                          team={team}
-                          characters={script.characters[team]}
-                          script={script}
-                          onReorder={handleReorderCharacters}
-                          onUpdateCharacter={handleUpdateCharacter}
-                          onEditCharacter={handleEditCharacter}
-                          onDeleteCharacter={handleRemoveCharacter}
-                        />
-                      ))
-                    }
-
-                    {/* 相克规则专区 */}
-                    <JinxSection script={script} />
-
-                    {/* 第二页的特殊规则（state）*/}
-                    {script.secondPageRules && script.secondPageRules.length > 0 && (
-                      <StateRulesSection
-                        rules={script.secondPageRules}
-                        onDelete={(rule) => scriptStore.removeSpecialRule(rule)}
-                        onEdit={handleSpecialRuleEdit}
-                      />
-                    )}
-
-                    {/* <Box sx={{ height: "20vh" }}></Box> */}
-                    <CharacterImage
-                      component="img"
-                      src={"/imgs/images/back_tower.png"}
-                      alt={"2323"}
-                      sx={{
-                        position: "absolute",
-                        left: "0%",
-                        bottom: "0",
-                        display: "flex",
-                        width: "20%",
-                        zIndex: -1,
-                        opacity: 0.4,
-                        userSelect: 'none',
-                        WebkitUserDrag: 'none',
-                      }}
-                    />
-                    <CharacterImage
-                      component="img"
-                      src={"/imgs/images/back_tower2.png"}
-                      alt={"2323"}
-                      sx={{
-                        position: "absolute",
-                        left: "36%",
-                        bottom: "0%",
-                        display: "flex",
-                        width: "50%",
-                        zIndex: -1,
-                        opacity: 0.8,
-                        userSelect: 'none',
-                        WebkitUserDrag: 'none',
-                      }}
-                    />
-                  </Box>
-
-
-                </Paper>
-
-                {/* 右侧占位 */}
-                {!isMobile && (
-                  <Box sx={{
-                    padding: 1.5,
-                    flexShrink: 0,
-                    position: 'relative',
-                    backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                    width: '200px',
-                    boxShadow: 'none',
-                  }}>
-                  </Box>
-                )}
-
-              </Box>
-            </Box>
-          )}
 
           {/* 空状态提示 */}
           {!script && (
@@ -1472,10 +765,16 @@ const App = observer(() => {
       {/* 角色库悬浮卡片 */}
       < CharacterLibraryCard
         open={libraryCardOpen}
-        onClose={() => setLibraryCardOpen(false)}
+        onClose={() => {
+          setLibraryCardOpen(false);
+          setReplacingCharacter(null);
+          setLibraryPosition(undefined);
+        }}
         onAddCharacter={handleAddCharacter}
         onRemoveCharacter={handleRemoveCharacter}
         selectedCharacters={script?.all || []}
+        initialTeam={replacingCharacter?.team}
+        position={libraryPosition}
       />
 
       {/* 悬浮添加按钮 */}
@@ -1490,16 +789,30 @@ const App = observer(() => {
         onClose={() => setUiSettingsOpen(false)}
       />
 
-      {/* 标题编辑对话框 */}
+      {/* 第一页标题编辑对话框 */}
       <TitleEditDialog
         open={titleEditDialogOpen}
         title={script?.title || ''}
         titleImage={script?.titleImage}
-        subtitle={script?.subtitle}
+        titleImageSize={script?.titleImageSize}
+        useTitleImage={script?.useTitleImage}
         author={script?.author || ''}
         playerCount={script?.playerCount || ''}
         onClose={() => setTitleEditDialogOpen(false)}
         onSave={handleTitleSave}
+      />
+
+      {/* 第二页标题编辑对话框 */}
+      <SecondPageTitleEditDialog
+        open={secondPageTitleEditDialogOpen}
+        title={script?.secondPageTitleText || script?.title || ''}
+        titleImage={script?.secondPageTitleImage}
+        fontSize={script?.secondPageTitleFontSize}
+        imageSize={script?.secondPageTitleImageSize}
+        useImage={script?.useSecondPageTitleImage}
+        defaultImageUrl={script?.titleImage}
+        onClose={() => setSecondPageTitleEditDialogOpen(false)}
+        onSave={handleSecondPageTitleSave}
       />
 
       {/* 特殊规则编辑对话框 */}

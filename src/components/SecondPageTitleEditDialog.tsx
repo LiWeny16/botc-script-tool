@@ -16,53 +16,45 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon, CloudUpload as UploadIcon } from '@mui/icons-material';
 import { useTranslation } from '../utils/i18n';
-import { uiConfigStore } from '../stores/UIConfigStore';
 
-interface TitleEditDialogProps {
+interface SecondPageTitleEditDialogProps {
   open: boolean;
   title: string;
   titleImage?: string;
-  titleImageSize?: number;  // 第一页标题图片大小
-  useTitleImage?: boolean;  // 是否使用图片标题
-  author: string;
-  playerCount?: string;
+  fontSize?: number;
+  imageSize?: number;
+  useImage?: boolean;  // 是否使用图片标题
+  defaultImageUrl?: string;  // 从meta获取的默认图片URL
   onClose: () => void;
   onSave: (data: {
     title: string;
     titleImage?: string;
-    titleImageSize?: number;
-    useTitleImage: boolean;
-    author: string;
-    playerCount?: string;
+    fontSize?: number;
+    imageSize?: number;
+    useImage: boolean;
   }) => void;
 }
 
-const TitleEditDialog = ({
+const SecondPageTitleEditDialog = ({
   open,
   title,
   titleImage,
-  titleImageSize,
-  useTitleImage,
-  author,
-  playerCount,
+  fontSize,
+  imageSize,
+  useImage: propUseImage,
+  defaultImageUrl,
   onClose,
   onSave,
-}: TitleEditDialogProps) => {
+}: SecondPageTitleEditDialogProps) => {
   const { t, language } = useTranslation();
-  const [useImage, setUseImage] = useState(useTitleImage !== undefined ? useTitleImage : !!titleImage);
+  const [useImage, setUseImage] = useState(propUseImage !== undefined ? propUseImage : !!titleImage);
   const [formData, setFormData] = useState({
     title: title || '',
-    titleImage: titleImage || '',
-    author: author || '',
-    playerCount: playerCount || '',
+    titleImage: titleImage || defaultImageUrl || '',
   });
-  const [firstPageImageSize, setFirstPageImageSize] = useState(titleImageSize || 160);
   const [dragActive, setDragActive] = useState(false);
-  const [fontSizes, setFontSizes] = useState({
-    xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
-    sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
-    md: parseFloat(uiConfigStore.config.titleFontSize.md),
-  });
+  const [formFontSize, setFormFontSize] = useState(fontSize || 48);
+  const [formImageSize, setFormImageSize] = useState(imageSize || 200);
 
   // 判断是否是base64图片
   const isBase64Image = (str: string) => {
@@ -71,20 +63,14 @@ const TitleEditDialog = ({
 
   // 当 props 变化时更新表单数据
   useEffect(() => {
-    setUseImage(useTitleImage !== undefined ? useTitleImage : !!titleImage);
+    setUseImage(propUseImage !== undefined ? propUseImage : !!titleImage);
     setFormData({
       title: title || '',
-      titleImage: titleImage || '',
-      author: author || '',
-      playerCount: playerCount || '',
+      titleImage: titleImage || defaultImageUrl || '',
     });
-    setFirstPageImageSize(titleImageSize || 160);
-    setFontSizes({
-      xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
-      sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
-      md: parseFloat(uiConfigStore.config.titleFontSize.md),
-    });
-  }, [open, title, titleImage, titleImageSize, useTitleImage, author, playerCount]);
+    setFormFontSize(fontSize || 48);
+    setFormImageSize(imageSize || 200);
+  }, [open, title, titleImage, fontSize, imageSize, propUseImage, defaultImageUrl]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -133,21 +119,13 @@ const TitleEditDialog = ({
     const isBase64 = formData.titleImage.startsWith('data:image');
     
     const dataToSave = {
-      ...formData,
+      title: formData.title,
       // 如果不使用图片且是base64，删除；如果是URL，保留
       titleImage: useImage ? formData.titleImage : (isBase64 ? undefined : formData.titleImage),
-      titleImageSize: firstPageImageSize,
-      useTitleImage: useImage,  // 保存使用图片的标志
+      fontSize: formFontSize,
+      imageSize: formImageSize,
+      useImage: useImage,  // 保存使用图片的标志
     };
-    
-    // 保存字体大小到 UIConfigStore
-    uiConfigStore.updateConfig({
-      titleFontSize: {
-        xs: `${fontSizes.xs}rem`,
-        sm: `${fontSizes.sm}rem`,
-        md: `${fontSizes.md}rem`,
-      },
-    });
     
     onSave(dataToSave);
     onClose();
@@ -157,7 +135,9 @@ const TitleEditDialog = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>
         <Box display="flex" alignItems="center" justifyContent="space-between">
-          <Typography variant="h6">{t('title.editFirstPage')}</Typography>
+          <Typography variant="h6">
+            {t('title.editSecondPage')}
+          </Typography>
           <IconButton onClick={onClose} size="small">
             <CloseIcon />
           </IconButton>
@@ -205,9 +185,9 @@ const TitleEditDialog = ({
                   accept="image/*"
                   onChange={handleFileInput}
                   style={{ display: 'none' }}
-                  id="title-image-upload"
+                  id="second-page-title-image-upload"
                 />
-                <label htmlFor="title-image-upload" style={{ cursor: 'pointer' }}>
+                <label htmlFor="second-page-title-image-upload" style={{ cursor: 'pointer' }}>
                   {formData.titleImage ? (
                     <Box>
                       <img
@@ -246,7 +226,7 @@ const TitleEditDialog = ({
             /* 文本标题输入 */
             <TextField
               fullWidth
-              label={t('title.title')}
+              label={t('title.titleText')}
               value={formData.title}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
@@ -263,13 +243,13 @@ const TitleEditDialog = ({
             {useImage ? (
               <Box>
                 <Typography variant="caption" gutterBottom>
-                  {t('title.imageSize')}: {firstPageImageSize}px
+                  {t('title.imageSize')}: {formImageSize}px
                 </Typography>
                 <Slider
-                  value={firstPageImageSize}
-                  onChange={(_, value) => setFirstPageImageSize(value as number)}
-                  min={80}
-                  max={300}
+                  value={formImageSize}
+                  onChange={(_, value) => setFormImageSize(value as number)}
+                  min={50}
+                  max={500}
                   step={10}
                   valueLabelDisplay="auto"
                 />
@@ -277,54 +257,33 @@ const TitleEditDialog = ({
             ) : (
               <Box>
                 <Typography variant="caption" gutterBottom>
-                  {t('title.fontSizeMd')}: {fontSizes.md}rem
+                  {t('title.fontSize')}: {(formFontSize / 16).toFixed(1)}rem ({formFontSize}px)
                 </Typography>
                 <Slider
-                  value={fontSizes.md}
-                  onChange={(_, value) => setFontSizes(prev => ({ ...prev, md: value as number }))}
-                  min={2.0}
-                  max={7.0}
-                  step={0.1}
+                  value={formFontSize}
+                  onChange={(_, value) => setFormFontSize(value as number)}
+                  min={32}
+                  max={128}
+                  step={4}
                   valueLabelDisplay="auto"
                 />
               </Box>
             )}
           </Box>
-
-          {/* 作者 */}
-          <TextField
-            fullWidth
-            label={t('title.author')}
-            value={formData.author}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, author: e.target.value }))
-            }
-            placeholder={t('input.authorPlaceholder')}
-            size="small"
-          />
-
-          {/* 玩家人数 */}
-          <TextField
-            fullWidth
-            label={t('title.playerCount')}
-            value={formData.playerCount}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, playerCount: e.target.value }))
-            }
-            placeholder={t('title.playerCount')}
-            size="small"
-          />
         </Box>
       </DialogContent>
 
       <DialogActions>
-        <Button onClick={onClose}>{t('title.cancel')}</Button>
+        <Button onClick={onClose}>
+          {t('common.cancel')}
+        </Button>
         <Button onClick={handleSave} variant="contained">
-          {t('title.save')}
+          {t('common.save')}
         </Button>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default TitleEditDialog;
+export default SecondPageTitleEditDialog;
+

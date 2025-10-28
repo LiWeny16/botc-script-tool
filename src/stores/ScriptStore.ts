@@ -227,13 +227,73 @@ class ScriptStore {
     this.syncScriptToJson(updatedScript);
   }
 
+  // 替换角色（保持原位置）
+  replaceCharacter(oldCharacter: Character, newCharacter: Character) {
+    if (!this.script) return false;
+
+    const updatedScript = { ...this.script };
+    
+    // 检查新角色是否已存在（除非它就是要被替换的角色）
+    const exists = updatedScript.all.some(c => c.id === newCharacter.id && c.id !== oldCharacter.id);
+    if (exists) {
+      return false; // 返回false表示新角色已存在
+    }
+
+    // 在all数组中找到旧角色的索引
+    const allIndex = updatedScript.all.findIndex(c => c.id === oldCharacter.id);
+    if (allIndex === -1) {
+      return false; // 旧角色不存在
+    }
+
+    // 在all数组中替换（保持位置）
+    updatedScript.all = [...updatedScript.all];
+    updatedScript.all[allIndex] = newCharacter;
+
+    // 处理团队数组
+    // 1. 从旧团队中删除旧角色
+    if (updatedScript.characters[oldCharacter.team]) {
+      const oldTeamIndex = updatedScript.characters[oldCharacter.team].findIndex(c => c.id === oldCharacter.id);
+      if (oldTeamIndex !== -1) {
+        updatedScript.characters = {
+          ...updatedScript.characters,
+          [oldCharacter.team]: updatedScript.characters[oldCharacter.team].filter(c => c.id !== oldCharacter.id)
+        };
+        
+        // 如果旧团队为空，删除该团队
+        if (updatedScript.characters[oldCharacter.team].length === 0) {
+          const { [oldCharacter.team]: removed, ...rest } = updatedScript.characters;
+          updatedScript.characters = rest as typeof updatedScript.characters;
+        }
+      }
+    }
+
+    // 2. 添加到新团队
+    if (!updatedScript.characters[newCharacter.team]) {
+      updatedScript.characters[newCharacter.team] = [];
+    }
+    updatedScript.characters = {
+      ...updatedScript.characters,
+      [newCharacter.team]: [...updatedScript.characters[newCharacter.team], newCharacter]
+    };
+
+    this.setScript(updatedScript);
+    this.syncScriptToJson(updatedScript);
+    return true; // 返回true表示替换成功
+  }
+
   // 更新标题信息
   updateTitleInfo(data: {
     title?: string;
     titleImage?: string;
-    subtitle?: string;
+    titleImageSize?: number;
+    useTitleImage?: boolean;
     author?: string;
     playerCount?: string;
+    secondPageTitleText?: string;
+    secondPageTitleImage?: string;
+    secondPageTitleFontSize?: number;
+    secondPageTitleImageSize?: number;
+    useSecondPageTitleImage?: boolean;
   }) {
     if (!this.script) return;
 
@@ -250,12 +310,84 @@ class ScriptStore {
       }
     }
     
-    if (data.subtitle !== undefined) updatedScript.subtitle = data.subtitle;
+    if (data.titleImageSize !== undefined) {
+      updatedScript.titleImageSize = data.titleImageSize;
+    }
+    
+    if (data.useTitleImage !== undefined) {
+      updatedScript.useTitleImage = data.useTitleImage;
+    }
+    
     if (data.author !== undefined) updatedScript.author = data.author;
     if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
+    
+    // 更新第二页标题配置
+    if (data.secondPageTitleText !== undefined) {
+      updatedScript.secondPageTitleText = data.secondPageTitleText;
+    }
+    if ('secondPageTitleImage' in data) {
+      if (data.secondPageTitleImage) {
+        updatedScript.secondPageTitleImage = data.secondPageTitleImage;
+      } else {
+        delete updatedScript.secondPageTitleImage;
+      }
+    }
+    if (data.secondPageTitleFontSize !== undefined) {
+      updatedScript.secondPageTitleFontSize = data.secondPageTitleFontSize;
+    }
+    if (data.secondPageTitleImageSize !== undefined) {
+      updatedScript.secondPageTitleImageSize = data.secondPageTitleImageSize;
+    }
+    if (data.useSecondPageTitleImage !== undefined) {
+      updatedScript.useSecondPageTitleImage = data.useSecondPageTitleImage;
+    }
 
     this.setScript(updatedScript);
     this.syncTitleInfoToJson(data);
+  }
+
+  // 添加第二页组件
+  addSecondPageComponent(componentType: 'title' | 'ppl_table1' | 'ppl_table2') {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    switch (componentType) {
+      case 'title':
+        updatedScript.secondPageTitle = true;
+        break;
+      case 'ppl_table1':
+        updatedScript.secondPagePplTable1 = true;
+        break;
+      case 'ppl_table2':
+        updatedScript.secondPagePplTable2 = true;
+        break;
+    }
+
+    this.setScript(updatedScript);
+    this.syncSecondPageComponentToJson(componentType, true);
+  }
+
+  // 删除第二页组件
+  removeSecondPageComponent(componentType: 'title' | 'ppl_table1' | 'ppl_table2') {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    switch (componentType) {
+      case 'title':
+        updatedScript.secondPageTitle = false;
+        break;
+      case 'ppl_table1':
+        updatedScript.secondPagePplTable1 = false;
+        break;
+      case 'ppl_table2':
+        updatedScript.secondPagePplTable2 = false;
+        break;
+    }
+
+    this.setScript(updatedScript);
+    this.syncSecondPageComponentToJson(componentType, false);
   }
 
   // 更新特殊规则
@@ -449,9 +581,15 @@ class ScriptStore {
   private syncTitleInfoToJson(data: {
     title?: string;
     titleImage?: string;
-    subtitle?: string;
+    titleImageSize?: number;
+    useTitleImage?: boolean;
     author?: string;
     playerCount?: string;
+    secondPageTitleText?: string;
+    secondPageTitleImage?: string;
+    secondPageTitleFontSize?: number;
+    secondPageTitleImageSize?: number;
+    useSecondPageTitleImage?: boolean;
   }) {
     console.log('开始同步标题信息到JSON', data);
     try {
@@ -480,12 +618,11 @@ class ScriptStore {
             }
           }
           
-          if (data.subtitle !== undefined) {
-            if (data.subtitle) {
-              updatedMeta.subtitle = data.subtitle;
-            } else {
-              delete updatedMeta.subtitle;
-            }
+          if (data.titleImageSize !== undefined) {
+            updatedMeta.titleImageSize = data.titleImageSize;
+          }
+          if (data.useTitleImage !== undefined) {
+            updatedMeta.use_title_image = data.useTitleImage;
           }
           if (data.author !== undefined) updatedMeta.author = data.author;
           if (data.playerCount !== undefined) {
@@ -494,6 +631,27 @@ class ScriptStore {
             } else {
               delete updatedMeta.playerCount;
             }
+          }
+          
+          // 同步第二页标题配置
+          if (data.secondPageTitleText !== undefined) {
+            updatedMeta.second_page_title_text = data.secondPageTitleText;
+          }
+          if ('secondPageTitleImage' in data) {
+            if (data.secondPageTitleImage) {
+              updatedMeta.second_page_title_image = data.secondPageTitleImage;
+            } else {
+              delete updatedMeta.second_page_title_image;
+            }
+          }
+          if (data.secondPageTitleFontSize !== undefined) {
+            updatedMeta.second_page_title_font_size = data.secondPageTitleFontSize;
+          }
+          if (data.secondPageTitleImageSize !== undefined) {
+            updatedMeta.second_page_title_image_size = data.secondPageTitleImageSize;
+          }
+          if (data.useSecondPageTitleImage !== undefined) {
+            updatedMeta.use_second_page_title_image = data.useSecondPageTitleImage;
           }
           
           console.log('更新后的 _meta:', updatedMeta);
@@ -514,11 +672,23 @@ class ScriptStore {
         if (data.titleImage) {
           newMeta.titleImage = data.titleImage;
         }
-        if (data.subtitle) {
-          newMeta.subtitle = data.subtitle;
+        if (data.titleImageSize !== undefined) {
+          newMeta.titleImageSize = data.titleImageSize;
         }
         if (data.playerCount) {
           newMeta.playerCount = data.playerCount;
+        }
+        if (data.secondPageTitleText) {
+          newMeta.second_page_title_text = data.secondPageTitleText;
+        }
+        if (data.secondPageTitleImage) {
+          newMeta.second_page_title_image = data.secondPageTitleImage;
+        }
+        if (data.secondPageTitleFontSize !== undefined) {
+          newMeta.second_page_title_font_size = data.secondPageTitleFontSize;
+        }
+        if (data.secondPageTitleImageSize !== undefined) {
+          newMeta.second_page_title_image_size = data.secondPageTitleImageSize;
         }
         
         newJsonArray.unshift(newMeta);
@@ -530,6 +700,122 @@ class ScriptStore {
       this.setOriginalJson(jsonString);
     } catch (error) {
       console.error('同步标题信息失败:', error);
+    }
+  }
+
+  // 更新第二页组件顺序
+  updateSecondPageOrder(order: string[]) {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    updatedScript.secondPageOrder = order;
+
+    this.setScript(updatedScript);
+    this.syncSecondPageOrderToJson(order);
+  }
+
+  // 同步第二页组件顺序到JSON
+  private syncSecondPageOrderToJson(order: string[]) {
+    console.log('开始同步第二页组件顺序到JSON', order);
+    try {
+      const parsedJson = JSON.parse(this.originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      // 检查是否存在 _meta 项
+      let hasMetaItem = false;
+      const newJsonArray = jsonArray.map((item: any) => {
+        if (item.id === '_meta') {
+          hasMetaItem = true;
+          const updatedMeta = { ...item };
+          updatedMeta.second_page_order = order.join(' ');
+          return updatedMeta;
+        }
+        return item;
+      });
+
+      // 如果没有 _meta 项，则创建一个新的并插入到数组开头
+      if (!hasMetaItem) {
+        const newMeta: any = {
+          id: '_meta',
+          name: 'Custom Your Script!',
+          author: '',
+          second_page_order: order.join(' '),
+        };
+        newJsonArray.unshift(newMeta);
+      }
+
+      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      console.log('第二页组件顺序同步完成');
+      this.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步第二页组件顺序失败:', error);
+    }
+  }
+
+  // 将第二页组件配置同步到JSON
+  private syncSecondPageComponentToJson(
+    componentType: 'title' | 'ppl_table1' | 'ppl_table2',
+    enabled: boolean
+  ) {
+    console.log('开始同步第二页组件配置到JSON', { componentType, enabled });
+    try {
+      const parsedJson = JSON.parse(this.originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      // 检查是否存在 _meta 项
+      let hasMetaItem = false;
+      const newJsonArray = jsonArray.map((item: any) => {
+        if (item.id === '_meta') {
+          hasMetaItem = true;
+          const updatedMeta = { ...item };
+          
+          // 更新对应的配置项
+          switch (componentType) {
+            case 'title':
+              updatedMeta.second_page_title = enabled;
+              break;
+            case 'ppl_table1':
+              updatedMeta.second_page_ppl_table1 = enabled;
+              break;
+            case 'ppl_table2':
+              updatedMeta.second_page_ppl_table2 = enabled;
+              break;
+          }
+          
+          return updatedMeta;
+        }
+        return item;
+      });
+
+      // 如果没有 _meta 项，则创建一个新的并插入到数组开头
+      if (!hasMetaItem) {
+        const newMeta: any = {
+          id: '_meta',
+          name: 'Custom Your Script!',
+          author: '',
+        };
+        
+        // 设置对应的配置项
+        switch (componentType) {
+          case 'title':
+            newMeta.second_page_title = enabled;
+            break;
+          case 'ppl_table1':
+            newMeta.second_page_ppl_table1 = enabled;
+            break;
+          case 'ppl_table2':
+            newMeta.second_page_ppl_table2 = enabled;
+            break;
+        }
+        
+        newJsonArray.unshift(newMeta);
+      }
+
+      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      console.log('第二页组件配置同步完成');
+      this.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步第二页组件配置失败:', error);
     }
   }
 

@@ -29,6 +29,17 @@ export interface NightAction {
 export interface ScriptMeta {
   name: string;
   author: string;
+  use_title_image?: boolean;  // 第一页是否使用图片标题
+  // 第二页配置
+  second_page_title?: boolean;  // 是否显示第二页标题
+  second_page_title_text?: string;  // 第二页标题文本
+  second_page_title_image?: string;  // 第二页标题图片
+  second_page_title_font_size?: number;  // 第二页标题字体大小
+  second_page_title_image_size?: number;  // 第二页标题图片大小
+  use_second_page_title_image?: boolean;  // 第二页是否使用图片标题
+  second_page_ppl_table1?: boolean;  // 是否显示第一种人数配置表
+  second_page_ppl_table2?: boolean;  // 是否显示第二种人数配置表（6-9人）
+  second_page_order?: string;  // 第二页组件顺序（空格分隔的字符串）
 }
 
 // 特殊说明卡片项
@@ -63,7 +74,8 @@ export interface SpecialRule {
 export interface Script {
   title: string;
   titleImage?: string;  // 可选的标题图片链接
-  subtitle?: string;  // 可选的副标题（英文或其他语言）
+  titleImageSize?: number;  // 第一页标题图片大小
+  useTitleImage?: boolean;  // 第一页是否使用图片标题
   author: string;
   playerCount?: string;  // 玩家人数范围，如 "7-15"
   characters: {
@@ -75,4 +87,17 @@ export interface Script {
   all: Character[];
   specialRules: SpecialRule[];
   secondPageRules?: SpecialRule[];  // 第二页的特殊规则
+  // 第二页配置（来自 _meta）
+  secondPageTitle?: boolean;  // 是否显示第二页标题
+  secondPageTitleText?: string;  // 第二页标题文本（独立配置）
+  secondPageTitleImage?: string;  // 第二页标题图片（独立配置）
+  secondPageTitleFontSize?: number;  // 第二页标题字体大小
+  secondPageTitleImageSize?: number;  // 第二页标题图片大小
+  useSecondPageTitleImage?: boolean;  // 第二页是否使用图片标题
+  secondPagePplTable1?: boolean;  // 是否显示第一种人数配置表
+  secondPagePplTable2?: boolean;  // 是否显示第二种人数配置表（6-9人）
+  secondPageOrder?: string[];  // 第二页组件顺序数组
 }
+
+// 第二页组件类型
+export type SecondPageComponentType = 'title' | 'ppl_table1' | 'ppl_table2' | 'fabled' | 'traveler' | 'secondPageRules' | string;

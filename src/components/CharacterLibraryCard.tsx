@@ -20,6 +20,8 @@ import {
 import {
     Close as CloseIcon,
     Search as SearchIcon,
+    PushPin as PushPinIcon,
+    PushPinOutlined as PushPinOutlinedIcon,
 } from '@mui/icons-material';
 import { CHARACTERS } from '../data/characters';
 import { CHARACTERS_EN } from '../data/charactersEn';
@@ -38,6 +40,8 @@ interface CharacterLibraryCardProps {
     onRemoveCharacter?: (character: Character) => void;
     selectedCharacters?: Character[];
     anchorEl?: HTMLElement | null;
+    initialTeam?: string; // 初始选中的团队
+    position?: { x: number; y: number }; // 角色库出现的位置
 }
 
 
@@ -47,11 +51,20 @@ const CharacterLibraryCard = observer(({
     onAddCharacter,
     onRemoveCharacter,
     selectedCharacters = [],
+    initialTeam,
+    position,
 }: CharacterLibraryCardProps) => {
     const { t, language } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTab, setSelectedTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [isPinned, setIsPinned] = useState(false); // 是否固定
+    const [isDragging, setIsDragging] = useState(false); // 是否正在拖拽
+    const dragOffsetRef = React.useRef({ x: 0, y: 0 }); // 使用 ref 存储拖拽偏移量,避免频繁渲染
+    const dragStartRef = React.useRef({ x: 0, y: 0 }); // 拖拽起始位置
+    const cardRef = React.useRef<HTMLDivElement>(null);
+    const rafRef = React.useRef<number | null>(null); // requestAnimationFrame ID
+    const searchInputRef = React.useRef<HTMLInputElement>(null); // 搜索框引用
 
     // 根据当前语言选择角色数据源
     const currentCharacterData = useMemo(() => {
@@ -178,18 +191,39 @@ const CharacterLibraryCard = observer(({
         if (open) {
             setIsLoading(true);
 
-            // 重置搜索和选中状态，提供更好的用户体验
+            // 重置搜索
             setSearchTerm('');
-            setSelectedTab(0);
+            
+            // 重置拖拽状态
+            dragOffsetRef.current = { x: 0, y: 0 };
+            if (cardRef.current) {
+                cardRef.current.style.transform = 'translate(0px, 0px)';
+            }
+            setIsDragging(false);
+            
+            // 如果有初始团队，自动切换到对应的标签
+            if (initialTeam) {
+                const teamIndex = teamTabs.findIndex(tab => tab.key === initialTeam);
+                if (teamIndex !== -1) {
+                    setSelectedTab(teamIndex);
+                }
+            } else {
+                // 否则默认显示已选角色
+                setSelectedTab(0);
+            }
 
             // 模拟数据加载时间，实际项目中这里可能是API调用
             const timer = setTimeout(() => {
                 setIsLoading(false);
+                // 加载完成后自动聚焦搜索框
+                if (searchInputRef.current) {
+                    searchInputRef.current.focus();
+                }
             }, 200); // 进一步减少加载时间
 
             return () => clearTimeout(timer);
         }
-    }, [open]);
+    }, [open, initialTeam]);
 
     const handleAddCharacter = useCallback((character: Character) => {
         onAddCharacter(character);
@@ -205,6 +239,108 @@ const CharacterLibraryCard = observer(({
     const handleClose = useCallback(() => {
         onClose();
     }, [onClose]);
+
+    // 处理点击外部关闭
+    const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+        // 如果已固定，不响应外部点击
+        if (isPinned) return;
+        
+        // 点击背景层时关闭
+        if (e.target === e.currentTarget) {
+            handleClose();
+        }
+    }, [isPinned, handleClose]);
+
+    // 拖拽处理函数
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        // 只在标题栏上才能拖拽
+        if (!e.currentTarget.classList.contains('draggable-header')) return;
+        
+        setIsDragging(true);
+        dragStartRef.current = {
+            x: e.clientX - dragOffsetRef.current.x,
+            y: e.clientY - dragOffsetRef.current.y,
+        };
+        e.preventDefault(); // 防止文本选择
+    }, []);
+
+    const handleMouseMove = useCallback((e: MouseEvent) => {
+        if (!isDragging || !cardRef.current) return;
+        
+        // 取消之前的 RAF
+        if (rafRef.current !== null) {
+            cancelAnimationFrame(rafRef.current);
+        }
+        
+        // 使用 RAF 优化性能
+        rafRef.current = requestAnimationFrame(() => {
+            if (!cardRef.current) return;
+            
+            // 获取卡片尺寸
+            const cardRect = cardRef.current.getBoundingClientRect();
+            const cardWidth = cardRect.width;
+            const cardHeight = cardRect.height;
+            
+            // 获取初始位置 (从 sx 计算)
+            const initialRect = cardRef.current.getBoundingClientRect();
+            const baseX = initialRect.left - dragOffsetRef.current.x;
+            const baseY = initialRect.top - dragOffsetRef.current.y;
+            
+            // 计算新偏移量
+            let newOffsetX = e.clientX - dragStartRef.current.x;
+            let newOffsetY = e.clientY - dragStartRef.current.y;
+            
+            // 计算最终位置
+            const finalX = baseX + newOffsetX;
+            const finalY = baseY + newOffsetY;
+            
+            // 边界限制
+            const minX = 0;
+            const minY = 0;
+            const maxX = window.innerWidth - cardWidth;
+            const maxY = window.innerHeight - cardHeight;
+            
+            // 应用边界限制
+            if (finalX < minX) {
+                newOffsetX = minX - baseX;
+            } else if (finalX > maxX) {
+                newOffsetX = maxX - baseX;
+            }
+            
+            if (finalY < minY) {
+                newOffsetY = minY - baseY;
+            } else if (finalY > maxY) {
+                newOffsetY = maxY - baseY;
+            }
+            
+            const newOffset = { x: newOffsetX, y: newOffsetY };
+            dragOffsetRef.current = newOffset;
+            
+            // 直接操作 DOM,避免触发 React 重渲染
+            cardRef.current.style.transform = `translate(${newOffset.x}px, ${newOffset.y}px)`;
+        });
+    }, [isDragging]);
+
+    const handleMouseUp = useCallback(() => {
+        setIsDragging(false);
+        // 清理 RAF
+        if (rafRef.current !== null) {
+            cancelAnimationFrame(rafRef.current);
+            rafRef.current = null;
+        }
+    }, []);
+
+    // 添加和移除全局鼠标事件监听
+    useEffect(() => {
+        if (isDragging) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+            return () => {
+                window.removeEventListener('mousemove', handleMouseMove);
+                window.removeEventListener('mouseup', handleMouseUp);
+            };
+        }
+    }, [isDragging, handleMouseMove, handleMouseUp]);
 
     // 懒加载图片组件 - 使用统一的CharacterImage组件
     const LazyAvatar = React.memo(({ character, teamColor }: { character: Character; teamColor: string }) => {
@@ -358,77 +494,146 @@ const CharacterLibraryCard = observer(({
     });
 
     return (
-        <Box
-            sx={{
-                position: 'fixed',
-                bottom: { xs: 80, sm: 100 },
-                right: { xs: 16, sm: 24 },
-                zIndex: 1001,
-                display: open ? 'block' : 'none', // 使用CSS显示/隐藏
-                '@media print': {
-                    display: 'none',
-                },
-            }}
-        >
-            <Card
+        <>
+            {/* 背景遮罩层 - 点击关闭 (透明) */}
+            {open && !isPinned && (
+                <Box
+                    onClick={handleBackdropClick}
+                    sx={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 1000,
+                        backgroundColor: 'transparent',
+                        display: open ? 'block' : 'none',
+                        '@media print': {
+                            display: 'none',
+                        },
+                    }}
+                />
+            )}
+            
+            {/* 角色库卡片 */}
+            <Box
+                ref={cardRef}
                 sx={{
-                    width: { xs: 340, sm: 400 },
-                    height: {
-                        xs: 'min(calc(100vh - 180px), 720px)', // 移动端：视口高度减去180px（顶部+底部边距）或720px，取较小值
-                        sm: 'min(calc(100vh - 120px), 830px)'  // 桌面端：视口高度减去160px（顶部+底部边距）或630px，取较小值
-                    },
-                    maxHeight: {
-                        xs: 'calc(100vh - 5px)', // 确保不超过可用高度
-                        sm: 'calc(100vh - 5px)'
-                    },
-                    boxShadow: 6,
-                    borderRadius: 2,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    transform: open ? 'scale(1)' : 'scale(0.95)',
-                    opacity: open ? 1 : 0,
-                    transition: 'transform 0.15s ease-out, opacity 0.15s ease-out',
-                    transformOrigin: 'bottom right', // 从右下角缩放
-                    userSelect: 'none', // 禁用文本选择
-                    WebkitUserSelect: 'none', // Safari
-                    MozUserSelect: 'none', // Firefox
-                    msUserSelect: 'none', // IE/Edge
-                    '& *': {
-                        userSelect: 'none !important',
-                        WebkitUserSelect: 'none !important',
-                        MozUserSelect: 'none !important',
-                        msUserSelect: 'none !important',
+                    position: 'fixed',
+                    // 如果有position参数，使用它；否则使用默认位置
+                    ...(position ? {
+                        top: Math.min(position.y, window.innerHeight - 750),
+                        left: Math.min(position.x, window.innerWidth - 420),
+                    } : {
+                        bottom: { xs: 80, sm: 100 },
+                        right: { xs: 16, sm: 24 },
+                    }),
+                    // transform 由 DOM 直接操作，不在这里设置
+                    zIndex: 1001,
+                    display: open ? 'block' : 'none',
+                    '@media print': {
+                        display: 'none',
                     },
                 }}
             >
-                {/* 标题栏 */}
-                <Box
+                <Card
                     sx={{
+                        width: { xs: 340, sm: 400 },
+                        height: {
+                            xs: 'min(calc(100vh - 180px), 720px)',
+                            sm: 'min(calc(100vh - 120px), 830px)'
+                        },
+                        maxHeight: {
+                            xs: 'calc(100vh - 5px)',
+                            sm: 'calc(100vh - 5px)'
+                        },
+                        boxShadow: 6,
+                        borderRadius: 2,
                         display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        p: 2,
-                        pb: 1,
-                        borderBottom: '1px solid #e0e0e0',
+                        flexDirection: 'column',
+                        opacity: open ? 1 : 0,
+                        transition: isDragging ? 'none' : 'opacity 0.15s ease-out',
+                        cursor: isDragging ? 'grabbing' : 'default',
+                        userSelect: 'none',
+                        WebkitUserSelect: 'none',
+                        MozUserSelect: 'none',
+                        msUserSelect: 'none',
+                        '& *': {
+                            userSelect: isDragging ? 'none !important' : 'auto',
+                            WebkitUserSelect: isDragging ? 'none !important' : 'auto',
+                            MozUserSelect: isDragging ? 'none !important' : 'auto',
+                            msUserSelect: isDragging ? 'none !important' : 'auto',
+                        },
                     }}
                 >
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CharacterImage
-                            src="/imgs/images/logo2.png"
-                            alt="BOTC"
-                            sx={{
-                                height: 24,
-                                objectFit: 'contain',
-                            }}
-                        />
-                        <Typography variant="h6" sx={{ fontSize: '1rem' }}>
-                            {t('characterLibrary')}
-                        </Typography>
+                    {/* 标题栏 - 可拖拽 */}
+                    <Box
+                        className="draggable-header"
+                        onMouseDown={handleMouseDown}
+                        sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            p: 2,
+                            pb: 1,
+                            borderBottom: '1px solid #e0e0e0',
+                            cursor: isDragging ? 'grabbing' : 'grab',
+                            '&:active': {
+                                cursor: 'grabbing',
+                            },
+                        }}
+                    >
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <CharacterImage
+                                src="/imgs/images/logo2.png"
+                                alt="BOTC"
+                                sx={{
+                                    height: 24,
+                                    objectFit: 'contain',
+                                }}
+                            />
+                            <Typography variant="h6" sx={{ fontSize: '1rem' }}>
+                                {t('characterLibrary')}
+                            </Typography>
+                        </Box>
+                        <Box sx={{ display: 'flex', gap: 0.5 }}>
+                            {/* 固定/解锁按钮 */}
+                            <IconButton 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setIsPinned(!isPinned);
+                                }} 
+                                size="small"
+                                title={isPinned ? t('library.unpin') : t('library.pin')}
+                                sx={{
+                                    color: isPinned ? THEME_COLORS.good : 'text.secondary',
+                                    transition: 'all 0.2s',
+                                    '&:hover': {
+                                        color: THEME_COLORS.good,
+                                        backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                                    },
+                                }}
+                            >
+                                {isPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
+                            </IconButton>
+                            {/* 关闭按钮 */}
+                            <IconButton 
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleClose();
+                                }} 
+                                size="small"
+                                sx={{
+                                    '&:hover': {
+                                        color: THEME_COLORS.evil,
+                                        backgroundColor: 'rgba(244, 67, 54, 0.08)',
+                                    },
+                                }}
+                            >
+                                <CloseIcon />
+                            </IconButton>
+                        </Box>
                     </Box>
-                    <IconButton onClick={handleClose} size="small">
-                        <CloseIcon />
-                    </IconButton>
-                </Box>
 
                 {/* 搜索栏 */}
                 <Box sx={{ p: 2, pb: 1 }}>
@@ -438,6 +643,7 @@ const CharacterLibraryCard = observer(({
                         placeholder={t('searchCharacters')}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
+                        inputRef={searchInputRef}
                         InputProps={{
                             startAdornment: (
                                 <InputAdornment position="start">
@@ -607,6 +813,7 @@ const CharacterLibraryCard = observer(({
                 </CardContent>
             </Card>
         </Box>
+        </>
     );
 });
 

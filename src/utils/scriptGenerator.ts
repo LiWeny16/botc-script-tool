@@ -223,9 +223,24 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     if (item.id === '_meta') {
       script.title = item.name || '自定义剧本';
       script.titleImage = item.titleImage || item.logo;  // 支持 titleImage 或 logo 字段
-      script.subtitle = item.subtitle;  // 解析副标题
+      script.titleImageSize = item.titleImageSize;  // 解析第一页标题图片大小
+      script.useTitleImage = item.use_title_image !== false ? !!script.titleImage : false;  // 默认根据是否有图片判断
       script.author = item.author || '';
       script.playerCount = item.playerCount;  // 解析玩家人数
+      
+      // 解析第二页配置
+      script.secondPageTitle = item.second_page_title;
+      script.secondPageTitleText = item.second_page_title_text;
+      script.secondPageTitleImage = item.second_page_title_image;
+      script.secondPageTitleFontSize = item.second_page_title_font_size;
+      script.secondPageTitleImageSize = item.second_page_title_image_size;
+      script.useSecondPageTitleImage = item.use_second_page_title_image !== false ? !!script.secondPageTitleImage : false;  // 默认根据是否有图片判断
+      script.secondPagePplTable1 = item.second_page_ppl_table1;
+      script.secondPagePplTable2 = item.second_page_ppl_table2;
+      // 解析第二页组件顺序
+      if (item.second_page_order && typeof item.second_page_order === 'string') {
+        script.secondPageOrder = item.second_page_order.split(' ').filter((s: string) => s.length > 0);
+      }
 
       // 处理 state 字段
       if (item.state && Array.isArray(item.state)) {

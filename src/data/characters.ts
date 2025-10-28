@@ -3568,6 +3568,64 @@ const _characters = {
 
 }
 const custom_characters = {
+  "martyr": {
+    "name": "殉教少女",
+    "author": "飞跃疯人院",
+    "ability": "如果爪牙死于处决，当晚你会死亡，随后所有邪恶角色醉酒直到明天黄昏。",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/78_fry79.png",
+    "id": "martyr",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "如果当天一名爪牙死于处决，且当晚殉教少女能够因为自身能力死亡，将“殉教”与“死亡”提示标记放置在殉教少女旁，代表所有邪恶角色醉酒直到明天黄昏。",
+    "reminders": [
+      "殉教",
+      "死亡"
+    ]
+  },
+  "snowman": {
+    "author": "飞跃疯人院",
+    "name": "雪人",
+    "ability": "每局游戏限一次，恶魔可以公开猜测你是雪人，如果猜中，当天他被处决时你会代替他被处决。如果白天没人被处决，你的阵营落败。",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/_fry79.png",
+    "id": "snowman",
+    "team": "outsider",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "已被猜测",
+      "被猜中"
+    ]
+  },
+  "wandering_singer": {
+    "author": "飞跃疯人院",
+    "name": "游歌者",
+    "ability": "每个白天，你可以公开选择任意名存活玩家：其中的镇民会醉酒直到你再次选择。当晚你会得知正因你醉酒的人数。",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/4_fry79.png",
+    "id": "wandering_singer",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "如果游歌者在白天公开选择了，唤醒并告知他此刻场上因他醉酒的人数。",
+    "reminders": [
+      "醉酒"
+    ]
+  },
+  "newspaper_boy": {
+    "author": "飞跃疯人院",
+    "name": "送报童",
+    "ability": "每个白天，你可以私下询问说书人以得知一条“新闻”，如果你公开宣读了该“新闻”，当天晚上你会得知它是否正确。",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/58_fry79.png",
+    "id": "newspaper_boy",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "得知正确与否",
+    "reminders": [
+      "真新闻",
+      "假新闻"
+    ]
+  },
   "genius": {
     "id": "genius",
     "name": "天才",
@@ -3676,6 +3734,22 @@ const custom_characters = {
       "是瘾君子"
     ],
     "setup": true
+  },
+  "wanou": {
+    "id": "wanou",
+    "name": "玩偶",
+    "author": "飞跃疯人院",
+    "ability": "你以为你是一个善良角色，但其实你不是。如果你被恶魔杀死，恶魔要选择一名玩家：他变成玩偶。[玩偶会与恶魔邻座]",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/65_fry79.png",
+    "team": "minion",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "如果恶魔杀死了玩偶，提醒恶魔选择一名新的玩偶。",
+    "remindersGlobal": [
+      "新玩偶",
+      "初始玩偶"
+    ],
+    "setup": 1
   },
   "qimo": {
     "id": "qimo",
