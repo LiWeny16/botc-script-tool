@@ -1,4 +1,4 @@
-import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText, IconButton } from '@mui/material';
+import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
@@ -23,6 +23,8 @@ interface CharacterCardProps {
 
 const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete }: CharacterCardProps) => {
   const { t } = useTranslation();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [contextMenu, setContextMenu] = useState<{
     mouseX: number;
     mouseY: number;
@@ -36,54 +38,54 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
 
   // 统一配置
   const CONFIG = {
-    // 卡片配置
+    // 卡片配置 - 移动端使用更小的内边距
     card: {
-      paddingX: config.cardPaddingX,
-      paddingY: config.cardPaddingY,
+      paddingX: isMobile ? config.cardPaddingX * 0.5 : config.cardPaddingX,
+      paddingY: isMobile ? config.cardPaddingY * 0.5 : config.cardPaddingY,
       borderRadius: config.cardBorderRadius,
-      gap: config.cardGap,
+      gap: isMobile ? config.cardGap * 0.6 : config.cardGap,
     },
-    // 角色头像配置 - 传奇角色使用专用图标大小
+    // 角色头像配置 - 移动端使用更小的图标
     avatar: isFabled ? {
-      width: config.fabledIconWidthMd,
-      height: config.fabledIconHeightMd,
+      width: isMobile ? config.fabledIconWidthMd * 0.65 : config.fabledIconWidthMd,
+      height: isMobile ? config.fabledIconHeightMd * 0.65 : config.fabledIconHeightMd,
       borderRadius: config.fabledIconBorderRadius,
     } : {
-      width: config.avatarWidthMd,
-      height: config.avatarHeightMd,
+      width: isMobile ? config.avatarWidthMd * 0.65 : config.avatarWidthMd,
+      height: isMobile ? config.avatarHeightMd * 0.65 : config.avatarHeightMd,
       borderRadius: config.avatarBorderRadius,
     },
-    // 文本区域配置
+    // 文本区域配置 - 移动端间距更紧凑
     textArea: {
-      gap: config.textAreaGap,
+      gap: isMobile ? config.textAreaGap * 0.6 : config.textAreaGap,
     },
-    // 角色名字配置
+    // 角色名字配置 - 移动端字体更小
     name: {
-      fontSize: config.nameFontSizeMd,
+      fontSize: isMobile ? '0.95rem' : config.nameFontSizeMd,
       fontWeight: config.nameFontWeight,
       lineHeight: config.nameLineHeight,
     },
-    // 角色描述配置
+    // 角色描述配置 - 移动端字体更小
     description: {
-      fontSize: config.descriptionFontSizeMd,
+      fontSize: isMobile ? '0.8rem' : config.descriptionFontSizeMd,
       lineHeight: config.descriptionLineHeight,
     },
-    // 相克规则配置
+    // 相克规则配置 - 移动端更紧凑
     jinx: {
-      gap: config.jinxGap,
-      padding: config.jinxPadding,
+      gap: isMobile ? config.jinxGap * 0.6 : config.jinxGap,
+      padding: isMobile ? config.jinxPadding * 0.6 : config.jinxPadding,
       backgroundColor: '#EDE4D5',
       borderRadius: config.jinxBorderRadius,
-      iconGap: config.jinxIconGap,
-      // 相克规则中的角色图标
+      iconGap: isMobile ? config.jinxIconGap * 0.6 : config.jinxIconGap,
+      // 相克规则中的角色图标 - 移动端更小
       icon: {
-        width: config.jinxIconWidthMd,
-        height: config.jinxIconHeightMd,
+        width: isMobile ? config.jinxIconWidthMd * 0.65 : config.jinxIconWidthMd,
+        height: isMobile ? config.jinxIconHeightMd * 0.65 : config.jinxIconHeightMd,
         borderRadius: config.jinxIconBorderRadius,
       },
-      // 相克规则文字
+      // 相克规则文字 - 移动端字体更小
       text: {
-        fontSize: config.jinxTextFontSizeMd,
+        fontSize: isMobile ? '0.75rem' : config.jinxTextFontSizeMd,
         lineHeight: config.jinxTextLineHeight,
         fontStyle: 'italic',
       },
@@ -195,11 +197,11 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
           className="action-buttons"
           sx={{
             position: 'absolute',
-            top: 8,
-            right: 8,
+            top: isMobile ? 4 : 8,
+            right: isMobile ? 4 : 8,
             zIndex: 10,
             display: 'flex',
-            gap: 1,
+            gap: isMobile ? 0.5 : 1,
             opacity: 0,
             pointerEvents: 'none',
             transition: 'opacity 0.2s',
@@ -217,10 +219,12 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
               '&:hover': {
                 backgroundColor: 'rgba(255, 255, 255, 1)',
               },
+              width: isMobile ? 28 : 32,
+              height: isMobile ? 28 : 32,
             }}
             size="small"
           >
-            <EditIcon fontSize="small" />
+            <EditIcon sx={{ fontSize: isMobile ? 16 : 20 }} />
           </IconButton>
           <IconButton
             onClick={(e) => {
@@ -234,10 +238,12 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
               '&:hover': {
                 backgroundColor: 'rgba(255, 255, 255, 1)',
               },
+              width: isMobile ? 28 : 32,
+              height: isMobile ? 28 : 32,
             }}
             size="small"
           >
-            <DeleteIcon fontSize="small" />
+            <DeleteIcon sx={{ fontSize: isMobile ? 16 : 20 }} />
           </IconButton>
         </Box>
 

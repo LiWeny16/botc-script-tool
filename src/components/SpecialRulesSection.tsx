@@ -10,9 +10,10 @@ interface SpecialRulesSectionProps {
   rules: SpecialRule[];
   onDelete?: (rule: SpecialRule) => void;
   onEdit?: (rule: SpecialRule) => void;
+  isMobile?: boolean;
 }
 
-export default function SpecialRulesSection({ rules, onDelete, onEdit }: SpecialRulesSectionProps) {
+export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile = false }: SpecialRulesSectionProps) {
   const { t, language } = useTranslation();
   const [hoveredRuleId, setHoveredRuleId] = useState<string | null>(null);
 
@@ -31,10 +32,11 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
     <Box
       sx={{
         width: '100%',
-        height: '100%',
+        height: isMobile ? 'auto' : '100%',
         display: 'flex',
         flexDirection: 'column',
-        overflow: 'auto',
+        overflow: isMobile ? 'visible' : 'auto',
+        gap: isMobile ? 2 : 0,
         '&::-webkit-scrollbar': {
           width: '4px',
         },
@@ -53,8 +55,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
           sx={{
             position: 'relative',
             width: '100%',
-            minHeight: 150,
-            minWidth: 500,
+            minHeight: isMobile ? 120 : 150,
             cursor: onEdit ? 'pointer' : 'default',
             userSelect: 'none',
             flexShrink: 0,
@@ -128,8 +129,8 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'center',
-              px: '17%', // 左右留出卷轴柱子的空间
-              py: 2,
+              px: { xs: '10%', sm: '15%', md: '17%' }, // 左右留出卷轴柱子的空间，移动端减少留白
+              py: { xs: 1.5, sm: 2, md: 2 },
             }}
           >
             <>
@@ -140,7 +141,11 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
                     fontFamily: uiConfigStore.specialRuleTitleFont,
                     fontWeight: 'bold',
                     color: '#3d3226',
-                    fontSize: language === 'en' ? '1.5rem' : '1.3rem',
+                    fontSize: { 
+                      xs: language === 'en' ? '1.1rem' : '1rem',
+                      sm: language === 'en' ? '1.3rem' : '1.15rem',
+                      md: language === 'en' ? '1.5rem' : '1.3rem'
+                    },
                     mb: 0.3,
                     lineHeight: 1.3,
                     wordBreak: 'break-word',
@@ -162,7 +167,11 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit }: Special
                   sx={{
                     fontFamily: uiConfigStore.specialRuleContentFont,
                     color: '#5a4a3a',
-                    fontSize: language === 'en' ? '1.1rem' : '0.85rem',
+                    fontSize: { 
+                      xs: language === 'en' ? '0.85rem' : '0.7rem',
+                      sm: language === 'en' ? '0.95rem' : '0.78rem',
+                      md: language === 'en' ? '1.1rem' : '0.85rem'
+                    },
                     lineHeight: language === 'en' ? 1 : 1.3,
                     textAlign: 'justify',
                     wordBreak: 'break-word',

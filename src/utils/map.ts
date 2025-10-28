@@ -55,6 +55,14 @@ export const translations = {
     'dialog.resetSuccess': '设置已恢复到初始状态',
     'dialog.clearTitle': '确认清空剧本',
     'dialog.clearMessage': '此操作将清空当前剧本、所有角色选择和 JSON 数据。是否继续？',
+    'dialog.printTitle': '打印设置提示',
+    'dialog.printMessage': '为获得最佳打印效果，请按照以下推荐设置进行配置',
+    'dialog.printBrowser': '推荐使用 Chrome 或 Edge 浏览器打印',
+    'dialog.printDevice': '不同设备可能需要调整缩放比例',
+    'dialog.printPaper': '纸张大小：A4',
+    'dialog.printScale': '缩放比例：40-60%（推荐 53% 最佳）',
+    'dialog.printMargin': '页边距：无',
+    'dialog.printConfirm': '确认打印',
 
     // 提示信息
     'info.supportOfficial': '• 支持官方剧本制作器的剧本 JSON',
@@ -325,7 +333,7 @@ export const translations = {
 
     // Main Page
     'app.title': 'Blood on the Clocktower Script Generator',
-    'app.scriptRepository': 'Script Repository',
+    'app.scriptRepository': 'Script Repo',
     'app.emptyState': 'Please enter script JSON above and click "Generate Script" button',
 
     // SEO Related
@@ -367,6 +375,14 @@ export const translations = {
     'dialog.resetSuccess': 'Settings have been reset to default',
     'dialog.clearTitle': 'Confirm Clear Script',
     'dialog.clearMessage': 'This will clear the current script, all character selections, and JSON data. Continue?',
+    'dialog.printTitle': 'Print Settings',
+    'dialog.printMessage': 'For best print results, please configure according to the following recommendations',
+    'dialog.printBrowser': 'Recommended: Chrome or Edge browser',
+    'dialog.printDevice': 'Different devices may require scale adjustment',
+    'dialog.printPaper': 'Paper size: A4',
+    'dialog.printScale': 'Scale: 40-60% (53% optimal)',
+    'dialog.printMargin': 'Margins: None',
+    'dialog.printConfirm': 'Confirm Print',
 
     // Info
     'info.supportOfficial': '• Support official script maker JSON format',

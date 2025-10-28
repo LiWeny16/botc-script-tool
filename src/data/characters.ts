@@ -291,6 +291,8 @@ const _characters = {
     "reminders": ["不是我"],
     "ability": "每天晚上选择一名玩家，今晚一名除了他以外的其他玩家将更换角色。"
   },
+
+
   "washerwoman": {
     "id": "washerwoman",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/washerwoman.png",
@@ -3563,7 +3565,163 @@ const _characters = {
 
 
 }
-
+const custom_characters = {
+  "genius": {
+    "id": "genius",
+    "name": "天才",
+    "ability": `每个夜晚，你可以选择一个善良角色：你获得该角色的能力，直到你下次选择。你每个奇数或偶数夜晚醉酒。`,
+    "team": "townsfolk",
+    "image": "https://botc.letshare.fun/imgs/icons/townsfolk/genius.png",
+    "author": "摸鱼学徒",
+    "firstNight": 3,
+    "otherNight": 2,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "获得能力", "醉酒"
+    ],
+    "setup": false
+  },
+  "nun": {
+    "id": "nun",
+    "name": "修女",
+    "ability": "善良的镇民玩家不会醉酒、中毒或得知错误信息。",
+    "team": "townsfolk",
+    "image": "https://botc.letshare.fun/imgs/icons/townsfolk/nun.png",
+    "author": "摸鱼学徒",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "不会醉酒", "不会中毒", "不会得知错误信息"
+    ],
+    "setup": false
+  },
+  "meishuguanzhang": {
+    "id": "meishuguanzhang",
+    "name": "美术馆长",
+    "ability": "每个夜晚*，你要选择一名玩家：如果他同意，你得知他的精神状态，但他的精神状态可能发生改变。",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/insanity.png",
+    "author": "Soup1618",
+    "firstNight": 1,
+    "otherNight": 1,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "精神状态不佳", "精神状态良好"
+    ],
+    "setup": false
+  },
+  "trade_dealer": {
+    "id": "trade_dealer",
+    "name": "经销商",
+    "ability": "每个夜晚，你会得知明天当电话铃响后接听电话后会发生什么，接听电话的人也会知道会发生什么，发生的事情可能会打破规则。",
+    "team": "traveler",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/经销商.png",
+    "firstNight": 1,
+    "otherNight": 1,
+    "author": "Luis",
+    // "firstNightReminder": "唤醒官员。让官员指向任意一名玩家。用官员的“3票”提示标记那名被选中的玩家。让官员入睡。",
+    // "otherNightReminder": "唤醒官员。让官员指向任意一名玩家。用官员的“3票”提示标记那名被选中的玩家。让官员入睡。",
+    "reminders": [
+      "电话来了"
+    ],
+    "setup": false
+  },
+  "disappointed": {
+    "id": "disappointed",
+    "edition": "custom",
+    "image": "https://youke1.picui.cn/s1/2025/10/11/68e95986b417e.png",
+    "name": "失望",
+    "ability": "你以为你是一个爪牙，但其实你不是。",
+    "author": "Moll",
+    "team": "outsider",
+    "firstNight": 5,
+    "otherNight": 5,
+    "setup": false,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": ["是失望"]
+  },
+  "jiutoushe": {
+    "id": "jiutoushe",
+    "name": "九头蛇",
+    "ability": "当与你同阵营的一名玩家死亡时，可能有一名同阵营玩家复活。",
+    "team": "traveler",
+    "author": "Hazel",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/九头蛇.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  "drugster": {
+    "id": "drugster",
+    "name": "瘾君子",
+    "ability": "你以为你是一个在场的善良玩家，但其实你不是。该角色的玩家会知道瘾君子在场。如果你们之中其中一人“疯狂”证明瘾君子在场，你们可能都会死亡。",
+    "team": "traveler",
+    "author": "Mar Hepto",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/瘾君子.png",
+    "firstNight": 0,
+    "otherNight": 63,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "是瘾君子"
+    ],
+    "setup": true
+  },
+  "qimo": {
+    "id": "qimo",
+    "name": "契魔",
+    "ability": "每个夜晚*，你可以选择两名存活玩家签订死亡契约。如果他们中的一人因任何原因死亡，另一人也会随之一同死亡。[+1外来者]",
+    "team": "demon",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/契魔.png",
+    "firstNight": 0,
+    "otherNight": 41,
+    "author": "摸鱼学徒",
+    "firstNightReminder": "",
+    "otherNightReminder": "唤醒契魔，让他选择两名玩家。用“链接”标记他们。白天开始时，公开宣布这两名玩家被链接。",
+    "reminders": [
+      "链接"
+    ],
+    "setup": false
+  },
+  "risen": {
+    "id": "risen",
+    "name": "魂归者",
+    "ability": `所有玩家初始都已死亡。被处决的玩家会复活。如果某个阵营的所有玩家都存活，该阵营获胜。`,
+    "team": "demon",
+    "image": "https://botc.letshare.fun/imgs/icons/demon/the_risen.png",
+    "firstNight": 0,
+    "otherNight": 41.5,
+    "author": "摸鱼学徒",
+    "firstNightReminder": "",
+    "reminders": [
+      "链接"
+    ],
+    "setup": false
+  },
+  "virilus": {
+    "id": "virilus",
+    "name": "活体病毒",
+    "ability": `每个夜晚，你要选择一名玩家：他被你感染。如果被感染的玩家发起提名，他死亡并感染被提名的玩家。在第四个白天结束时，邪恶阵营获胜。`,
+    "team": "demon",
+    "image": "https://botc.letshare.fun/imgs/icons/demon/virilus.png",
+    "firstNight": 0,
+    "otherNight": 42.1,
+    "author": "Lei.",
+    "firstNightReminder": "",
+    "reminders": [
+      "链接"
+    ],
+    "setup": false
+  },
+}
 // 导入传奇角色
 import { getFabledCharacters } from './fabled';
 
@@ -3574,4 +3732,4 @@ const fabledDict = fabledCharacters.reduce((acc, char) => {
   return acc;
 }, {} as any);
 
-export const CHARACTERS: any = { ..._characters, ...fabledDict }
+export const CHARACTERS: any = { ..._characters, ...custom_characters, ...fabledDict }

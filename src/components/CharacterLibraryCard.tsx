@@ -274,7 +274,7 @@ const CharacterLibraryCard = observer(({
                     </ListItemAvatar>
                     <ListItemText
                         primary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                                 <Typography
                                     variant="subtitle2"
                                     sx={{
@@ -285,6 +285,7 @@ const CharacterLibraryCard = observer(({
                                 >
                                     {character.name}
                                 </Typography>
+
                                 {isSelected && (
                                     <Chip
                                         label={t('selected')}
@@ -308,6 +309,22 @@ const CharacterLibraryCard = observer(({
                                             height: 18,
                                             fontSize: '0.6rem',
                                             backgroundColor: teamColor,
+                                            color: '#fff',
+                                            '& .MuiChip-label': {
+                                                px: 0.5,
+                                            },
+                                        }}
+                                    />
+                                )}
+                                {/* 作者标签 */}
+                                {character.author && (
+                                    <Chip
+                                        label={`@${character.author}`}
+                                        size="small"
+                                        sx={{
+                                            height: 16,
+                                            fontSize: '0.55rem',
+                                            backgroundColor: '#9e9e9e',
                                             color: '#fff',
                                             '& .MuiChip-label': {
                                                 px: 0.5,

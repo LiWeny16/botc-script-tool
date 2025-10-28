@@ -10,8 +10,19 @@ import {
   Paper,
   useMediaQuery,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from '@mui/material';
-import { Edit as EditIcon } from '@mui/icons-material';
+import {
+  Edit as EditIcon,
+  Print as PrintIcon,
+  CheckCircleOutline as CheckIcon,
+  InfoOutlined as InfoIcon,
+} from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import type { Script, Character } from './types';
 import InputPanel from './components/InputPanel';
@@ -172,6 +183,7 @@ const App = observer(() => {
   const [aboutDialogOpen, setAboutDialogOpen] = useState<boolean>(false);
   const [jsonParseError, setJsonParseError] = useState<string>(''); // 添加 JSON 解析错误状态
   const [customJinxDialogOpen, setCustomJinxDialogOpen] = useState<boolean>(false);
+  const [printDialogOpen, setPrintDialogOpen] = useState<boolean>(false); // 添加打印对话框状态
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -577,6 +589,13 @@ const App = observer(() => {
   };
 
   const handleExportPDF = () => {
+    // 显示打印设置对话框
+    setPrintDialogOpen(true);
+  };
+
+  const handleConfirmPrint = () => {
+    // 关闭对话框并触发打印
+    setPrintDialogOpen(false);
     // 触发浏览器打印功能，用户可以选择保存为PDF
     window.print();
   };
@@ -825,13 +844,17 @@ const App = observer(() => {
                     zIndex: 1,
                     px: { xs: 2, sm: 3, md: 4 }, // 默认左右内边距
                   }}>
-                    {/* 标题与特殊规则父层：固定高度 */}
+                    {/* 标题与特殊规则父层：桌面端固定高度，移动端自适应高度 */}
                     <Box
                       sx={{
                         position: 'relative',
-                        height: uiConfigStore.titleHeight,
+                        height: { xs: 'auto', md: uiConfigStore.titleHeight },
                         width: '100%',
-                        display: 'block',
+                        display: { xs: 'flex', md: 'block' },
+                        flexDirection: { xs: 'column', md: 'row' },
+                        alignItems: { xs: 'center', md: 'unset' },
+                        gap: { xs: 2, md: 0 },
+                        py: { xs: 2, md: 0 },
                         // 背景图案层
                         '&::before': {
                           content: '""',
@@ -841,7 +864,7 @@ const App = observer(() => {
                           right: 0,
                           bottom: 0,
                           backgroundImage: "url(/imgs/images/pattern.png)",
-                          backgroundSize: "48%",
+                          backgroundSize: { xs: "80%", md: "48%" },
                           backgroundPosition: "center",
                           backgroundRepeat: "no-repeat",
                           opacity: 0.6,
@@ -849,16 +872,22 @@ const App = observer(() => {
                         },
                       }}
                     >
-                      {/* 标题 - 绝对定位：当存在特殊规则时在1/3位置，否则居中 */}
+                      {/* 标题 - 移动端相对定位，桌面端绝对定位 */}
                       <Box
                         sx={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%',
-                          transform: 'translate(-50%, -50%)',
+                          position: { xs: 'relative', md: 'absolute' },
+                          top: { xs: 'auto', md: '50%' },
+                          left: { xs: 'auto', md: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%' },
+                          transform: { xs: 'none', md: 'translate(-50%, -50%)' },
                           zIndex: 1,
-                          maxWidth: script?.specialRules && script.specialRules.length > 0 ? { xs: '28%', sm: '30%', md: '32%' } : { xs: '90%', sm: '80%', md: '70%' },
-                          width: script?.specialRules && script.specialRules.length > 0 ? 'auto' : '100%',
+                          maxWidth: {
+                            xs: '100%',
+                            md: script?.specialRules && script.specialRules.length > 0 ? '32%' : '70%'
+                          },
+                          width: {
+                            xs: '100%',
+                            md: script?.specialRules && script.specialRules.length > 0 ? 'auto' : '100%'
+                          },
                           display: 'flex',
                           justifyContent: 'center',
                         }}
@@ -941,17 +970,24 @@ const App = observer(() => {
                         )}
                       </Box>
 
-                      {/* 特殊规则 - 在2/3位置绝对定位（固定宽高，自动换行） */}
+                      {/* 特殊规则 - 移动端相对定位，桌面端绝对定位 */}
                       {script?.specialRules && script.specialRules.length > 0 && (
                         <Box sx={{
-                          position: 'absolute',
-                          top: '50%',
-                          left: '66.67%',
-                          transform: 'translate(-50%, -50%)',
+                          position: { xs: 'relative', md: 'absolute' },
+                          top: { xs: 'auto', md: '50%' },
+                          left: { xs: 'auto', md: '66.67%' },
+                          transform: { xs: 'none', md: 'translate(-50%, -50%)' },
                           zIndex: 1,
                           overflow: 'hidden',
+                          width: { xs: '100%', md: 'auto' },
+                          maxWidth: { xs: '100%', md: '32%' },
                         }}>
-                          <SpecialRulesSection rules={script.specialRules} onDelete={(rule) => scriptStore.removeSpecialRule(rule)} onEdit={handleSpecialRuleEdit} />
+                          <SpecialRulesSection
+                            rules={script.specialRules}
+                            onDelete={(rule) => scriptStore.removeSpecialRule(rule)}
+                            onEdit={handleSpecialRuleEdit}
+                            isMobile={isMobile}
+                          />
                         </Box>
                       )}
                     </Box>
@@ -1497,6 +1533,188 @@ const App = observer(() => {
         }}
         characters={script?.all || []}
       />
+
+      {/* 打印设置对话框 */}
+      <Dialog
+        open={printDialogOpen}
+        onClose={() => setPrintDialogOpen(false)}
+        disableScrollLock={true}
+        aria-labelledby="print-dialog-title"
+        aria-describedby="print-dialog-description"
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
+          }
+        }}
+      >
+        <DialogTitle
+          id="print-dialog-title"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            pb: 2,
+            pt: 3,
+            px: 3,
+          }}
+        >
+          <PrintIcon sx={{ fontSize: 32, color: '#1976d2' }} />
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
+            {t('dialog.printTitle')}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ px: 3, pb: 2 }}>
+          {/* 提示信息 */}
+          <Box
+            sx={{
+              display: 'flex',
+              gap: 1.5,
+              p: 2.5,
+              mb: 3,
+              backgroundColor: '#f0f7ff',
+              borderRadius: 2,
+              border: '1px solid #d0e7ff',
+            }}
+          >
+            <InfoIcon sx={{ color: '#1976d2', flexShrink: 0, mt: 0.2, fontSize: 22 }} />
+            <Typography variant="body2" sx={{ color: '#1565c0', lineHeight: 1.7, fontSize: '0.9rem' }}>
+              {t('dialog.printMessage')}
+            </Typography>
+          </Box>
+
+          {/* 推荐设置列表 */}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            {/* 浏览器推荐 */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+              <CheckIcon sx={{ color: '#2e7d32', fontSize: 22, flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
+                {t('dialog.printBrowser')}
+              </Typography>
+            </Box>
+
+            {/* 设备提示 */}
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
+              <CheckIcon sx={{ color: '#2e7d32', fontSize: 22, flexShrink: 0 }} />
+              <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
+                {t('dialog.printDevice')}
+              </Typography>
+            </Box>
+
+            {/* 分割线 */}
+            <Box sx={{ my: 1.5, borderTop: '1px solid #e0e0e0' }} />
+
+            {/* 高级设置标题 */}
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 700,
+                fontSize: '0.85rem',
+                color: '#424242',
+                textTransform: 'uppercase',
+                letterSpacing: 0.8,
+                mb: 1.5,
+              }}
+            >
+              {language === 'zh-CN' ? '推荐配置' : 'Recommended Settings'}
+            </Typography>
+
+            {/* 设置项 */}
+            <Box sx={{
+              backgroundColor: '#fafafa',
+              borderRadius: 2,
+              p: 2.5,
+              border: '1px solid #e0e0e0',
+            }}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                {/* 纸张大小 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box
+                    sx={{
+                      minWidth: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      backgroundColor: '#757575',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
+                    {t('dialog.printPaper')}
+                  </Typography>
+                </Box>
+
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box
+                    sx={{
+                      minWidth: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      backgroundColor: '#757575',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
+                    {t('dialog.printScale')}
+                  </Typography>
+                </Box>
+
+                {/* 页边距 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Box
+                    sx={{
+                      minWidth: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      backgroundColor: '#757575',
+                      flexShrink: 0,
+                    }}
+                  />
+                  <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
+                    {t('dialog.printMargin')}
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2.5, gap: 1.5, backgroundColor: '#fafafa' }}>
+          <Button
+            onClick={() => setPrintDialogOpen(false)}
+            sx={{
+              px: 3,
+              py: 1,
+              fontWeight: 500,
+              color: '#757575',
+              '&:hover': {
+                backgroundColor: '#eeeeee',
+              }
+            }}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button
+            onClick={handleConfirmPrint}
+            variant="contained"
+            autoFocus
+            startIcon={<PrintIcon />}
+            sx={{
+              px: 3.5,
+              py: 1,
+              fontWeight: 600,
+              backgroundColor: '#1976d2',
+              boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
+              '&:hover': {
+                backgroundColor: '#1565c0',
+                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)',
+              }
+            }}
+          >
+            {t('dialog.printConfirm')}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </ThemeProvider >
   );
 });

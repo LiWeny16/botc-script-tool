@@ -17,6 +17,7 @@ export interface Character {
   otherNightReminder?: string;
   reminders?: string[];
   setup?: boolean;
+  author?: string;  // 角色作者（可选）
 }
 
 export interface NightAction {

@@ -2369,11 +2369,11 @@
   },
   {
     "id": "yinyangshi",
-    "name": "Yinyang Master",
+    "name": "Yin-Yang Diviner",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 3051,
-    "firstNightReminder": "Wake the Yinyang Master. Show them two good characters and two evil characters.",
+    "firstNightReminder": "Wake the Yin-Yang Diviner. Show them two good characters and two evil characters.",
     "otherNight": 0,
     "otherNightReminder": "",
     "reminders": [
@@ -2414,13 +2414,13 @@
   },
   {
     "id": "xionghaizi",
-    "name": "Brat",
+    "name": "Rascal",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 3032,
-    "firstNightReminder": "Wake the Brat. They choose a Townsfolk character from the character list. That character's ability malfunctions.",
+    "firstNightReminder": "Wake the Rascal. They choose a Townsfolk character from the character list. That character's ability malfunctions.",
     "otherNight": 17,
-    "otherNightReminder": "Wake the Brat. They choose a Townsfolk character from the character list. That character's ability malfunctions.",
+    "otherNightReminder": "Wake the Rascal. They choose a Townsfolk character from the character list. That character's ability malfunctions.",
     "reminders": [
       "Mischief"
     ],
@@ -2429,26 +2429,26 @@
   },
   {
     "id": "langzhong",
-    "name": "Physician",
+    "name": "Herb Doctor",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 3052,
-    "firstNightReminder": "Wake the Physician. They point to a player other than themself. Show the Physician a word related to that player's ability.",
+    "firstNightReminder": "Wake the Herb Doctor. They point to a player other than themself. Show the Herb Doctor a word related to that player's ability.",
     "otherNight": 91,
-    "otherNightReminder": "Wake the Physician. They point to a player other than themself. Show the Physician a word related to that player's ability.",
+    "otherNightReminder": "Wake the Herb Doctor. They point to a player other than themself. Show the Herb Doctor a word related to that player's ability.",
     "reminders": [],
     "setup": false,
     "ability": "Each night, choose a player other than yourself: you learn a word related to their ability."
   },
   {
     "id": "dagengren",
-    "name": "Da Geng Ren",
+    "name": "Firewatcher",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 15,
-    "otherNightReminder": "Wake the Night Watchman. They make a guess. Place reminder tokens by the corresponding players.",
+    "otherNightReminder": "Wake the Firewatcher. They make a guess. Place reminder tokens by the corresponding players.",
     "reminders": [
       "Alert",
       "Death"
@@ -2458,13 +2458,13 @@
   },
   {
     "id": "jinyiwei",
-    "name": "Jinyiwei",
+    "name": "Brocadier",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 16,
-    "otherNightReminder": "Wake the Jinyiwei. They choose a player. They are now protecting that player.",
+    "otherNightReminder": "Wake the brocadier. They choose a player. They are now protecting that player.",
     "reminders": [
       "Protecting"
     ],
@@ -2473,7 +2473,7 @@
   },
   {
     "id": "heshang",
-    "name": "He Shang",
+    "name": "Heshang",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 0,
@@ -2532,7 +2532,7 @@
   },
   {
     "id": "wudaozhe",
-    "name": "Enlightened",
+    "name": "Enlightened One",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 0,
@@ -2543,12 +2543,12 @@
     "setup": true,
     "ability": "You think you are an Outsider, but you are not. If an evil player's ability targets or affects you, you become a Townsfolk character that is not in play before it resolves.",
     "remindersGlobal": [
-      "Is Enlightened"
+      "Is Enlightened One"
     ]
   },
   {
     "id": "bingbi",
-    "name": "Scribe",
+    "name": "Brush Holder",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 0,
@@ -2578,11 +2578,11 @@
   },
   {
     "id": "daoke",
-    "name": "Blademaster",
+    "name": "Swordman",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 3053,
-    "firstNightReminder": "On the first night, wake the Blademaster. Show them the Minion character token marked 'Learns'.",
+    "firstNightReminder": "On the first night, wake the Swordman. Show them the Minion character token marked 'Learns'.",
     "otherNight": 0,
     "otherNightReminder": "",
     "reminders": [
@@ -2827,13 +2827,13 @@
   },
   {
     "id": "shaxing",
-    "name": "Jinx",
+    "name": "Mr. Misfortune",
     "edition": "custom",
     "team": "outsider",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 65,
-    "otherNightReminder": "If the Jinx dies, decide if one of their living neighbors dies.",
+    "otherNightReminder": "If the Mr. Misfortune dies, decide if one of their living neighbors dies.",
     "reminders": [
       "Death"
     ],
@@ -2842,13 +2842,13 @@
   },
   {
     "id": "nichen",
-    "name": "Rebel",
+    "name": "Turncoat",
     "edition": "custom",
     "team": "outsider",
     "firstNight": 3042,
-    "firstNightReminder": "Wake the Rebel. They choose a player other than themself. That player is now their Nemesis.",
+    "firstNightReminder": "Wake the Turncoat. They choose a player other than themself. That player is now their Nemesis.",
     "otherNight": 25,
-    "otherNightReminder": "If the Rebel or their target dies by execution, wake the other player and inform them of their alignment change.",
+    "otherNightReminder": "If the Turncoat or their target dies by execution, wake the other player and inform them of their alignment change.",
     "reminders": [
       "Nemesis"
     ],
@@ -2857,19 +2857,19 @@
   },
   {
     "id": "shusheng",
-    "name": "Scholar",
+    "name": "Pedant",
     "edition": "custom",
     "team": "outsider",
     "firstNight": 3011,
-    "firstNightReminder": "If the Scholar is in play, show the Demon the Scholar character token.",
+    "firstNightReminder": "If the Pedant is in play, show the Demon the Pedant character token.",
     "otherNight": 51,
-    "otherNightReminder": "If the Demon guesses the Scholar correctly, let the Demon choose a player: that player dies.",
+    "otherNightReminder": "If the Demon guesses the Pedant correctly, let the Demon choose a player: that player dies.",
     "reminders": [
       "Guessed",
       "Death"
     ],
     "setup": false,
-    "ability": "The Demon knows a Scholar is in play. Once per game, the Demon may visit the Storyteller and guess you are the Scholar. If correct, even if you are dead, the Demon chooses a player tonight: they die."
+    "ability": "The Demon knows a Pedant is in play. Once per game, the Demon may visit the Storyteller and guess you are the Pedant. If correct, even if you are dead, the Demon chooses a player tonight: they die."
   },
   {
     "id": "shijie",
@@ -2918,7 +2918,7 @@
   },
   {
     "id": "shutong",
-    "name": "Page",
+    "name": "Page Boy",
     "edition": "custom",
     "team": "outsider",
     "firstNight": 3034,
@@ -2934,28 +2934,28 @@
   },
   {
     "id": "humeiniang",
-    "name": "Vixen",
+    "name": "Hu Meiniang",
     "edition": "custom",
     "team": "minion",
     "firstNight": 3029,
-    "firstNightReminder": "Wake the Vixen. They choose a player. After the Vixen sleeps, inform that player a Vixen is in play.",
+    "firstNightReminder": "Wake the Hu Meiniang. They choose a player. After the Hu Meiniang sleeps, inform that player a Hu Meiniang is in play.",
     "otherNight": 24,
-    "otherNightReminder": "If the Vixen dies by execution, wake their chosen player and inform them of their alignment change.",
+    "otherNightReminder": "If the Hu Meiniang dies by execution, wake their chosen player and inform them of their alignment change.",
     "reminders": [
       "Charmed"
     ],
     "setup": false,
-    "ability": "On your first night, choose a player: they learn a Vixen is in play. If you die by execution, they become evil that night."
+    "ability": "On your first night, choose a player: they learn a Hu Meiniang is in play. If you die by execution, they become evil that night."
   },
   {
     "id": "yangguren",
-    "name": "Yangguren",
+    "name": "Bug Keeper",
     "edition": "custom",
     "team": "minion",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 54,
-    "otherNightReminder": "The player who nominated the living Yangguren today dies.",
+    "otherNightReminder": "The player who nominated the living Bug Keeper today dies.",
     "reminders": [
       "Gu"
     ],
@@ -2964,7 +2964,7 @@
   },
   {
     "id": "jinweijun",
-    "name": "Imperial Guard",
+    "name": "Imperialist",
     "edition": "custom",
     "team": "minion",
     "firstNight": 0,
@@ -2977,7 +2977,7 @@
   },
   {
     "id": "jinweijun2",
-    "name": "Imperial Guard Ⅱ",
+    "name": "Imperialist Ⅱ",
     "edition": "custom",
     "team": "minion",
     "firstNight": 3023,
@@ -2990,7 +2990,7 @@
   },
   {
     "id": "ganshiren",
-    "name": "Corpse Driver",
+    "name": "Corpse Walker",
     "edition": "custom",
     "team": "minion",
     "firstNight": 0,
@@ -3178,13 +3178,13 @@
   },
   {
     "id": "jianning",
-    "name": "Traitor",
+    "name": "Sycophant",
     "edition": "custom",
     "team": "demon",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 50,
-    "otherNightReminder": "Wake the Traitor. They attack a player. If they did not vote today, they may attack twice.",
+    "otherNightReminder": "Wake the Sycophant. They attack a player. If they did not vote today, they may attack twice.",
     "reminders": [
       "Death",
       "Act Twice"

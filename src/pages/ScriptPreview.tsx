@@ -514,7 +514,7 @@ const ScriptPreview = observer(() => {
 
               {/* 特殊说明卡片 */}
               <Box sx={{ position: 'relative', zIndex: 1 }}>
-                <SpecialRulesSection rules={script.specialRules} />
+                <SpecialRulesSection rules={script.specialRules} isMobile={isMobile} />
               </Box>
             </Paper>
 
