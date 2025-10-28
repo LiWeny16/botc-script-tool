@@ -17,7 +17,7 @@ export default function FloatingAddButton({ onClick, show = true }: FloatingAddB
           position: 'fixed',
           bottom: { xs: 20, sm: 24 },
           right: { xs: 20, sm: 24 },
-          zIndex: 9999, // 提高 z-index 确保在最上层
+          zIndex: 1200, // 设置为低于弹出窗口的 z-index (Dialog 默认为 1300)
           backgroundColor: '#1976d2',
           boxShadow: '0 4px 20px rgba(25, 118, 210, 0.4)', // 添加阴影增强可见性
           '&:hover': {
