@@ -344,6 +344,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         firstNightReminder: character.firstNightReminder,
         otherNightReminder: character.otherNightReminder,
         reminders: character.reminders,
+        remindersGlobal: character.remindersGlobal,  // 保存全局提醒标记
         setup: character.setup,
       });
 

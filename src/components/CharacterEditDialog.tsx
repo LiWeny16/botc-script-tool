@@ -79,8 +79,11 @@ export default observer(function CharacterEditDialog({
       console.log('CharacterEditDialog - 角色数据:', {
         characterId: character.id,
         characterReminders: character.reminders,
+        characterRemindersGlobal: character.remindersGlobal,
         defaultReminders: defaultData.reminders,
+        defaultRemindersGlobal: defaultData.remindersGlobal,
         mergedReminders: mergedData.reminders,
+        mergedRemindersGlobal: mergedData.remindersGlobal,
       });
       setEditData(mergedData);
 
@@ -192,7 +195,7 @@ export default observer(function CharacterEditDialog({
           }
         }
         // 处理数组类型的比较
-        else if (typedKey === 'reminders') {
+        else if (typedKey === 'reminders' || typedKey === 'remindersGlobal') {
           const editArray = Array.isArray(editValue) ? editValue : [];
           const originalArray = Array.isArray(originalValue) ? originalValue : [];
           if (JSON.stringify(editArray) !== JSON.stringify(originalArray)) {
@@ -211,6 +214,7 @@ export default observer(function CharacterEditDialog({
           characterId: character.id,
           updates,
           remindersInUpdates: updates.reminders,
+          remindersGlobalInUpdates: updates.remindersGlobal,
         });
         onSave(character.id, updates);
       }
@@ -422,6 +426,46 @@ export default observer(function CharacterEditDialog({
                         if (value) {
                           const newReminders = [...(editData.reminders || []), value];
                           handleChange('reminders', newReminders);
+                          (e.target as HTMLInputElement).value = '';
+                        }
+                      }
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              {/* 全局提醒标记区块 */}
+              <Box component="section">
+                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>
+                  {t('globalReminderTokens')}
+                </Typography>
+                <Box>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
+                    {(editData.remindersGlobal || []).map((reminder, index) => (
+                      <Chip
+                        key={index}
+                        label={reminder}
+                        color="secondary"
+                        onDelete={isEditDisabled ? undefined : () => {
+                          const newReminders = [...(editData.remindersGlobal || [])];
+                          newReminders.splice(index, 1);
+                          handleChange('remindersGlobal', newReminders);
+                        }}
+                      />
+                    ))}
+                  </Box>
+                  <TextField
+                    fullWidth
+                    label={t('addGlobalReminder')}
+                    placeholder={t('addGlobalReminderPlaceholder')}
+                    disabled={isEditDisabled}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        const value = (e.target as HTMLInputElement).value.trim();
+                        if (value) {
+                          const newReminders = [...(editData.remindersGlobal || []), value];
+                          handleChange('remindersGlobal', newReminders);
                           (e.target as HTMLInputElement).value = '';
                         }
                       }

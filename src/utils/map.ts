@@ -150,6 +150,9 @@ export const translations = {
     'reminderTokens': '提醒标记',
     'addReminder': '添加提醒标记（回车确认）',
     'addReminderPlaceholder': '输入提醒内容',
+    'globalReminderTokens': '全局提醒标记',
+    'addGlobalReminder': '添加全局提醒标记（回车确认）',
+    'addGlobalReminderPlaceholder': '输入全局提醒内容',
     'preview': '预览',
 
     // 标题编辑对话框
@@ -470,6 +473,9 @@ export const translations = {
     'reminderTokens': 'Reminder Tokens',
     'addReminder': 'Add Reminder Token (Press Enter)',
     'addReminderPlaceholder': 'Enter reminder text',
+    'globalReminderTokens': 'Global Reminder Tokens',
+    'addGlobalReminder': 'Add Global Reminder Token (Press Enter)',
+    'addGlobalReminderPlaceholder': 'Enter global reminder text',
     'preview': 'Preview',
 
     // Title Edit Dialog

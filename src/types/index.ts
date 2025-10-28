@@ -16,6 +16,7 @@ export interface Character {
   firstNightReminder?: string;
   otherNightReminder?: string;
   reminders?: string[];
+  remindersGlobal?: string[];  // 全局提示标记（可选）
   setup?: boolean;
   author?: string;  // 角色作者（可选）
 }

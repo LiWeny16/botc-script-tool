@@ -1993,7 +1993,9 @@ const _characters = {
     "otherNight": 0,
     "firstNightReminder": "",
     "otherNightReminder": "",
-    "reminders": [],
+    "reminders": [
+      "是酒鬼"
+    ],
     "remindersGlobal": [
       "是酒鬼"
     ],

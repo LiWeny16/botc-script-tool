@@ -701,7 +701,7 @@ class ScriptStore {
           
           if (isSimpleFormat) {
             // 如果是简化格式，转换为完整格式
-            newJsonArray.push({
+            const newItem: any = {
               id: character.id,
               name: character.name,
               ability: character.ability,
@@ -713,7 +713,12 @@ class ScriptStore {
               otherNightReminder: character.otherNightReminder || '',
               reminders: character.reminders || [],
               setup: character.setup || false,
-            });
+            };
+            // 如果有 remindersGlobal 字段，也添加进去
+            if (character.remindersGlobal && character.remindersGlobal.length > 0) {
+              newItem.remindersGlobal = character.remindersGlobal;
+            }
+            newJsonArray.push(newItem);
           } else {
             // 如果是完整格式，保留原有字段并更新
             const updatedItem: any = { ...originalObj };
@@ -729,13 +734,14 @@ class ScriptStore {
             updatedItem.firstNightReminder = character.firstNightReminder !== undefined ? character.firstNightReminder : (updatedItem.firstNightReminder || '');
             updatedItem.otherNightReminder = character.otherNightReminder !== undefined ? character.otherNightReminder : (updatedItem.otherNightReminder || '');
             updatedItem.reminders = character.reminders !== undefined ? character.reminders : (updatedItem.reminders || []);
+            updatedItem.remindersGlobal = character.remindersGlobal !== undefined ? character.remindersGlobal : (updatedItem.remindersGlobal || undefined);
             updatedItem.setup = character.setup !== undefined ? character.setup : (updatedItem.setup || false);
             
             newJsonArray.push(updatedItem);
           }
         } else {
           // 这是新增的角色，使用完整格式
-          newJsonArray.push({
+          const newItem: any = {
             id: character.id,
             name: character.name,
             ability: character.ability,
@@ -747,7 +753,12 @@ class ScriptStore {
             otherNightReminder: character.otherNightReminder || '',
             reminders: character.reminders || [],
             setup: character.setup || false,
-          });
+          };
+          // 如果有 remindersGlobal 字段，也添加进去
+          if (character.remindersGlobal && character.remindersGlobal.length > 0) {
+            newItem.remindersGlobal = character.remindersGlobal;
+          }
+          newJsonArray.push(newItem);
         }
       });
 

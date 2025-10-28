@@ -23,6 +23,7 @@ import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import type { Script } from '../types';
+import { configStore } from '../stores/ConfigStore';
 
 const theme = createTheme({
   breakpoints: {
@@ -47,6 +48,17 @@ const ScriptPreview = observer(() => {
   const [originalJson, setOriginalJson] = useState<string>('');
   const scriptRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+  // 在 ScriptPreview 页面，临时启用官方ID解析模式
+  useEffect(() => {
+    const originalMode = configStore.config.officialIdParseMode;
+    configStore.setOfficialIdParseMode(true);
+    
+    // 组件卸载时恢复原始设置
+    return () => {
+      configStore.setOfficialIdParseMode(originalMode);
+    };
+  }, []);
 
   useEffect(() => {
     const loadScript = async () => {
