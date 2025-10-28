@@ -458,8 +458,11 @@ class ScriptStore {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
+      // 检查是否存在 _meta 项
+      let hasMetaItem = false;
       const newJsonArray = jsonArray.map((item: any) => {
         if (item.id === '_meta') {
+          hasMetaItem = true;
           const updatedMeta = { ...item };
           
           if (data.title !== undefined) updatedMeta.name = data.title;
@@ -498,6 +501,29 @@ class ScriptStore {
         }
         return item;
       });
+
+      // 如果没有 _meta 项，则创建一个新的并插入到数组开头
+      if (!hasMetaItem) {
+        console.log('未找到 _meta 项，创建新的 _meta');
+        const newMeta: any = {
+          id: '_meta',
+          name: data.title || 'Custom Your Script!',
+          author: data.author || '',
+        };
+        
+        if (data.titleImage) {
+          newMeta.titleImage = data.titleImage;
+        }
+        if (data.subtitle) {
+          newMeta.subtitle = data.subtitle;
+        }
+        if (data.playerCount) {
+          newMeta.playerCount = data.playerCount;
+        }
+        
+        newJsonArray.unshift(newMeta);
+        console.log('新创建的 _meta:', newMeta);
+      }
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
       console.log('标题信息同步完成');
@@ -667,23 +693,46 @@ class ScriptStore {
         const originalItem = originalJsonMap.get(character.id);
         
         if (originalItem) {
-          // 角色在原JSON中存在，更新它
-          const updatedItem: any = typeof originalItem === 'string' ? { id: originalItem } : { ...originalItem };
+          // 角色在原JSON中存在
+          const originalObj = typeof originalItem === 'string' ? { id: originalItem } : originalItem;
           
-          // 更新字段
-          updatedItem.id = character.id;
-          updatedItem.name = character.name;
-          updatedItem.ability = character.ability;
-          updatedItem.team = character.team;
-          updatedItem.image = character.image;
-          updatedItem.firstNight = character.firstNight !== undefined ? character.firstNight : (updatedItem.firstNight || 0);
-          updatedItem.otherNight = character.otherNight !== undefined ? character.otherNight : (updatedItem.otherNight || 0);
-          updatedItem.firstNightReminder = character.firstNightReminder !== undefined ? character.firstNightReminder : (updatedItem.firstNightReminder || '');
-          updatedItem.otherNightReminder = character.otherNightReminder !== undefined ? character.otherNightReminder : (updatedItem.otherNightReminder || '');
-          updatedItem.reminders = character.reminders !== undefined ? character.reminders : (updatedItem.reminders || []);
-          updatedItem.setup = character.setup !== undefined ? character.setup : (updatedItem.setup || false);
+          // 检查原始对象是否只有 id 字段（简化格式）
+          const isSimpleFormat = Object.keys(originalObj).length === 1 && originalObj.id;
           
-          newJsonArray.push(updatedItem);
+          if (isSimpleFormat) {
+            // 如果是简化格式，转换为完整格式
+            newJsonArray.push({
+              id: character.id,
+              name: character.name,
+              ability: character.ability,
+              team: character.team,
+              image: character.image,
+              firstNight: character.firstNight || 0,
+              otherNight: character.otherNight || 0,
+              firstNightReminder: character.firstNightReminder || '',
+              otherNightReminder: character.otherNightReminder || '',
+              reminders: character.reminders || [],
+              setup: character.setup || false,
+            });
+          } else {
+            // 如果是完整格式，保留原有字段并更新
+            const updatedItem: any = { ...originalObj };
+            
+            // 更新字段
+            updatedItem.id = character.id;
+            updatedItem.name = character.name;
+            updatedItem.ability = character.ability;
+            updatedItem.team = character.team;
+            updatedItem.image = character.image;
+            updatedItem.firstNight = character.firstNight !== undefined ? character.firstNight : (updatedItem.firstNight || 0);
+            updatedItem.otherNight = character.otherNight !== undefined ? character.otherNight : (updatedItem.otherNight || 0);
+            updatedItem.firstNightReminder = character.firstNightReminder !== undefined ? character.firstNightReminder : (updatedItem.firstNightReminder || '');
+            updatedItem.otherNightReminder = character.otherNightReminder !== undefined ? character.otherNightReminder : (updatedItem.otherNightReminder || '');
+            updatedItem.reminders = character.reminders !== undefined ? character.reminders : (updatedItem.reminders || []);
+            updatedItem.setup = character.setup !== undefined ? character.setup : (updatedItem.setup || false);
+            
+            newJsonArray.push(updatedItem);
+          }
         } else {
           // 这是新增的角色，使用完整格式
           newJsonArray.push({
