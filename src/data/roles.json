@@ -2414,19 +2414,18 @@
     "ability": "On your first night, you learn two good players. One of them is drunk, even if you are dead."
   },
   {
-    "id": "xionghaizi",
     "name": "Rascal",
-    "edition": "custom",
+    "ability": "Each night, choose a Townsfolk character: their ability returns false information until the next dusk.",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/xionghaizi.png",
+    "id": "xionghaizi",
     "team": "townsfolk",
     "firstNight": 3032,
-    "firstNightReminder": "Wake the Rascal. They choose a Townsfolk character from the character list. That character's ability malfunctions.",
     "otherNight": 17,
-    "otherNightReminder": "Wake the Rascal. They choose a Townsfolk character from the character list. That character's ability malfunctions.",
+    "firstNightReminder": "Wake the Rascal. They choose a Townsfolk character from the character list. That character's ability returns false information.",
+    "otherNightReminder": "Wake the Rascal. They choose a Townsfolk character from the character list. That character's ability returns false information.",
     "reminders": [
       "Mischief"
-    ],
-    "setup": false,
-    "ability": "Each night, choose a Townsfolk character: their ability malfunctions until the next dusk."
+    ]
   },
   {
     "id": "langzhong",
@@ -2721,13 +2720,13 @@
   },
   {
     "id": "xuncha",
-    "name": "Inspector",
+    "name": "Patrolman",
     "edition": "custom",
     "team": "townsfolk",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 30,
-    "otherNightReminder": "Wake the Inspector. They choose two good characters (Townsfolk or Outsider). If they are both in play and alive, they cannot die tonight.",
+    "otherNightReminder": "Wake the Patrolman. They choose two good characters (Townsfolk or Outsider). If they are both in play and alive, they cannot die tonight.",
     "reminders": [
       "Cannot die"
     ],
@@ -2919,13 +2918,13 @@
   },
   {
     "id": "shutong",
-    "name": "Page Boy",
+    "name": "Bookboy",
     "edition": "custom",
     "team": "outsider",
     "firstNight": 3034,
-    "firstNightReminder": "Wake the Page. They choose a player.",
+    "firstNightReminder": "Wake the Bookboy. They choose a player.",
     "otherNight": 60,
-    "otherNightReminder": "If the player chosen by the Page is targeted or affected by an evil ability, the Page dies tonight.",
+    "otherNightReminder": "If the player chosen by the Bookboy is targeted or affected by an evil ability, the Page dies tonight.",
     "reminders": [
       "Chosen",
       "Death"
@@ -3006,18 +3005,19 @@
   },
   {
     "id": "gudiao",
-    "name": "Gudiao",
-    "edition": "custom",
+    "name": "Gu Diao",
+    "ability": "Each night, choose left or right: you learn the character of the next living good player in that direction. They are poisoned and register as an evil Gu Diao, until next dusk.",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/gudiao.png",
     "team": "minion",
-    "firstNight": 3019,
-    "firstNightReminder": "Wake the Gudiao. They choose left or right. They learn the character of the next living good player in that direction. That player is poisoned, and other good players think they are the evil Gudiao, until next dusk.",
-    "otherNight": 9,
-    "otherNightReminder": "Wake the Gudiao. They choose left or right. They learn the character of the next living good player in that direction. That player is poisoned, and other good players think they are the evil Gudiao, until next dusk.",
+    "firstNight": 3019.5,
+    "otherNight": 9.5,
+    "firstNightReminder": "Wake the Gu Diao. They choose left or right. They learn the character of the next living good player in that direction. That player is poisoned and register as an evil Gu Diao, until next dusk.",
+    "otherNightReminder": "Wake the Gu Diao. They choose left or right. They learn the character of the next living good player in that direction. That player is poisoned and register as an evil Gu Diao, until next dusk.",
     "reminders": [
       "Poisoned"
     ],
-    "setup": false,
-    "ability": "Each night, choose left or right: you learn the character of the next living good player in that direction. They are poisoned, and other good players think they are the evil Gudiao, until next dusk."
+    "remindersGlobal": [],
+    "setup": false
   },
   {
     "id": "huapi",
@@ -3163,13 +3163,13 @@
   },
   {
     "id": "guhuoniao",
-    "name": "Guhuoniao",
+    "name": "Guhuo",
     "edition": "custom",
     "team": "demon",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 50,
-    "otherNightReminder": "Wake Guhuoniao. They attack a player.",
+    "otherNightReminder": "Wake Guhuo. They attack a player.",
     "reminders": [
       "Death",
       "Gained Ability"
@@ -3194,20 +3194,21 @@
     "ability": "Each night*, choose a player: they die. If you did not vote today, you may act twice tonight."
   },
   {
-    "id": "yanluo",
     "name": "Yanluo",
-    "edition": "custom",
+    "ability": "On your first night, you see the Grimoire and choose a player: they die on the 3rd night, even if for some reason they could not. Each night, choose a player: the player you chose last night dies.",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/yanluo.png",
+    "id": "yanluo",
     "team": "demon",
-    "firstNight": 3058,
+    "firstNight": 3058.1,
+    "otherNight": 50.5,
     "firstNightReminder": "Wake Yanluo. They look at the Grimoire. They choose a player. Place 'Dies on 3rd Night' reminder. Then, they choose another player. Place 'Dies Tonight' reminder.",
-    "otherNight": 50,
-    "otherNightReminder": "Wake Yanluo. They choose a player. Place 'Dies Tonight' reminder. Change last night's 'Dies Tonight' reminder to 'Death'. If this is the 3rd night, the player with 'Dies on 3rd Night' dies, even if protected.",
+    "otherNightReminder": "Wake Yanluo. They choose a player. Place 'Dies Tonight' reminder. Change last night's 'Dies Tonight' reminder to 'Death'. If this is the 3rd night, the player with 'Dies on 3rd Night' dies, even if for some reason they could not.",
     "reminders": [
       "Dies on 3rd Night",
       "Dies Tonight",
       "Death"
     ],
-    "setup": false,
-    "ability": "On your first night, you see the Grimoire and choose a player: they die on the 3rd night, even if protected. Each night, choose a player: the player you chose last night dies."
+    "remindersGlobal": [],
+    "setup": false
   }
 ]

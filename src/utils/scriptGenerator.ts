@@ -585,7 +585,7 @@ export function highlightAbilityText(text: string, language: 'zh-CN' | 'en' = 'z
     'evil', 'negative ability',
     'executed', 'execution', 'Demon', 'Minion', 'Evil',
     'poisoned', 'poison',
-    'Vizier',
+    'Vizier', 'false'
   ];
 
   const blueKeywordsEN = [
@@ -596,8 +596,7 @@ export function highlightAbilityText(text: string, language: 'zh-CN' | 'en' = 'z
   ];
 
   const purpleKeywordsEN = [
-    'non-Traveller', 'non-Traveler',
-    'Traveller', 'Traveler',
+    'Travellers', 'Traveler',
     'mad', 'madness',
   ];
 
