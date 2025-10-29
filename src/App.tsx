@@ -52,6 +52,9 @@ import {
 } from '@mui/material';
 import { initGlobalShortcuts, cleanupGlobalShortcuts, registerSaveCallback, unregisterSaveCallback, showSaveAlert, alertUseMui } from './utils/event';
 import { OverlayScrollbars } from 'overlayscrollbars';
+import PrintDialog from './components/AppSub/PrintDialog';
+import UnlockModeDialog from './components/AppSub/UnlockModeDialog';
+import ExportJsonDialog from './components/AppSub/ExportJsonDialog';
 
 // 把它放在 App 组件上面，或者 theme 定义的下面
 const printStyles = {
@@ -934,6 +937,14 @@ const App = observer(() => {
             currentJson={originalJson}
             jsonParseError={jsonParseError}
           />
+          <ExportJsonDialog
+            open={exportJsonDialogOpen}
+            onClose={() => setExportJsonDialogOpen(false)}
+            onExportOriginal={handleExportOriginalJson}
+            onExportCurrentLanguage={handleExportCurrentLanguageJson}
+            onExportIdOnly={handleExportIdOnlyJson}
+            t={t as (key: string) => string}
+          />
 
           {/* 剧本展示区域 - 使用 ScriptRenderer 组件 */}
           {script && (
@@ -1080,131 +1091,7 @@ const App = observer(() => {
         characters={script?.all || []}
       />
 
-      {/* 导出JSON选项对话框 */}
-      <Dialog
-        open={exportJsonDialogOpen}
-        onClose={() => setExportJsonDialogOpen(false)}
-        disableScrollLock={true}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
-          }
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.5,
-            pb: 2,
-            pt: 3,
-            px: 3,
-          }}
-        >
-          <InfoIcon sx={{ fontSize: 32, color: '#1976d2' }} />
-          <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
-            {t('dialog.exportJsonTitle')}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ px: 3, pb: 3 }}>
-          <Typography variant="body2" sx={{ color: '#666', mb: 3, lineHeight: 1.7 }}>
-            {t('dialog.exportJsonMessage')}
-          </Typography>
-          
-          {/* 选项1: 原始JSON */}
-          <Box
-            sx={{
-              mb: 2,
-              p: 2.5,
-              borderRadius: 2,
-              border: '2px solid #fff3e0',
-              backgroundColor: '#f5f5f5',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              '&:hover': {
-                borderColor: '#ff9800',
-                backgroundColor: '#fff3e0',
-              }
-            }}
-            onClick={handleExportOriginalJson}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#ff9800', mb: 1 }}>
-              {t('dialog.exportOriginalJson')}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem' }}>
-              {t('dialog.exportOriginalJsonDesc')}
-            </Typography>
-          </Box>
-          <Box
-            sx={{
-              mb: 2,
-              p: 2.5,
-              borderRadius: 2,
-              border: '2px solid #e3f2fd',
-              backgroundColor: '#f5f5f5',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              '&:hover': {
-                borderColor: '#1976d2',
-                backgroundColor: '#e3f2fd',
-              }
-            }}
-            onClick={handleExportCurrentLanguageJson}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1976d2', mb: 1 }}>
-              {t('dialog.exportCurrentLangJson')}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem' }}>
-              {t('dialog.exportCurrentLangJsonDesc')}
-            </Typography>
-          </Box>
 
-
-
-          {/* 选项3: 仅官方ID */}
-          <Box
-            sx={{
-              p: 2.5,
-              borderRadius: 2,
-              border: '2px solid #e8f5e9',
-              backgroundColor: '#f5f5f5',
-              cursor: 'pointer',
-              transition: 'all 0.2s',
-              '&:hover': {
-                borderColor: '#4caf50',
-                backgroundColor: '#e8f5e9',
-              }
-            }}
-            onClick={handleExportIdOnlyJson}
-          >
-            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#4caf50', mb: 1 }}>
-              {t('dialog.exportIdOnly')}
-            </Typography>
-            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem' }}>
-              {t('dialog.exportIdOnlyDesc')}
-            </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa' }}>
-          <Button
-            onClick={() => setExportJsonDialogOpen(false)}
-            sx={{
-              px: 3,
-              py: 1,
-              fontWeight: 500,
-              color: '#757575',
-              '&:hover': {
-                backgroundColor: '#eeeeee',
-              }
-            }}
-          >
-            {t('common.cancel')}
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* 导出图片提示对话框 */}
       <Dialog
@@ -1295,276 +1182,24 @@ const App = observer(() => {
       </Dialog>
 
       {/* 打印设置对话框 */}
-      <Dialog
+      <PrintDialog
         open={printDialogOpen}
         onClose={() => setPrintDialogOpen(false)}
-        disableScrollLock={true}
-        aria-labelledby="print-dialog-title"
-        aria-describedby="print-dialog-description"
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
-          }
-        }}
-      >
-        <DialogTitle
-          id="print-dialog-title"
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.5,
-            pb: 2,
-            pt: 3,
-            px: 3,
-          }}
-        >
-          <PrintIcon sx={{ fontSize: 32, color: '#1976d2' }} />
-          <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
-            {t('dialog.printTitle')}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ px: 3, pb: 2 }}>
-          {/* 提示信息 */}
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1.5,
-              p: 2.5,
-              mb: 3,
-              backgroundColor: '#f0f7ff',
-              borderRadius: 2,
-              border: '1px solid #d0e7ff',
-            }}
-          >
-            <InfoIcon sx={{ color: '#1976d2', flexShrink: 0, mt: 0.2, fontSize: 22 }} />
-            <Typography variant="body2" sx={{ color: '#1565c0', lineHeight: 1.7, fontSize: '0.9rem' }}>
-              {t('dialog.printMessage')}
-            </Typography>
-          </Box>
-
-          {/* 推荐设置列表 */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            {/* 浏览器推荐 */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
-              <CheckIcon sx={{ color: '#2e7d32', fontSize: 22, flexShrink: 0 }} />
-              <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
-                {t('dialog.printBrowser')}
-              </Typography>
-            </Box>
-
-            {/* 设备提示 */}
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, py: 1 }}>
-              <CheckIcon sx={{ color: '#2e7d32', fontSize: 22, flexShrink: 0 }} />
-              <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
-                {t('dialog.printDevice')}
-              </Typography>
-            </Box>
-
-            {/* 分割线 */}
-            <Box sx={{ my: 1.5, borderTop: '1px solid #e0e0e0' }} />
-
-            {/* 高级设置标题 */}
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 700,
-                fontSize: '0.85rem',
-                color: '#424242',
-                textTransform: 'uppercase',
-                letterSpacing: 0.8,
-                mb: 1.5,
-              }}
-            >
-              {language === 'zh-CN' ? '推荐配置' : 'Recommended Settings'}
-            </Typography>
-
-            {/* 设置项 */}
-            <Box sx={{
-              backgroundColor: '#fafafa',
-              borderRadius: 2,
-              p: 2.5,
-              border: '1px solid #e0e0e0',
-            }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                {/* 纸张大小 */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      minWidth: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      backgroundColor: '#757575',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
-                    {t('dialog.printPaper')}
-                  </Typography>
-                </Box>
-
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      minWidth: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      backgroundColor: '#757575',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
-                    {t('dialog.printScale')}
-                  </Typography>
-                </Box>
-
-                {/* 页边距 */}
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <Box
-                    sx={{
-                      minWidth: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      backgroundColor: '#757575',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <Typography variant="body2" sx={{ color: '#424242', fontSize: '0.9rem' }}>
-                    {t('dialog.printMargin')}
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2.5, gap: 1.5, backgroundColor: '#fafafa' }}>
-          <Button
-            onClick={() => setPrintDialogOpen(false)}
-            sx={{
-              px: 3,
-              py: 1,
-              fontWeight: 500,
-              color: '#757575',
-              '&:hover': {
-                backgroundColor: '#eeeeee',
-              }
-            }}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button
-            onClick={handleConfirmPrint}
-            variant="contained"
-            autoFocus
-            startIcon={<PrintIcon />}
-            sx={{
-              px: 3.5,
-              py: 1,
-              fontWeight: 600,
-              backgroundColor: '#1976d2',
-              boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
-              '&:hover': {
-                backgroundColor: '#1565c0',
-                boxShadow: '0 4px 12px rgba(25, 118, 210, 0.4)',
-              }
-            }}
-          >
-            {t('dialog.printConfirm')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleConfirmPrint}
+        t={t as (key: string) => string}
+        language={language}
+      />
 
       {/* 解锁只以id解析模式确认对话框 */}
-      <Dialog
+      <UnlockModeDialog
         open={unlockModeDialogOpen}
         onClose={() => {
           setUnlockModeDialogOpen(false);
           setPendingEditCharacter(null);
         }}
-        disableScrollLock={true}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
-          }
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.5,
-            pb: 2,
-            pt: 3,
-            px: 3,
-          }}
-        >
-          <InfoIcon sx={{ fontSize: 32, color: '#ff9800' }} />
-          <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
-            {t('dialog.unlockModeTitle')}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ px: 3, pb: 2 }}>
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1.5,
-              p: 2.5,
-              backgroundColor: '#fff8e1',
-              borderRadius: 2,
-              border: '1px solid #ffe0b2',
-            }}
-          >
-            <Typography variant="body2" sx={{ color: '#e65100', lineHeight: 1.7, fontSize: '0.95rem' }}>
-              {t('dialog.unlockModeMessage')}
-            </Typography>
-          </Box>
-          <Typography variant="body2" sx={{ color: '#757575', mt: 2, fontSize: '0.9rem' }}>
-            {t('dialog.unlockModeNote')}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2.5, gap: 1.5, backgroundColor: '#fafafa' }}>
-          <Button
-            onClick={() => {
-              setUnlockModeDialogOpen(false);
-              setPendingEditCharacter(null);
-            }}
-            sx={{
-              px: 3,
-              py: 1,
-              fontWeight: 500,
-              color: '#757575',
-              '&:hover': {
-                backgroundColor: '#eeeeee',
-              }
-            }}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button
-            onClick={handleUnlockAndEdit}
-            variant="contained"
-            autoFocus
-            sx={{
-              px: 3.5,
-              py: 1,
-              fontWeight: 600,
-              backgroundColor: '#ff9800',
-              boxShadow: '0 2px 8px rgba(255, 152, 0, 0.3)',
-              '&:hover': {
-                backgroundColor: '#f57c00',
-                boxShadow: '0 4px 12px rgba(255, 152, 0, 0.4)',
-              }
-            }}
-          >
-            {t('dialog.unlockAndEdit')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+        onConfirm={handleUnlockAndEdit}
+        t={t as (key: string) => string}
+      />
     </ThemeProvider >
   );
 });

@@ -14,7 +14,6 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
-import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import {
