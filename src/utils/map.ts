@@ -29,7 +29,8 @@ export const translations = {
     'input.uploadJson': '上传 JSON',
     'input.uploadImage': '点击或拖拽上传图片',
     'input.reuploadImage': '点击重新上传',
-    'input.exportImage': '导出PDF',
+    'input.exportPDF': '导出PDF',
+    'input.exportImage': '导出图片',
     'input.exportJson': '导出 JSON',
     'input.shareScript': '分享剧本',
     'input.clear': '清空',
@@ -70,10 +71,26 @@ export const translations = {
     'dialog.unlockSuccess': '已解锁只以id解析模式',
     'dialog.exportJsonTitle': '导出JSON选项',
     'dialog.exportJsonMessage': '请选择导出格式：',
-    'dialog.exportFullJson': '完整JSON',
-    'dialog.exportFullJsonDesc': '导出包含所有自定义信息的完整JSON（推荐用于备份和分享）',
-    'dialog.exportIdOnly': '仅官方ID（双语）',
-    'dialog.exportIdOnlyDesc': '仅导出官方角色ID，适合双语模式和跨语言使用',
+    'dialog.exportCurrentLangJson': '完整JSON (官方角色)',
+    'dialog.exportCurrentLangJsonDesc': '当前语言下, 所有能找到的官方角色, 都会按照当前语言的官方描述信息来导出完整JSON, 非官方角色保留原始JSON。',
+    'dialog.exportOriginalJson': '原始JSON (默认) (自定义)',
+    'dialog.exportOriginalJsonDesc': '导出编辑框中原封不动的JSON内容, 自定义程度最高。',
+    'dialog.exportIdOnly': '仅官方ID (官方角色)',
+    'dialog.exportIdOnlyDesc': '官方角色ID将会以ID导出, 非官方角色ID的保留完整JSON, 方便双语切换。',
+
+    // 导出文件名
+    'export.defaultScriptName': '剧本',
+    'export.currentLangSuffix': '完整',
+    'export.originalSuffix': '原始',
+    'export.idOnlySuffix': '仅ID',
+    'export.chineseLang': '中文',
+    'export.englishLang': '英文',
+
+    // 导出图片对话框
+    'dialog.exportImageTitle': '导出图片',
+    'dialog.exportImageMessage': '请使用 I 🧡 PDF 将PDF导出为图片',
+    'dialog.exportImageTip': '先导出PDF，然后使用 I 🧡 PDF 在线工具将PDF转换为图片格式',
+    'dialog.gotoILovePDF': '前往 I 🧡 PDF',
 
     // 提示信息
     'info.supportOfficial': '• 支持官方剧本制作器的剧本 JSON',
@@ -392,7 +409,8 @@ export const translations = {
     'input.uploadJson': 'Upload JSON',
     'input.uploadImage': 'Click or drag to upload image',
     'input.reuploadImage': 'Click to reupload',
-    'input.exportImage': 'Export PDF',
+    'input.exportPDF': 'Export PDF',
+    'input.exportImage': 'Export Image',
     'input.exportJson': 'Export JSON',
     'input.shareScript': 'Share Script',
     'input.clear': 'Clear',
@@ -433,10 +451,26 @@ export const translations = {
     'dialog.unlockSuccess': 'Official ID parse mode unlocked',
     'dialog.exportJsonTitle': 'Export JSON Options',
     'dialog.exportJsonMessage': 'Please choose export format:',
-    'dialog.exportFullJson': 'Full JSON',
-    'dialog.exportFullJsonDesc': 'Export complete JSON with all custom information (recommended for backup and sharing)',
-    'dialog.exportIdOnly': 'Official ID Only (Bilingual)',
-    'dialog.exportIdOnlyDesc': 'Export only official character IDs, suitable for bilingual mode and cross-language use',
+    'dialog.exportCurrentLangJson': 'Full JSON (Official Characters)',
+    'dialog.exportCurrentLangJsonDesc': 'In the current language, all official characters found will be exported as complete JSON according to the official description in the current language, unofficial characters will keep original JSON.',
+    'dialog.exportOriginalJson': 'Original JSON (Default) (Custom)',
+    'dialog.exportOriginalJsonDesc': 'Export the unchanged JSON content from the editor, highest customization level.',
+    'dialog.exportIdOnly': 'Official ID Only (Official Characters)',
+    'dialog.exportIdOnlyDesc': 'Official character IDs will be exported as IDs, characters without official IDs will keep full JSON, convenient for bilingual switching.',
+
+    // Export filenames
+    'export.defaultScriptName': 'Script',
+    'export.currentLangSuffix': 'Full',
+    'export.originalSuffix': 'Original',
+    'export.idOnlySuffix': 'IDOnly',
+    'export.chineseLang': 'Chinese',
+    'export.englishLang': 'English',
+
+    // Export image dialog
+    'dialog.exportImageTitle': 'Export Image',
+    'dialog.exportImageMessage': 'Please use I 🧡 PDF to export PDF to images',
+    'dialog.exportImageTip': 'First export to PDF, then use I 🧡 PDF to convert PDF to image',
+    'dialog.gotoILovePDF': 'Go to iLovePDF',
 
     // Info
     'info.supportOfficial': '• Support official script maker JSON format',

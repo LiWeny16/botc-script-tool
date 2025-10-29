@@ -19,6 +19,8 @@ import {
   Print as PrintIcon,
   CheckCircleOutline as CheckIcon,
   InfoOutlined as InfoIcon,
+  Image as ImageIcon,
+  OpenInNew as OpenInNewIcon,
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import type { Script, Character } from './types';
@@ -186,6 +188,7 @@ const App = observer(() => {
   const [customJinxDialogOpen, setCustomJinxDialogOpen] = useState<boolean>(false);
   const [printDialogOpen, setPrintDialogOpen] = useState<boolean>(false); // 添加打印对话框状态
   const [exportJsonDialogOpen, setExportJsonDialogOpen] = useState<boolean>(false); // 导出JSON选项对话框
+  const [exportImageDialogOpen, setExportImageDialogOpen] = useState<boolean>(false); // 导出图片提示对话框
   const [unlockModeDialogOpen, setUnlockModeDialogOpen] = useState<boolean>(false); // 解锁模式对话框
   const [pendingEditCharacter, setPendingEditCharacter] = useState<Character | null>(null); // 待编辑的角色
 
@@ -358,7 +361,7 @@ const App = observer(() => {
       setUnlockModeDialogOpen(true);
       return;
     }
-    
+
     setEditingCharacter(character);
     setEditDialogOpen(true);
   };
@@ -368,13 +371,13 @@ const App = observer(() => {
     // 解锁只以id解析模式
     configStore.setOfficialIdParseMode(false);
     setUnlockModeDialogOpen(false);
-    
+
     // 继续编辑操作
     if (pendingEditCharacter) {
       setEditingCharacter(pendingEditCharacter);
       setEditDialogOpen(true);
       setPendingEditCharacter(null);
-      
+
       // 显示解锁成功提示
       alertUseMui(`${t('dialog.unlockSuccess')}`, 2500, { kind: 'success' });
     }
@@ -651,8 +654,104 @@ const App = observer(() => {
     setExportJsonDialogOpen(true);
   };
 
-  // 导出完整JSON（包含所有自定义信息）
-  const handleExportFullJson = () => {
+  // 导出选项1：当前语言的完整JSON
+  const handleExportCurrentLanguageJson = () => {
+    if (!originalJson) return;
+
+    try {
+      const parsedJson = JSON.parse(originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      // 当前语言的角色字典
+      const currentDict = language === 'en' ? CHARACTERS_EN : CHARACTERS;
+
+      // 辅助函数：根据name或id在角色库中查找
+      const findCharacterInDict = (item: any): Character | null => {
+        const itemObj = typeof item === 'string' ? { id: item } : item;
+
+        // 1. 通过name查找
+        if (itemObj.name && typeof itemObj.name === 'string') {
+          for (const char of Object.values(currentDict)) {
+            if ((char as Character).name === itemObj.name) {
+              return char as Character;
+            }
+          }
+        }
+
+        // 2. 通过id查找（直接匹配）
+        if (currentDict[itemObj.id]) {
+          return currentDict[itemObj.id] as Character;
+        }
+
+        // 3. 通过标准化ID查找
+        const normalizedId = normalizeCharacterId(itemObj.id, language);
+        if (currentDict[normalizedId]) {
+          return currentDict[normalizedId] as Character;
+        }
+
+        return null;
+      };
+
+      const newJsonArray: any[] = [];
+
+      jsonArray.forEach((item: any) => {
+        const itemObj = typeof item === 'string' ? { id: item } : item;
+
+        // 保留 _meta、jinxed、special_rule
+        if (itemObj.id === '_meta' || itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
+          newJsonArray.push(item);
+        } else {
+          // 尝试在当前语言的角色库中查找
+          const foundChar = findCharacterInDict(item);
+
+          if (foundChar) {
+            // 找到了，使用当前语言的完整信息
+            const fullCharJson: any = {
+              id: foundChar.id,
+              name: foundChar.name,
+              ability: foundChar.ability,
+              team: foundChar.team,
+              image: foundChar.image,
+            };
+
+            // 添加可选字段
+            if (foundChar.firstNight) fullCharJson.firstNight = foundChar.firstNight;
+            if (foundChar.otherNight) fullCharJson.otherNight = foundChar.otherNight;
+            if (foundChar.firstNightReminder) fullCharJson.firstNightReminder = foundChar.firstNightReminder;
+            if (foundChar.otherNightReminder) fullCharJson.otherNightReminder = foundChar.otherNightReminder;
+            if (foundChar.reminders && foundChar.reminders.length > 0) fullCharJson.reminders = foundChar.reminders;
+            if (foundChar.remindersGlobal && foundChar.remindersGlobal.length > 0) fullCharJson.remindersGlobal = foundChar.remindersGlobal;
+            if (foundChar.setup) fullCharJson.setup = foundChar.setup;
+
+            newJsonArray.push(fullCharJson);
+            console.log(`导出当前语言完整信息: ${foundChar.name}`);
+          } else {
+            // 找不到，保留原始JSON
+            newJsonArray.push(item);
+            console.warn(`无法在${language}库中找到，保留原始JSON:`, itemObj.id);
+          }
+        }
+      });
+
+      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      const langSuffix = language === 'zh-CN' ? t('export.chineseLang') : t('export.englishLang');
+      const scriptName = script?.title || t('export.defaultScriptName');
+      link.download = `${scriptName}-${langSuffix}${t('export.currentLangSuffix')}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      setExportJsonDialogOpen(false);
+    } catch (error) {
+      console.error('导出当前语言JSON失败:', error);
+      alert(t('input.exportJsonFailed'));
+    }
+  };
+
+  // 导出选项2：原始JSON（不做任何处理）
+  const handleExportOriginalJson = () => {
     if (!originalJson) return;
 
     try {
@@ -660,17 +759,18 @@ const App = observer(() => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${script?.title || '剧本'}-完整.json`;
+      const scriptName = script?.title || t('export.defaultScriptName');
+      link.download = `${scriptName}-${t('export.originalSuffix')}.json`;
       link.click();
       URL.revokeObjectURL(url);
       setExportJsonDialogOpen(false);
     } catch (error) {
-      console.error('导出完整JSON失败:', error);
+      console.error('导出原始JSON失败:', error);
       alert(t('input.exportJsonFailed'));
     }
   };
 
-  // 导出仅ID的JSON（双语模式）
+  // 导出选项3：仅官方ID（双语模式，找不到的保留完整JSON）
   const handleExportIdOnlyJson = () => {
     if (!originalJson) return;
 
@@ -678,23 +778,42 @@ const App = observer(() => {
       const parsedJson = JSON.parse(originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 辅助函数：根据name在角色库中查找官方ID
-      const findOfficialIdByName = (name: string): string | null => {
-        // 1. 先在中文库查找
-        for (const [id, char] of Object.entries(CHARACTERS)) {
-          if ((char as Character).name === name) {
-            return id;
+      // 辅助函数：在中英文库中查找官方ID
+      const findOfficialIdByNameOrId = (item: any): { found: boolean; id?: string } => {
+        const itemObj = typeof item === 'string' ? { id: item } : item;
+
+        // 1. 通过name在中文库查找
+        if (itemObj.name && typeof itemObj.name === 'string') {
+          for (const [id, char] of Object.entries(CHARACTERS)) {
+            if ((char as Character).name === itemObj.name) {
+              return { found: true, id };
+            }
+          }
+
+          // 2. 通过name在英文库查找
+          for (const [id, char] of Object.entries(CHARACTERS_EN)) {
+            if ((char as Character).name === itemObj.name) {
+              return { found: true, id };
+            }
           }
         }
-        
-        // 2. 在英文库查找
-        for (const [id, char] of Object.entries(CHARACTERS_EN)) {
-          if ((char as Character).name === name) {
-            return id;
-          }
+
+        // 3. 通过id直接匹配
+        if (CHARACTERS[itemObj.id]) {
+          return { found: true, id: itemObj.id };
         }
-        
-        return null;
+
+        if (CHARACTERS_EN[itemObj.id]) {
+          return { found: true, id: itemObj.id };
+        }
+
+        // 4. 通过标准化ID查找
+        const normalizedId = normalizeCharacterId(itemObj.id, 'en');
+        if (CHARACTERS[normalizedId] || CHARACTERS_EN[normalizedId]) {
+          return { found: true, id: normalizedId };
+        }
+
+        return { found: false };
       };
 
       // 转换为仅ID格式
@@ -702,39 +821,23 @@ const App = observer(() => {
 
       jsonArray.forEach((item: any) => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
-        
-        // 保留 _meta
-        if (itemObj.id === '_meta') {
+
+        // 保留 _meta、jinxed、special_rule 的完整信息
+        if (itemObj.id === '_meta' || itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
           idOnlyArray.push(item);
-        }
-        // 保留 jinxed 和 special_rule
-        else if (itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
-          idOnlyArray.push(item);
-        }
-        // 普通角色：通过name查找官方ID
-        else {
-          let officialId = itemObj.id; // 默认使用原ID
-          
-          // 如果有name字段，通过name查找官方ID
-          if (itemObj.name && typeof itemObj.name === 'string') {
-            const foundId = findOfficialIdByName(itemObj.name);
-            if (foundId) {
-              officialId = foundId;
-              console.log(`通过name "${itemObj.name}" 找到官方ID: ${foundId}`);
-            } else {
-              console.warn(`未找到角色 "${itemObj.name}" 的官方ID，使用原ID: ${itemObj.id}`);
-            }
+        } else {
+          // 尝试查找官方ID
+          const result = findOfficialIdByNameOrId(item);
+
+          if (result.found && result.id) {
+            // 找到了官方ID，导出ID字符串
+            idOnlyArray.push(result.id);
+            console.log(`✓ 找到官方ID: ${result.id}${itemObj.name ? ` (${itemObj.name})` : ''}`);
           } else {
-            // 没有name字段，尝试标准化ID（通过mapping）
-            // 中文ID -> 英文ID 的标准化
-            const normalizedId = normalizeCharacterId(itemObj.id, 'en');
-            if (normalizedId !== itemObj.id) {
-              officialId = normalizedId;
-              console.log(`ID标准化: ${itemObj.id} -> ${normalizedId}`);
-            }
+            // 找不到官方ID，保留完整JSON
+            idOnlyArray.push(item);
+            console.warn(`⚠ 无法找到官方ID，保留完整JSON:`, itemObj.id, itemObj.name || '');
           }
-          
-          idOnlyArray.push(officialId);
         }
       });
 
@@ -743,7 +846,8 @@ const App = observer(() => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${script?.title || '剧本'}-仅ID.json`;
+      const scriptName = script?.title || t('export.defaultScriptName');
+      link.download = `${scriptName}-${t('export.idOnlySuffix')}.json`;
       link.click();
       URL.revokeObjectURL(url);
       setExportJsonDialogOpen(false);
@@ -756,6 +860,11 @@ const App = observer(() => {
   const handleExportPDF = () => {
     // 显示打印设置对话框
     setPrintDialogOpen(true);
+  };
+
+  const handleExportImage = () => {
+    // 显示导出图片提示对话框
+    setExportImageDialogOpen(true);
   };
 
   const handleConfirmPrint = () => {
@@ -810,7 +919,8 @@ const App = observer(() => {
           {/* 输入面板 */}
           <InputPanel
             onGenerate={handleGenerate}
-            onExportImage={handleExportPDF}
+            onExportPDF={handleExportPDF}
+            onExportImage={handleExportImage}
             onExportJson={handleExportJson}
             onShare={() => setShareDialogOpen(true)}
             onClear={handleClear}
@@ -1001,7 +1111,30 @@ const App = observer(() => {
             {t('dialog.exportJsonMessage')}
           </Typography>
           
-          {/* 选项1: 完整JSON */}
+          {/* 选项1: 原始JSON */}
+          <Box
+            sx={{
+              mb: 2,
+              p: 2.5,
+              borderRadius: 2,
+              border: '2px solid #fff3e0',
+              backgroundColor: '#f5f5f5',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              '&:hover': {
+                borderColor: '#ff9800',
+                backgroundColor: '#fff3e0',
+              }
+            }}
+            onClick={handleExportOriginalJson}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#ff9800', mb: 1 }}>
+              {t('dialog.exportOriginalJson')}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem' }}>
+              {t('dialog.exportOriginalJsonDesc')}
+            </Typography>
+          </Box>
           <Box
             sx={{
               mb: 2,
@@ -1016,17 +1149,19 @@ const App = observer(() => {
                 backgroundColor: '#e3f2fd',
               }
             }}
-            onClick={handleExportFullJson}
+            onClick={handleExportCurrentLanguageJson}
           >
             <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1976d2', mb: 1 }}>
-              {t('dialog.exportFullJson')}
+              {t('dialog.exportCurrentLangJson')}
             </Typography>
             <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem' }}>
-              {t('dialog.exportFullJsonDesc')}
+              {t('dialog.exportCurrentLangJsonDesc')}
             </Typography>
           </Box>
 
-          {/* 选项2: 仅ID */}
+
+
+          {/* 选项3: 仅官方ID */}
           <Box
             sx={{
               p: 2.5,
@@ -1064,6 +1199,94 @@ const App = observer(() => {
             }}
           >
             {t('common.cancel')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* 导出图片提示对话框 */}
+      <Dialog
+        open={exportImageDialogOpen}
+        onClose={() => setExportImageDialogOpen(false)}
+        disableScrollLock={true}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            pb: 2,
+            pt: 3,
+            px: 3,
+          }}
+        >
+          <ImageIcon sx={{ fontSize: 32, color: '#ff9800' }} />
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
+            {t('dialog.exportImageTitle')}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ px: 3, pb: 3 }}>
+          <Typography variant="body1" sx={{ color: '#333', mb: 3, lineHeight: 1.8, fontSize: '1rem' }}>
+            {t('dialog.exportImageMessage')}
+          </Typography>
+
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              border: '2px solid #fff3e0',
+              backgroundColor: '#fffbf5',
+              mb: 2,
+            }}
+          >
+            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem', lineHeight: 1.6 }}>
+              💡 {t('dialog.exportImageTip')}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa', gap: 1 }}>
+          <Button
+            onClick={() => setExportImageDialogOpen(false)}
+            sx={{
+              px: 3,
+              py: 1,
+              fontWeight: 500,
+              color: '#757575',
+              '&:hover': {
+                backgroundColor: '#eeeeee',
+              }
+            }}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button
+            variant="contained"
+            endIcon={<OpenInNewIcon />}
+            onClick={() => {
+              const url = language === 'zh-CN'
+                ? 'https://www.ilovepdf.com/zh-cn/pdf_to_jpg'
+                : 'https://www.ilovepdf.com/pdf_to_jpg';
+              window.open(url, '_blank');
+              setExportImageDialogOpen(false);
+            }}
+            sx={{
+              px: 3,
+              py: 1,
+              fontWeight: 600,
+              backgroundColor: '#ff9800',
+              '&:hover': {
+                backgroundColor: '#f57c00',
+              }
+            }}
+          >
+            {t('dialog.gotoILovePDF')}
           </Button>
         </DialogActions>
       </Dialog>

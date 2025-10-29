@@ -14,6 +14,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
+import InfoOutlineIcon from '@mui/icons-material/InfoOutline';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import {
@@ -25,6 +26,8 @@ import {
   Share,
   Tune,
   Add,
+  Print,
+  Image,
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
@@ -36,6 +39,7 @@ import IOSSwitch from './IOSSwitch';
 
 interface InputPanelProps {
   onGenerate: (json: string, title?: string, author?: string) => void;
+  onExportPDF: () => void;
   onExportImage: () => void;
   onExportJson: () => void;
   onShare: () => void;
@@ -49,7 +53,7 @@ interface InputPanelProps {
   jsonParseError?: string; // 新增：JSON 解析错误信息
 }
 
-const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, onOpenAboutDialog, onJsonChange, hasScript, currentJson, jsonParseError }: InputPanelProps) => {
+const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJson, onShare, onClear, onOpenUISettings, onAddCustomRule, onOpenAboutDialog, onJsonChange, hasScript, currentJson, jsonParseError }: InputPanelProps) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
@@ -163,18 +167,18 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
     try {
       // 1. 完全清空 ScriptStore（删除 localStorage）
       scriptStore.clear();
-      
+
       // 2. 重置所有配置 store（删除 localStorage）
       configStore.resetToDefault();
       await uiConfigStore.resetToDefault(); // 异步清理字体和 localStorage
-      
+
       // 3. 额外保险：手动清理所有可能的 localStorage 键
       const keysToRemove = [
         'botc-script-data',
         'botc-app-config',
         'botc-ui-config'
       ];
-      
+
       keysToRemove.forEach(key => {
         try {
           localStorage.removeItem(key);
@@ -183,17 +187,17 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           console.error(`删除 ${key} 失败:`, error);
         }
       });
-      
+
       // 4. 清空输入框
       setJsonInput('');
       setTitleInput('');
       setAuthorInput('');
       setError('');
-      
+
       setResetDialogOpen(false);
-      
+
       console.log('🎉 所有设置和数据已重置！');
-      
+
       // 5. 刷新页面，让应用重新初始化（作为新用户）
       setTimeout(() => {
         window.location.reload();
@@ -424,7 +428,7 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             startIcon={<Refresh />}
             onClick={handleGenerate}
             sx={{
-              flex: { xs: '1 1 100%', sm: '1 1 30%' },
+              flex: { xs: '1 1 100%', sm: '1 1 20%' },
               minHeight: 48,
             }}
           >
@@ -481,7 +485,21 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           <Button
             variant="outlined"
             size="large"
-            startIcon={<Download />}
+            startIcon={<Print />}
+            onClick={onExportPDF}
+            disabled={!hasScript}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
+              minHeight: 48,
+            }}
+          >
+            {t('input.exportPDF')}
+          </Button>
+
+          <Button
+            variant="outlined"
+            size="large"
+            startIcon={<Image />}
             onClick={onExportImage}
             disabled={!hasScript}
             sx={{
@@ -572,19 +590,22 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
           </Button>
         </Box>
 
-        {/* 提示信息 */}
+        {/* 提示信息和开关设置 */}
         <Alert severity="info" sx={{ mt: 2 }}>
           <Box sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
-            gap: 30,
-            alignItems: { xs: 'flex-start', md: 'center' },
-            justifyContent: 'space-between'
+            gap: { xs: 2.5, md: 40 },
+            alignItems: { xs: 'stretch', md: 'center' }
           }}>
             {/* 左侧文字说明 */}
-            <Box sx={{ flex: 1 }}>
+            <Box sx={{
+              flex: { xs: '1 1 auto', md: '0 0 auto' },
+              maxWidth: { xs: '100%', md: '1000px' }
+            }}>
               <Typography variant="body2" sx={{
-                fontSize: { xs: '0.8rem', sm: '0.85rem' }
+                fontSize: { xs: '0.8rem', sm: '0.85rem' },
+                lineHeight: 1.6
               }}>
                 {t('info.supportOfficial')}<br />
                 {t('info.supportFormats')}<br />
@@ -596,16 +617,30 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
             <Box sx={{
               display: 'flex',
               flexDirection: 'column',
-              gap: 1.5,
-              minWidth: { xs: '100%', md: 'auto' },
+              gap: 2,
+              flex: { xs: '1 1 auto', md: '1 1 0' },
+              minWidth: { xs: '100%', md: '300px' }
             }}>
               {/* 官方ID解析模式 */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                justifyContent: 'space-between'
+              }}>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  <Typography variant="body2" sx={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    mb: 0.25
+                  }}>
                     {t('input.officialIdParseMode')}
                   </Typography>
-                  <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'warning.main' }}>
+                  <Typography variant="caption" sx={{
+                    fontSize: '0.7rem',
+                    color: 'warning.main',
+                    display: 'block'
+                  }}>
                     {t('input.officialIdParseModeWarning')}
                   </Typography>
                 </Box>
@@ -616,12 +651,25 @@ const InputPanel = observer(({ onGenerate, onExportImage, onExportJson, onShare,
               </Box>
 
               {/* 双页模式 */}
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 2,
+                justifyContent: 'space-between'
+              }}>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                  <Typography variant="body2" sx={{
+                    fontWeight: 600,
+                    fontSize: '0.875rem',
+                    mb: 0.25
+                  }}>
                     {t('input.twoPageMode')}
                   </Typography>
-                  <Typography variant="caption" sx={{ fontSize: '0.7rem', color: 'text.secondary' }}>
+                  <Typography variant="caption" sx={{
+                    fontSize: '0.7rem',
+                    color: 'text.secondary',
+                    display: 'block'
+                  }}>
                     {t('input.twoPageModeDesc')}
                   </Typography>
                 </Box>
