@@ -44,7 +44,7 @@ function getNightOrderFromChinese(
   // 优先级2: 从中文角色库中获取
   // 先将角色ID转换为中文格式
   const cnId = normalizeCharacterId(characterId, 'zh-CN');
-  
+
   // 在中文库中查找
   if (CHARACTERS[cnId]) {
     return {
@@ -227,7 +227,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       script.useTitleImage = item.use_title_image !== false ? !!script.titleImage : false;  // 默认根据是否有图片判断
       script.author = item.author || '';
       script.playerCount = item.playerCount;  // 解析玩家人数
-      
+
       // 解析第二页配置
       script.secondPageTitle = item.second_page_title;
       script.secondPageTitleText = item.second_page_title_text;
@@ -533,52 +533,121 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 }
 
 // 高亮能力文本中的关键词
-export function highlightAbilityText(text: string): string {
+export function highlightAbilityText(text: string, language: 'zh-CN' | 'en' = 'zh-CN'): string {
   // 防御性检查：如果 text 为 undefined 或 null，返回空字符串
   if (!text) {
     return '';
   }
 
-  const redKeywords = [
+  // 中文关键词
+  const redKeywordsCN = [
     '未正常生效', '选择或影响', '死于处决', '恶魔角色', '爪牙角色',
     '邪恶玩家', '邪恶阵营', '邪恶角色', '"是恶魔"', '负面能力',
-    '小恶魔', '小怪宝', '狐媚娘', '维齐尔', '被处决', '杀死',
+    '小恶魔', '小怪宝', '维齐尔', '被处决', '杀死',
     '死亡', '邪恶', '落败', '中毒', '爪牙', '恶魔', '处决',
     '错误', '自杀', '暴乱', '军团', '代价', '伪装',
     '作弊',
   ];
 
-  const blueKeywords = [
+  const blueKeywordsCN = [
     '外来者角色', '善良玩家', '善良阵营', '善良角色', '镇民角色',
     '恢复健康', '起死回生', '落难少女', '有且只有', '有多准确',
     '守夜人', '外来者', '农夫', '书生', '疯子', '国王',
     '醉酒', '复活', '反刍', '镇民', '善良', '正确', '存活', '获胜', '大法官', '暗影筹码', '梭哈',
   ];
 
-  const purpleKeywords = ['非旅行者', '旅行者', '疯狂'];
+  const purpleKeywordsCN = ['非旅行者', '旅行者', '疯狂'];
+
+  // 英文关键词
+  const redKeywordsEN = [
+    'not work correctly', 'not functioning', 'affect or choose',
+    'evil', 'negative ability',
+    'executed', 'execution', 'Demon', 'Minion', 'Evil',
+    'poisoned', 'poison',
+    'Vizier',
+  ];
+
+  const blueKeywordsEN = [
+    'drunk', 'good', 'Tea Lady',
+    'Outsider', 'Good', 'Townsfolk',
+    'healthy', 'sober', 'alive', 'lives', 'survive',
+    'resurrect', 'regurgitate',
+  ];
+
+  const purpleKeywordsEN = [
+    'non-Traveller', 'non-Traveler',
+    'Traveller', 'Traveler',
+    'mad', 'madness',
+  ];
+
+  // 根据语言选择对应的关键词列表
+  let redKeywords = language === 'zh-CN' ? redKeywordsCN : redKeywordsEN;
+  let blueKeywords = language === 'zh-CN' ? blueKeywordsCN : blueKeywordsEN;
+  let purpleKeywords = language === 'zh-CN' ? purpleKeywordsCN : purpleKeywordsEN;
+
+  // 转义正则表达式特殊字符的辅助函数
+  const escapeRegex = (str: string) => {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  };
+
+  // 英文需要按长度排序（长的在前），避免短词先被替换导致长短语无法匹配
+  if (language === 'en') {
+    redKeywords = [...redKeywords].sort((a, b) => b.length - a.length);
+    blueKeywords = [...blueKeywords].sort((a, b) => b.length - a.length);
+    purpleKeywords = [...purpleKeywords].sort((a, b) => b.length - a.length);
+  }
 
   let result = text;
 
-  redKeywords.forEach((keyword) => {
-    result = result.replaceAll(
-      keyword,
-      `<span style="color: ${THEME_COLORS.evil}; font-weight: 700;">${keyword}</span>`
-    );
-  });
+  // 英文需要使用单词边界匹配，中文直接替换
+  if (language === 'en') {
+    // 英文：使用正则表达式确保只匹配完整单词
+    redKeywords.forEach((keyword) => {
+      const escapedKeyword = escapeRegex(keyword);
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
+      result = result.replace(regex, (match) =>
+        `<span style="color: ${THEME_COLORS.evil}; font-weight: 700;">${match}</span>`
+      );
+    });
 
-  blueKeywords.forEach((keyword) => {
-    result = result.replaceAll(
-      keyword,
-      `<span style="color: ${THEME_COLORS.good}; font-weight: 700;">${keyword}</span>`
-    );
-  });
+    blueKeywords.forEach((keyword) => {
+      const escapedKeyword = escapeRegex(keyword);
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
+      result = result.replace(regex, (match) =>
+        `<span style="color: ${THEME_COLORS.good}; font-weight: 700;">${match}</span>`
+      );
+    });
 
-  purpleKeywords.forEach((keyword) => {
-    result = result.replaceAll(
-      keyword,
-      `<span style="color: ${THEME_COLORS.purple}; font-weight: 700;">${keyword}</span>`
-    );
-  });
+    purpleKeywords.forEach((keyword) => {
+      const escapedKeyword = escapeRegex(keyword);
+      const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'gi');
+      result = result.replace(regex, (match) =>
+        `<span style="color: ${THEME_COLORS.purple}; font-weight: 700;">${match}</span>`
+      );
+    });
+  } else {
+    // 中文：直接替换
+    redKeywords.forEach((keyword) => {
+      result = result.replaceAll(
+        keyword,
+        `<span style="color: ${THEME_COLORS.evil}; font-weight: 700;">${keyword}</span>`
+      );
+    });
+
+    blueKeywords.forEach((keyword) => {
+      result = result.replaceAll(
+        keyword,
+        `<span style="color: ${THEME_COLORS.good}; font-weight: 700;">${keyword}</span>`
+      );
+    });
+
+    purpleKeywords.forEach((keyword) => {
+      result = result.replaceAll(
+        keyword,
+        `<span style="color: ${THEME_COLORS.purple}; font-weight: 700;">${keyword}</span>`
+      );
+    });
+  }
 
   return result;
 }

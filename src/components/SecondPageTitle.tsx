@@ -67,21 +67,13 @@ export const SecondPageTitle = ({
           '&::before': {
             content: '""',
             position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: "80%", md: "48%" },
+            height: '100%',
             backgroundImage: "url(/imgs/images/pattern.png)",
-            // 背景印花大小随图片/字体大小动态调整
-            backgroundSize: (useImage && titleImage)
-              ? { 
-                  xs: `${imageSize * 1.5}px`, 
-                  md: `${imageSize * 1.2}px` 
-                }
-              : { 
-                  xs: `${fontSize * 3}px`, 
-                  md: `${fontSize * 2.5}px` 
-                },
+            backgroundSize: 'contain',
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
             opacity: 0.6,

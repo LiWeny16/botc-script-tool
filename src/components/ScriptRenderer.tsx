@@ -19,19 +19,19 @@ import { uiConfigStore } from '../stores/UIConfigStore';
 import { configStore } from '../stores/ConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    type DragEndEvent,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
 export interface ScriptRendererProps {
@@ -474,12 +474,13 @@ const ScriptRenderer = observer(({
                                     '&::before': {
                                         content: '""',
                                         position: 'absolute',
-                                        top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        bottom: 0,
+                                        top: '50%',
+                                        left: '50%',
+                                        transform: 'translate(-50%, -50%)',
+                                        width: { xs: "80%", md: "48%" },
+                                        height: '100%',
                                         backgroundImage: "url(/imgs/images/pattern.png)",
-                                        backgroundSize: { xs: "80%", md: "48%" },
+                                        backgroundSize: 'contain',
                                         backgroundPosition: "center",
                                         backgroundRepeat: "no-repeat",
                                         opacity: 0.6,
@@ -527,11 +528,11 @@ const ScriptRenderer = observer(({
                                                 alt={script.title}
                                                 sx={{
                                                     maxWidth: '100%',
-                                                        maxHeight: { 
-                                                            xs: `${(script.titleImageSize || 160) * 0.75}px`, 
-                                                            sm: `${(script.titleImageSize || 160) * 0.875}px`, 
-                                                            md: `${script.titleImageSize || 160}px` 
-                                                        },
+                                                    maxHeight: {
+                                                        xs: `${(script.titleImageSize || 160) * 0.75}px`,
+                                                        sm: `${(script.titleImageSize || 160) * 0.875}px`,
+                                                        md: `${script.titleImageSize || 160}px`
+                                                    },
                                                     width: 'auto',
                                                     height: 'auto',
                                                     objectFit: 'contain',
@@ -932,10 +933,10 @@ const ScriptRenderer = observer(({
                                     items={secondPageComponentOrder}
                                     strategy={verticalListSortingStrategy}
                                 >
-                            <Box sx={{
-                                position: 'relative',
-                                zIndex: 1,
-                                px: { xs: 2, sm: 3, md: 4 },
+                                    <Box sx={{
+                                        position: 'relative',
+                                        zIndex: 1,
+                                        px: { xs: 2, sm: 3, md: 4 },
                                         pt: { xs: 2, sm: 3, md: 4 },
                                     }}>
                                         {secondPageComponentOrder.map((componentId) => {
@@ -955,47 +956,47 @@ const ScriptRenderer = observer(({
                                                         scriptStore.addSecondPageComponent(componentType);
                                                     }
                                                 }}
-                                    />
-                                )}
-
-                                {/* 背景装饰 */}
-                                <CharacterImage
-                                    component="img"
-                                    src={"/imgs/images/back_tower.png"}
-                                    alt={"back_tower"}
-                                    sx={{
-                                        position: "absolute",
-                                        left: "0%",
-                                        bottom: "0",
-                                        display: "flex",
-                                        width: "20%",
-                                        zIndex: -1,
-                                        opacity: 0.4,
-                                        userSelect: 'none',
-                                        WebkitUserDrag: 'none',
-                                                pointerEvents: 'none',
-                                    }}
-                                />
-                                <CharacterImage
-                                    component="img"
-                                    src={"/imgs/images/back_tower2.png"}
-                                    alt={"back_tower2"}
-                                    sx={{
-                                        position: "absolute",
-                                        left: "36%",
-                                        bottom: "0%",
-                                        display: "flex",
-                                        width: "50%",
-                                        zIndex: -1,
-                                        opacity: 0.8,
-                                        userSelect: 'none',
-                                        WebkitUserDrag: 'none',
-                                                pointerEvents: 'none',
-                                    }}
-                                />
-                            </Box>
+                                            />
+                                        )}
+                                    </Box>
                                 </SortableContext>
                             </DndContext>
+
+                            {/* 背景装饰 - 放在 Paper 容器内，DndContext 外 */}
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/back_tower.png"}
+                                alt={"back_tower"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "0%",
+                                    bottom: "0",
+                                    display: "flex",
+                                    width: "20%",
+                                    zIndex: 0,
+                                    opacity: 0.4,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/back_tower2.png"}
+                                alt={"back_tower2"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "36%",
+                                    bottom: "0%",
+                                    display: "flex",
+                                    width: "50%",
+                                    zIndex: 0,
+                                    opacity: 0.8,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
                         </Paper>
 
                         {/* 右侧占位 */}

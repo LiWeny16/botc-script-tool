@@ -352,7 +352,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                   fontFamily: uiConfigStore.characterAbilityFont,
                 }}
                 dangerouslySetInnerHTML={{
-                  __html: highlightAbilityText(character.ability),
+                  __html: highlightAbilityText(character.ability, configStore.language),
                 }}
               />
 

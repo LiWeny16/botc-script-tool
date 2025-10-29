@@ -7,7 +7,7 @@ const _charactersEn: Record<string, any> = {};
 rolesData.forEach((role: any) => {
   // 获取中文格式的ID用于图片URL（所有图片都使用中文ID格式，即带下划线的格式）
   const imageId = normalizeCharacterId(role.id, 'zh-CN');
-  
+
   _charactersEn[role.id] = {
     id: role.id,
     name: role.name || role.id,
@@ -36,6 +36,240 @@ const fabledDict = fabledCharacters.reduce((acc, char) => {
   acc[char.id] = char;
   return acc;
 }, {} as any);
-
-export const CHARACTERS_EN: any = { ..._charactersEn, ...fabledDict };
+const custom_characters_en = {
+  "martyr": {
+    "name": "Martyr Girl",
+    "author": "飞跃疯人院",
+    "ability": "If a Minion dies by execution, you die tonight. Then, all evil players are drunk until dusk tomorrow.",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/78_fry79.png",
+    "id": "martyr",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "If a Minion died by execution today, and the Martyr Girl can die tonight due to their ability, place the 'Martyr' and 'Dead' reminders by the Martyr Girl, indicating all evil players are drunk until dusk tomorrow.",
+    "reminders": [
+      "Martyr",
+      "Dead"
+    ]
+  },
+  "snowman": {
+    "author": "飞跃疯人院",
+    "name": "Snowman",
+    "ability": "Once per game, the Demon may publicly guess you are the Snowman. If correct, you are executed instead of them if they are executed today. If no one is executed during the day, your team loses.",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/_fry79.png",
+    "id": "snowman",
+    "team": "outsider",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "Guessed",
+      "Guessed Correctly"
+    ]
+  },
+  "wandering_singer": {
+    "author": "飞跃疯人院",
+    "name": "Wandering Singer",
+    "ability": "Each day, you may publicly choose any number of alive players: the Townsfolk among them are drunk until you choose again. Tonight, you learn how many players are drunk because of you.",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/4_fry79.png",
+    "id": "wandering_singer",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "If the Wandering Singer made a public choice during the day, wake them and tell them the number of players currently drunk due to them.",
+    "reminders": [
+      "Drunk"
+    ]
+  },
+  "newspaper_boy": {
+    "author": "飞跃疯人院",
+    "name": "Newspaper Boy",
+    "ability": "Each day, you may privately ask the Storyteller for a piece of 'news'. If you publicly announce this 'news', tonight you learn if it was correct.",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/58_fry79.png",
+    "id": "newspaper_boy",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "Learn if correct or not",
+    "reminders": [
+      "True News",
+      "False News"
+    ]
+  },
+  "genius": {
+    "id": "genius",
+    "name": "Genius",
+    "ability": "Each night, you may choose a good player: you gain their ability until you choose again. You are drunk on either odd or even nights.",
+    "team": "townsfolk",
+    "image": "https://botc.letshare.fun/imgs/icons/townsfolk/genius.png",
+    "author": "摸鱼学徒",
+    "firstNight": 3,
+    "otherNight": 2,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "Gained Ability",
+      "Drunk"
+    ],
+    "setup": false
+  },
+  "nun": {
+    "id": "nun",
+    "name": "Nun",
+    "ability": "Good Townsfolk players cannot be drunk, poisoned, or learn false information.",
+    "team": "townsfolk",
+    "image": "https://botc.letshare.fun/imgs/icons/townsfolk/nun.png",
+    "author": "摸鱼学徒",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "Not Drunk",
+      "Not Poisoned",
+      "No False Info"
+    ],
+    "setup": false
+  },
+  "meishuguanzhang": {
+    "id": "meishuguanzhang",
+    "name": "Museum Curator",
+    "ability": "Each night*, you must choose a player: if they agree, you learn their sanity status, but their sanity status might change.",
+    "team": "traveler",
+    "image": "/imgs/icons/血染德扑/insanity.png",
+    "author": "Soup1618",
+    "firstNight": 1,
+    "otherNight": 1,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "Insane",
+      "Sane"
+    ],
+    "setup": false
+  },
+  "trade_dealer": {
+    "id": "trade_dealer",
+    "name": "Trade Dealer",
+    "ability": "Each night, you learn what will happen tomorrow when the phone rings and is answered. The person who answers also knows. What happens might break the rules.",
+    "team": "traveler",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/经销商.png",
+    "firstNight": 1,
+    "otherNight": 1,
+    "author": "Luis",
+    "reminders": [
+      "Phone Call"
+    ],
+    "setup": false
+  },
+  "disappointed": {
+    "id": "disappointed",
+    "edition": "custom",
+    "image": "https://youke1.picui.cn/s1/2025/10/11/68e95986b417e.png",
+    "name": "Disappointed",
+    "ability": "You think you are a Minion, but you are not.",
+    "author": "Moll",
+    "team": "outsider",
+    "firstNight": 5,
+    "otherNight": 5,
+    "setup": false,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "Is Disappointed"
+    ]
+  },
+  "jiutoushe": {
+    "id": "jiutoushe",
+    "name": "Hydra",
+    "ability": "When a player on your team dies, a player on your team might be resurrected.",
+    "team": "traveler",
+    "author": "Hazel",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/九头蛇.png",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
+  "drugster": {
+    "id": "drugster",
+    "name": "Drugster",
+    "ability": "You think you are a good player in play, but you are not. The player who has this role knows the Drugster is in play. If one of you 'madly' proves the Drugster is in play, you both might die.",
+    "team": "traveler",
+    "author": "Mar Hepto",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/瘾君子.png",
+    "firstNight": 0,
+    "otherNight": 63,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "Is Drugster"
+    ],
+    "setup": true
+  },
+  "wanou": {
+    "id": "wanou",
+    "name": "Doll",
+    "author": "飞跃疯人院",
+    "ability": "You think you are a good character, but you are not. If you are killed by the Demon, the Demon must choose a player: they become the Doll. [The Doll sits next to the Demon]",
+    "image": "https://www.bloodstar.xyz/p/humlet/FRY7-9/65_fry79.png",
+    "team": "minion",
+    "firstNight": 0,
+    "otherNight": 0,
+    "otherNightReminder": "If the Demon killed the Doll, remind the Demon to choose a new Doll.",
+    "remindersGlobal": [
+      "New Doll",
+      "Original Doll"
+    ],
+    "setup": 1
+  },
+  "qimo": {
+    "id": "qimo",
+    "name": "Contract Demon",
+    "ability": "Each night*, you may choose two alive players to form a death pact. If one of them dies for any reason, the other dies too. [+1 Outsider]",
+    "team": "demon",
+    "image": "https://botc.letshare.fun/imgs/icons/血染德扑/契魔.png",
+    "firstNight": 0,
+    "otherNight": 41,
+    "author": "摸鱼学徒",
+    "firstNightReminder": "",
+    "otherNightReminder": "Wake the Contract Demon. They choose two players. Mark them with 'Linked'. At the start of the day, publicly announce these two players are linked.",
+    "reminders": [
+      "Linked"
+    ],
+    "setup": false
+  },
+  "risen": {
+    "id": "risen",
+    "name": "Risen",
+    "ability": "All players start dead. Executed players are resurrected. If all players of a team are alive, that team wins.",
+    "team": "demon",
+    "image": "https://botc.letshare.fun/imgs/icons/demon/the_risen.png",
+    "firstNight": 0,
+    "otherNight": 41.5,
+    "author": "摸鱼学徒",
+    "firstNightReminder": "",
+    "reminders": [
+      "Linked"
+    ],
+    "setup": false
+  },
+  "virilus": {
+    "id": "virilus",
+    "name": "Virilus",
+    "ability": "Each night, you must choose a player: they are infected by you. If an infected player nominates, they die, and the nominated player becomes infected. At the end of the fourth day, the evil team wins.",
+    "team": "demon",
+    "image": "https://botc.letshare.fun/imgs/icons/demon/virilus.png",
+    "firstNight": 0,
+    "otherNight": 42.1,
+    "author": "Lei.",
+    "firstNightReminder": "",
+    "reminders": [
+      "Linked"
+    ],
+    "setup": false
+  }
+}
+export const CHARACTERS_EN: any = { ..._charactersEn, ...custom_characters_en, ...fabledDict };
 
