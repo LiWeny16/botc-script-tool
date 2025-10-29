@@ -133,10 +133,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   // 处理双击事件
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    // 官方ID解析模式下禁止编辑
-    if (configStore.config.officialIdParseMode) {
-      return;
-    }
+    // 无论是否在官方ID解析模式，都调用onEdit，由App.tsx统一处理提示
     if (onEdit) {
       onEdit(character);
     }
@@ -146,10 +143,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    // 官方ID解析模式下禁止显示右键菜单
-    if (configStore.config.officialIdParseMode) {
-      return;
-    }
+    // 无论是否在官方ID解析模式，都显示右键菜单，由各个菜单项处理
     setContextMenu(
       contextMenu === null
         ? {
@@ -210,8 +204,8 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
           width: '100%',
           // 使用 CSS 控制按钮显示，避免 React 状态更新
           '&:hover .action-buttons': {
-            opacity: configStore.config.officialIdParseMode ? 0 : 1,
-            pointerEvents: configStore.config.officialIdParseMode ? 'none' : 'auto',
+            opacity: 1,
+            pointerEvents: 'auto',
           },
         }}
       >

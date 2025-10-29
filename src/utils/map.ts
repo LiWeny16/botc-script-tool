@@ -63,6 +63,11 @@ export const translations = {
     'dialog.printScale': '缩放比例：40-60%（推荐 53% 最佳）',
     'dialog.printMargin': '页边距：无',
     'dialog.printConfirm': '确认打印',
+    'dialog.unlockModeTitle': '解锁编辑模式',
+    'dialog.unlockModeMessage': '当前处于"只以id解析模式"，该模式下无法编辑角色信息。是否解锁该模式以继续编辑？',
+    'dialog.unlockModeNote': '解锁后，您可以自由编辑角色的名称、描述等信息，但可能无法正常双语显示。',
+    'dialog.unlockAndEdit': '解锁并编辑',
+    'dialog.unlockSuccess': '已解锁只以id解析模式',
 
     // 提示信息
     'info.supportOfficial': '• 支持官方剧本制作器的剧本 JSON',
@@ -294,7 +299,7 @@ export const translations = {
     'fontUploader.errorUpload': '上传字体失败，请重试',
 
     // 装饰框文本
-        // Decorative Frame Text
+    // Decorative Frame Text
     'decorative.page2Text': '相克规则 · 传奇角色 · 旅行者',
 
     // Credits
@@ -344,7 +349,7 @@ export const translations = {
     'secondPage.title': '第二页标题',
     'secondPage.playerTable1': '玩家配置表（标准）',
     'secondPage.playerTable2': '玩家配置表（6-9人）',
-    
+
     // 玩家配置表
     'playerTable.playerCount': '玩家数量',
     'playerTable.townsfolk': '镇民',
@@ -415,6 +420,11 @@ export const translations = {
     'dialog.printScale': 'Scale: 40-60% (53% optimal)',
     'dialog.printMargin': 'Margins: None',
     'dialog.printConfirm': 'Confirm Print',
+    'dialog.unlockModeTitle': 'Unlock Edit Mode',
+    'dialog.unlockModeMessage': 'You are currently in "Official ID Parse Mode" which prevents editing character information. Would you like to unlock this mode to continue editing?',
+    'dialog.unlockModeNote': 'After unlocking, you can freely edit character names, descriptions, etc., but this may affect bilingual display.',
+    'dialog.unlockAndEdit': 'Unlock & Edit',
+    'dialog.unlockSuccess': 'Official ID parse mode unlocked',
 
     // Info
     'info.supportOfficial': '• Support official script maker JSON format',
@@ -693,7 +703,7 @@ export const translations = {
     'secondPage.title': 'Second Page Title',
     'secondPage.playerTable1': 'Player Configuration (Standard)',
     'secondPage.playerTable2': 'Player Configuration (6-9 Players)',
-    
+
     // Player Count Table
     'playerTable.playerCount': 'Player Count',
     'playerTable.townsfolk': 'Townsfolk',
