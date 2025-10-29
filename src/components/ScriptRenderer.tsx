@@ -34,6 +34,8 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 
+
+const backgroundIndex = 2
 export interface ScriptRendererProps {
     script: Script;
     theme: any; // MUI theme
@@ -310,7 +312,7 @@ const ScriptRenderer = observer(({
                             maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                             opacity: 1,
                             pointerEvents: 'none',
-                            zIndex: 2,
+                            zIndex: backgroundIndex,
                             userSelect: 'none',
                             WebkitUserDrag: 'none',
                         }}
@@ -325,7 +327,7 @@ const ScriptRenderer = observer(({
                             maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                             opacity: 1,
                             pointerEvents: 'none',
-                            zIndex: 2,
+                            zIndex: backgroundIndex,
                             userSelect: 'none',
                             WebkitUserDrag: 'none',
                         }}
@@ -340,7 +342,7 @@ const ScriptRenderer = observer(({
                             maxWidth: { xs: '35%', sm: '20%', md: '20%' },
                             opacity: 1,
                             pointerEvents: 'none',
-                            zIndex: 2,
+                            zIndex: backgroundIndex,
                             userSelect: 'none',
                             WebkitUserDrag: 'none',
                         }}
@@ -356,7 +358,7 @@ const ScriptRenderer = observer(({
                             maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                             opacity: 1,
                             pointerEvents: 'none',
-                            zIndex: 2,
+                            zIndex: backgroundIndex,
                             userSelect: 'none',
                             WebkitUserDrag: 'none',
                         }}
@@ -424,7 +426,7 @@ const ScriptRenderer = observer(({
                             boxShadow: 'none',
                             '& > *': {
                                 position: 'relative',
-                                zIndex: 3,
+                                zIndex: 1,
                             }
                         }}>
                             <NightOrder
@@ -448,6 +450,7 @@ const ScriptRenderer = observer(({
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
                             borderRadius: 0,
+                            zIndex: 1,
                             position: 'relative',
                             boxShadow: 'none',
                         }}
@@ -742,7 +745,7 @@ const ScriptRenderer = observer(({
                                 bottom: "0",
                                 display: "flex",
                                 width: "20%",
-                                zIndex: 0,
+                                zIndex: backgroundIndex,
                                 opacity: 0.4,
                                 userSelect: 'none',
                                 WebkitUserDrag: 'none',
@@ -758,7 +761,7 @@ const ScriptRenderer = observer(({
                                 bottom: "0%",
                                 display: "flex",
                                 width: "50%",
-                                zIndex: 0,
+                                zIndex: backgroundIndex,
                                 opacity: 0.8,
                                 userSelect: 'none',
                                 WebkitUserDrag: 'none',
@@ -779,10 +782,11 @@ const ScriptRenderer = observer(({
                             alignItems: 'flex-start',
                             justifyContent: "center",
                             pt: '30%',
+                            zIndex: 1,          // <--- 添加 zIndex
                             boxShadow: 'none',
                             '& > *': {
                                 position: 'relative',
-                                zIndex: 3,
+                                zIndex: 1,
                             }
                         }}>
                             <NightOrder
@@ -802,6 +806,7 @@ const ScriptRenderer = observer(({
                     id="script-preview-2"
                     sx={{
                         display: "flex",
+                        zIndex: 1,
                         width: "100%",
                         mt: 4,
                         '@media print': {
@@ -834,7 +839,7 @@ const ScriptRenderer = observer(({
                                 maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                 opacity: 1,
                                 pointerEvents: 'none',
-                                zIndex: 2,
+                                zIndex: backgroundIndex,
                                 userSelect: 'none',
                                 WebkitUserDrag: 'none',
                             }}
@@ -849,7 +854,7 @@ const ScriptRenderer = observer(({
                                 maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                 opacity: 1,
                                 pointerEvents: 'none',
-                                zIndex: 2,
+                                zIndex: backgroundIndex,
                                 userSelect: 'none',
                                 WebkitUserDrag: 'none',
                             }}
@@ -864,7 +869,7 @@ const ScriptRenderer = observer(({
                                 maxWidth: { xs: '35%', sm: '20%', md: '20%' },
                                 opacity: 1,
                                 pointerEvents: 'none',
-                                zIndex: 2,
+                                zIndex: backgroundIndex,
                                 userSelect: 'none',
                                 WebkitUserDrag: 'none',
                             }}
@@ -880,7 +885,7 @@ const ScriptRenderer = observer(({
                                 maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                 opacity: 1,
                                 pointerEvents: 'none',
-                                zIndex: 2,
+                                zIndex: backgroundIndex,
                                 userSelect: 'none',
                                 WebkitUserDrag: 'none',
                             }}
@@ -973,7 +978,7 @@ const ScriptRenderer = observer(({
                                     bottom: "0",
                                     display: "flex",
                                     width: "20%",
-                                    zIndex: 0,
+                                    zIndex: backgroundIndex,
                                     opacity: 0.4,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
@@ -990,7 +995,7 @@ const ScriptRenderer = observer(({
                                     bottom: "0%",
                                     display: "flex",
                                     width: "50%",
-                                    zIndex: 0,
+                                    zIndex: backgroundIndex,
                                     opacity: 0.8,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',

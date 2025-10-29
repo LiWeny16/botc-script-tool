@@ -44,8 +44,8 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
   const sensors = useSensors(
     useSensor(PointerSensor, {
       // 添加激活约束：需要移动5px才开始拖拽，避免与双击和点击冲突
-      activationConstraint: disableDrag 
-        ? { distance: 999999 } 
+      activationConstraint: disableDrag
+        ? { distance: 999999 }
         : { distance: 5 },  // 移动5px后才激活拖拽
     }),
     useSensor(KeyboardSensor, {

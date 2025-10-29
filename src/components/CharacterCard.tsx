@@ -286,7 +286,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             WebkitUserSelect: 'none',
             MozUserSelect: 'none',
             msUserSelect: 'none',
-            zIndex: 1,
+            zIndex: 10,
             '&:hover': {
               backgroundColor: 'rgba(0, 0, 0, 0.02)',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
@@ -298,7 +298,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             display: "flex",
             gap: CONFIG.card.gap,
             alignItems: 'center',
-            zIndex: 5,
+            zIndex: 10,
           }}>
             {/* 角色头像 */}
             <CharacterImage
