@@ -34,8 +34,12 @@ import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import { useTranslation } from '../utils/i18n';
+import { alertSuccess, alertInfo, alertWarning } from '../utils/alert';
+import { registerFileSyncSaveCallback, unregisterFileSyncSaveCallback } from '../utils/event';
 import LanguageSwitcher from './LanguageSwitcher';
 import IOSSwitch from './IOSSwitch';
+import UploadJsonDialog from './UploadJsonDialog';
+import FileSyncBanner from './FileSyncBanner';
 
 interface InputPanelProps {
   onGenerate: (json: string, title?: string, author?: string) => void;
@@ -64,6 +68,15 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState(200); // JSON编辑框高度
   const [isResizing, setIsResizing] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false); // 拖拽状态
+
+  // 文件同步相关状态
+  const [fileSyncEnabled, setFileSyncEnabled] = useState(false);
+  const [syncFileHandle, setSyncFileHandle] = useState<FileSystemFileHandle | null>(null);
+  const [syncFileName, setSyncFileName] = useState('');
+  const fileSyncPollingRef = useRef<number | null>(null);
+  const lastModifiedRef = useRef<number>(0);
 
   // 用于防抖的 ref
   const debounceTimerRef = useRef<number | null>(null);
@@ -71,6 +84,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
   const previousOfficialIdParseModeRef = useRef(configStore.config.officialIdParseMode);
   const resizeStartY = useRef<number>(0);
   const resizeStartHeight = useRef<number>(0);
+  const dragCounterRef = useRef<number>(0); // 拖拽计数器，解决子元素触发 dragLeave 的问题
 
   // 监听官方ID解析模式的变化，触发重新解析JSON
   useEffect(() => {
@@ -123,12 +137,99 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
     }, 500); // 500ms 防抖延迟
   }, [onJsonChange]);
 
+  // 文件同步：保存到本地文件
+  const saveToLocalFile = useCallback(async () => {
+    if (!syncFileHandle || !fileSyncEnabled) {
+      return;
+    }
+
+    try {
+      const writable = await syncFileHandle.createWritable();
+      await writable.write(jsonInput);
+      await writable.close();
+      alertSuccess(t('fileSync.saved'), 1500);
+      console.log('已保存到本地文件:', syncFileName);
+    } catch (error) {
+      console.error('保存到本地文件失败:', error);
+      alertWarning('保存到本地文件失败', 2000);
+    }
+  }, [syncFileHandle, fileSyncEnabled, jsonInput, syncFileName, t]);
+
+  // 文件同步：检测文件变化
+  const checkFileChanges = useCallback(async () => {
+    if (!syncFileHandle || !fileSyncEnabled) {
+      return;
+    }
+
+    try {
+      const file = await syncFileHandle.getFile();
+      const currentModified = file.lastModified;
+
+      // 如果文件有变化
+      if (lastModifiedRef.current && currentModified > lastModifiedRef.current) {
+        const content = await file.text();
+
+        // 只有当内容真的不同时才更新
+        if (content !== jsonInput) {
+          isUpdatingFromPropRef.current = true;
+          setJsonInput(content);
+
+          // 通知父组件
+          if (onJsonChange) {
+            onJsonChange(content);
+          }
+
+          alertInfo(t('fileSync.fileChanged'), 1500);
+          console.log('检测到文件变化，已同步');
+
+          setTimeout(() => {
+            isUpdatingFromPropRef.current = false;
+          }, 100);
+        }
+      }
+
+      lastModifiedRef.current = currentModified;
+    } catch (error) {
+      console.error('检测文件变化失败:', error);
+    }
+  }, [syncFileHandle, fileSyncEnabled, jsonInput, onJsonChange, t]);
+
+  // 启动文件同步轮询
+  useEffect(() => {
+    if (fileSyncEnabled && syncFileHandle) {
+      // 每 2 秒检测一次文件变化
+      fileSyncPollingRef.current = window.setInterval(checkFileChanges, 2000);
+
+      return () => {
+        if (fileSyncPollingRef.current) {
+          clearInterval(fileSyncPollingRef.current);
+          fileSyncPollingRef.current = null;
+        }
+      };
+    }
+  }, [fileSyncEnabled, syncFileHandle, checkFileChanges]);
+
+  // 注册 Ctrl+S 保存回调
+  useEffect(() => {
+    if (fileSyncEnabled && syncFileHandle) {
+      registerFileSyncSaveCallback(saveToLocalFile);
+
+      return () => {
+        unregisterFileSyncSaveCallback();
+      };
+    }
+  }, [fileSyncEnabled, syncFileHandle, saveToLocalFile]);
+
   // 组件卸载时清除定时器
   useEffect(() => {
     return () => {
       if (debounceTimerRef.current) {
         clearTimeout(debounceTimerRef.current);
       }
+      if (fileSyncPollingRef.current) {
+        clearInterval(fileSyncPollingRef.current);
+      }
+      unregisterFileSyncSaveCallback();
     };
   }, []);
 
@@ -136,6 +237,66 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
   const handleJsonInputChange = (value: string) => {
     setJsonInput(value);
     // 移除自动解析，只在点击生成剧本时才解析
+  };
+
+  // 拖拽上传处理（使用计数器解决子元素触发问题）
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dragCounterRef.current += 1;
+
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dragCounterRef.current -= 1;
+
+    // 只有当计数器归零时才真正离开
+    if (dragCounterRef.current === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // 重置计数器和状态
+    dragCounterRef.current = 0;
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      // 检查文件类型
+      if (!file.name.endsWith('.json')) {
+        alertWarning(t('upload.onlyJsonFiles'), 2500);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const content = event.target?.result as string;
+        handleJsonInputChange(content);
+        alertSuccess(t('upload.fileUploaded'), 2000);
+      };
+      reader.onerror = () => {
+        alertWarning(t('upload.fileReadError'), 2500);
+      };
+      reader.readAsText(file);
+    }
   };
 
   const handleGenerate = () => {
@@ -213,16 +374,55 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
     setResetDialogOpen(false);
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result as string;
-        handleJsonInputChange(content);
-      };
-      reader.readAsText(file);
+  // 简单上传
+  const handleSimpleUpload = (content: string) => {
+    handleJsonInputChange(content);
+  };
+
+  // 开启文件同步
+  const handleFileSyncStart = async (fileHandle: FileSystemFileHandle, content: string) => {
+    try {
+      // 设置文件同步状态
+      setSyncFileHandle(fileHandle);
+      setSyncFileName(fileHandle.name);
+      setFileSyncEnabled(true);
+
+      // 读取初始文件内容
+      const file = await fileHandle.getFile();
+      lastModifiedRef.current = file.lastModified;
+
+      // 更新 JSON 输入框
+      handleJsonInputChange(content);
+
+      // 提示用户
+      alertSuccess(t('fileSync.started'), 2000);
+      console.log('文件同步已启动:', fileHandle.name);
+    } catch (error) {
+      console.error('启动文件同步失败:', error);
+      alertWarning('启动文件同步失败', 2000);
     }
+  };
+
+  // 关闭文件同步
+  const handleFileSyncStop = () => {
+    // 清除状态
+    setFileSyncEnabled(false);
+    setSyncFileHandle(null);
+    setSyncFileName('');
+    lastModifiedRef.current = 0;
+
+    // 清除轮询定时器
+    if (fileSyncPollingRef.current) {
+      clearInterval(fileSyncPollingRef.current);
+      fileSyncPollingRef.current = null;
+    }
+
+    // 注销保存回调
+    unregisterFileSyncSaveCallback();
+
+    // 提示用户
+    alertInfo(t('fileSync.stopped'), 2000);
+    console.log('文件同步已关闭');
   };
 
   const handleClearClick = () => {
@@ -285,16 +485,64 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
   return (
     <Paper
       elevation={3}
+      onDragEnter={handleDragEnter}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
       sx={{
         p: { xs: 2, sm: 3, md: 4 },
         mb: 3,
-        backgroundColor: '#fefefe',
+        backgroundColor: isDragging ? '#f5f5f5' : '#fefefe',
         borderRadius: 2,
+        border: isDragging ? '3px dashed #9e9e9e' : '3px solid transparent',
+        transition: 'all 0.3s',
+        position: 'relative',
         '@media print': {
           display: 'none', // 打印时隐藏整个输入面板
         },
       }}
     >
+      {/* 拖拽提示遮罩 - 覆盖整个面板 */}
+      {isDragging && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: 'rgba(0, 0, 0, 0.05)',
+            pointerEvents: 'none',
+            zIndex: 9999,
+            borderRadius: 2,
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: 2,
+              p: 4,
+              backgroundColor: '#ffffff',
+              borderRadius: 3,
+              border: '2px solid #e0e0e0',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            }}
+          >
+            <Upload sx={{ fontSize: 64, color: '#757575' }} />
+            <Typography variant="h5" sx={{ color: '#424242', fontWeight: 700 }}>
+              {t('upload.dropToUpload')}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#666' }}>
+              {t('upload.onlyJsonFiles')}
+            </Typography>
+          </Box>
+        </Box>
+      )}
       <Box
         sx={{
           display: 'flex',
@@ -351,6 +599,14 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
       </Box>
 
       <Stack spacing={2}>
+        {/* 文件同步横幅 */}
+        {fileSyncEnabled && syncFileName && (
+          <FileSyncBanner
+            fileName={syncFileName}
+            onClose={handleFileSyncStop}
+          />
+        )}
+
         {/* JSON 输入框 */}
         <Box sx={{ position: 'relative' }}>
           <TextField
@@ -367,6 +623,8 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
                 fontSize: { xs: '0.8rem', sm: '0.9rem' },
                 height: `${textareaHeight}px`,
                 alignItems: 'flex-start',
+                borderTopLeftRadius: fileSyncEnabled ? 0 : 1,
+                borderTopRightRadius: fileSyncEnabled ? 0 : 1,
               },
               '& .MuiInputBase-input': {
                 height: '100% !important',
@@ -438,20 +696,14 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
           <Button
             variant="outlined"
             size="large"
-            component="label"
             startIcon={<Upload />}
+            onClick={() => setUploadDialogOpen(true)}
             sx={{
               flex: { xs: '1 1 100%', sm: '1 1 auto' },
               minHeight: 48,
             }}
           >
             {t('input.uploadJson')}
-            <input
-              type="file"
-              accept=".json"
-              hidden
-              onChange={handleFileUpload}
-            />
           </Button>
 
           <Button
@@ -736,6 +988,14 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* 上传 JSON 对话框 */}
+      <UploadJsonDialog
+        open={uploadDialogOpen}
+        onClose={() => setUploadDialogOpen(false)}
+        onSimpleUpload={handleSimpleUpload}
+        onFileSyncStart={handleFileSyncStart}
+      />
     </Paper>
   );
 });

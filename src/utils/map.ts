@@ -6,6 +6,7 @@ export const translations = {
     'common.loading': '加载中...',
     'common.confirm': '确认',
     'common.cancel': '取消',
+    'common.close': '关闭',
     'common.success': '成功',
     'common.error': '错误',
     'common.warning': '警告',
@@ -49,6 +50,31 @@ export const translations = {
     'input.officialIdParseModeWarning': '开启后无法自定义编辑角色',
     'input.twoPageMode': '双页模式',
     'input.twoPageModeDesc': '相克、传奇、旅行者单独一页',
+
+    // 上传模式
+    'upload.selectMode': '请选择上传模式：',
+    'upload.simpleMode': '简单上传',
+    'upload.syncMode': '文件同步',
+    'upload.experimental': '实验性',
+    'upload.simpleDesc': '从本地选择 JSON 文件并导入',
+    'upload.selectFile': '选择文件',
+    'upload.syncDesc': '实时同步编辑本地 JSON 文件',
+    'upload.syncFeature1': '修改会自动保存到本地文件',
+    'upload.syncFeature2': '文件变化会自动同步到编辑器',
+    'upload.syncFeature3': '支持 Ctrl+S 快捷键保存',
+    'upload.startSync': '打开文件并同步',
+    'upload.dropToUpload': '拖放文件以上传 JSON',
+    'upload.onlyJsonFiles': '仅支持 .json 文件',
+    'upload.fileUploaded': 'JSON 文件已上传',
+    'upload.fileReadError': '文件读取失败',
+
+    // 文件同步横幅
+    'fileSync.syncing': '正在同步编辑',
+    'fileSync.experimental': '实验性',
+    'fileSync.started': '已开启文件同步监听',
+    'fileSync.stopped': '已关闭文件同步功能',
+    'fileSync.saved': '已保存到本地文件',
+    'fileSync.fileChanged': '检测到文件变化，已自动同步',
 
     // 确认对话框
     'dialog.resetTitle': '确认恢复初始设置',
@@ -386,6 +412,7 @@ export const translations = {
     'common.loading': 'Loading...',
     'common.confirm': 'Confirm',
     'common.cancel': 'Cancel',
+    'common.close': 'Close',
     'common.success': 'Success',
     'common.error': 'Error',
     'common.warning': 'Warning',
@@ -429,6 +456,31 @@ export const translations = {
     'input.officialIdParseModeWarning': 'Cannot edit characters when enabled',
     'input.twoPageMode': 'Two-Page Mode',
     'input.twoPageModeDesc': 'Jinx, Fabled, Traveler on separate page',
+
+    // Upload Mode
+    'upload.selectMode': 'Please select upload mode:',
+    'upload.simpleMode': 'Simple Upload',
+    'upload.syncMode': 'File Sync',
+    'upload.experimental': 'Experimental',
+    'upload.simpleDesc': 'Select and import JSON file from local',
+    'upload.selectFile': 'Select File',
+    'upload.syncDesc': 'Real-time sync and edit local JSON file',
+    'upload.syncFeature1': 'Changes auto-save to local file',
+    'upload.syncFeature2': 'File changes auto-sync to editor',
+    'upload.syncFeature3': 'Support Ctrl+S shortcut to save',
+    'upload.startSync': 'Open File and Sync',
+    'upload.dropToUpload': 'Drop file to upload JSON',
+    'upload.onlyJsonFiles': 'Only .json files supported',
+    'upload.fileUploaded': 'JSON file uploaded',
+    'upload.fileReadError': 'File read failed',
+
+    // File Sync Banner
+    'fileSync.syncing': 'Syncing',
+    'fileSync.experimental': 'Experimental',
+    'fileSync.started': 'File sync enabled',
+    'fileSync.stopped': 'File sync disabled',
+    'fileSync.saved': 'Saved to local file',
+    'fileSync.fileChanged': 'File changed, auto-synced',
 
     // Confirm Dialog
     'dialog.resetTitle': 'Confirm Reset to Default',

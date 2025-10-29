@@ -65,6 +65,7 @@ const createIcon = (kind: AlertKind) => {
     width: 16px;
     height: 16px;
     margin-right: 6px;
+    margin-top: 2px;
     flex-shrink: 0;
   `;
 
@@ -145,8 +146,7 @@ export const alertUseMui = (
   alertElement.setAttribute('data-alert-id', String(++alertCount));
 
   alertElement.style.cssText = `
-    min-width: 200px;
-    max-width: 400px;
+    max-width: 500px;
     width: fit-content;
     border: 1px solid ${getBorderColor(_kind)};
     border-radius: 6px;
@@ -154,8 +154,8 @@ export const alertUseMui = (
     font-size: 14px;
     font-weight: 400;
     padding: 10px 16px;
-    display: flex;
-    align-items: center;
+    display: inline-flex;
+    align-items: flex-start;
     gap: 8px;
     cursor: pointer;
     pointer-events: auto;
@@ -166,6 +166,7 @@ export const alertUseMui = (
     opacity: 0;
     transform: translateY(-30px) scale(0.9);
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    box-sizing: border-box;
   `;
 
   // 添加图标
@@ -176,11 +177,11 @@ export const alertUseMui = (
   messageSpan.textContent = msg;
   messageSpan.style.cssText = `
     flex: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     min-width: 0;
     text-align: left;
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
   `;
 
   alertElement.appendChild(iconElement);

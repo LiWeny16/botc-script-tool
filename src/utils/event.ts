@@ -16,6 +16,9 @@ type SaveCallback = () => void;
 // 全局保存回调
 let globalSaveCallback: SaveCallback | null = null;
 
+// 文件同步保存回调（优先级更高）
+let fileSyncSaveCallback: SaveCallback | null = null;
+
 /**
  * 注册保存回调函数
  * @param callback 保存时执行的回调函数
@@ -29,6 +32,21 @@ export const registerSaveCallback = (callback: SaveCallback) => {
  */
 export const unregisterSaveCallback = () => {
   globalSaveCallback = null;
+};
+
+/**
+ * 注册文件同步保存回调函数（优先于 localStorage 保存）
+ * @param callback 文件同步保存时执行的回调函数
+ */
+export const registerFileSyncSaveCallback = (callback: SaveCallback) => {
+  fileSyncSaveCallback = callback;
+};
+
+/**
+ * 移除文件同步保存回调函数
+ */
+export const unregisterFileSyncSaveCallback = () => {
+  fileSyncSaveCallback = null;
 };
 
 /**
@@ -48,10 +66,15 @@ const handleGlobalKeyDown = (event: KeyboardEvent) => {
     // 阻止浏览器默认的保存行为
     event.preventDefault();
 
-    // 执行保存回调
-    if (globalSaveCallback) {
+    // 优先执行文件同步保存回调
+    if (fileSyncSaveCallback) {
+      // 文件同步模式：只保存到文件，不保存到 localStorage
+      fileSyncSaveCallback();
+      console.log('快捷键 Ctrl+S 已触发文件同步保存（跳过 localStorage）');
+    } else if (globalSaveCallback) {
+      // 普通模式：保存到 localStorage
       globalSaveCallback();
-      console.log('快捷键 Ctrl+S 已触发保存');
+      console.log('快捷键 Ctrl+S 已触发 localStorage 保存');
     }
   }
 };
