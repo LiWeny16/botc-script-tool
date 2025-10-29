@@ -68,6 +68,12 @@ export const translations = {
     'dialog.unlockModeNote': '解锁后，您可以自由编辑角色的名称、描述等信息，但可能无法正常双语显示。',
     'dialog.unlockAndEdit': '解锁并编辑',
     'dialog.unlockSuccess': '已解锁只以id解析模式',
+    'dialog.exportJsonTitle': '导出JSON选项',
+    'dialog.exportJsonMessage': '请选择导出格式：',
+    'dialog.exportFullJson': '完整JSON',
+    'dialog.exportFullJsonDesc': '导出包含所有自定义信息的完整JSON（推荐用于备份和分享）',
+    'dialog.exportIdOnly': '仅官方ID（双语）',
+    'dialog.exportIdOnlyDesc': '仅导出官方角色ID，适合双语模式和跨语言使用',
 
     // 提示信息
     'info.supportOfficial': '• 支持官方剧本制作器的剧本 JSON',
@@ -425,6 +431,12 @@ export const translations = {
     'dialog.unlockModeNote': 'After unlocking, you can freely edit character names, descriptions, etc., but this may affect bilingual display.',
     'dialog.unlockAndEdit': 'Unlock & Edit',
     'dialog.unlockSuccess': 'Official ID parse mode unlocked',
+    'dialog.exportJsonTitle': 'Export JSON Options',
+    'dialog.exportJsonMessage': 'Please choose export format:',
+    'dialog.exportFullJson': 'Full JSON',
+    'dialog.exportFullJsonDesc': 'Export complete JSON with all custom information (recommended for backup and sharing)',
+    'dialog.exportIdOnly': 'Official ID Only (Bilingual)',
+    'dialog.exportIdOnlyDesc': 'Export only official character IDs, suitable for bilingual mode and cross-language use',
 
     // Info
     'info.supportOfficial': '• Support official script maker JSON format',

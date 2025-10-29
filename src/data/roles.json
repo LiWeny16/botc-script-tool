@@ -1616,16 +1616,17 @@
     "id": "acrobat",
     "name": "Acrobat",
     "edition": "",
-    "team": "outsider",
+    "team": "townsfolk",
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 39,
-    "otherNightReminder": "If a good living neighbour is drunk or poisoned, the Acrobat player dies.",
+    "otherNightReminder": "Every night, the Acrobat chooses a player. If the chosen player is drunk or poisoned, you die.",
     "reminders": [
-      "Dead"
+      "Dead",
+      "Chosen"
     ],
     "setup": false,
-    "ability": "Each night*, if either good living neighbour is drunk or poisoned, you die."
+    "ability": "Each night*, choose a player: if they are or become drunk or poisoned tonight, you die."
   },
   {
     "id": "puzzlemaster",

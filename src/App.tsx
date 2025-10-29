@@ -40,6 +40,9 @@ import { SEOManager } from './components/SEOManager';
 import { scriptStore } from './stores/ScriptStore';
 import { configStore } from './stores/ConfigStore';
 import { getSpecialRuleTemplate } from './data/specialRules';
+import { CHARACTERS } from './data/characters';
+import { CHARACTERS_EN } from './data/charactersEn';
+import { normalizeCharacterId } from './data/characterIdMapping';
 import UISettingsDrawer from './components/UISettingsDrawer';
 import AboutDialog from './components/AboutDialog';
 import {
@@ -182,6 +185,7 @@ const App = observer(() => {
   const [jsonParseError, setJsonParseError] = useState<string>(''); // 添加 JSON 解析错误状态
   const [customJinxDialogOpen, setCustomJinxDialogOpen] = useState<boolean>(false);
   const [printDialogOpen, setPrintDialogOpen] = useState<boolean>(false); // 添加打印对话框状态
+  const [exportJsonDialogOpen, setExportJsonDialogOpen] = useState<boolean>(false); // 导出JSON选项对话框
   const [unlockModeDialogOpen, setUnlockModeDialogOpen] = useState<boolean>(false); // 解锁模式对话框
   const [pendingEditCharacter, setPendingEditCharacter] = useState<Character | null>(null); // 待编辑的角色
 
@@ -641,21 +645,110 @@ const App = observer(() => {
 
 
 
-  // 导出JSON文件
+  // 导出JSON文件 - 显示选项对话框
   const handleExportJson = () => {
+    if (!originalJson) return;
+    setExportJsonDialogOpen(true);
+  };
+
+  // 导出完整JSON（包含所有自定义信息）
+  const handleExportFullJson = () => {
     if (!originalJson) return;
 
     try {
-      // 直接下载原始JSON文件
       const blob = new Blob([originalJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${script?.title || '剧本'}.json`;
+      link.download = `${script?.title || '剧本'}-完整.json`;
       link.click();
       URL.revokeObjectURL(url);
+      setExportJsonDialogOpen(false);
     } catch (error) {
-      console.error('导出JSON失败:', error);
+      console.error('导出完整JSON失败:', error);
+      alert(t('input.exportJsonFailed'));
+    }
+  };
+
+  // 导出仅ID的JSON（双语模式）
+  const handleExportIdOnlyJson = () => {
+    if (!originalJson) return;
+
+    try {
+      const parsedJson = JSON.parse(originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      // 辅助函数：根据name在角色库中查找官方ID
+      const findOfficialIdByName = (name: string): string | null => {
+        // 1. 先在中文库查找
+        for (const [id, char] of Object.entries(CHARACTERS)) {
+          if ((char as Character).name === name) {
+            return id;
+          }
+        }
+        
+        // 2. 在英文库查找
+        for (const [id, char] of Object.entries(CHARACTERS_EN)) {
+          if ((char as Character).name === name) {
+            return id;
+          }
+        }
+        
+        return null;
+      };
+
+      // 转换为仅ID格式
+      const idOnlyArray: any[] = [];
+
+      jsonArray.forEach((item: any) => {
+        const itemObj = typeof item === 'string' ? { id: item } : item;
+        
+        // 保留 _meta
+        if (itemObj.id === '_meta') {
+          idOnlyArray.push(item);
+        }
+        // 保留 jinxed 和 special_rule
+        else if (itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
+          idOnlyArray.push(item);
+        }
+        // 普通角色：通过name查找官方ID
+        else {
+          let officialId = itemObj.id; // 默认使用原ID
+          
+          // 如果有name字段，通过name查找官方ID
+          if (itemObj.name && typeof itemObj.name === 'string') {
+            const foundId = findOfficialIdByName(itemObj.name);
+            if (foundId) {
+              officialId = foundId;
+              console.log(`通过name "${itemObj.name}" 找到官方ID: ${foundId}`);
+            } else {
+              console.warn(`未找到角色 "${itemObj.name}" 的官方ID，使用原ID: ${itemObj.id}`);
+            }
+          } else {
+            // 没有name字段，尝试标准化ID（通过mapping）
+            // 中文ID -> 英文ID 的标准化
+            const normalizedId = normalizeCharacterId(itemObj.id, 'en');
+            if (normalizedId !== itemObj.id) {
+              officialId = normalizedId;
+              console.log(`ID标准化: ${itemObj.id} -> ${normalizedId}`);
+            }
+          }
+          
+          idOnlyArray.push(officialId);
+        }
+      });
+
+      const jsonString = JSON.stringify(idOnlyArray, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${script?.title || '剧本'}-仅ID.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+      setExportJsonDialogOpen(false);
+    } catch (error) {
+      console.error('导出仅ID JSON失败:', error);
       alert(t('input.exportJsonFailed'));
     }
   };
@@ -873,6 +966,107 @@ const App = observer(() => {
         }}
         characters={script?.all || []}
       />
+
+      {/* 导出JSON选项对话框 */}
+      <Dialog
+        open={exportJsonDialogOpen}
+        onClose={() => setExportJsonDialogOpen(false)}
+        disableScrollLock={true}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.5,
+            pb: 2,
+            pt: 3,
+            px: 3,
+          }}
+        >
+          <InfoIcon sx={{ fontSize: 32, color: '#1976d2' }} />
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
+            {t('dialog.exportJsonTitle')}
+          </Typography>
+        </DialogTitle>
+        <DialogContent sx={{ px: 3, pb: 3 }}>
+          <Typography variant="body2" sx={{ color: '#666', mb: 3, lineHeight: 1.7 }}>
+            {t('dialog.exportJsonMessage')}
+          </Typography>
+          
+          {/* 选项1: 完整JSON */}
+          <Box
+            sx={{
+              mb: 2,
+              p: 2.5,
+              borderRadius: 2,
+              border: '2px solid #e3f2fd',
+              backgroundColor: '#f5f5f5',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              '&:hover': {
+                borderColor: '#1976d2',
+                backgroundColor: '#e3f2fd',
+              }
+            }}
+            onClick={handleExportFullJson}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#1976d2', mb: 1 }}>
+              {t('dialog.exportFullJson')}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem' }}>
+              {t('dialog.exportFullJsonDesc')}
+            </Typography>
+          </Box>
+
+          {/* 选项2: 仅ID */}
+          <Box
+            sx={{
+              p: 2.5,
+              borderRadius: 2,
+              border: '2px solid #e8f5e9',
+              backgroundColor: '#f5f5f5',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              '&:hover': {
+                borderColor: '#4caf50',
+                backgroundColor: '#e8f5e9',
+              }
+            }}
+            onClick={handleExportIdOnlyJson}
+          >
+            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: '#4caf50', mb: 1 }}>
+              {t('dialog.exportIdOnly')}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem' }}>
+              {t('dialog.exportIdOnlyDesc')}
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa' }}>
+          <Button
+            onClick={() => setExportJsonDialogOpen(false)}
+            sx={{
+              px: 3,
+              py: 1,
+              fontWeight: 500,
+              color: '#757575',
+              '&:hover': {
+                backgroundColor: '#eeeeee',
+              }
+            }}
+          >
+            {t('common.cancel')}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* 打印设置对话框 */}
       <Dialog

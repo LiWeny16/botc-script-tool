@@ -7,17 +7,32 @@ import { normalizeCharacterId } from '../data/characterIdMapping';
 import { configStore } from '../stores/ConfigStore';
 
 /**
- * 根据角色名称查找角色ID（仅用于中文模式）
- * @param name 角色中文名称
+ * 根据角色名称查找角色ID
+ * @param name 角色名称（中文或英文）
  * @param charactersDict 角色字典
+ * @param language 当前语言
  * @returns 找到的角色ID，如果没找到返回 null
  */
-function findCharacterIdByName(name: string, charactersDict: Record<string, Character>): string | null {
+function findCharacterIdByName(name: string, charactersDict: Record<string, Character>, language: 'zh-CN' | 'en' = 'zh-CN'): string | null {
   for (const [id, character] of Object.entries(charactersDict)) {
     if (character.name === name) {
       return id;
     }
   }
+  
+  // 英文模式下的额外查找逻辑
+  if (language === 'en') {
+    // 尝试在中文库中查找，然后转换ID
+    const cnId = findCharacterIdByName(name, CHARACTERS, 'zh-CN');
+    if (cnId) {
+      // 将中文ID转换为英文ID
+      const enId = normalizeCharacterId(cnId, 'en');
+      if (enId in charactersDict) {
+        return enId;
+      }
+    }
+  }
+  
   return null;
 }
 
@@ -84,18 +99,24 @@ function getCharacterDictKey(
 ): { dictKey: string; found: boolean } {
   // 英文模式：需要特殊处理切换语言的情况
   if (language === 'en') {
-    // 如果启用官方解析模式，且 JSON 有中文 name
+    // 如果启用官方解析模式，且 JSON 有 name（中文或英文）
     if (officialIdParseMode && item.name && typeof item.name === 'string') {
-      // 1. 先尝试在中文库中通过 name 查找
-      const cnId = findCharacterIdByName(item.name, CHARACTERS);
+      // 1. 先尝试在英文库中通过 name 查找（可能是英文name）
+      const enIdByName = findCharacterIdByName(item.name, charactersDict, 'en');
+      if (enIdByName) {
+        return { dictKey: enIdByName, found: true };
+      }
+      
+      // 2. 尝试在中文库中通过 name 查找（可能是中文name）
+      const cnId = findCharacterIdByName(item.name, CHARACTERS, 'zh-CN');
       if (cnId) {
-        // 2. 找到了，将中文 ID 转换为英文 ID
+        // 3. 找到了，将中文 ID 转换为英文 ID
         const enId = normalizeCharacterId(cnId, 'en');
-        // 3. 在英文库中查找
+        // 4. 在英文库中查找
         if (enId in charactersDict) {
           return { dictKey: enId, found: true };
         }
-        // 4. 转换后的 ID 也找不到，尝试直接用原 cnId
+        // 5. 转换后的 ID 也找不到，尝试直接用原 cnId
         if (cnId in charactersDict) {
           return { dictKey: cnId, found: true };
         }
@@ -122,7 +143,7 @@ function getCharacterDictKey(
   // 中文模式：优先基于 name，回退到 id
   // 1. 如果有 name 字段，优先使用 name 查找（官方解析模式和普通模式都适用）
   if (item.name && typeof item.name === 'string') {
-    const foundId = findCharacterIdByName(item.name, charactersDict);
+    const foundId = findCharacterIdByName(item.name, charactersDict, language);
     if (foundId) {
       return { dictKey: foundId, found: true };
     }
