@@ -37,49 +37,48 @@ function findCharacterIdByName(name: string, charactersDict: Record<string, Char
 }
 
 /**
- * 获取角色的行动顺序数值（始终从中文库获取）
+ * 获取角色的行动顺序数值
  * @param characterId 角色ID
  * @param jsonItem JSON中的角色项（可能包含自定义的行动顺序）
  * @param currentLanguage 当前语言
+ * @param officialIdParseMode 是否启用官方ID解析模式
  * @returns 包含 firstNight 和 otherNight 的对象
  */
 function getNightOrderFromChinese(
   characterId: string,
   jsonItem: any,
-  currentLanguage: 'zh-CN' | 'en'
+  currentLanguage: 'zh-CN' | 'en',
+  officialIdParseMode: boolean = false
 ): { firstNight: number; otherNight: number } {
-  // 优先级1: 如果 JSON 中明确定义了行动顺序（不为undefined），则使用 JSON 中的值
-  if (jsonItem.firstNight !== undefined && jsonItem.otherNight !== undefined) {
-    return {
-      firstNight: jsonItem.firstNight || 0,
-      otherNight: jsonItem.otherNight || 0,
-    };
-  }
+  // 从官方角色库获取默认值
+  let officialFirstNight = 0;
+  let officialOtherNight = 0;
 
-  // 优先级2: 从中文角色库中获取
-  // 先将角色ID转换为中文格式
+  // 先将角色ID转换为中文格式（始终从中文库获取官方数据）
   const cnId = normalizeCharacterId(characterId, 'zh-CN');
 
-  // 在中文库中查找
+  // 在中文库中查找官方数据
   if (CHARACTERS[cnId]) {
+    officialFirstNight = CHARACTERS[cnId].firstNight || 0;
+    officialOtherNight = CHARACTERS[cnId].otherNight || 0;
+  } else if (CHARACTERS[characterId]) {
+    // 尝试使用原始ID在中文库中查找
+    officialFirstNight = CHARACTERS[characterId].firstNight || 0;
+    officialOtherNight = CHARACTERS[characterId].otherNight || 0;
+  }
+
+  // 如果开启了官方ID解析模式，完全使用官方数据，忽略JSON自定义
+  if (officialIdParseMode) {
     return {
-      firstNight: CHARACTERS[cnId].firstNight || 0,
-      otherNight: CHARACTERS[cnId].otherNight || 0,
+      firstNight: officialFirstNight,
+      otherNight: officialOtherNight,
     };
   }
 
-  // 优先级3: 尝试使用原始ID在中文库中查找
-  if (CHARACTERS[characterId]) {
-    return {
-      firstNight: CHARACTERS[characterId].firstNight || 0,
-      otherNight: CHARACTERS[characterId].otherNight || 0,
-    };
-  }
-
-  // 优先级4: 都找不到，返回默认值0
+  // 普通模式：JSON有的字段优先使用JSON，没有的字段使用官方数据
   return {
-    firstNight: 0,
-    otherNight: 0,
+    firstNight: jsonItem.firstNight !== undefined ? (jsonItem.firstNight || 0) : officialFirstNight,
+    otherNight: jsonItem.otherNight !== undefined ? (jsonItem.otherNight || 0) : officialOtherNight,
   };
 }
 
@@ -365,8 +364,8 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         continue;
       }
 
-      // ⭐ 获取行动顺序：始终使用中文角色库的数值
-      const nightOrder = getNightOrderFromChinese(character.id, item, language);
+      // ⭐ 获取行动顺序：根据模式决定是否使用JSON自定义或官方数据
+      const nightOrder = getNightOrderFromChinese(character.id, item, language, officialIdParseMode);
 
       script.characters[character.team].push({
         name: character.name,

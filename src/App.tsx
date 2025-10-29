@@ -193,7 +193,7 @@ const App = observer(() => {
   const [pendingEditCharacter, setPendingEditCharacter] = useState<Character | null>(null); // 待编辑的角色
 
   // 从 MobX store 获取状态
-  const { script, originalJson, customTitle, customAuthor } = scriptStore;
+  const { script, originalJson, normalizedJson, customTitle, customAuthor } = scriptStore;
 
   // 初始化加载数据
   useEffect(() => {
@@ -221,7 +221,7 @@ const App = observer(() => {
             const generatedScript = generateScript(originalJson, language);
             if (customTitle) generatedScript.title = customTitle;
             if (customAuthor) generatedScript.author = customAuthor;
-            scriptStore.setScript(generatedScript);
+            scriptStore.setScript(generatedScript); // setScript 会自动生成 normalizedJson
           } catch (error) {
             console.error('重新生成剧本失败:', error);
             // 如果存储的JSON有问题，清除它
@@ -332,7 +332,7 @@ const App = observer(() => {
         if (customTitle) generatedScript.title = customTitle;
         if (customAuthor) generatedScript.author = customAuthor;
 
-        scriptStore.setScript(generatedScript);
+        scriptStore.setScript(generatedScript); // setScript 会自动生成 normalizedJson
       } catch (error) {
         console.error('语言切换时重新生成剧本失败:', error);
         // 设置错误提示
@@ -654,12 +654,13 @@ const App = observer(() => {
     setExportJsonDialogOpen(true);
   };
 
-  // 导出选项1：当前语言的完整JSON
+  // 导出选项1：当前语言的完整JSON（使用 normalizedJson）
   const handleExportCurrentLanguageJson = () => {
-    if (!originalJson) return;
+    if (!normalizedJson) return;
 
     try {
-      const parsedJson = JSON.parse(originalJson);
+      // 使用 normalizedJson 作为基础，它已经包含了所有补全后的字段
+      const parsedJson = JSON.parse(normalizedJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
       // 当前语言的角色字典
@@ -770,12 +771,13 @@ const App = observer(() => {
     }
   };
 
-  // 导出选项3：仅官方ID（双语模式，找不到的保留完整JSON）
+  // 导出选项3：仅官方ID（双语模式，找不到的保留完整JSON）（使用 normalizedJson）
   const handleExportIdOnlyJson = () => {
-    if (!originalJson) return;
+    if (!normalizedJson) return;
 
     try {
-      const parsedJson = JSON.parse(originalJson);
+      // 使用 normalizedJson 作为基础，它已经包含了所有补全后的字段
+      const parsedJson = JSON.parse(normalizedJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
       // 辅助函数：在中英文库中查找官方ID
@@ -982,6 +984,7 @@ const App = observer(() => {
         onClose={() => setShareDialogOpen(false)}
         script={script}
         originalJson={originalJson}
+        normalizedJson={normalizedJson}
       />
 
       {/* 角色编辑对话框 */}

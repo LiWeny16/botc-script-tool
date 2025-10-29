@@ -4,7 +4,8 @@ import { configStore } from './ConfigStore';
 
 class ScriptStore {
   script: Script | null = null;
-  originalJson: string = '';
+  originalJson: string = ''; // 用户输入的原始JSON
+  normalizedJson: string = ''; // 经过官方数据补全后的完整JSON（用于导出、分享等）
   customTitle: string = '';
   customAuthor: string = '';
   
@@ -16,7 +17,144 @@ class ScriptStore {
   // 设置剧本数据
   setScript(script: Script | null) {
     this.script = script;
+    // 同时生成规范化的JSON
+    if (script) {
+      this.generateNormalizedJson(script);
+    }
     this.saveToStorage();
+  }
+
+  // 从 Script 对象生成规范化的完整 JSON
+  private generateNormalizedJson(script: Script) {
+    try {
+      const jsonArray: any[] = [];
+
+      // 1. 添加 _meta
+      const meta: any = {
+        id: '_meta',
+        name: script.title,
+        author: script.author || '',
+      };
+      if (script.titleImage) meta.titleImage = script.titleImage;
+      if (script.titleImageSize) meta.titleImageSize = script.titleImageSize;
+      if (script.useTitleImage !== undefined) meta.use_title_image = script.useTitleImage;
+      if (script.playerCount) meta.playerCount = script.playerCount;
+      
+      // 第二页配置
+      if (script.secondPageTitle !== undefined) meta.second_page_title = script.secondPageTitle;
+      if (script.secondPageTitleText) meta.second_page_title_text = script.secondPageTitleText;
+      if (script.secondPageTitleImage) meta.second_page_title_image = script.secondPageTitleImage;
+      if (script.secondPageTitleFontSize) meta.second_page_title_font_size = script.secondPageTitleFontSize;
+      if (script.secondPageTitleImageSize) meta.second_page_title_image_size = script.secondPageTitleImageSize;
+      if (script.useSecondPageTitleImage !== undefined) meta.use_second_page_title_image = script.useSecondPageTitleImage;
+      if (script.secondPagePplTable1 !== undefined) meta.second_page_ppl_table1 = script.secondPagePplTable1;
+      if (script.secondPagePplTable2 !== undefined) meta.second_page_ppl_table2 = script.secondPagePplTable2;
+      if (script.secondPageOrder && script.secondPageOrder.length > 0) {
+        meta.second_page_order = script.secondPageOrder.join(' ');
+      }
+
+      // state 和 status（从 specialRules 中提取）
+      const stateRules: any[] = [];
+      const statusRules: any[] = [];
+      
+      if (script.specialRules && script.specialRules.length > 0) {
+        script.specialRules.forEach(rule => {
+          if (rule.sourceType === 'state') {
+            stateRules.push({
+              stateName: rule.title,
+              stateDescription: rule.content,
+            });
+          } else if (rule.sourceType === 'status') {
+            statusRules.push({
+              name: rule.title,
+              skill: rule.content,
+            });
+          }
+        });
+      }
+      
+      // 同时检查 secondPageRules
+      if (script.secondPageRules && script.secondPageRules.length > 0) {
+        script.secondPageRules.forEach(rule => {
+          if (rule.sourceType === 'state' && !stateRules.some(s => s.stateName === rule.title)) {
+            stateRules.push({
+              stateName: rule.title,
+              stateDescription: rule.content,
+            });
+          } else if (rule.sourceType === 'status' && !statusRules.some(s => s.name === rule.title)) {
+            statusRules.push({
+              name: rule.title,
+              skill: rule.content,
+            });
+          }
+        });
+      }
+
+      if (stateRules.length > 0) meta.state = stateRules;
+      if (statusRules.length > 0) meta.status = statusRules;
+
+      jsonArray.push(meta);
+
+      // 2. 添加所有角色（使用 script.all 保持顺序）
+      script.all.forEach(character => {
+        const charJson: any = {
+          id: character.id,
+          name: character.name,
+          ability: character.ability,
+          team: character.team,
+          image: character.image,
+        };
+
+        // 添加可选字段
+        if (character.firstNight) charJson.firstNight = character.firstNight;
+        if (character.otherNight) charJson.otherNight = character.otherNight;
+        if (character.firstNightReminder) charJson.firstNightReminder = character.firstNightReminder;
+        if (character.otherNightReminder) charJson.otherNightReminder = character.otherNightReminder;
+        if (character.reminders && character.reminders.length > 0) charJson.reminders = character.reminders;
+        if (character.remindersGlobal && character.remindersGlobal.length > 0) charJson.remindersGlobal = character.remindersGlobal;
+        if (character.setup) charJson.setup = character.setup;
+
+        jsonArray.push(charJson);
+      });
+
+      // 3. 添加相克规则（从 originalJson 中提取）
+      try {
+        const originalParsed = JSON.parse(this.originalJson);
+        const originalArray = Array.isArray(originalParsed) ? originalParsed : [];
+        
+        // 找出所有 team === 'a jinxed' 的项
+        const jinxItems = originalArray.filter((item: any) => {
+          const itemObj = typeof item === 'string' ? { id: item } : item;
+          return itemObj.team === 'a jinxed';
+        });
+        
+        // 添加到规范化JSON中
+        jinxItems.forEach((item: any) => jsonArray.push(item));
+      } catch (error) {
+        console.warn('提取相克规则失败:', error);
+      }
+
+      // 4. 添加特殊规则
+      if (script.specialRules && script.specialRules.length > 0) {
+        script.specialRules.forEach(rule => {
+          if (rule.sourceType === 'special_rule') {
+            jsonArray.push({
+              id: rule.id,
+              team: 'special_rule',
+              title: rule.title,
+              content: rule.content,
+            });
+          }
+        });
+      }
+
+      this.normalizedJson = JSON.stringify(jsonArray, null, 2);
+      console.log('✅ 已生成规范化JSON');
+    } catch (error) {
+      console.error('生成规范化JSON失败:', error);
+      // 如果生成失败，使用原始JSON作为备份
+      this.normalizedJson = this.originalJson;
+    }
   }
 
   // 设置原始 JSON
@@ -970,19 +1108,14 @@ class ScriptStore {
           
           // 如果是简化格式（只有ID字符串）
           if (typeof item === 'string') {
-            // 在官方ID模式下，保持简化格式（只更新需要自定义的字段时才升级）
+            // 在官方ID模式下，保持简化格式（不保存自定义信息到JSON）
             if (configStore.config.officialIdParseMode) {
-              // 如果只是更新夜间顺序，保持简化格式（这些信息从官方库获取）
-              if (Object.keys(updates).every(key => key === 'firstNight' || key === 'otherNight')) {
-                return item; // 保持简化格式
-              }
-              // 否则升级为完整格式
-              return {
-                id: characterId,
-                ...updates,
-              };
+              // 官方ID模式：保持简化格式，不修改JSON
+              console.log('官方ID模式：保持简化格式，不保存自定义到JSON');
+              return item;
             } else {
-              // 普通模式：升级为完整格式
+              // 普通模式：升级为完整格式，只添加被修改的字段
+              console.log('普通模式：升级为完整格式，添加自定义字段');
               return {
                 id: characterId,
                 ...updates,
@@ -990,10 +1123,30 @@ class ScriptStore {
             }
           } else {
             // 完整格式：只更新修改的字段
-            return {
-              ...item,
-              ...updates,
-            };
+            // 在官方ID模式下，删除夜间顺序的自定义（使用官方数据）
+            if (configStore.config.officialIdParseMode) {
+              const updatedItem = { ...item };
+              // 移除夜间顺序字段，让它们从官方库获取
+              if ('firstNight' in updates || 'otherNight' in updates) {
+                delete updatedItem.firstNight;
+                delete updatedItem.otherNight;
+                console.log('官方ID模式：移除夜间顺序自定义，使用官方数据');
+              }
+              // 应用其他非夜间顺序的更新
+              const nonNightUpdates = Object.keys(updates)
+                .filter(key => key !== 'firstNight' && key !== 'otherNight')
+                .reduce((acc, key) => ({ ...acc, [key]: (updates as any)[key] }), {} as Partial<Character>);
+              return {
+                ...updatedItem,
+                ...nonNightUpdates,
+              };
+            } else {
+              // 普通模式：正常更新
+              return {
+                ...item,
+                ...updates,
+              };
+            }
           }
         }
         return item;
@@ -1201,6 +1354,7 @@ class ScriptStore {
   clear() {
     this.script = null;
     this.originalJson = '';
+    this.normalizedJson = '';
     this.customTitle = '';
     this.customAuthor = '';
     // 删除 localStorage 中的剧本数据
@@ -1218,6 +1372,7 @@ class ScriptStore {
       const data = {
         script: this.script,
         originalJson: this.originalJson,
+        normalizedJson: this.normalizedJson,
         customTitle: this.customTitle,
         customAuthor: this.customAuthor,
         timestamp: Date.now(),
@@ -1236,6 +1391,7 @@ class ScriptStore {
         const data = JSON.parse(stored);
         this.script = data.script || null;
         this.originalJson = data.originalJson || '';
+        this.normalizedJson = data.normalizedJson || '';
         this.customTitle = data.customTitle || '';
         this.customAuthor = data.customAuthor || '';
       }

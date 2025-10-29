@@ -27,10 +27,11 @@ interface ShareDialogProps {
   open: boolean;
   onClose: () => void;
   script: any;
-  originalJson: string;
+  originalJson: string; // 保留用于显示原始输入
+  normalizedJson: string; // 使用规范化JSON进行分享和压缩
 }
 
-const ShareDialog = observer(({ open, onClose, script, originalJson }: ShareDialogProps) => {
+const ShareDialog = observer(({ open, onClose, script, originalJson, normalizedJson }: ShareDialogProps) => {
   const { t } = useTranslation();
   const [gistUrl, setGistUrl] = useState('');
   const [fullUrl, setFullUrl] = useState('');
@@ -44,7 +45,8 @@ const ShareDialog = observer(({ open, onClose, script, originalJson }: ShareDial
   // 生成压缩的JSON格式（只包含ID，使用英文格式）
   const generateCompressedJson = () => {
     try {
-      const parsedJson = JSON.parse(originalJson);
+      // 使用 normalizedJson，它已经包含了所有补全后的字段
+      const parsedJson = JSON.parse(normalizedJson);
       const compressedData: any[] = [];
 
       // 添加元数据
@@ -174,7 +176,7 @@ const ShareDialog = observer(({ open, onClose, script, originalJson }: ShareDial
               <Button
                 variant="outlined"
                 startIcon={<ContentCopy />}
-                onClick={() => copyToClipboard(originalJson)}
+                onClick={() => copyToClipboard(normalizedJson)}
                 size="small"
               >
                 {t('share.copyJson')}

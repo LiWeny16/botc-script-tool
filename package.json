@@ -1,13 +1,17 @@
 {
   "name": "botc-script-generator-modern",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "author": "Onion",
+  "license": "AGPL-3.0 license",
   "type": "module",
   "scripts": {
+    "d": "vite",
     "dev": "vite",
+    "b": "tsc -b && vite build",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
