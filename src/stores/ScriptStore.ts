@@ -16,6 +16,17 @@ class ScriptStore {
 
   // 设置剧本数据
   setScript(script: Script | null) {
+    // 在设置前，尝试从 originalJson 解析 _meta.name_en 存入脚本（不影响默认标题）
+    if (script) {
+      try {
+        const parsed = JSON.parse(this.originalJson || '[]');
+        const meta = Array.isArray(parsed) ? parsed.find((it: any) => it && it.id === '_meta') : (parsed && parsed._meta);
+        const nameEn = meta && (meta.name_en || meta.nameEn);
+        if (typeof nameEn === 'string' && nameEn.trim()) {
+          (script as any).titleEn = nameEn.trim();
+        }
+      } catch {}
+    }
     this.script = script;
     // 同时生成规范化的JSON
     if (script) {
@@ -35,6 +46,7 @@ class ScriptStore {
         name: script.title,
         author: script.author || '',
       };
+      if ((script as any).titleEn) meta.name_en = (script as any).titleEn;
       if (script.titleImage) meta.titleImage = script.titleImage;
       if (script.titleImageSize) meta.titleImageSize = script.titleImageSize;
       if (script.useTitleImage !== undefined) meta.use_title_image = script.useTitleImage;

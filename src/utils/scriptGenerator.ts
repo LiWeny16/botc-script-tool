@@ -11,28 +11,41 @@ import { configStore } from '../stores/ConfigStore';
  * @param name 角色名称（中文或英文）
  * @param charactersDict 角色字典
  * @param language 当前语言
+ * @param skipCrossLanguageSearch 是否跳过跨语言查找（防止无限递归）
  * @returns 找到的角色ID，如果没找到返回 null
  */
-function findCharacterIdByName(name: string, charactersDict: Record<string, Character>, language: 'zh-CN' | 'en' = 'zh-CN'): string | null {
+function findCharacterIdByName(
+  name: string,
+  charactersDict: Record<string, Character>,
+  language: 'zh-CN' | 'en' = 'zh-CN',
+  skipCrossLanguageSearch: boolean = false
+): string | null {
+  // 1. 优先查找当前语言字典的Name（核心场景）
   for (const [id, character] of Object.entries(charactersDict)) {
     if (character.name === name) {
       return id;
     }
   }
-  
-  // 英文模式下的额外查找逻辑
-  if (language === 'en') {
-    // 尝试在中文库中查找，然后转换ID
-    const cnId = findCharacterIdByName(name, CHARACTERS, 'zh-CN');
-    if (cnId) {
-      // 将中文ID转换为英文ID
-      const enId = normalizeCharacterId(cnId, 'en');
-      if (enId in charactersDict) {
-        return enId;
+
+  // 2. 跨语言反向查找（实现对称核心）- 仅在首次调用时执行，防止无限递归
+  if (!skipCrossLanguageSearch) {
+    if (language === 'en') {
+      // 英文模式：Name可能是中文，去中文库找ID再转英文ID
+      const cnId = findCharacterIdByName(name, CHARACTERS, 'zh-CN', true);  // 传入 true 防止递归
+      if (cnId) {
+        const enId = normalizeCharacterId(cnId, 'en');
+        return enId in CHARACTERS_EN ? enId : null;
+      }
+    } else {
+      // 中文模式：Name可能是英文，去英文库找ID再转中文ID
+      const enId = findCharacterIdByName(name, CHARACTERS_EN, 'en', true);  // 传入 true 防止递归
+      if (enId) {
+        const cnId = normalizeCharacterId(enId, 'zh-CN');
+        return cnId in CHARACTERS ? cnId : null;
       }
     }
   }
-  
+
   return null;
 }
 
@@ -54,25 +67,43 @@ function getNightOrderFromChinese(
   let officialFirstNight = 0;
   let officialOtherNight = 0;
 
-  // 先将角色ID转换为中文格式（始终从中文库获取官方数据）
-  const cnId = normalizeCharacterId(characterId, 'zh-CN');
-
-  // 在中文库中查找官方数据
-  if (CHARACTERS[cnId]) {
-    officialFirstNight = CHARACTERS[cnId].firstNight || 0;
-    officialOtherNight = CHARACTERS[cnId].otherNight || 0;
-  } else if (CHARACTERS[characterId]) {
-    // 尝试使用原始ID在中文库中查找
-    officialFirstNight = CHARACTERS[characterId].firstNight || 0;
-    officialOtherNight = CHARACTERS[characterId].otherNight || 0;
-  }
-
-  // 如果开启了官方ID解析模式，完全使用官方数据，忽略JSON自定义
+  // 如果开启了官方ID解析模式，需要先找到标准化的角色ID
   if (officialIdParseMode) {
+    // 使用智能匹配逻辑找到标准化的角色ID
+    // 这样即使JSON中的id不是官方标准id，也能通过name找到正确的id
+    const { dictKey } = getCharacterDictKey(
+      jsonItem,
+      currentLanguage,
+      currentLanguage === 'en' ? CHARACTERS_EN : CHARACTERS,
+      true
+    );
+
+    // 使用找到的标准化ID获取官方数据（始终从中文库获取）
+    const cnId = normalizeCharacterId(dictKey, 'zh-CN');
+
+    if (CHARACTERS[cnId]) {
+      officialFirstNight = CHARACTERS[cnId].firstNight || 0;
+      officialOtherNight = CHARACTERS[cnId].otherNight || 0;
+    } else if (CHARACTERS[dictKey]) {
+      officialFirstNight = CHARACTERS[dictKey].firstNight || 0;
+      officialOtherNight = CHARACTERS[dictKey].otherNight || 0;
+    }
+
     return {
       firstNight: officialFirstNight,
       otherNight: officialOtherNight,
     };
+  }
+
+  // 普通模式：先用角色ID查找
+  const cnId = normalizeCharacterId(characterId, 'zh-CN');
+
+  if (CHARACTERS[cnId]) {
+    officialFirstNight = CHARACTERS[cnId].firstNight || 0;
+    officialOtherNight = CHARACTERS[cnId].otherNight || 0;
+  } else if (CHARACTERS[characterId]) {
+    officialFirstNight = CHARACTERS[characterId].firstNight || 0;
+    officialOtherNight = CHARACTERS[characterId].otherNight || 0;
   }
 
   // 普通模式：JSON有的字段优先使用JSON，没有的字段使用官方数据
@@ -96,71 +127,71 @@ function getCharacterDictKey(
   charactersDict: Record<string, Character>,
   officialIdParseMode: boolean = false
 ): { dictKey: string; found: boolean } {
-  // 英文模式：需要特殊处理切换语言的情况
+  // 英文模式：优先基于 id，回退到 name（支持跨语言查找）
   if (language === 'en') {
-    // 如果启用官方解析模式，且 JSON 有 name（中文或英文）
-    if (officialIdParseMode && item.name && typeof item.name === 'string') {
-      // 1. 先尝试在英文库中通过 name 查找（可能是英文name）
+    // 1. 使用 id 字段查找（精确匹配优先）
+    let dictKey = item.id;
+
+    // 1.1 尝试直接匹配
+    if (dictKey in charactersDict) {
+      return { dictKey, found: true };
+    }
+
+    // 1.2 尝试使用ID映射（标准化到英文格式）
+    const normalizedKey = normalizeCharacterId(item.id, language);
+    if (normalizedKey in charactersDict) {
+      return { dictKey: normalizedKey, found: true };
+    }
+
+    // 2. 如果 id 查找失败，尝试使用 name 查找（回退策略）
+    if (item.name && typeof item.name === 'string') {
+      // 2.1 先尝试在英文库中通过 name 查找（可能是英文name）
       const enIdByName = findCharacterIdByName(item.name, charactersDict, 'en');
       if (enIdByName) {
         return { dictKey: enIdByName, found: true };
       }
-      
-      // 2. 尝试在中文库中通过 name 查找（可能是中文name）
+
+      // 2.2 尝试在中文库中通过 name 查找（可能是中文name），然后转换为英文ID
       const cnId = findCharacterIdByName(item.name, CHARACTERS, 'zh-CN');
       if (cnId) {
-        // 3. 找到了，将中文 ID 转换为英文 ID
+        // 将中文 ID 转换为英文 ID
         const enId = normalizeCharacterId(cnId, 'en');
-        // 4. 在英文库中查找
+        // 在英文库中查找
         if (enId in charactersDict) {
           return { dictKey: enId, found: true };
         }
-        // 5. 转换后的 ID 也找不到，尝试直接用原 cnId
+        // 转换后的 ID 也找不到，尝试直接用原 cnId
         if (cnId in charactersDict) {
           return { dictKey: cnId, found: true };
         }
       }
     }
 
-    // 普通流程：基于 ID 查找
-    let dictKey = item.id;
-
-    // 直接匹配
-    if (dictKey in charactersDict) {
-      return { dictKey, found: true };
-    }
-
-    // 使用ID映射
-    const normalizedKey = normalizeCharacterId(item.id, language);
-    if (normalizedKey in charactersDict) {
-      return { dictKey: normalizedKey, found: true };
-    }
-
+    // 3. 如果都找不到，返回原始ID和未找到标记
     return { dictKey: item.id, found: false };
   }
 
-  // 中文模式：优先基于 name，回退到 id
-  // 1. 如果有 name 字段，优先使用 name 查找（官方解析模式和普通模式都适用）
+  // 中文模式：优先基于 id，回退到 name
+  // 1. 使用 id 字段查找（精确匹配优先）
+  let dictKey = item.id;
+
+  // 1.1 尝试直接匹配
+  if (dictKey in charactersDict) {
+    return { dictKey, found: true };
+  }
+
+  // 1.2 尝试使用ID映射（标准化到中文格式）
+  const normalizedKey = normalizeCharacterId(item.id, language);
+  if (normalizedKey in charactersDict) {
+    return { dictKey: normalizedKey, found: true };
+  }
+
+  // 2. 如果 id 查找失败，尝试使用 name 查找（回退策略）
   if (item.name && typeof item.name === 'string') {
     const foundId = findCharacterIdByName(item.name, charactersDict, language);
     if (foundId) {
       return { dictKey: foundId, found: true };
     }
-    // 如果通过 name 没找到，继续尝试 id
-  }
-
-  // 2. 使用 id 字段查找（兼容官方只有ID的格式）
-  let dictKey = item.id;
-
-  // 尝试直接匹配
-  if (dictKey in charactersDict) {
-    return { dictKey, found: true };
-  }
-
-  // 尝试使用ID映射
-  const normalizedKey = normalizeCharacterId(item.id, language);
-  if (normalizedKey in charactersDict) {
-    return { dictKey: normalizedKey, found: true };
   }
 
   // 3. 如果都找不到，返回原始ID和未找到标记
@@ -242,6 +273,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
     // 处理元数据
     if (item.id === '_meta') {
       script.title = item.name || '自定义剧本';
+      script.titleEn = item.titleEn || item.title_en || item.nameEn || item.name_en;  // 解析英文标题（支持多种字段名）
       script.titleImage = item.titleImage || item.logo;  // 支持 titleImage 或 logo 字段
       script.titleImageSize = item.titleImageSize;  // 解析第一页标题图片大小
       script.useTitleImage = item.use_title_image !== false ? !!script.titleImage : false;  // 默认根据是否有图片判断
@@ -306,6 +338,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
     // 从字典中获取角色信息，或使用 JSON 中的完整信息
     let character: Character = item;
+    let officialId: string | null = null; // 保存官方ID，用于后续查询相克关系
 
     // 使用新的智能匹配函数获取字典键和匹配结果
     // 中文模式：优先基于 name，回退到 id
@@ -314,6 +347,8 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
     // 根据是否找到和官方ID解析模式决定角色信息来源
     if (found) {
+      officialId = dictKey; // 保存官方ID
+
       if (officialIdParseMode) {
         // 官方ID解析模式：完全使用官方数据，忽略JSON中的自定义信息
         character = { ...charactersDict[dictKey] };
@@ -333,6 +368,11 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       // 如果字典中找不到，使用 JSON 中的完整信息（自定义角色）
       // 这种情况下 character 已经等于 item，不需要额外处理
       console.warn(`角色 "${item.id}" (name: "${item.name || 'N/A'}") 在字典中未找到，使用JSON自定义数据`);
+    }
+
+    // 将官方ID保存到角色对象中（作为内部属性，用于相克规则查询）
+    if (officialId) {
+      (character as any)._officialId = officialId;
     }
 
     // 处理相克规则 - 先收集，稍后统一处理
@@ -408,25 +448,32 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
   // 处理自定义相克规则（在所有角色解析完成后）
   for (const item of jinxItems) {
-    // 辅助函数：根据ID查找角色名称
+    // 辅助函数：根据ID查找角色名称（无论中英文都返回name）
     const findCharacterName = (id: string): string | null => {
-      // 1. 尝试从官方角色库查找
-      const officialChar = charactersDict[id];
-      if (officialChar) {
-        return language === 'zh-CN' ? officialChar.name : id;
+      // 1. 在已解析的角色列表中查找（优先，因为包含了所有映射关系）
+      // 先尝试通过原始ID查找
+      let foundChar = script.all.find(c => c.id === id);
+      if (foundChar) {
+        return foundChar.name;
       }
 
-      // 2. 尝试使用ID映射
+      // 再尝试通过官方ID查找
+      foundChar = script.all.find(c => (c as any)._officialId === id);
+      if (foundChar) {
+        return foundChar.name;
+      }
+
+      // 2. 尝试从官方角色库查找
+      const officialChar = charactersDict[id];
+      if (officialChar) {
+        return officialChar.name;
+      }
+
+      // 3. 尝试使用ID映射
       const normalizedId = normalizeCharacterId(id, language);
       const mappedChar = charactersDict[normalizedId];
       if (mappedChar) {
-        return language === 'zh-CN' ? mappedChar.name : normalizedId;
-      }
-
-      // 3. 在已解析的角色列表中查找（处理自定义ID的情况，如 "chefbutton"）
-      const foundChar = script.all.find(c => c.id === id);
-      if (foundChar) {
-        return language === 'zh-CN' ? foundChar.name : foundChar.id;
+        return mappedChar.name;
       }
 
       // 4. 都找不到，返回null
@@ -526,11 +573,23 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
   for (const charA of script.all) {
     for (const charB of script.all) {
       if (charA.id !== charB.id) {
-        // 英文模式下使用角色ID进行相克检查
-        const keyA = language === 'en' ? charA.id : charA.name;
-        const keyB = language === 'en' ? charB.id : charB.name;
+        // 获取用于查询相克关系的key
+        // 优先使用保存的官方ID，如果没有则回退到原始逻辑
+        let keyA: string;
+        let keyB: string;
+
+        if (language === 'en') {
+          // 英文模式：优先使用官方ID，否则使用原始ID
+          keyA = (charA as any)._officialId || charA.id;
+          keyB = (charB as any)._officialId || charB.id;
+        } else {
+          // 中文模式：使用角色名称
+          keyA = charA.name;
+          keyB = charB.name;
+        }
 
         if (hasJinx(keyA, keyB, language)) {
+          // 存储相克关系：统一使用角色的name字段作为key
           const nameA = charA.name;
           const nameB = charB.name;
 

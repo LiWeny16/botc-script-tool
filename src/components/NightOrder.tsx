@@ -8,10 +8,9 @@ import {
   type DragEndEvent,
 } from '@dnd-kit/core';
 import {
-  arrayMove,
   SortableContext,
   verticalListSortingStrategy,
-  horizontalListSortingStrategy,
+  rectSortingStrategy,
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -48,10 +47,10 @@ function SortableActionItem({
     isDragging,
   } = useSortable({ id: action.image + index, disabled });
 
-  // 只允许垂直方向的移动，禁用横向移动
+  // 根据 isMobile 决定是否允许横向移动
   const restrictedTransform = transform ? {
     ...transform,
-    x: 0, // 强制 x 轴不移动
+    x: isMobile ? transform.x : 0, // 移动端允许横向移动，桌面端禁用
   } : null;
 
   const style = {
@@ -174,17 +173,19 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
       >
         <SortableContext
           items={actions.map((action, idx) => action.image + idx)}
-          strategy={verticalListSortingStrategy}
+          strategy={isMobile ? rectSortingStrategy : verticalListSortingStrategy}
         >
           <Box
             sx={{
               flex: 1,
               display: 'flex',
-              flexDirection: 'column',
-              flexWrap: 'nowrap',
+              flexDirection: isMobile ? 'row' : 'column',
+              flexWrap: isMobile ? 'wrap' : 'nowrap',
               overflowY: 'auto',
               overscrollBehavior: 'contain',
-              justifyContent: 'flex-start',
+              justifyContent: isMobile ? 'flex-start' : 'flex-start',
+              alignContent: isMobile ? 'flex-start' : 'stretch',
+              gap: isMobile ? 0.5 : 0,
               '&::-webkit-scrollbar': {
                 width: 3,
               },

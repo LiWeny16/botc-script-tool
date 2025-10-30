@@ -75,10 +75,18 @@ const ScriptRenderer = observer(({
     onSpecialRuleDelete = () => { },
     onNightOrderReorder = () => { },
 }: ScriptRendererProps) => {
-    const { t } = useTranslation();
+    const { t, language } = useTranslation();
     const scriptRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [titleHovered, setTitleHovered] = useState<boolean>(false);
+
+    // 按语言选择展示标题：英文优先使用 titleEn；否则回退到第二页标题文本或主标题
+    const displayedTitle = useMemo(() => {
+        const titleEn = (script as any).titleEn as string | undefined;
+        const base = script.secondPageTitleText || script.title;
+        if (language === 'en' && titleEn && titleEn.trim()) return titleEn.trim();
+        return base;
+    }, [language, script]);
 
     // 第二页拖拽传感器
     const secondPageSensors = useSensors(
@@ -177,7 +185,7 @@ const ScriptRenderer = observer(({
                 return script.secondPageTitle ? (
                     <SecondPageTitle
                         key="title"
-                        title={script.secondPageTitleText || script.title}
+                        title={displayedTitle}
                         titleImage={script.secondPageTitleImage}
                         useImage={script.useSecondPageTitleImage}
                         fontSize={script.secondPageTitleFontSize}
@@ -283,10 +291,17 @@ const ScriptRenderer = observer(({
     return (
         <>
             {/* 第一页 - 主要剧本内容 */}
-            <Box
+            <Paper
                 id="script-preview"
                 ref={scriptRef}
+                elevation={16}
                 sx={{
+                    '@media print': {
+                        boxShadow: 'none !important',
+                        height: '100vh !important',
+                        minHeight: '100vh !important',
+                    },
+                    // boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12)',
                     display: "flex",
                     userSelect: "none",
                     width: "100%",
@@ -338,7 +353,7 @@ const ScriptRenderer = observer(({
                         sx={{
                             position: 'absolute',
                             top: 0,
-                            right: -5,
+                            right: 0,
                             maxWidth: { xs: '35%', sm: '20%', md: '20%' },
                             opacity: 1,
                             pointerEvents: 'none',
@@ -528,7 +543,7 @@ const ScriptRenderer = observer(({
                                         >
                                             <CharacterImage
                                                 src={script.titleImage}
-                                                alt={script.title}
+                                                alt={displayedTitle}
                                                 sx={{
                                                     maxWidth: '100%',
                                                     maxHeight: {
@@ -593,7 +608,7 @@ const ScriptRenderer = observer(({
                                                     WebkitTextFillColor: 'transparent',
                                                 }}
                                             >
-                                                {script.title.split(/\\n|<br\s*\/?>/).map((line, index, array) => (
+                                                {displayedTitle.split(/\n|<br\s*\/?>(?=)/).map((line, index, array) => (
                                                     <span key={index}>{line}{index < array.length - 1 && <br />}</span>
                                                 ))}
                                             </Typography>
@@ -798,20 +813,25 @@ const ScriptRenderer = observer(({
                         </Box>
                     )}
                 </Box>
-            </Box>
+            </Paper>
 
             {/* 第二页 - 双页面模式下显示相克规则、传奇、旅行者 */}
             {script && uiConfigStore.config.enableTwoPageMode && (
-                <Box
+                <Paper
+                    elevation={16}
                     id="script-preview-2"
                     sx={{
                         display: "flex",
                         zIndex: 1,
+                        mt: 5,
+                        mb: 5,
                         width: "100%",
-                        mt: 4,
                         '@media print': {
                             mt: 0,
-                        }
+                            boxShadow: 'none !important',
+                            height: '100vh !important',
+                            minHeight: '100vh !important',
+                        },
                     }}
                 >
                     <Box
@@ -865,7 +885,7 @@ const ScriptRenderer = observer(({
                             sx={{
                                 position: 'absolute',
                                 top: 0,
-                                right: -5,
+                                right: 0,
                                 maxWidth: { xs: '35%', sm: '20%', md: '20%' },
                                 opacity: 1,
                                 pointerEvents: 'none',
@@ -919,9 +939,10 @@ const ScriptRenderer = observer(({
                                 boxShadow: 'none',
                                 display: 'flex',
                                 flexDirection: 'column',
-                                alignItems: 'center',
-                                justifyContent: 'center',
+                                alignItems: 'stretch',
+                                justifyContent: 'flex-start',
                                 minHeight: '100vh',
+                                minWidth: 0,
                                 '@media print': {
                                     height: '100vh !important',
                                     minHeight: '100vh !important',
@@ -1017,7 +1038,7 @@ const ScriptRenderer = observer(({
                             </Box>
                         )}
                     </Box>
-                </Box>
+                </Paper>
             )}
         </>
     );

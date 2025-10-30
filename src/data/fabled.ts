@@ -18,7 +18,7 @@ export const getFabledCharacters = (language: string): Character[] => {
         },
         {
             id: 'bootlegger',
-            name: isEnglish ? 'Bootlegger' : '私酒贩',
+            name: isEnglish ? 'Bootlegger' : '私货商人',
             ability: isEnglish ? "This script has homebrew characters or rules. " : "这个剧本包含有自制角色或自制规则。",
             team: 'fabled',
             image: 'https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Bootlegger_icon.webp',
@@ -174,7 +174,7 @@ export const getFabledCharacters = (language: string): Character[] => {
         },
         {
             id: 'hell_librarian',
-            name: isEnglish ? 'Hell\'s Librarian' : '地狱图书管理员',
+            name: isEnglish ? 'Hell\'s Librarian' : '地狱藏书员',
             ability: isEnglish ? 'Something bad might happen to whoever talks when the Storyteller has asked for silence. ' : "当说书人宣布安静时，仍在说话的玩家可能会遭遇一些不好的事情。",
             team: 'fabled',
             image: "https://script.bloodontheclocktower.com/images/icon/Extras/fabled/Hell's%20Librarian_icon.webp",

@@ -8,8 +8,10 @@
   "scripts": {
     "d": "vite",
     "dev": "vite",
-    "b": "tsc -b && vite build",
+    "b": "&&tsc -b && vite build",
+    "prebuild": "python ./python/generate_manifest.py || py -3 ./python/generate_manifest.py",
     "build": "tsc -b && vite build",
+    "gen:manifest": "python ./python/generate_manifest.py || py -3 ./python/generate_manifest.py",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

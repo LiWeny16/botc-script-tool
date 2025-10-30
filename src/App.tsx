@@ -916,8 +916,12 @@ const App = observer(() => {
       <CssBaseline />
       <Box
         sx={{
-          height: "100svh",
-          backgroundColor: 'background.default',
+          backgroundRepeat: "no-repeat",
+          background: "#F6F1DC",
+          backgroundSize: '100% 100%',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          minHeight: '100vh'
         }}
       >
         <Container maxWidth="xl">

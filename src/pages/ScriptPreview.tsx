@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Container,
   Box,
   Typography,
   Button,
@@ -14,6 +13,7 @@ import {
   GlobalStyles,
   Switch,
   FormControlLabel,
+  IconButton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
@@ -73,7 +73,11 @@ const ScriptPreview = observer(() => {
           let jsonString = '';
 
           // 检查是否是HTTP/HTTPS链接
-          if (jsonParam.startsWith('http://') || jsonParam.startsWith('https://')) {
+          if (
+            jsonParam.startsWith('http://') ||
+            jsonParam.startsWith('https://') ||
+            jsonParam.startsWith('/') // 同源绝对路径，例如 /scripts/json/official/tb.json
+          ) {
             // 从URL下载JSON
             const response = await fetch(jsonParam);
             if (!response.ok) {
@@ -192,20 +196,26 @@ const ScriptPreview = observer(() => {
           justifyContent: 'center',
         }}
       >
-        <Container maxWidth="sm">
+        <Box sx={{ maxWidth: 600, mx: 'auto' }}>
           <Paper sx={{ p: 4, textAlign: 'center' }}>
             <Typography variant="h5" color="error" sx={{ mb: 2 }}>
               {error}
             </Typography>
             <Button
               startIcon={<ArrowBackIcon />}
-              onClick={() => navigate(searchParams.get('json') ? '/' : '/repo')}
+              onClick={() => {
+                const category = searchParams.get('category');
+                const destination = searchParams.get('json') 
+                  ? '/' 
+                  : (category ? `/repo?category=${category}` : '/repo');
+                navigate(destination);
+              }}
               variant="contained"
             >
               {t('common.back')}
             </Button>
           </Paper>
-        </Container>
+        </Box>
       </Box>
     );
   }
@@ -232,6 +242,7 @@ const ScriptPreview = observer(() => {
       <CssBaseline />
       <GlobalStyles
         styles={{
+
           '@media print': {
             // 1. 定义打印页面，去除浏览器默认边距
             '@page': {
@@ -312,150 +323,111 @@ const ScriptPreview = observer(() => {
           },
         }}
       />
-      <Box
-        id="preview-control-box"
-        sx={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: 'rgba(254, 250, 240, 0.95)',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
-          py: 1.5,
-          '@media print': {
-            display: 'none !important',
-            visibility: 'hidden !important',
-          }
-        }}
-      >
-        <Container maxWidth="xl">
-          <Box
-            sx={{
-              display: 'flex',
-              gap: 1.5,
-              flexWrap: 'wrap',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Button
-              startIcon={<ArrowBackIcon />}
-              onClick={() => navigate('/repo')}
-              variant="contained"
-              size="small"
-              sx={{
-                backgroundColor: THEME_COLORS.paper.secondary,
-                color: '#fefaf0',
-                fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                py: { xs: 0.5, sm: 0.75 },
-                px: { xs: 1.5, sm: 2 },
-                fontFamily: THEME_FONTS.fontFamily,
-                '&:hover': {
-                  backgroundColor: THEME_COLORS.paper.primary,
-                },
-              }}
-            >
-              {t('repo.backToRepository')}
-            </Button>
-            <Button
-              startIcon={<DownloadIcon />}
-              onClick={handleExportJson}
-              variant="contained"
-              size="small"
-              sx={{
-                backgroundColor: THEME_COLORS.good,
-                color: '#ffffff',
-                fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                py: { xs: 0.5, sm: 0.75 },
-                px: { xs: 1.5, sm: 2 },
-                fontFamily: THEME_FONTS.fontFamily,
-                '&:hover': {
-                  backgroundColor: THEME_COLORS.good,
-                  opacity: 0.85,
-                },
-              }}
-            >
-              {t('repo.exportJson')}
-            </Button>
-            <Button
-              startIcon={<PrintIcon />}
-              onClick={() => window.print()}
-              variant="contained"
-              size="small"
-              sx={{
-                backgroundColor: THEME_COLORS.paper.primary,
-                color: '#ffffff',
-                fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                py: { xs: 0.5, sm: 0.75 },
-                px: { xs: 1.5, sm: 2 },
-                fontFamily: THEME_FONTS.fontFamily,
-                '&:hover': {
-                  backgroundColor: THEME_COLORS.paper.secondary,
-                },
-              }}
-            >
-              打印
-            </Button>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={uiConfigStore.config.enableTwoPageMode}
-                  onChange={(e) => uiConfigStore.updateConfig({ enableTwoPageMode: e.target.checked })}
-                  sx={{
-                    '& .MuiSwitch-switchBase.Mui-checked': {
-                      color: THEME_COLORS.paper.primary,
-                    },
-                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                      backgroundColor: THEME_COLORS.paper.primary,
-                    },
-                  }}
-                />
-              }
-              label={
-                <Typography
-                  sx={{
-                    fontSize: { xs: '0.75rem', sm: '0.85rem' },
-                    fontFamily: THEME_FONTS.fontFamily,
-                    color: THEME_COLORS.paper.secondary,
-                  }}
-                >
-                  {uiConfigStore.config.enableTwoPageMode ? '双页模式' : '单页模式'}
-                </Typography>
-              }
-            />
-            <LanguageSwitcher />
-          </Box>
-        </Container>
-      </Box>
-      <Box
-        sx={{
-          minHeight: '100vh',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          backgroundColor: 'background.default',
-          py: 4,
-          '@media print': {
-            py: 0,
-            minHeight: 'auto',
-          }
-        }}
-      >
-        <Box 
-          sx={{ 
-            width: '100%',
-            maxWidth: '90%',
+      <Box sx={{ display: "flex", flexDirection: "column" }}>
+        <Box
+          id="preview-control-box"
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(254, 250, 240, 0.95)',
+            borderBottom: '1px solid rgba(0, 0, 0, 0.1)',
+            py: 1.5,
             '@media print': {
-              maxWidth: '100% !important',
+              display: 'none !important',
+              visibility: 'hidden !important',
             }
           }}
         >
-          {script && (
-            <ScriptRenderer
-              script={script}
-              theme={theme}
-              readOnly={true}
-            />
-          )}
+          <Box sx={{ width: '100%' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 1.5,
+                flexWrap: 'nowrap',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <IconButton
+                onClick={() => {
+                  // 返回时保持category参数
+                  const category = searchParams.get('category');
+                  navigate(category ? `/repo?category=${category}` : '/repo');
+                }}
+                size="small"
+                sx={{
+                  color: THEME_COLORS.paper.secondary,
+                }}
+                aria-label="back"
+              >
+                <ArrowBackIcon />
+              </IconButton>
+              <IconButton
+                onClick={handleExportJson}
+                size="small"
+                sx={{
+                  color: THEME_COLORS.good,
+                }}
+                aria-label="export-json"
+              >
+                <DownloadIcon />
+              </IconButton>
+              <IconButton
+                onClick={() => window.print()}
+                size="small"
+                sx={{
+                  color: THEME_COLORS.paper.primary,
+                }}
+                aria-label="print"
+              >
+                <PrintIcon />
+              </IconButton>
+              <Switch
+                checked={uiConfigStore.config.enableTwoPageMode}
+                onChange={(e) => uiConfigStore.updateConfig({ enableTwoPageMode: e.target.checked })}
+                sx={{
+                  '& .MuiSwitch-switchBase.Mui-checked': {
+                    color: THEME_COLORS.paper.primary,
+                  },
+                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                    backgroundColor: THEME_COLORS.paper.primary,
+                  },
+                }}
+                inputProps={{ 'aria-label': 'toggle-two-page' }}
+              />
+              <LanguageSwitcher />
+            </Box>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'flex-start',
+            backgroundColor: 'background.default',
+            '@media print': {
+              minHeight: 'auto',
+            }
+          }}
+        >
+          <Box
+            sx={{
+              width: '100%',
+              // maxWidth: '1600px',
+              '@media print': {
+                maxWidth: '100% !important',
+              }
+            }}
+          >
+            {script && (
+              <ScriptRenderer
+                script={script}
+                theme={theme}
+                readOnly={true}
+              />
+            )}
+          </Box>
         </Box>
       </Box>
     </ThemeProvider>

@@ -1,0 +1,23 @@
+[
+  {
+    "id": "_meta",
+    "name_en": "Supreme Pleasure",
+    "name": "无上愉悦",
+    "author": "",
+    "titleImage": "https://oss.gstonegames.com/static/image/team/202206/c_1054345915561_8466a4e3.jpg",
+    "titleImageSize": 160,
+    "use_title_image": false,
+    "use_second_page_title_image": false
+  },
+  "investigator",
+  "empath",
+  "chambermaid",
+  "clockmaker",
+  "artist",
+  "sage",
+  "drunk",
+  "klutz",
+  "scarletwoman",
+  "baron",
+  "imp"
+]

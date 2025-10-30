@@ -73,6 +73,7 @@ export interface SpecialRule {
 
 export interface Script {
   title: string;
+  titleEn?: string;  // 英文标题（来自 _meta.name_en）
   titleImage?: string;  // 可选的标题图片链接
   titleImageSize?: number;  // 第一页标题图片大小
   useTitleImage?: boolean;  // 第一页是否使用图片标题

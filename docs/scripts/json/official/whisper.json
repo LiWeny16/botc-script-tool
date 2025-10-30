@@ -1,0 +1,22 @@
+[
+  {
+    "id": "_meta",
+    "name_en": "Secret Whispering",
+    "name": "窃窃私语",
+    "author": "",
+    "titleImage": "https://oss.gstonegames.com/static/image/team/202206/c_8013445915561_50d8c906.jpg",
+    "use_title_image": false,
+    "use_second_page_title_image": false
+  },
+  "savant",
+  "artist",
+  "balloonist",
+  "amnesiac",
+  "fisherman",
+  "cannibal",
+  "lunatic",
+  "mutant",
+  "widow",
+  "goblin",
+  "leviathan"
+]

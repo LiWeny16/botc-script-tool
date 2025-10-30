@@ -99,7 +99,7 @@ export interface UIConfig {
 }
 
 const DEFAULT_UI_CONFIG: UIConfig = {
-  nightOrderBackground: 'purple',
+  nightOrderBackground: 'green',
 
   enableTwoPageMode: false,
 

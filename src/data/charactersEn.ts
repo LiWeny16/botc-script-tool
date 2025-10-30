@@ -37,6 +37,20 @@ const fabledDict = fabledCharacters.reduce((acc, char) => {
   return acc;
 }, {} as any);
 const custom_characters_en = {
+  "pagan": {
+    "name": "Pagan",
+    "ability": "If the Heretic is in play, all other good Townsfolk become Pagans and learn who the evil players are and their roles. [+Heretic or -1 Outsider]",
+    "image": "https://www.bloodstar.xyz/p/Airell_clocktower/Assets_of_Lei_Gallery/pagan_assets_of_lei_gallery.png",
+    "id": "pagan",
+    "team": "townsfolk",
+    "author":"Zets",
+    "firstNight": 200,
+    "otherNight": 0,
+    "firstNightReminder": "If both the Pagan and Heretic are in play, wake all good Townsfolk and inform them they have all become Pagans.",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": true
+  },
   "martyr": {
     "name": "Martyr Girl",
     "author": "飞跃疯人院",

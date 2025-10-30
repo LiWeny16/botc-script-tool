@@ -3569,6 +3569,20 @@ const _characters = {
 
 }
 const custom_characters = {
+  "pagan": {
+    "name": "异教徒",
+    "ability": "如果异端分子在场，所有其他善良镇民变为异教徒，并且得知邪恶玩家是谁及他们的角色。[+异端分子或-1外来者]",
+    "image": "https://www.bloodstar.xyz/p/Airell_clocktower/Assets_of_Lei_Gallery/pagan_assets_of_lei_gallery.png",
+    "author": "Zets",
+    "id": "pagan",
+    "team": "townsfolk",
+    "firstNight": 200,
+    "otherNight": 0,
+    "firstNightReminder": "如果异教徒和异端分子都在场，唤醒所有善良的镇民，并告知他们都成为了异教徒。",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": true
+  },
   "martyr": {
     "name": "殉教少女",
     "author": "飞跃疯人院",
