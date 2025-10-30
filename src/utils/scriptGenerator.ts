@@ -63,40 +63,62 @@ function getNightOrderFromChinese(
   currentLanguage: 'zh-CN' | 'en',
   officialIdParseMode: boolean = false
 ): { firstNight: number; otherNight: number } {
-  // 从官方角色库获取默认值
-  let officialFirstNight = 0;
-  let officialOtherNight = 0;
+  // 从JSON中获取自定义的行动顺序（如果有）
+  const jsonFirstNight = jsonItem.firstNight;
+  const jsonOtherNight = jsonItem.otherNight;
 
-  // 如果开启了官方ID解析模式，需要先找到标准化的角色ID
+  // 如果开启了官方ID解析模式
   if (officialIdParseMode) {
-    // 使用智能匹配逻辑找到标准化的角色ID
-    // 这样即使JSON中的id不是官方标准id，也能通过name找到正确的id
-    const { dictKey } = getCharacterDictKey(
+    // 尝试找到官方角色
+    const { dictKey, found } = getCharacterDictKey(
       jsonItem,
       currentLanguage,
       currentLanguage === 'en' ? CHARACTERS_EN : CHARACTERS,
       true
     );
 
-    // 使用找到的标准化ID获取官方数据（始终从中文库获取）
-    const cnId = normalizeCharacterId(dictKey, 'zh-CN');
+    if (found) {
+      // 找到了官方角色，使用官方数据（始终从中文库获取夜间顺序）
+      const cnId = normalizeCharacterId(dictKey, 'zh-CN');
+      
+      let officialFirstNight = 0;
+      let officialOtherNight = 0;
 
-    if (CHARACTERS[cnId]) {
-      officialFirstNight = CHARACTERS[cnId].firstNight || 0;
-      officialOtherNight = CHARACTERS[cnId].otherNight || 0;
-    } else if (CHARACTERS[dictKey]) {
-      officialFirstNight = CHARACTERS[dictKey].firstNight || 0;
-      officialOtherNight = CHARACTERS[dictKey].otherNight || 0;
+      if (CHARACTERS[cnId]) {
+        officialFirstNight = CHARACTERS[cnId].firstNight || 0;
+        officialOtherNight = CHARACTERS[cnId].otherNight || 0;
+      } else if (CHARACTERS[dictKey]) {
+        officialFirstNight = CHARACTERS[dictKey].firstNight || 0;
+        officialOtherNight = CHARACTERS[dictKey].otherNight || 0;
+      }
+
+      // 官方ID解析模式：如果找到了官方角色，使用官方数据；否则回退到JSON数据
+      return {
+        firstNight: officialFirstNight,
+        otherNight: officialOtherNight,
+      };
+    } else {
+      // 找不到官方角色，使用JSON中的自定义数据
+      return {
+        firstNight: jsonFirstNight !== undefined ? (jsonFirstNight || 0) : 0,
+        otherNight: jsonOtherNight !== undefined ? (jsonOtherNight || 0) : 0,
+      };
     }
+  }
 
+  // 普通模式：JSON优先，JSON缺失时从官方库补充
+  // 1. 如果JSON中明确提供了值，直接使用
+  if (jsonFirstNight !== undefined || jsonOtherNight !== undefined) {
     return {
-      firstNight: officialFirstNight,
-      otherNight: officialOtherNight,
+      firstNight: jsonFirstNight !== undefined ? (jsonFirstNight || 0) : 0,
+      otherNight: jsonOtherNight !== undefined ? (jsonOtherNight || 0) : 0,
     };
   }
 
-  // 普通模式：先用角色ID查找
+  // 2. JSON中没有，尝试从官方库获取
   const cnId = normalizeCharacterId(characterId, 'zh-CN');
+  let officialFirstNight = 0;
+  let officialOtherNight = 0;
 
   if (CHARACTERS[cnId]) {
     officialFirstNight = CHARACTERS[cnId].firstNight || 0;
@@ -106,10 +128,10 @@ function getNightOrderFromChinese(
     officialOtherNight = CHARACTERS[characterId].otherNight || 0;
   }
 
-  // 普通模式：JSON有的字段优先使用JSON，没有的字段使用官方数据
+  // 3. 返回官方数据（如果没有就是0）
   return {
-    firstNight: jsonItem.firstNight !== undefined ? (jsonItem.firstNight || 0) : officialFirstNight,
-    otherNight: jsonItem.otherNight !== undefined ? (jsonItem.otherNight || 0) : officialOtherNight,
+    firstNight: officialFirstNight,
+    otherNight: officialOtherNight,
   };
 }
 
@@ -390,8 +412,6 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         continue;
       }
 
-      script.all.push(character);
-
       // 如果team不存在，自动创建数组
       if (!script.characters[character.team]) {
         script.characters[character.team] = [];
@@ -407,30 +427,94 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       // ⭐ 获取行动顺序：根据模式决定是否使用JSON自定义或官方数据
       const nightOrder = getNightOrderFromChinese(character.id, item, language, officialIdParseMode);
 
-      script.characters[character.team].push({
-        name: character.name,
-        ability: character.ability,
-        image: character.image,
-        id: character.id,
-        team: character.team,
-        teamColor: character.teamColor,  // 保存自定义颜色
+      // ⭐ 统一处理角色字段：应用与夜间顺序相同的解析逻辑
+      // 官方ID解析模式：如果找到官方角色用官方数据，否则用JSON数据
+      // 普通模式：JSON优先，缺失时从官方数据补充
+      let finalCharacter: Character;
+      
+      if (officialIdParseMode) {
+        if (found) {
+          // 找到官方角色：使用官方数据
+          finalCharacter = {
+            ...charactersDict[dictKey],
+            id: character.id, // 保持原始ID
+            team: item.team || charactersDict[dictKey].team, // JSON中的team优先
+            firstNight: 0, // 这些会在后面从nightOrder获取
+            otherNight: 0,
+          };
+        } else {
+          // 没找到官方角色：使用JSON数据
+          finalCharacter = {
+            ...character, // character已经是item了
+            firstNight: 0, // 确保有这些字段
+            otherNight: 0,
+          };
+        }
+      } else {
+        // 普通模式：JSON优先，缺失时从官方数据补充
+        if (found) {
+          const officialChar = charactersDict[dictKey];
+          // 手动合并每个字段：JSON有则用JSON，没有则用官方数据
+          finalCharacter = {
+            id: character.id, // 保持原始ID
+            name: item.name !== undefined && item.name !== null && item.name !== '' ? item.name : officialChar.name,
+            ability: item.ability !== undefined && item.ability !== null && item.ability !== '' ? item.ability : officialChar.ability,
+            image: item.image !== undefined && item.image !== null && item.image !== '' ? item.image : officialChar.image,
+            team: item.team !== undefined && item.team !== null ? item.team : officialChar.team,
+            teamColor: item.teamColor !== undefined ? item.teamColor : officialChar.teamColor,
+            // 对于可能为空的数组/字符串，使用 !== undefined 判断即可（允许空值）
+            firstNightReminder: item.firstNightReminder !== undefined ? item.firstNightReminder : officialChar.firstNightReminder,
+            otherNightReminder: item.otherNightReminder !== undefined ? item.otherNightReminder : officialChar.otherNightReminder,
+            reminders: item.reminders !== undefined ? item.reminders : officialChar.reminders,
+            remindersGlobal: item.remindersGlobal !== undefined ? item.remindersGlobal : officialChar.remindersGlobal,
+            setup: item.setup !== undefined ? item.setup : officialChar.setup,
+            // 添加firstNight和otherNight（这些会在后面从nightOrder获取，这里先用0占位）
+            firstNight: 0,
+            otherNight: 0,
+          };
+        } else {
+          // 没找到官方角色：完全使用JSON数据
+          finalCharacter = {
+            ...character,
+            firstNight: 0, // 确保有这些字段
+            otherNight: 0,
+          };
+        }
+      }
+
+      // 保存官方ID到finalCharacter
+      if (officialId) {
+        (finalCharacter as any)._officialId = officialId;
+      }
+
+      // 推送到all数组（使用处理后的角色数据）
+      script.all.push(finalCharacter);
+
+      // 推送到对应团队数组
+      script.characters[finalCharacter.team].push({
+        name: finalCharacter.name,
+        ability: finalCharacter.ability,
+        image: finalCharacter.image,
+        id: finalCharacter.id,
+        team: finalCharacter.team,
+        teamColor: finalCharacter.teamColor,  // 保存自定义颜色
         firstNight: nightOrder.firstNight,
         otherNight: nightOrder.otherNight,
-        firstNightReminder: character.firstNightReminder,
-        otherNightReminder: character.otherNightReminder,
-        reminders: character.reminders,
-        remindersGlobal: character.remindersGlobal,  // 保存全局提醒标记
-        setup: character.setup,
+        firstNightReminder: finalCharacter.firstNightReminder,
+        otherNightReminder: finalCharacter.otherNightReminder,
+        reminders: finalCharacter.reminders,
+        remindersGlobal: finalCharacter.remindersGlobal,  // 保存全局提醒标记
+        setup: finalCharacter.setup,
       });
 
       // 标准团队类型中，传奇角色和旅行者不参与夜晚行动顺序
       // 未知团队类型默认不参与夜晚行动
       const standardTeams: string[] = ['townsfolk', 'outsider', 'minion', 'demon'];
-      if (standardTeams.includes(character.team)) {
+      if (standardTeams.includes(finalCharacter.team)) {
         // ⭐ 添加首夜行动：使用从中文库获取的数值
         if (nightOrder.firstNight && nightOrder.firstNight > 0) {
           script.firstnight.push({
-            image: character.image,
+            image: finalCharacter.image,
             index: nightOrder.firstNight,
           });
         }
@@ -438,7 +522,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
         // ⭐ 添加其他夜晚行动：使用从中文库获取的数值
         if (nightOrder.otherNight && nightOrder.otherNight > 0) {
           script.othernight.push({
-            image: character.image,
+            image: finalCharacter.image,
             index: nightOrder.otherNight,
           });
         }
