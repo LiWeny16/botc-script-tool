@@ -481,7 +481,7 @@ const ScriptRenderer = observer(({
                         sx={{
                             pt: 2,
                             flex: 1,
-                            backgroundImage: 'url(/imgs/images/main_back.jpg)',
+                            backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
                             backgroundSize: '100% 100%',
                             backgroundPosition: 'center',
                             backgroundRepeat: 'no-repeat',
@@ -957,7 +957,7 @@ const ScriptRenderer = observer(({
                             sx={{
                                 pt: 2,
                                 flex: 1,
-                                backgroundImage: 'url(/imgs/images/main_back.jpg)',
+                                backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
                                 backgroundSize: '100% 100%',
                                 backgroundPosition: 'center',
                                 backgroundRepeat: 'no-repeat',

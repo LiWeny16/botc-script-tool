@@ -58,6 +58,14 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
   // 定义配置分类及其关键词（中英文）
   const categories: SettingCategory[] = [
     {
+      id: 'backgroundSettings',
+      title: t('ui.category.backgroundSettings'),
+      keywords: [
+        '背景', '图片', '上传', '自定义', '夜晚', '顺序', '中间', '区域',
+        'background', 'image', 'upload', 'custom', 'night', 'order', 'main', 'area'
+      ],
+    },
+    {
       id: 'pageLayout',
       title: t('ui.category.pageLayout'),
       keywords: [
@@ -237,6 +245,254 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
         {/* 内容区域 */}
         <Box sx={{ flex: 1, overflow: 'auto', p: 2, pt: 1 }}>
           <Stack spacing={2}>
+            {/* 0. 背景设置 */}
+            {filteredCategories.find(c => c.id === 'backgroundSettings')?.show && (
+            <Accordion defaultExpanded={!searchQuery}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                  {t('ui.category.backgroundSettings')}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={3}>
+                  {/* 提示信息 */}
+                  <Box sx={{ 
+                    p: 1.5, 
+                    bgcolor: 'info.lighter', 
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'info.light'
+                  }}>
+                    <Typography variant="caption" color="info.dark" sx={{ display: 'block', mb: 0.5 }}>
+                      {t('ui.backgroundTip')}
+                    </Typography>
+                    {/* <Typography variant="caption" color="text.secondary">
+                      {t('ui.backgroundSizeWarning')}
+                    </Typography> */}
+                  </Box>
+
+                  {/* 夜晚顺序背景图 */}
+                  <Box>
+                    <FormLabel sx={{ mb: 1, display: 'block' }}>
+                      {t('ui.nightOrderBackgroundLabel')}
+                    </FormLabel>
+                    
+                    {/* 背景模式选择 */}
+                    <RadioGroup
+                      value={uiConfigStore.config.nightOrderBackgroundMode}
+                      onChange={(e) => {
+                        uiConfigStore.updateConfig({ 
+                          nightOrderBackgroundMode: e.target.value as 'official' | 'custom' 
+                        });
+                      }}
+                    >
+                      {/* 官方背景选项 */}
+                      <FormControlLabel 
+                        value="official" 
+                        control={<Radio size="small" />} 
+                        label={t('ui.backgroundMode.official')} 
+                      />
+                      
+                      {/* 官方背景的子选项（三种颜色） */}
+                      {uiConfigStore.config.nightOrderBackgroundMode === 'official' && (
+                        <Box sx={{ ml: 4, mt: 0.5, mb: 1 }}>
+                          <RadioGroup
+                            value={uiConfigStore.config.nightOrderBackground}
+                            onChange={(e) => uiConfigStore.updateConfig({ 
+                              nightOrderBackground: e.target.value as 'purple' | 'yellow' | 'green' 
+                            })}
+                          >
+                            <FormControlLabel value="purple" control={<Radio size="small" />} label={t('ui.purpleBackground')} />
+                            <FormControlLabel value="yellow" control={<Radio size="small" />} label={t('ui.yellowBackground')} />
+                            <FormControlLabel value="green" control={<Radio size="small" />} label={t('ui.greenBackground')} />
+                          </RadioGroup>
+                        </Box>
+                      )}
+                      
+                      {/* 自定义上传选项 */}
+                      <FormControlLabel 
+                        value="custom" 
+                        control={<Radio size="small" />} 
+                        label={t('ui.backgroundMode.custom')} 
+                      />
+                    </RadioGroup>
+
+                    {/* 自定义背景上传界面 */}
+                    {uiConfigStore.config.nightOrderBackgroundMode === 'custom' && (
+                      <Box sx={{ mt: 1, ml: 4 }}>
+                        <input
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          id="night-order-background-upload"
+                          type="file"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // 检查文件大小
+                              if (file.size > 2 * 1024 * 1024) {
+                                alert('图片大小不能超过 2MB');
+                                return;
+                              }
+                              
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                const base64 = event.target?.result as string;
+                                uiConfigStore.updateConfig({ 
+                                  customNightOrderBackground: base64 
+                                });
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                        <label htmlFor="night-order-background-upload">
+                          <Button variant="outlined" component="span" fullWidth>
+                            {t('ui.uploadBackground')}
+                          </Button>
+                        </label>
+                        
+                        {/* 预览和删除 */}
+                        {uiConfigStore.config.customNightOrderBackground && (
+                          <Box sx={{ mt: 2 }}>
+                            <Typography variant="caption" sx={{ mb: 1, display: 'block' }}>
+                              {t('ui.backgroundPreview')}
+                            </Typography>
+                            <Box sx={{ 
+                              width: '100%', 
+                              height: 100, 
+                              backgroundImage: `url(${uiConfigStore.config.customNightOrderBackground})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              borderRadius: 1,
+                              border: '1px solid',
+                              borderColor: 'divider'
+                            }} />
+                            <Button 
+                              variant="text" 
+                              color="error" 
+                              size="small"
+                              fullWidth
+                              sx={{ mt: 1 }}
+                              onClick={() => {
+                                uiConfigStore.updateConfig({ 
+                                  customNightOrderBackground: '' 
+                                });
+                              }}
+                            >
+                              {t('ui.removeBackground')}
+                            </Button>
+                          </Box>
+                        )}
+                      </Box>
+                    )}
+                  </Box>
+
+                  <Divider />
+
+                  {/* 中间区域背景图 */}
+                  <Box>
+                    <FormLabel sx={{ mb: 1, display: 'block' }}>
+                      {t('ui.mainBackgroundLabel')}
+                    </FormLabel>
+                    
+                    {/* 背景模式选择 */}
+                    <RadioGroup
+                      value={uiConfigStore.config.mainBackgroundMode}
+                      onChange={(e) => {
+                        uiConfigStore.updateConfig({ 
+                          mainBackgroundMode: e.target.value as 'official' | 'custom' 
+                        });
+                      }}
+                    >
+                      {/* 官方背景选项 */}
+                      <FormControlLabel 
+                        value="official" 
+                        control={<Radio size="small" />} 
+                        label={t('ui.backgroundMode.official')} 
+                      />
+                      
+                      {/* 自定义上传选项 */}
+                      <FormControlLabel 
+                        value="custom" 
+                        control={<Radio size="small" />} 
+                        label={t('ui.backgroundMode.custom')} 
+                      />
+                    </RadioGroup>
+
+                    {/* 自定义背景上传界面 */}
+                    {uiConfigStore.config.mainBackgroundMode === 'custom' && (
+                      <Box sx={{ mt: 1, ml: 4 }}>
+                        <input
+                          accept="image/*"
+                          style={{ display: 'none' }}
+                          id="main-background-upload"
+                          type="file"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              // 检查文件大小
+                              if (file.size > 2 * 1024 * 1024) {
+                                alert('图片大小不能超过 2MB');
+                                return;
+                              }
+                              
+                              const reader = new FileReader();
+                              reader.onload = (event) => {
+                                const base64 = event.target?.result as string;
+                                uiConfigStore.updateConfig({ 
+                                  customMainBackground: base64 
+                                });
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                        <label htmlFor="main-background-upload">
+                          <Button variant="outlined" component="span" fullWidth>
+                            {t('ui.uploadBackground')}
+                          </Button>
+                        </label>
+                        
+                        {/* 预览和删除 */}
+                        {uiConfigStore.config.customMainBackground && (
+                          <Box sx={{ mt: 2 }}>
+                            <Typography variant="caption" sx={{ mb: 1, display: 'block' }}>
+                              {t('ui.backgroundPreview')}
+                            </Typography>
+                            <Box sx={{ 
+                              width: '100%', 
+                              height: 100, 
+                              backgroundImage: `url(${uiConfigStore.config.customMainBackground})`,
+                              backgroundSize: 'cover',
+                              backgroundPosition: 'center',
+                              borderRadius: 1,
+                              border: '1px solid',
+                              borderColor: 'divider'
+                            }} />
+                            <Button 
+                              variant="text" 
+                              color="error" 
+                              size="small"
+                              fullWidth
+                              sx={{ mt: 1 }}
+                              onClick={() => {
+                                uiConfigStore.updateConfig({ 
+                                  customMainBackground: '' 
+                                });
+                              }}
+                            >
+                              {t('ui.removeBackground')}
+                            </Button>
+                          </Box>
+                        )}
+                      </Box>
+                    )}
+                  </Box>
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
             {/* 1. 页面布局 */}
             {filteredCategories.find(c => c.id === 'pageLayout')?.show && (
             <Accordion defaultExpanded={!searchQuery}>

@@ -287,6 +287,18 @@ export const translations = {
     'ui.resetUISettings': '重置所有UI设置',
     'dialog.resetUIMessage': '确定要重置所有UI设置吗？',
 
+    // 分类0: 背景设置
+    'ui.category.backgroundSettings': '背景设置',
+    'ui.backgroundMode': '背景模式',
+    'ui.backgroundMode.official': '官方背景',
+    'ui.backgroundMode.custom': '自定义上传',
+    'ui.nightOrderBackgroundLabel': '夜晚顺序背景图',
+    'ui.mainBackgroundLabel': '中间区域背景图',
+    'ui.uploadBackground': '上传背景图',
+    'ui.removeBackground': '移除自定义背景',
+    'ui.backgroundPreview': '背景预览',
+    'ui.backgroundTip': '提示：上传的图片将转换为 Base64 存储在本地浏览器中',
+
     // 分类1: 页面布局
     'ui.category.pageLayout': '页面布局',
     'ui.enableTwoPageMode': '启用双页面模式',
@@ -707,6 +719,18 @@ export const translations = {
     'ui.resetAllSettings': 'Reset All Settings',
     'ui.resetUISettings': 'Reset All UI Settings',
     'dialog.resetUIMessage': 'Are you sure you want to reset all UI settings?',
+
+    // Category 0: Background Settings
+    'ui.category.backgroundSettings': 'Background Settings',
+    'ui.backgroundMode': 'Background Mode',
+    'ui.backgroundMode.official': 'Official Background',
+    'ui.backgroundMode.custom': 'Custom Upload',
+    'ui.nightOrderBackgroundLabel': 'Night Order Background',
+    'ui.mainBackgroundLabel': 'Main Area Background',
+    'ui.uploadBackground': 'Upload Background',
+    'ui.removeBackground': 'Remove Custom Background',
+    'ui.backgroundPreview': 'Background Preview',
+    'ui.backgroundTip': 'Tip: Uploaded images will be converted to Base64 and stored locally',
 
     // Category 1: Page Layout
     'ui.category.pageLayout': 'Page Layout',

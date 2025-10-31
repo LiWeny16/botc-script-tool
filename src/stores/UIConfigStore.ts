@@ -12,6 +12,12 @@ export interface CustomFont {
 export interface UIConfig {
   // Night Order 背景
   nightOrderBackground: 'purple' | 'yellow' | 'green';
+  nightOrderBackgroundMode: 'official' | 'custom';
+  customNightOrderBackground: string; // base64
+
+  // Main 背景
+  mainBackgroundMode: 'official' | 'custom';
+  customMainBackground: string; // base64
 
   // 双页面模式
   enableTwoPageMode: boolean;
@@ -104,6 +110,11 @@ export interface UIConfig {
 
 const DEFAULT_UI_CONFIG: UIConfig = {
   nightOrderBackground: 'green',
+  nightOrderBackgroundMode: 'official',
+  customNightOrderBackground: '',
+
+  mainBackgroundMode: 'official',
+  customMainBackground: '',
 
   enableTwoPageMode: false,
 
@@ -405,6 +416,12 @@ class UIConfigStore {
 
   // Getters
   get nightOrderBackgroundUrl() {
+    // 如果是自定义模式且有自定义背景，使用自定义背景
+    if (this.config.nightOrderBackgroundMode === 'custom' && this.config.customNightOrderBackground) {
+      return this.config.customNightOrderBackground;
+    }
+    
+    // 否则使用官方背景
     switch (this.config.nightOrderBackground) {
       case 'purple':
         return '/imgs/images/night_order/order_back_purple.png';
@@ -413,8 +430,18 @@ class UIConfigStore {
       case 'green':
         return '/imgs/images/night_order/order_back_green.jpg';
       default:
-        return '/imgs/images/night_order/order_back_purple.png';
+        return '/imgs/images/night_order/order_back_green.jpg';
     }
+  }
+
+  get mainBackgroundUrl() {
+    // 如果是自定义模式且有自定义背景，使用自定义背景
+    if (this.config.mainBackgroundMode === 'custom' && this.config.customMainBackground) {
+      return this.config.customMainBackground;
+    }
+    
+    // 否则使用官方背景
+    return '/imgs/images/main_back.jpg';
   }
 
   get titleHeight() {
