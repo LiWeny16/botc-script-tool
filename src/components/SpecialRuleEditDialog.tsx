@@ -9,10 +9,13 @@ import {
   Box,
   Typography,
   IconButton,
+  Slider,
 } from '@mui/material';
 import { Close as CloseIcon } from '@mui/icons-material';
 import type { SpecialRule, I18nText } from '../types';
 import { useTranslation } from '../utils/i18n';
+import { uiConfigStore } from '../stores/UIConfigStore';
+import { observer } from 'mobx-react-lite';
 
 interface SpecialRuleEditDialogProps {
   open: boolean;
@@ -32,6 +35,8 @@ const SpecialRuleEditDialog = ({
     title: '',
     content: '',
   });
+  const [contentZh, setContentZh] = useState('');
+  const [contentEn, setContentEn] = useState('');
 
   // 辅助函数：从 string | I18nText 提取当前语言的文本
   const extractText = (text: string | I18nText | undefined): string => {
@@ -47,6 +52,16 @@ const SpecialRuleEditDialog = ({
         title: extractText(rule.title),
         content: extractText(rule.content),
       });
+
+      const content = rule.content;
+      if (content && typeof content !== 'string') {
+        setContentZh(content['zh-CN'] ?? '');
+        setContentEn(content['en'] ?? '');
+      } else {
+        const fallback = typeof content === 'string' ? content : '';
+        setContentZh(fallback);
+        setContentEn(fallback);
+      }
     }
   }, [rule, language]);
 
@@ -55,7 +70,7 @@ const SpecialRuleEditDialog = ({
       // 根据当前语言更新对应的字段
       const updateI18nText = (oldText: string | I18nText | undefined, newValue: string): string | I18nText => {
         if (!newValue) return '';
-        
+
         // 如果旧值是字符串，需要转换为 I18nText 对象
         if (typeof oldText === 'string' || !oldText) {
           // 如果是中文环境，只保存中文
@@ -68,30 +83,56 @@ const SpecialRuleEditDialog = ({
             'en': newValue,
           };
         }
-        
+
         // 如果旧值已经是 I18nText 对象，更新对应语言的值
         const result: I18nText = { ...oldText };
         result[language] = newValue;
-        
+
         // 如果只有一个语言有值，简化为字符串（向后兼容）
         if (result['zh-CN'] && !result['en']) {
           return result['zh-CN'];
         }
-        
+
         return result;
       };
 
       onSave({
         ...rule,
         title: updateI18nText(rule.title, formData.title),
-        content: updateI18nText(rule.content, formData.content),
+        content: {
+          'zh-CN': contentZh,
+          'en': contentEn,
+        },
       });
+      onClose();
     }
-    onClose();
   };
 
+  const handleTitleFontSizeChange = (_: unknown, value: number | number[]) => {
+    const numericValue = Array.isArray(value) ? value[0] : value;
+    uiConfigStore.setSpecialRuleTitleFontSize(numericValue, { persist: false });
+  };
+
+  const handleTitleFontSizeCommit = (_: unknown, value: number | number[]) => {
+    const numericValue = Array.isArray(value) ? value[0] : value;
+    uiConfigStore.setSpecialRuleTitleFontSize(numericValue, { persist: true });
+  };
+
+  const handleContentFontSizeChange = (_: unknown, value: number | number[]) => {
+    const numericValue = Array.isArray(value) ? value[0] : value;
+    uiConfigStore.setSpecialRuleContentFontSize(numericValue, { persist: false });
+  };
+
+  const handleContentFontSizeCommit = (_: unknown, value: number | number[]) => {
+    const numericValue = Array.isArray(value) ? value[0] : value;
+    uiConfigStore.setSpecialRuleContentFontSize(numericValue, { persist: true });
+  };
+
+  const titleFontSizeValue = parseFloat(uiConfigStore.specialRuleTitleFontSize) || 1;
+  const contentFontSizeValue = parseFloat(uiConfigStore.specialRuleContentFontSize) || 0.85;
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
       <DialogTitle>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Typography variant="h6">{t('specialRules.edit')}</Typography>
@@ -119,13 +160,45 @@ const SpecialRuleEditDialog = ({
             fullWidth
             label={language === 'zh-CN' ? '内容' : 'Content'}
             value={formData.content}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, content: e.target.value }))
-            }
+            onChange={(e) => {
+              const value = e.target.value;
+              setFormData((prev) => ({ ...prev, content: value }));
+              if (language === 'zh-CN') {
+                setContentZh(value);
+              } else if (language === 'en') {
+                setContentEn(value);
+              }
+            }}
             placeholder={language === 'zh-CN' ? '请输入规则内容' : 'Enter rule content'}
             multiline
-            rows={6}
+            rows={4}
           />
+
+          {/* 字体大小调整滑块 */}
+          <Box sx={{ mt: 3 }}>
+            <Typography gutterBottom>{t('ui.font.titleFontSize')}</Typography>
+            <Slider
+              value={titleFontSizeValue}
+              onChange={handleTitleFontSizeChange}
+              onChangeCommitted={handleTitleFontSizeCommit}
+              min={0.5}
+              max={3}
+              step={0.1}
+              valueLabelDisplay="auto"
+              valueLabelFormat={(value) => `${value}rem`}
+            />
+            <Typography gutterBottom sx={{ mt: 2 }}>{t('ui.font.contentFontSize')}</Typography>
+            <Slider
+              value={contentFontSizeValue}
+              onChange={handleContentFontSizeChange}
+              onChangeCommitted={handleContentFontSizeCommit}
+              min={0.5}
+              max={2}
+              step={0.05}
+              valueLabelDisplay="auto"
+              valueLabelFormat={(value) => `${value}rem`}
+            />
+          </Box>
         </Box>
       </DialogContent>
 
@@ -139,4 +212,4 @@ const SpecialRuleEditDialog = ({
   );
 };
 
-export default SpecialRuleEditDialog;
+export default observer(SpecialRuleEditDialog);

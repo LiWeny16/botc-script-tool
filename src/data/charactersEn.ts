@@ -43,7 +43,7 @@ const custom_characters_en = {
     "image": "https://www.bloodstar.xyz/p/Airell_clocktower/Assets_of_Lei_Gallery/pagan_assets_of_lei_gallery.png",
     "id": "pagan",
     "team": "townsfolk",
-    "author":"Zets",
+    "author": "Zets",
     "firstNight": 200,
     "otherNight": 0,
     "firstNightReminder": "If both the Pagan and Heretic are in play, wake all good Townsfolk and inform them they have all become Pagans.",
@@ -281,6 +281,129 @@ const custom_characters_en = {
     "firstNightReminder": "",
     "reminders": [
       "Linked"
+    ],
+    "setup": false
+  },
+  "kaixinhou": {
+    "name": "Happy Monkey",
+    "ability": "If there are evil players alive, you can not die. All players know you are the Happy Monkey. You can publicly choose a player to play roshambo with you each day. If you win, they die.",
+    "image": "https://free.picui.cn/free/2025/09/21/68d0091d5b270.png",
+    "id": "kaixinhou",
+    "team": "demon",
+    "author": "祥东&小赤",
+    "firstNight": 128001,
+    "otherNight": 0,
+    "firstNightReminder": "Tell all players he is the Happy Monkey.",
+    "otherNightReminder": "",
+    "reminders": [
+      "Not Dead",
+      "Dead",
+      "First Time",
+      "Second Time",
+      "Third Time"
+    ],
+    "remindersGlobal": [],
+    "setup": false
+  },
+  "day_dreamer": {
+    "name": "Day Dreamer",
+    "ability": `Your ability is if…, then…. At your first day, visit the Storyteller and tell them "then". The Storyteller will tell you the "if" of your ability.`,
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/_5gmxj.png",
+    "author": "阿源",
+    "id": "day_dreamer",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "Drunk"
+    ]
+  },
+  "lost_dreamer": {
+    "name": "Lost Dreamer",
+    "ability": `Your ability is if…, then…. At your first day, visit the Storyteller and tell them "if". The Storyteller will tell you the "then" of your ability.`,
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/1_5gmxj.png",
+    "id": "lost_dreamer",
+    "author": "阿源",
+    "team": "outsider",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "Drunk"
+    ]
+  },
+  "gold_dreamer": {
+    "name": "Gold Dreamer",
+    "ability": `Your "if" is easier. Your ability is if…, then…. At your first day, visit the Storyteller and tell them "then". The Storyteller will tell you the "if" of your ability.`,
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/2_5gmxj.png",
+    "id": "gold_dreamer",
+    "team": "minion",
+    "author": "阿源",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "Poisoned"
+    ]
+  },
+  "kill_dreamer": {
+    "name": "Kill Dreamer",
+    "ability": `Each night*, choose a player: they die. Your ability is if…, then…. At your first day, visit the Storyteller and tell them "then". The Storyteller will tell you the "if" of your ability.`,
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/3_5gmxj.png",
+    "id": "kill_dreamer",
+    "author": "阿源",
+    "team": "demon",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "Poisoned",
+      "Dead"
+    ]
+  },
+  "yuan": {
+    "name": "Yuan",
+    "ability": `Each night*, you must choose a player: they die. If you publicly declare "I'm framed!" (except the last day), after you are executed, privately choose a player who voted for you. He will become the evil Yuan, but only one successful conversion can be made per game. [-1 Outsider]`,
+    "image": "https://oss.gstonegames.com/data_file/clocktower/role_icon/custom/d_8539280695861_536321d6.jpg",
+    "id": "yuan",
+    "author": "驯鹿&痴愚",
+    "team": "demon",
+    "firstNight": 0,
+    "otherNight": 100,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "Dead",
+      "Framed"
+    ],
+    "remindersGlobal": [],
+    "setup": 1
+  },
+  "apocalypse": {
+    "name": "Apocalypse Caller",
+    "ability": "Once per game, at the start of the day, if there are four or fewer players alive, you may privately visit the Storyteller to view the Book of Apocalypse for twenty seconds.",
+    "image": "https://i.postimg.cc/VNYbv7sL/tianqi.png",
+    "id": "apocalypse",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "remindersGlobal": [],
+    "setup": 0
+  },
+  "nailong": {
+    "name": "Nailong",
+    "ability": `You can go crazy about "I'm Nailong". If you do this, and another player goes crazy about "I'm Nailong", he may become Nailong until the next dawn.`,
+    "image": "https://i.postimg.cc/SNd02vMs/nailong.webp",
+    "id": "nailong",
+    "team": "traveler",
+    "author": "星火乐",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "I'm Nailong",
+      "I'm not Nailong"
     ],
     "setup": false
   }

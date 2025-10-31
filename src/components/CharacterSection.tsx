@@ -33,9 +33,10 @@ interface CharacterSectionProps {
   onDeleteCharacter?: (character: Character) => void;  // 删除角色
   onReplaceCharacter?: (character: Character, position: { x: number; y: number }) => void;  // 更换角色
   disableDrag?: boolean;  // 是否禁用拖拽功能
+  readOnly?: boolean;
 }
 
-const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, disableDrag = false }: CharacterSectionProps) => {
+const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, disableDrag = false, readOnly = false }: CharacterSectionProps) => {
   const { t } = useTranslation();
   const isChinese = configStore.language === 'zh-CN';
 
@@ -192,6 +193,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                       onEdit={onEditCharacter}
                       onDelete={onDeleteCharacter}
                       onReplace={onReplaceCharacter}
+                      readOnly={readOnly}
                     />
                   </Box>
                 </Box>
@@ -232,6 +234,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                             onEdit={onEditCharacter}
                             onDelete={onDeleteCharacter}
                             onReplace={onReplaceCharacter}
+                            readOnly={readOnly}
                           />
                         </Box>
                       ))}
@@ -265,6 +268,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                             onEdit={onEditCharacter}
                             onDelete={onDeleteCharacter}
                             onReplace={onReplaceCharacter}
+                            readOnly={readOnly}
                           />
                         </Box>
                       ))}

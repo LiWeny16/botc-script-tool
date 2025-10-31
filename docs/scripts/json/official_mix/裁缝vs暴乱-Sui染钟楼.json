@@ -1,15 +1,16 @@
-[{
-		"id": "_meta",
-		"name": "裁缝vs暴乱",
-		"author": "Sui染钟楼",
-		"logo": "https://i.postimg.cc/mkW8SPQC/copy.png",
-		"description": "一个短平快的玩法",
-		"townsfolkName": "镇民",
-		"demonsName": "恶魔",
-		"townsfolk": "镇民",
-		"demon": "恶魔"
-	},
-
+[
+  {
+    "id": "_meta",
+    "name": "裁缝vs暴乱",
+    "name_en": "Seamstress vs Riot",
+    "author": "Sui染钟楼",
+    "logo": "https://i.postimg.cc/mkW8SPQC/copy.png",
+    "description": "一个短平快的玩法",
+    "townsfolkName": "镇民",
+    "demonsName": "恶魔",
+    "townsfolk": "镇民",
+    "demon": "恶魔"
+  },
   {
     "firstNightReminder": "女裁缝可以选择除自己以外的两名玩家。如果她这么做了，对她点头或摇头示意这两名玩家是否为同一阵营，随后标记女裁缝失去能力。之后的夜晚无需再唤醒女裁缝。",
     "otherNightReminder": "女裁缝可以选择除自己以外的两名玩家。如果她这么做了，对她点头或摇头示意这两名玩家是否为同一阵营，随后标记女裁缝失去能力。之后的夜晚无需再唤醒女裁缝。",

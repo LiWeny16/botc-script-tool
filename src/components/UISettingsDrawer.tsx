@@ -119,7 +119,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
       show: cat.keywords.some(keyword => keyword.toLowerCase().includes(query)) ||
             cat.title.toLowerCase().includes(query),
     }));
-  }, [searchQuery, categories]);
+  }, [searchQuery, categories, t]);
 
   // 字体选择器组件
   const FontSelector = ({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) => (
@@ -536,15 +536,15 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                   {/* 第一页特殊规则标题字体 */}
                   <FontSelector
                     label={t('ui.font.titleFont')}
-                    value={uiConfigStore.config.fonts.stateRuleTitle}
-                    onChange={(value) => uiConfigStore.updateFontConfig({ stateRuleTitle: value })}
+                    value={uiConfigStore.config.fonts.specialRuleTitle}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ specialRuleTitle: value })}
                   />
 
                   {/* 第一页特殊规则内容字体 */}
                   <FontSelector
                     label={t('ui.font.contentFont')}
-                    value={uiConfigStore.config.fonts.stateRuleContent}
-                    onChange={(value) => uiConfigStore.updateFontConfig({ stateRuleContent: value })}
+                    value={uiConfigStore.config.fonts.specialRuleContent}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ specialRuleContent: value })}
                   />
 
                   <Divider sx={{ my: 1 }} />
@@ -555,15 +555,15 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                   {/* 第二页特殊规则标题字体 */}
                   <FontSelector
                     label={t('ui.font.titleFont')}
-                    value={uiConfigStore.config.fonts.specialRuleTitle}
-                    onChange={(value) => uiConfigStore.updateFontConfig({ specialRuleTitle: value })}
+                    value={uiConfigStore.config.fonts.stateRuleTitle}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ stateRuleTitle: value })}
                   />
 
                   {/* 第二页特殊规则内容字体 */}
                   <FontSelector
                     label={t('ui.font.contentFont')}
-                    value={uiConfigStore.config.fonts.specialRuleContent}
-                    onChange={(value) => uiConfigStore.updateFontConfig({ specialRuleContent: value })}
+                    value={uiConfigStore.config.fonts.stateRuleContent}
+                    onChange={(value) => uiConfigStore.updateFontConfig({ stateRuleContent: value })}
                   />
                 </Stack>
               </AccordionDetails>

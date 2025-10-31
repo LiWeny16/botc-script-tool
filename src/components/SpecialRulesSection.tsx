@@ -2,9 +2,9 @@ import { Box, Divider, Typography, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import type { SpecialRule, I18nText } from '../types';
-import { THEME_COLORS } from '../theme/colors';
-import { useTranslation } from '../utils/i18n';
 import { uiConfigStore } from '../stores/UIConfigStore';
+import { useTranslation } from '../utils/i18n';
+import { observer } from 'mobx-react-lite';
 
 interface SpecialRulesSectionProps {
   rules: SpecialRule[];
@@ -13,9 +13,21 @@ interface SpecialRulesSectionProps {
   isMobile?: boolean;
 }
 
-export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile = false }: SpecialRulesSectionProps) {
+const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile }: SpecialRulesSectionProps) => {
   const { t, language } = useTranslation();
   const [hoveredRuleId, setHoveredRuleId] = useState<string | null>(null);
+
+  const titleFontBase = parseFloat(uiConfigStore.specialRuleTitleFontSize || '1');
+  const contentFontBase = parseFloat(uiConfigStore.specialRuleContentFontSize || '0.85');
+
+  const createResponsiveFontSize = (base: number) => ({
+    xs: `${Math.max(base * 0.8, 0.1)}rem`,
+    sm: `${Math.max(base * 0.9, 0.1)}rem`,
+    md: `${Math.max(base, 0.1)}rem`,
+  });
+
+  const titleFontSize = createResponsiveFontSize(titleFontBase);
+  const contentFontSize = createResponsiveFontSize(contentFontBase);
 
   // 如果没有规则则不显示
   if (!rules || rules.length === 0) return null;
@@ -142,11 +154,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile 
                     fontFamily: uiConfigStore.specialRuleTitleFont,
                     fontWeight: 'bold',
                     color: '#3d3226',
-                    fontSize: {
-                      xs: language === 'en' ? '1.1rem' : '1rem',
-                      sm: language === 'en' ? '1.3rem' : '1.15rem',
-                      md: language === 'en' ? '1.5rem' : '1.3rem'
-                    },
+                    fontSize: titleFontSize,
                     mb: 0.3,
                     lineHeight: 1.3,
                     wordBreak: 'break-word',
@@ -168,11 +176,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile 
                   sx={{
                     fontFamily: uiConfigStore.specialRuleContentFont,
                     color: '#5a4a3a',
-                    fontSize: {
-                      xs: language === 'en' ? '0.85rem' : '0.7rem',
-                      sm: language === 'en' ? '0.95rem' : '0.78rem',
-                      md: language === 'en' ? '1.1rem' : '0.85rem'
-                    },
+                    fontSize: contentFontSize,
                     lineHeight: language === 'en' ? 1 : 1.3,
                     textAlign: 'justify',
                     wordBreak: 'break-word',
@@ -193,5 +197,7 @@ export default function SpecialRulesSection({ rules, onDelete, onEdit, isMobile 
       ))}
     </Box>
   );
-}
+};
+
+export default observer(SpecialRulesSection);
 

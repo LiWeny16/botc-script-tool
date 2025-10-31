@@ -188,7 +188,7 @@ const ScriptRenderer = observer(({
                         title={displayedTitle}
                         titleImage={script.secondPageTitleImage}
                         useImage={script.useSecondPageTitleImage}
-                        fontSize={script.secondPageTitleFontSize}
+                        fontSize={script.secondPageTitleFontSize ?? '5.3rem'}
                         imageSize={script.secondPageTitleImageSize}
                         author={script.author}
                         playerCount={script.playerCount}
@@ -231,6 +231,7 @@ const ScriptRenderer = observer(({
                         onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                         onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                         disableDrag={readOnly}
+                        readOnly={readOnly}
                     />
                 ) : null;
 
@@ -247,6 +248,7 @@ const ScriptRenderer = observer(({
                         onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                         onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                         disableDrag={readOnly}
+                        readOnly={readOnly}
                     />
                 ) : null;
 
@@ -281,6 +283,7 @@ const ScriptRenderer = observer(({
                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                             disableDrag={readOnly}
+                            readOnly={readOnly}
                         />
                     ) : null;
                 }
@@ -591,8 +594,8 @@ const ScriptRenderer = observer(({
                                                     fontFamily: uiConfigStore.scriptTitleFont,
                                                     fontWeight: 'bold',
                                                     fontSize: {
-                                                        xs: uiConfigStore.titleFontSizeXs,
-                                                        sm: uiConfigStore.titleFontSizeSm,
+                                                        xs: '2.5rem',
+                                                        sm: '3.4rem',
                                                         md: uiConfigStore.titleFontSizeMd
                                                     },
                                                     lineHeight: 1.38,
@@ -682,6 +685,7 @@ const ScriptRenderer = observer(({
                                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                                             disableDrag={readOnly}
+                                            readOnly={readOnly}
                                         />
                                     )
                                 ))}
@@ -700,6 +704,7 @@ const ScriptRenderer = observer(({
                                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                                             disableDrag={readOnly}
+                                            readOnly={readOnly}
                                         />
                                     )
                                 ))}
@@ -719,6 +724,7 @@ const ScriptRenderer = observer(({
                                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                                             disableDrag={readOnly}
+                                            readOnly={readOnly}
                                         />
                                     ))
                                 }

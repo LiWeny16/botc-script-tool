@@ -5,6 +5,7 @@ import type { SpecialRule, I18nText } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { useTranslation } from '../utils/i18n';
+import { observer } from 'mobx-react-lite';
 
 interface StateRulesSectionProps {
   rules: SpecialRule[];
@@ -207,4 +208,4 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
   );
 };
 
-export default StateRulesSection;
+export default observer(StateRulesSection);

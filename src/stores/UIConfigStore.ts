@@ -48,6 +48,10 @@ export interface UIConfig {
     specialRuleContent: string;
   };
 
+  // 第一页特殊规则字体大小
+  specialRuleTitleFontSize: string;
+  specialRuleContentFontSize: string;
+
   // 自定义字体列表
   customFonts: CustomFont[];
 
@@ -115,7 +119,7 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   fonts: {
     scriptTitle: 'jicao, Dumbledor, serif',
     teamDivider: 'jicao, Dumbledor, serif',
-    characterName: '"Source Han Serif", "Source Han Serif SC", "Noto Serif CJK SC", "思源宋体", "Microsoft YaHei", "PingFang SC", serif',
+    characterName: 'jicao, Dumbledor, serif',
     characterAbility: '"Source Han Serif", "Source Han Serif SC", "Noto Serif CJK SC", "思源宋体", "Microsoft YaHei", "PingFang SC", serif',
     jinxText: 'jicao, Dumbledor, serif',
     stateRuleTitle: 'jicao, Dumbledor, serif',
@@ -123,6 +127,10 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     specialRuleTitle: 'jicao, Dumbledor, serif',
     specialRuleContent: 'jicao, Dumbledor, serif',
   },
+
+  // 第一页特殊规则字体大小
+  specialRuleTitleFontSize: '1rem',
+  specialRuleContentFontSize: '0.85rem',
 
   // 自定义字体列表
   customFonts: [],
@@ -245,6 +253,24 @@ class UIConfigStore {
   updateFontConfig(updates: Partial<UIConfig['fonts']>) {
     this.config.fonts = { ...this.config.fonts, ...updates };
     this.saveConfig();
+  }
+
+  setSpecialRuleTitleFontSize(value: number, options: { persist?: boolean } = {}) {
+    const { persist = true } = options;
+    const size = `${Number(value.toFixed(2))}rem`;
+    this.config.specialRuleTitleFontSize = size;
+    if (persist) {
+      this.saveConfig();
+    }
+  }
+
+  setSpecialRuleContentFontSize(value: number, options: { persist?: boolean } = {}) {
+    const { persist = true } = options;
+    const size = `${Number(value.toFixed(2))}rem`;
+    this.config.specialRuleContentFontSize = size;
+    if (persist) {
+      this.saveConfig();
+    }
   }
 
   // 添加自定义字体
@@ -442,6 +468,14 @@ class UIConfigStore {
 
   get specialRuleContentFont() {
     return this.config.fonts.specialRuleContent;
+  }
+
+  get specialRuleTitleFontSize() {
+    return this.config.specialRuleTitleFontSize;
+  }
+
+  get specialRuleContentFontSize() {
+    return this.config.specialRuleContentFontSize;
   }
 
   // 获取所有可用字体列表（内置 + 自定义）

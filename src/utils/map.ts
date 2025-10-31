@@ -330,6 +330,8 @@ export const translations = {
     'ui.font.page2Rules': '第二页特殊规则字体',
     'ui.font.titleFont': '标题字体',
     'ui.font.contentFont': '内容字体',
+    'ui.font.titleFontSize': '标题字号',
+    'ui.font.contentFontSize': '内容字号',
 
     // 字体上传器
     'fontUploader.title': '自定义字体管理',
@@ -743,6 +745,8 @@ export const translations = {
     'ui.font.page2Rules': 'Page 2 Special Rules Font',
     'ui.font.titleFont': 'Title Font',
     'ui.font.contentFont': 'Content Font',
+    'ui.font.titleFontSize': 'Title Font Size',
+    'ui.font.contentFontSize': 'Content Font Size',
 
     // Font Uploader
     'fontUploader.title': 'Custom Font Manager',

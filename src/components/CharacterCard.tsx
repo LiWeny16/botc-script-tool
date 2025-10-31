@@ -21,9 +21,10 @@ interface CharacterCardProps {
   onEdit?: (character: Character) => void;
   onDelete?: (character: Character) => void;
   onReplace?: (character: Character, position: { x: number; y: number }) => void;
+  readOnly?: boolean;
 }
 
-const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete, onReplace }: CharacterCardProps) => {
+const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete, onReplace, readOnly = false }: CharacterCardProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -31,6 +32,8 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     mouseX: number;
     mouseY: number;
   } | null>(null);
+
+  const isReadOnly = readOnly;
 
   // 从 uiConfigStore 获取配置
   const config = uiConfigStore.config.characterCard;
@@ -133,6 +136,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   // 处理双击事件
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (isReadOnly) return;
     // 无论是否在官方ID解析模式，都调用onEdit，由App.tsx统一处理提示
     if (onEdit) {
       onEdit(character);
@@ -162,6 +166,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   // 处理编辑
   const handleEditClick = () => {
     handleClose();
+    if (isReadOnly) return;
     if (onEdit) {
       onEdit(character);
     }
@@ -170,6 +175,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   // 处理删除
   const handleDeleteClick = () => {
     handleClose();
+    if (isReadOnly) return;
     if (onDelete) {
       onDelete(character);
     }
@@ -190,6 +196,10 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
 
   // 处理更换角色
   const handleReplaceClick = () => {
+    if (isReadOnly) {
+      handleClose();
+      return;
+    }
     if (onReplace && contextMenu) {
       onReplace(character, { x: contextMenu.mouseX, y: contextMenu.mouseY });
     }
@@ -203,66 +213,72 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
           position: 'relative',
           width: '100%',
           // 使用 CSS 控制按钮显示，避免 React 状态更新
-          '&:hover .action-buttons': {
-            opacity: 1,
-            pointerEvents: 'auto',
-          },
+          ...(isReadOnly
+            ? {}
+            : {
+              '&:hover .action-buttons': {
+                opacity: 1,
+                pointerEvents: 'auto',
+              },
+            }),
         }}
       >
         {/* 悬浮时显示的编辑和删除按钮 - 使用 CSS 控制显示 */}
-        <Box
-          className="action-buttons"
-          sx={{
-            position: 'absolute',
-            top: isMobile ? 4 : 8,
-            right: isMobile ? 4 : 8,
-            zIndex: 10,
-            display: 'flex',
-            gap: isMobile ? 0.5 : 1,
-            opacity: 0,
-            pointerEvents: 'none',
-            transition: 'opacity 0.2s',
-          }}
-        >
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onEdit) {
-                onEdit(character);
-              }
-            }}
+        {!isReadOnly && (
+          <Box
+            className="action-buttons"
             sx={{
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 1)',
-              },
-              width: isMobile ? 28 : 32,
-              height: isMobile ? 28 : 32,
+              position: 'absolute',
+              top: isMobile ? 4 : 8,
+              right: isMobile ? 4 : 8,
+              zIndex: 10,
+              display: 'flex',
+              gap: isMobile ? 0.5 : 1,
+              opacity: 0,
+              pointerEvents: 'none',
+              transition: 'opacity 0.2s',
             }}
-            size="small"
           >
-            <EditIcon sx={{ fontSize: isMobile ? 16 : 20 }} />
-          </IconButton>
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              if (onDelete) {
-                onDelete(character);
-              }
-            }}
-            sx={{
-              backgroundColor: 'rgba(255, 255, 255, 0.9)',
-              '&:hover': {
-                backgroundColor: 'rgba(255, 255, 255, 1)',
-              },
-              width: isMobile ? 28 : 32,
-              height: isMobile ? 28 : 32,
-            }}
-            size="small"
-          >
-            <DeleteIcon sx={{ fontSize: isMobile ? 16 : 20 }} />
-          </IconButton>
-        </Box>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onEdit) {
+                  onEdit(character);
+                }
+              }}
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 1)',
+                },
+                width: isMobile ? 28 : 32,
+                height: isMobile ? 28 : 32,
+              }}
+              size="small"
+            >
+              <EditIcon sx={{ fontSize: isMobile ? 16 : 20 }} />
+            </IconButton>
+            <IconButton
+              onClick={(e) => {
+                e.stopPropagation();
+                if (onDelete) {
+                  onDelete(character);
+                }
+              }}
+              sx={{
+                backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 1)',
+                },
+                width: isMobile ? 28 : 32,
+                height: isMobile ? 28 : 32,
+              }}
+              size="small"
+            >
+              <DeleteIcon sx={{ fontSize: isMobile ? 16 : 20 }} />
+            </IconButton>
+          </Box>
+        )}
 
         <Paper
           ref={setNodeRef}
@@ -482,6 +498,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
       >
         <MenuItem
           onClick={handleEditClick}
+          disabled={isReadOnly}
           sx={{
             borderRadius: 1,
             mx: 0.5,
@@ -526,6 +543,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
         </MenuItem>
         <MenuItem
           onClick={handleReplaceClick}
+          disabled={isReadOnly}
           sx={{
             borderRadius: 1,
             mx: 0.5,
@@ -548,6 +566,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
         </MenuItem>
         <MenuItem
           onClick={handleDeleteClick}
+          disabled={isReadOnly}
           sx={{
             borderRadius: 1,
             mx: 0.5,

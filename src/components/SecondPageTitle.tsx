@@ -10,7 +10,7 @@ interface SecondPageTitleProps {
   title: string;
   titleImage?: string;
   useImage?: boolean;  // 是否使用图片标题
-  fontSize?: number;  // 字体大小（像素）
+  fontSize?: any;  // 字体大小（像素）
   imageSize?: number;  // 图片大小（像素）
   author?: string;  // 作者
   playerCount?: string;  // 支持人数

@@ -3812,6 +3812,123 @@ const custom_characters = {
     ],
     "setup": false
   },
+  "kaixinhou": {
+    "name": "开心猴",
+    "ability": "如果场上有爪牙存活，你不会死亡，所有玩家知道你是开心猴。每个白天限3次，你可以在提名开始前公开选择一名玩家与他猜拳，如果你获胜，他死亡。",
+    "image": "https://free.picui.cn/free/2025/09/21/68d0091d5b270.png",
+    "id": "kaixinhou",
+    "team": "demon",
+    "firstNight": 128001,
+    "otherNight": 0,
+    "firstNightReminder": "告诉所有人他是开心猴。",
+    "otherNightReminder": "",
+    "reminders": [
+      "不会死亡",
+      "死亡",
+      "第一次",
+      "第二次",
+      "第三次"
+    ],
+    "remindersGlobal": [],
+    "setup": false
+  },
+  "day_dreamer": {
+    "name": "白日梦想家",
+    "ability": "你的能力是如果…，那么…。在你的首个白天拜访并告知说书人“那么”，说书人会告知你能力的“如果”。",
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/_5gmxj.png",
+    "id": "day_dreamer",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "醉酒"
+    ]
+  },
+  "lost_dreamer": {
+    "name": "失去梦想家",
+    "ability": "你的能力是如果…，那么…。在你的首个白天拜访并告知说书人“如果”，说书人会告知你能力的“那么”。",
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/1_5gmxj.png",
+    "id": "lost_dreamer",
+    "team": "outsider",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "醉酒"
+    ]
+  },
+  "gold_dreamer": {
+    "name": "氪金梦想家",
+    "ability": "你的“如果”会更加容易。 你的能力是如果…，那么…。在你的首个白天拜访并告知说书人“那么”，说书人会告知你能力的“如果”。",
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/2_5gmxj.png",
+    "id": "gold_dreamer",
+    "team": "minion",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "中毒"
+    ]
+  },
+  "kill_dreamer": {
+    "name": "扼杀梦想家",
+    "ability": "每个夜晚*，选择一名玩家：他死亡。 你的能力是如果…，那么…。在你的首个白天拜访并告知说书人“那么”，说书人会告知你能力的“如果”。",
+    "image": "https://www.bloodstar.xyz/p/Drus/5GMXJ/3_5gmxj.png",
+    "id": "kill_dreamer",
+    "team": "demon",
+    "firstNight": 0,
+    "otherNight": 0,
+    "reminders": [
+      "中毒",
+      "死亡"
+    ]
+  },
+  "yuan": {
+    "name": "冤",
+    "ability": "每个夜晚*，你要选择一名玩家:他死亡。如果你在被提名后公开声明我冤呐（最后一天除外），在你死于处决后私下选择一名给你投票的玩家，他会变成邪恶的冤，但每局游戏仅能成功转化一次。[-1外来者]",
+    "image": "https://oss.gstonegames.com/data_file/clocktower/role_icon/custom/d_8539280695861_536321d6.jpg",
+    "id": "yuan",
+    "team": "demon",
+    "firstNight": 0,
+    "otherNight": 100,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "死亡",
+      "冤呐"
+    ],
+    "remindersGlobal": [],
+    "setup": 1
+  },
+  "apocalypse": {
+    "name": "天启召唤者",
+    "ability": "每局游戏限一次，在白天时，如果只有四名或更少的玩家存活，你可以私下拜访说书人以查看魔典二十秒。",
+    "image": "https://i.postimg.cc/VNYbv7sL/tianqi.png",
+    "id": "apocalypse",
+    "team": "townsfolk",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "remindersGlobal": [],
+    "setup": 0
+  },
+  "nailong": {
+    "name": "奶龙",
+    "ability": "你可以对“你是奶龙”疯狂，如果你这样做，且有其他玩家对“自己是奶龙”疯狂，他有可能变成奶龙直至下个黎明",
+    "image": "https://i.postimg.cc/SNd02vMs/nailong.webp",
+    "id": "nailong",
+    "team": "traveler",
+    "firstNight": 0,
+    "author": "星火乐",
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [
+      "我是奶龙",
+      "我才是奶龙"
+    ],
+    "setup": false
+  }
 }
 // 导入传奇角色
 import { getFabledCharacters } from './fabled';

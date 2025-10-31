@@ -183,7 +183,7 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
               flexWrap: isMobile ? 'wrap' : 'nowrap',
               overflowY: 'auto',
               overscrollBehavior: 'contain',
-              justifyContent: isMobile ? 'flex-start' : 'flex-start',
+              justifyContent: isMobile ? 'center' : 'flex-start',
               alignContent: isMobile ? 'flex-start' : 'stretch',
               gap: isMobile ? 0.5 : 0,
               '&::-webkit-scrollbar': {

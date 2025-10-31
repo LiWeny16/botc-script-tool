@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2025-10-30T23:42:25.980663Z",
+  "generatedAt": "2025-10-31T08:56:47.444439Z",
   "version": 1,
   "scripts": [
     {
@@ -17,7 +17,7 @@
     {
       "id": "custom-复活庆典v3-0-复活庆典-zets-json",
       "name": "复活庆典v3.0",
-      "nameEn": "",
+      "nameEn": "Heathens vs Easters",
       "author": "Zets",
       "description": "",
       "category": "custom",
@@ -29,7 +29,7 @@
     {
       "id": "custom-开心快乐猴-开心快乐猴-祥东-小赤-json",
       "name": "开心快乐猴",
-      "nameEn": "",
+      "nameEn": "Happy Happy Monkey",
       "author": "开心猴·祥东&开心猴·小赤",
       "description": "",
       "category": "custom",
@@ -39,9 +39,9 @@
       "dir": "custom"
     },
     {
-      "id": "custom-彩虹派对v3-0-1-彩虹派对-左影-小完能大雷子v3-0-1-json",
-      "name": "彩虹派对V3.0.1",
-      "nameEn": "",
+      "id": "custom-彩虹派对v3-彩虹派对-左影-小完能大雷子v3-0-1-json",
+      "name": "彩虹派对V3",
+      "nameEn": "LGBT's Party V3",
       "author": "左影 & 小完能大雷子",
       "description": "彩虹派对V3.0.1",
       "category": "custom",
@@ -53,7 +53,7 @@
     {
       "id": "custom-放飞理想-放飞理想-drus阿源-json",
       "name": "放飞理想",
-      "nameEn": "",
+      "nameEn": "Dream Now!",
       "author": "阿源",
       "description": "",
       "category": "custom",
@@ -63,9 +63,9 @@
       "dir": "custom"
     },
     {
-      "id": "custom-飞越疯人院ⅱ-v1-1-1-飞越疯人院2-太一-json",
-      "name": "飞越疯人院Ⅱ v1.1.1",
-      "nameEn": "",
+      "id": "custom-飞跃疯人院2-飞越疯人院2-太一-json",
+      "name": "飞跃疯人院2",
+      "nameEn": "Crazy House 2",
       "author": "太一",
       "description": "",
       "category": "custom",
@@ -75,15 +75,27 @@
       "dir": "custom"
     },
     {
-      "id": "official-黯月初生-bad-moon-rising-json",
-      "name": "黯月初生",
+      "id": "official-黯月初升-bad-moon-rising-json",
+      "name": "黯月初升",
       "nameEn": "Bad Moon Rising",
       "author": "Official",
       "description": "",
       "category": "official",
-      "logo": "",
+      "logo": "/imgs/images/scripts/official/Logo_bad_moon_rising.png",
       "jsonUrl": "/scripts/json/official/Bad Moon Rising.json",
       "file": "Bad Moon Rising.json",
+      "dir": "official"
+    },
+    {
+      "id": "official-窃窃私语-secret-whispering-json",
+      "name": "窃窃私语",
+      "nameEn": "Secret Whispering",
+      "author": "Official",
+      "description": "",
+      "category": "official",
+      "logo": "https://oss.gstonegames.com/static/image/team/202206/c_8013445915561_50d8c906.jpg",
+      "jsonUrl": "/scripts/json/official/Secret Whispering.json",
+      "file": "Secret Whispering.json",
       "dir": "official"
     },
     {
@@ -93,7 +105,7 @@
       "author": "Official",
       "description": "",
       "category": "official",
-      "logo": "",
+      "logo": "/imgs/images/scripts/official/Logo_sects_and_violets.png",
       "jsonUrl": "/scripts/json/official/Sects & Violets.json",
       "file": "Sects & Violets.json",
       "dir": "official"
@@ -105,9 +117,9 @@
       "author": "Official",
       "description": "",
       "category": "official",
-      "logo": "",
-      "jsonUrl": "/scripts/json/official/supreme pleasure.json",
-      "file": "supreme pleasure.json",
+      "logo": "https://clocktower-wiki.gstonegames.com/images/thumb/c/ce/Ngj.png/450px-Ngj.png",
+      "jsonUrl": "/scripts/json/official/Supreme Pleasure.json",
+      "file": "Supreme Pleasure.json",
       "dir": "official"
     },
     {
@@ -117,27 +129,15 @@
       "author": "Official",
       "description": "",
       "category": "official",
-      "logo": "",
+      "logo": "/imgs/images/scripts/official/Logo_trouble_brewing.png",
       "jsonUrl": "/scripts/json/official/Trouble Brewing.json",
       "file": "Trouble Brewing.json",
       "dir": "official"
     },
     {
-      "id": "official-窃窃私语-whisper-json",
-      "name": "窃窃私语",
-      "nameEn": "Secret Whispering",
-      "author": "Official",
-      "description": "",
-      "category": "official",
-      "logo": "",
-      "jsonUrl": "/scripts/json/official/whisper.json",
-      "file": "whisper.json",
-      "dir": "official"
-    },
-    {
       "id": "official-mix-上帝缺席-上帝缺席-json",
       "name": "上帝缺席",
-      "nameEn": "",
+      "nameEn": "God Absent",
       "author": "Richard Black",
       "description": "",
       "category": "official_mix",
@@ -149,7 +149,7 @@
     {
       "id": "official-mix-仇海溺行-仇海溺行-json",
       "name": "仇海溺行",
-      "nameEn": "",
+      "nameEn": "Harold Holt's Revenge",
       "author": "Theo",
       "description": "",
       "category": "official_mix",
@@ -185,7 +185,7 @@
     {
       "id": "official-mix-奇异人生-奇异人生-海雾-奇异人生推理馆-json",
       "name": "奇异人生",
-      "nameEn": "",
+      "nameEn": "Strange Life",
       "author": "海雾&奇异人生推理馆",
       "description": "",
       "category": "official_mix",
@@ -197,7 +197,7 @@
     {
       "id": "official-mix-心理博弈xi-心理博弈xi-habby-json",
       "name": "心理博弈XI",
-      "nameEn": "",
+      "nameEn": "Psychological Game XI",
       "author": "Habby",
       "description": "",
       "category": "official_mix",
@@ -209,7 +209,7 @@
     {
       "id": "official-mix-灵异蜂蜜-灵异蜂蜜-星火乐-json",
       "name": "灵异蜂蜜",
-      "nameEn": "",
+      "nameEn": "Supernatural Honey",
       "author": "星火乐",
       "description": "灵异蜂蜜~星火乐激战洗衣机",
       "category": "official_mix",
@@ -219,21 +219,21 @@
       "dir": "official_mix"
     },
     {
-      "id": "official-mix-爪牙大乱斗-nicky-爪牙大乱斗-nicky-json",
-      "name": "爪牙大乱斗-Nicky",
-      "nameEn": "",
+      "id": "official-mix-爪牙大乱斗-爪牙大乱斗-json",
+      "name": "爪牙大乱斗",
+      "nameEn": "Minions Brawl",
       "author": "Nicky",
       "description": "爪牙大乱斗",
       "category": "official_mix",
       "logo": "",
-      "jsonUrl": "/scripts/json/official_mix/爪牙大乱斗-Nicky.json",
-      "file": "爪牙大乱斗-Nicky.json",
+      "jsonUrl": "/scripts/json/official_mix/爪牙大乱斗.json",
+      "file": "爪牙大乱斗.json",
       "dir": "official_mix"
     },
     {
       "id": "official-mix-裁缝vs暴乱-裁缝vs暴乱-sui染钟楼-json",
       "name": "裁缝vs暴乱",
-      "nameEn": "",
+      "nameEn": "Seamstress vs Riot",
       "author": "Sui染钟楼",
       "description": "一个短平快的玩法",
       "category": "official_mix",
@@ -245,7 +245,7 @@
     {
       "id": "official-mix-说书人之怒-说书人之怒-json",
       "name": "说书人之怒",
-      "nameEn": "",
+      "nameEn": "The Storyteller's Rage",
       "author": "Richard Black",
       "description": "",
       "category": "official_mix",

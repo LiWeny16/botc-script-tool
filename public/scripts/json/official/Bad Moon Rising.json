@@ -1,9 +1,10 @@
 [
   {
     "id": "_meta",
-    "name": "黯月初生",
+    "name": "黯月初升",
     "name_en": "Bad Moon Rising",
     "author": "",
+    "logo":"/imgs/images/scripts/official/Logo_bad_moon_rising.png",
     "use_second_page_title_image": false
   },
   "grandmother",
