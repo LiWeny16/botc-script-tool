@@ -406,7 +406,23 @@ const custom_characters_en = {
       "I'm not Nailong"
     ],
     "setup": false
-  }
+  },
+  "pumpkin": {
+    "id": "pumpkin",
+    "image": "/imgs/icons/townsfolk/pumpkin.png",
+    "edition": "custom",
+    "name": "Pumpkin",
+    "author":"Halloween Only🎃",
+    "ability": `Players who are "spooky" might survive execution be safe from the Demon.`,
+    "team": "townsfolk",
+    "sch_team": "镇民",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
 }
 export const CHARACTERS_EN: any = { ..._charactersEn, ...custom_characters_en, ...fabledDict };
 

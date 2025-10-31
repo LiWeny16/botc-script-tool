@@ -3928,7 +3928,23 @@ const custom_characters = {
       "我才是奶龙"
     ],
     "setup": false
-  }
+  },
+  "pumpkin": {
+    "id": "pumpkin",
+    "image": "https://www.helloimg.com/i/2024/11/05/672998f0c5079.png",
+    "edition": "custom",
+    "author":"万圣节特别角色",
+    "name": "南瓜",
+    "ability": "足够“吓人”的玩家可能不会死于处决且恶魔的负面能力对他无效。",
+    "team": "townsfolk",
+    "sch_team": "镇民",
+    "firstNight": 0,
+    "otherNight": 0,
+    "firstNightReminder": "",
+    "otherNightReminder": "",
+    "reminders": [],
+    "setup": false
+  },
 }
 // 导入传奇角色
 import { getFabledCharacters } from './fabled';
