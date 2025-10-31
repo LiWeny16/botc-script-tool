@@ -30,6 +30,7 @@ import CharacterImage from './CharacterImage';
 import type { Character } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import { getFabledCharacters } from '../data/fabled';
+import { getLoricCharacters } from '../data/loric';
 import { configStore } from '../stores/ConfigStore';
 import { PINYIN_MAP } from '../data/pinyinMap';
 
@@ -71,7 +72,7 @@ const CharacterLibraryCard = observer(({
         return language === 'en' ? CHARACTERS_EN : CHARACTERS;
     }, [language]);
 
-    // 按团队分类角色，包含传奇角色，去重处理
+    // 按团队分类角色，包含传奇角色和 Loric 角色，去重处理
     const charactersByTeam = useMemo(() => {
         const teams = {
             townsfolk: [] as Character[],
@@ -79,6 +80,7 @@ const CharacterLibraryCard = observer(({
             minion: [] as Character[],
             demon: [] as Character[],
             fabled: getFabledCharacters(language), // 使用多语言传奇角色
+            loric: getLoricCharacters(language), // 使用多语言洛克角色
             traveler: [] as Character[],
         };
 
@@ -87,8 +89,8 @@ const CharacterLibraryCard = observer(({
 
         Object.values(currentCharacterData).forEach((char) => {
             const character = char as Character;
-            // 跳过重复的角色ID和传奇角色（传奇角色单独处理）
-            if (seenIds.has(character.id) || character.team === 'fabled') {
+            // 跳过重复的角色ID和传奇角色、洛克角色（这些角色单独处理）
+            if (seenIds.has(character.id) || character.team === 'fabled' || character.team === 'loric') {
                 return;
             }
 
@@ -112,6 +114,7 @@ const CharacterLibraryCard = observer(({
                 minion: [] as Character[],
                 demon: [] as Character[],
                 fabled: [] as Character[],
+                loric: [] as Character[],
                 traveler: [] as Character[],
             };
         }
@@ -127,6 +130,7 @@ const CharacterLibraryCard = observer(({
             minion: [] as Character[],
             demon: [] as Character[],
             fabled: [] as Character[],
+            loric: [] as Character[],
             traveler: [] as Character[],
         };
 
@@ -153,6 +157,7 @@ const CharacterLibraryCard = observer(({
         { key: 'minion', label: t('minion'), color: THEME_COLORS.evil },
         { key: 'demon', label: t('demon'), color: THEME_COLORS.evil },
         { key: 'fabled', label: t('fabled'), color: THEME_COLORS.fabled },
+        { key: 'loric', label: t('loric'), color: THEME_COLORS.loric },
         { key: 'traveler', label: t('traveler'), color: THEME_COLORS.purple },
     ];
 

@@ -2,7 +2,7 @@ import { Box, Typography, Paper, Divider, IconButton } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import type { Character, Script } from '../types';
+import type { Character, Script, JinxInfo } from '../types';
 import CharacterImage from './CharacterImage';
 import { THEME_COLORS } from '../theme/colors';
 import { uiConfigStore } from '../stores/UIConfigStore';
@@ -18,8 +18,7 @@ interface JinxSectionProps {
 interface UniqueJinx {
     characterA: Character;
     characterB: Character;
-    jinxText: string;
-    isCustom?: boolean;  // 标记是否为自定义相克
+    jinxInfo: JinxInfo;  // 相克信息对象
 }
 
 const JinxSection = observer(({ script }: JinxSectionProps) => {
@@ -32,12 +31,14 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
         const jinxes: UniqueJinx[] = [];
         const processedPairs = new Set<string>(); // 用于追踪已处理的配对
 
-        // 获取对应语言的官方相克数据
-        const officialJinxData = language === 'en' ? JINX_DATA_EN : JINX_DATA;
-
         // 遍历所有相克规则
         Object.entries(script.jinx).forEach(([nameA, targets]) => {
-            Object.entries(targets).forEach(([nameB, jinxText]) => {
+            Object.entries(targets).forEach(([nameB, jinxData]) => {
+                // 过滤掉 display 为 false 的相克规则
+                if (jinxData.display === false) {
+                    return;
+                }
+
                 // 创建一个标准化的配对键（按字母顺序排序，确保 A-B 和 B-A 被视为同一对）
                 const pairKey = [nameA, nameB].sort().join('|||');
 
@@ -51,18 +52,10 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                 const characterB = script.all.find(c => c.name === nameB);
 
                 if (characterA && characterB) {
-                    // 检查是否为自定义相克
-                    // 中文：检查角色名是否在官方数据中
-                    // 英文：检查角色ID是否在官方数据中
-                    const isCustom = language === 'en'
-                        ? !(officialJinxData[characterA.id]?.[characterB.id] || officialJinxData[characterB.id]?.[characterA.id])
-                        : !(officialJinxData[nameA]?.[nameB] || officialJinxData[nameB]?.[nameA]);
-
                     jinxes.push({
                         characterA,
                         characterB,
-                        jinxText,
-                        isCustom,
+                        jinxInfo: jinxData,
                     });
                     processedPairs.add(pairKey);
                 }
@@ -75,7 +68,8 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
     const uniqueJinxes = getUniqueJinxes();
 
     const handleDeleteJinx = (jinx: UniqueJinx) => {
-        if (jinx.isCustom) {
+        // 只有自定义相克才可以删除
+        if (!jinx.jinxInfo.isOfficial) {
             scriptStore.removeCustomJinx(jinx.characterA, jinx.characterB);
         }
     };
@@ -155,7 +149,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                             }}
                         >
                             {/* 删除按钮（仅自定义相克显示） */}
-                            {jinx.isCustom && hoveredJinxKey === jinxKey && (
+                            {!jinx.jinxInfo.isOfficial && hoveredJinxKey === jinxKey && (
                                 <IconButton
                                     onClick={() => handleDeleteJinx(jinx)}
                                     sx={{
@@ -234,7 +228,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                                         fontStyle: 'italic',
                                     }}
                                 >
-                                    <strong>{jinx.characterA.name}</strong> {t('jinx.and')} <strong>{jinx.characterB.name}</strong>：{jinx.jinxText}
+                                    <strong>{jinx.characterA.name}</strong> {t('jinx.and')} <strong>{jinx.characterB.name}</strong>：{jinx.jinxInfo.reason}
                                 </Typography>
                             </Box>
                         </Paper>

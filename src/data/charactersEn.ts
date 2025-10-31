@@ -29,10 +29,19 @@ rolesData.forEach((role: any) => {
 
 // 导入传奇角色
 import { getFabledCharacters } from './fabled';
+// 导入 Loric 角色
+import { getLoricCharacters } from './loric';
 
 // 将传奇角色整合到角色字典中
 const fabledCharacters = getFabledCharacters('en');
 const fabledDict = fabledCharacters.reduce((acc, char) => {
+  acc[char.id] = char;
+  return acc;
+}, {} as any);
+
+// 将 Loric 角色整合到角色字典中
+const loricCharacters = getLoricCharacters('en');
+const loricDict = loricCharacters.reduce((acc, char) => {
   acc[char.id] = char;
   return acc;
 }, {} as any);
@@ -424,5 +433,5 @@ const custom_characters_en = {
     "setup": false
   },
 }
-export const CHARACTERS_EN: any = { ..._charactersEn, ...custom_characters_en, ...fabledDict };
+export const CHARACTERS_EN: any = { ..._charactersEn, ...custom_characters_en, ...fabledDict, ...loricDict };
 

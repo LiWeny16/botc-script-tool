@@ -246,6 +246,7 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
       demon: [],
       fabled: [],
       traveler: [],
+      loric: [],
     },
     firstnight: [
       {
@@ -582,19 +583,30 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
         // 优先使用 reason，如果没有则使用 reasonEn
         const description = jinxEntry.reason || jinxEntry.reasonEn || '';
+        
+        // 从JSON中提取 display 字段（默认为true）
+        const display = jinxEntry.display !== false;  // 只有显式设置为false才隐藏
 
         // 存储双向关系，与官方相克逻辑保持一致
         // 方向1: mainCharName -> targetCharName
         if (!script.jinx[mainCharName]) {
           script.jinx[mainCharName] = {};
         }
-        script.jinx[mainCharName][targetCharName] = description;
+        script.jinx[mainCharName][targetCharName] = {
+          reason: description,
+          display: display,
+          isOfficial: false,  // 自定义相克
+        };
 
         // 方向2: targetCharName -> mainCharName（反向关系）
         if (!script.jinx[targetCharName]) {
           script.jinx[targetCharName] = {};
         }
-        script.jinx[targetCharName][mainCharName] = description;
+        script.jinx[targetCharName][mainCharName] = {
+          reason: description,
+          display: display,
+          isOfficial: false,  // 自定义相克
+        };
       });
     }
     // 旧格式：使用 name 字段和 & 分隔符（向后兼容）
@@ -604,10 +616,18 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
 
       // 存储双向关系
       if (!script.jinx[charA]) script.jinx[charA] = {};
-      script.jinx[charA][charB] = description;
+      script.jinx[charA][charB] = {
+        reason: description,
+        display: true,
+        isOfficial: false,
+      };
 
       if (!script.jinx[charB]) script.jinx[charB] = {};
-      script.jinx[charB][charA] = description;
+      script.jinx[charB][charA] = {
+        reason: description,
+        display: true,
+        isOfficial: false,
+      };
     }
   }
 
@@ -681,7 +701,12 @@ export function generateScript(jsonString: string, language: 'zh-CN' | 'en' = 'z
             script.jinx[nameA] = {};
           }
           if (!script.jinx[nameA][nameB]) {
-            script.jinx[nameA][nameB] = getJinx(keyA, keyB, language);
+            // 官方相克规则，默认显示
+            script.jinx[nameA][nameB] = {
+              reason: getJinx(keyA, keyB, language),
+              display: true,
+              isOfficial: true,
+            };
           }
         }
       }

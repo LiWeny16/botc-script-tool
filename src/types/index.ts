@@ -1,5 +1,5 @@
 // 角色类型定义 - 标准团队类型
-export type StandardTeam = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler' | 'fabled';
+export type StandardTeam = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler' | 'fabled' | 'loric';
 
 // 扩展团队类型 - 包括任意字符串以支持自定义团队
 export type Team = StandardTeam | string;
@@ -24,6 +24,13 @@ export interface Character {
 export interface NightAction {
   image: string;
   index: number;
+}
+
+// 相克规则详细信息
+export interface JinxInfo {
+  reason: string;  // 相克规则文本
+  display?: boolean;  // 是否显示，默认为true
+  isOfficial?: boolean;  // 是否为官方相克规则
 }
 
 export interface ScriptMeta {
@@ -84,7 +91,7 @@ export interface Script {
   };
   firstnight: NightAction[];
   othernight: NightAction[];
-  jinx: Record<string, Record<string, string>>;
+  jinx: Record<string, Record<string, JinxInfo>>;
   all: Character[];
   specialRules: SpecialRule[];
   secondPageRules?: SpecialRule[];  // 第二页的特殊规则

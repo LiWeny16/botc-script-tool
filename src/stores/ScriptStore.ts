@@ -599,11 +599,53 @@ class ScriptStore {
       if (!updatedScript.jinx[characterA.name]) {
         updatedScript.jinx[characterA.name] = {};
       }
-      updatedScript.jinx[characterA.name][characterB.name] = description;
+      updatedScript.jinx[characterA.name][characterB.name] = {
+        reason: description,
+        display: true,
+        isOfficial: false,
+      };
     }
 
     this.setScript(updatedScript);
-    this.syncCustomJinxToJson(characterA, characterB, description, 'add');
+    this.syncCustomJinxToJson(characterA, characterB, description, 'add', true);
+  }
+
+  // 更新官方相克规则（修改显示状态或自定义描述）
+  updateOfficialJinx(
+    characterA: Character,
+    characterB: Character,
+    updates: { display?: boolean; reason?: string }
+  ) {
+    if (!this.script) return;
+
+    const updatedScript = { ...this.script };
+    
+    // 更新双向关系
+    if (updatedScript.jinx[characterA.name]?.[characterB.name]) {
+      const currentJinx = updatedScript.jinx[characterA.name][characterB.name];
+      updatedScript.jinx[characterA.name][characterB.name] = {
+        ...currentJinx,
+        ...updates,
+      };
+    }
+
+    if (updatedScript.jinx[characterB.name]?.[characterA.name]) {
+      const currentJinx = updatedScript.jinx[characterB.name][characterA.name];
+      updatedScript.jinx[characterB.name][characterA.name] = {
+        ...currentJinx,
+        ...updates,
+      };
+    }
+
+    this.setScript(updatedScript);
+    
+    // 同步到JSON
+    if (updates.reason !== undefined) {
+      this.syncCustomJinxToJson(characterA, characterB, updates.reason, 'add', updates.display);
+    } else if (updates.display !== undefined) {
+      // 只更新display状态
+      this.syncJinxDisplayToJson(characterA, characterB, updates.display);
+    }
   }
 
   // 删除自定义相克关系
@@ -632,7 +674,83 @@ class ScriptStore {
     }
 
     this.setScript(updatedScript);
-    this.syncCustomJinxToJson(characterA, characterB, '', 'remove');
+    this.syncCustomJinxToJson(characterA, characterB, '', 'remove', undefined);
+  }
+
+  // 仅更新相克规则的display状态到JSON
+  private syncJinxDisplayToJson(
+    characterA: Character,
+    characterB: Character,
+    display: boolean
+  ) {
+    console.log('开始同步相克规则display状态到JSON', { characterA: characterA.name, characterB: characterB.name, display });
+    try {
+      const parsedJson = JSON.parse(this.originalJson);
+      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+
+      // 查找现有的相克关系
+      const existingJinxIndex = jsonArray.findIndex((item: any) => {
+        if (typeof item === 'string') return false;
+        return item.team === 'a jinxed' && 
+               item.id === characterA.id && 
+               item.jinx && 
+               item.jinx.some((j: any) => j.id === characterB.id);
+      });
+
+      if (existingJinxIndex >= 0) {
+        // 找到了现有的相克关系条目
+        const jinxItem = jsonArray[existingJinxIndex];
+        const jinxEntry = jinxItem.jinx.find((j: any) => j.id === characterB.id);
+        
+        if (jinxEntry) {
+          if (display === true && !jinxEntry.reason) {
+            // 如果设置为显示，且没有自定义reason，说明是纯粹的官方相克
+            // 应该删除这个条目，让它回归官方默认显示
+            jinxItem.jinx = jinxItem.jinx.filter((j: any) => j.id !== characterB.id);
+            
+            // 如果该角色没有其他相克关系，删除整个对象
+            if (jinxItem.jinx.length === 0) {
+              jsonArray.splice(existingJinxIndex, 1);
+            }
+          } else {
+            // 否则更新display状态
+            jinxEntry.display = display;
+          }
+        }
+      } else if (display === false) {
+        // 如果不存在，且要设置为隐藏，才创建条目
+        // 如果是设置为显示（true），则不需要创建条目，保持官方默认即可
+        const characterJinxIndex = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return false;
+          return item.team === 'a jinxed' && item.id === characterA.id;
+        });
+
+        const newJinxEntry: any = {
+          id: characterB.id,
+          display: false,  // 只在隐藏时创建条目
+        };
+
+        if (characterJinxIndex >= 0) {
+          // 该角色已有jinx对象，添加到jinx数组中
+          jsonArray[characterJinxIndex].jinx.push(newJinxEntry);
+        } else {
+          // 创建新的jinx对象
+          const newJinxObject: any = {
+            id: characterA.id,
+            team: 'a jinxed',
+            jinx: [newJinxEntry],
+          };
+          jsonArray.push(newJinxObject);
+        }
+      }
+      // 如果不存在且display为true，什么都不做，保持官方默认显示
+
+      const jsonString = JSON.stringify(jsonArray, null, 2);
+      console.log('相克规则display状态同步完成');
+      this.setOriginalJson(jsonString);
+    } catch (error) {
+      console.error('同步相克规则display状态失败:', error);
+    }
   }
 
   // 将自定义相克关系同步到JSON
@@ -640,7 +758,8 @@ class ScriptStore {
     characterA: Character,
     characterB: Character,
     description: string,
-    action: 'add' | 'remove'
+    action: 'add' | 'remove',
+    display?: boolean
   ) {
     console.log('开始同步自定义相克关系到JSON', { characterA: characterA.name, characterB: characterB.name, action });
     try {
@@ -665,6 +784,9 @@ class ScriptStore {
           if (jinxEntry && description) {
             // 更新描述
             jinxEntry.reason = description;
+            if (display !== undefined) {
+              jinxEntry.display = display;
+            }
           }
         } else {
           // 添加新的相克关系
@@ -678,6 +800,9 @@ class ScriptStore {
             id: characterB.id,
           };
           if (description) newJinxEntry.reason = description;
+          if (display !== undefined) {
+            newJinxEntry.display = display;
+          }
 
           if (characterJinxIndex >= 0) {
             // 该角色已有jinx对象，添加到jinx数组中

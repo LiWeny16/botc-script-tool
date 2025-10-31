@@ -22,7 +22,16 @@ import {
   List,
   ListItem,
 } from '@mui/material';
-import { Close as CloseIcon, Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
+import { 
+  Close as CloseIcon, 
+  Delete as DeleteIcon, 
+  Add as AddIcon, 
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+  VisibilityOff as VisibilityOffIcon,
+  Check as CheckIcon,
+  Cancel as CancelIcon,
+} from '@mui/icons-material';
 import type { Character } from '../types';
 import { CHARACTERS } from '../data/characters';
 import { useTranslation } from '../utils/i18n';
@@ -31,6 +40,7 @@ import { configStore } from '../stores/ConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import { observer } from 'mobx-react-lite';
 import { JINX_DATA, JINX_DATA_EN } from '../data/jinx';
+import type { JinxInfo } from '../types';
 
 interface CharacterEditDialogProps {
   open: boolean;
@@ -42,8 +52,7 @@ interface CharacterEditDialogProps {
 // 相克关系项接口
 interface JinxItem {
   targetCharacter: Character;
-  description: string;
-  isCustom: boolean;
+  jinxInfo: JinxInfo;
 }
 
 export default observer(function CharacterEditDialog({
@@ -59,6 +68,8 @@ export default observer(function CharacterEditDialog({
   const [jinxItems, setJinxItems] = useState<JinxItem[]>([]);
   const [newJinxTarget, setNewJinxTarget] = useState<Character | null>(null);
   const [newJinxDescription, setNewJinxDescription] = useState('');
+  const [editingJinxId, setEditingJinxId] = useState<string | null>(null);
+  const [editingJinxReason, setEditingJinxReason] = useState('');
   
   // 官方ID解析模式下禁用所有编辑
   const isEditDisabled = configStore.config.officialIdParseMode;
@@ -94,18 +105,12 @@ export default observer(function CharacterEditDialog({
 
       // 遍历剧本中的相克关系
       if (scriptStore.script.jinx[currentCharName]) {
-        Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, description]) => {
+        Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, jinxInfo]) => {
           const targetChar = scriptStore.script!.all.find(c => c.name === targetName);
           if (targetChar) {
-            // 检查是否为官方相克
-            const isCustom = language === 'en'
-              ? !(officialJinxData[currentCharId]?.[targetChar.id] || officialJinxData[targetChar.id]?.[currentCharId])
-              : !(officialJinxData[currentCharName]?.[targetName] || officialJinxData[targetName]?.[currentCharName]);
-
             jinxes.push({
               targetCharacter: targetChar,
-              description,
-              isCustom,
+              jinxInfo,
             });
           }
         });
@@ -128,17 +133,12 @@ export default observer(function CharacterEditDialog({
         const currentCharId = character.id;
 
         if (scriptStore.script && scriptStore.script.jinx[currentCharName]) {
-          Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, description]) => {
+          Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, jinxInfo]) => {
             const targetChar = scriptStore.script!.all.find(c => c.name === targetName);
             if (targetChar) {
-              const isCustom = language === 'en'
-                ? !(officialJinxData[currentCharId]?.[targetChar.id] || officialJinxData[targetChar.id]?.[currentCharId])
-                : !(officialJinxData[currentCharName]?.[targetName] || officialJinxData[targetName]?.[currentCharName]);
-
               jinxes.push({
                 targetCharacter: targetChar,
-                description,
-                isCustom,
+                jinxInfo,
               });
             }
           });
@@ -149,10 +149,35 @@ export default observer(function CharacterEditDialog({
   };
 
   const handleDeleteJinx = (jinx: JinxItem) => {
-    if (character && jinx.isCustom) {
+    if (character && !jinx.jinxInfo.isOfficial) {
       scriptStore.removeCustomJinx(character, jinx.targetCharacter);
       setJinxItems(prev => prev.filter(j => j.targetCharacter.id !== jinx.targetCharacter.id));
     }
+  };
+
+  // 处理切换显示/隐藏相克规则
+  const handleToggleJinxDisplay = (jinx: JinxItem) => {
+    if (!character) return;
+    const newDisplay = !jinx.jinxInfo.display;
+    scriptStore.updateOfficialJinx(character, jinx.targetCharacter, { display: newDisplay });
+    // 更新本地状态
+    setJinxItems(prev => prev.map(j => 
+      j.targetCharacter.id === jinx.targetCharacter.id 
+        ? { ...j, jinxInfo: { ...j.jinxInfo, display: newDisplay } }
+        : j
+    ));
+  };
+
+  // 处理编辑官方相克规则
+  const handleEditOfficialJinx = (jinx: JinxItem, newReason: string) => {
+    if (!character) return;
+    scriptStore.updateOfficialJinx(character, jinx.targetCharacter, { reason: newReason });
+    // 更新本地状态
+    setJinxItems(prev => prev.map(j => 
+      j.targetCharacter.id === jinx.targetCharacter.id 
+        ? { ...j, jinxInfo: { ...j.jinxInfo, reason: newReason } }
+        : j
+    ));
   };
 
   const handleSave = () => {
@@ -160,6 +185,30 @@ export default observer(function CharacterEditDialog({
     if (configStore.config.officialIdParseMode) {
       onClose();
       return;
+    }
+
+    if (!character) {
+      onClose();
+      return;
+    }
+
+    // 1. 如果有正在编辑的相克规则，先保存它
+    if (editingJinxId && editingJinxReason) {
+      const editingJinx = jinxItems.find(j => j.targetCharacter.id === editingJinxId);
+      if (editingJinx) {
+        handleEditOfficialJinx(editingJinx, editingJinxReason);
+        // 清除编辑状态
+        setEditingJinxId(null);
+        setEditingJinxReason('');
+      }
+    }
+
+    // 2. 如果正在添加新的相克规则，先添加它
+    if (newJinxTarget && newJinxDescription.trim()) {
+      scriptStore.addCustomJinx(character, newJinxTarget, newJinxDescription.trim());
+      // 清除添加表单
+      setNewJinxTarget(null);
+      setNewJinxDescription('');
     }
     
     if (character) {
@@ -237,6 +286,7 @@ export default observer(function CharacterEditDialog({
     { value: 'minion', label: t('minion') },
     { value: 'demon', label: t('demon') },
     { value: 'fabled', label: t('fabled') },
+    { value: 'loric', label: t('loric') },
     { value: 'traveler', label: t('traveler') },
   ];
 
@@ -487,51 +537,150 @@ export default observer(function CharacterEditDialog({
             {/* 现有相克关系列表 */}
             {jinxItems.length > 0 && (
               <List sx={{ mb: 2, p: 0 }}>
-                {jinxItems.map((jinx, index) => (
-                  <ListItem
-                    key={index}
-                    sx={{
-                      border: 1,
-                      borderColor: 'divider',
-                      borderRadius: 1,
-                      mb: 1,
-                      p: 1.5,
-                      backgroundColor: jinx.isCustom ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center', width: '100%', gap: 1.5 }}>
-                      <CharacterImage
-                        src={jinx.targetCharacter.image}
-                        alt={jinx.targetCharacter.name}
-                        sx={{ width: 40, height: 40, borderRadius: 1, flexShrink: 0 }}
-                      />
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="subtitle2" fontWeight="bold">
-                          {jinx.targetCharacter.name}
-                          {!jinx.isCustom && (
-                            <Chip 
-                              label={t('customJinx.official')} 
-                              size="small" 
-                              sx={{ ml: 1, height: 20 }}
+                {jinxItems.map((jinx, index) => {
+                  const isEditing = editingJinxId === jinx.targetCharacter.id;
+                  const isHidden = jinx.jinxInfo.display === false;
+                  
+                  return (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        border: 1,
+                        borderColor: isHidden ? 'error.main' : 'divider',
+                        borderRadius: 1,
+                        mb: 1,
+                        p: 1.5,
+                        backgroundColor: jinx.jinxInfo.isOfficial 
+                          ? 'transparent' 
+                          : 'rgba(25, 118, 210, 0.08)',
+                        opacity: isHidden ? 0.6 : 1,
+                        flexDirection: 'column',
+                        alignItems: 'stretch',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', width: '100%', gap: 1.5 }}>
+                        <CharacterImage
+                          src={jinx.targetCharacter.image}
+                          alt={jinx.targetCharacter.name}
+                          sx={{ width: 40, height: 40, borderRadius: 1, flexShrink: 0 }}
+                        />
+                        <Box sx={{ flex: 1, minWidth: 0 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+                            <Typography variant="subtitle2" fontWeight="bold">
+                              {jinx.targetCharacter.name}
+                            </Typography>
+                            {jinx.jinxInfo.isOfficial && (
+                              <Chip 
+                                label={t('customJinx.official')} 
+                                size="small" 
+                                color="primary"
+                                sx={{ height: 20 }}
+                              />
+                            )}
+                            {isHidden && (
+                              <Chip 
+                                label={t('customJinx.hidden')} 
+                                size="small" 
+                                color="error"
+                                sx={{ height: 20 }}
+                              />
+                            )}
+                          </Box>
+                          
+                          {/* 显示或编辑相克规则文本 */}
+                          {!isEditing ? (
+                            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                              {jinx.jinxInfo.reason}
+                            </Typography>
+                          ) : (
+                            <TextField
+                              fullWidth
+                              multiline
+                              rows={3}
+                              value={editingJinxReason}
+                              onChange={(e) => setEditingJinxReason(e.target.value)}
+                              sx={{ mt: 1 }}
+                              size="small"
                             />
                           )}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
-                          {jinx.description}
-                        </Typography>
+                        </Box>
+
+                        {/* 操作按钮 */}
+                        {!isEditDisabled && (
+                          <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+                            {!isEditing ? (
+                              <>
+                                {/* 显示/隐藏按钮 */}
+                                <IconButton
+                                  size="small"
+                                  onClick={() => handleToggleJinxDisplay(jinx)}
+                                  title={isHidden ? t('customJinx.show') : t('customJinx.hide')}
+                                >
+                                  {isHidden ? (
+                                    <VisibilityOffIcon fontSize="small" />
+                                  ) : (
+                                    <VisibilityIcon fontSize="small" />
+                                  )}
+                                </IconButton>
+                                
+                                {/* 编辑按钮 */}
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    setEditingJinxId(jinx.targetCharacter.id);
+                                    setEditingJinxReason(jinx.jinxInfo.reason);
+                                  }}
+                                  title={t('customJinx.edit')}
+                                >
+                                  <EditIcon fontSize="small" />
+                                </IconButton>
+
+                                {/* 删除按钮（仅自定义相克） */}
+                                {!jinx.jinxInfo.isOfficial && (
+                                  <IconButton
+                                    size="small"
+                                    onClick={() => handleDeleteJinx(jinx)}
+                                    title={t('customJinx.delete')}
+                                  >
+                                    <DeleteIcon fontSize="small" />
+                                  </IconButton>
+                                )}
+                              </>
+                            ) : (
+                              <>
+                                {/* 保存按钮 */}
+                                <IconButton
+                                  size="small"
+                                  color="primary"
+                                  onClick={() => {
+                                    handleEditOfficialJinx(jinx, editingJinxReason);
+                                    setEditingJinxId(null);
+                                    setEditingJinxReason('');
+                                  }}
+                                  title={t('common.save')}
+                                >
+                                  <CheckIcon fontSize="small" />
+                                </IconButton>
+
+                                {/* 取消按钮 */}
+                                <IconButton
+                                  size="small"
+                                  onClick={() => {
+                                    setEditingJinxId(null);
+                                    setEditingJinxReason('');
+                                  }}
+                                  title={t('common.cancel')}
+                                >
+                                  <CancelIcon fontSize="small" />
+                                </IconButton>
+                              </>
+                            )}
+                          </Box>
+                        )}
                       </Box>
-                      {jinx.isCustom && !isEditDisabled && (
-                        <IconButton
-                          size="small"
-                          onClick={() => handleDeleteJinx(jinx)}
-                          sx={{ flexShrink: 0 }}
-                        >
-                          <DeleteIcon fontSize="small" />
-                        </IconButton>
-                      )}
-                    </Box>
-                  </ListItem>
-                ))}
+                    </ListItem>
+                  );
+                })}
               </List>
             )}
 

@@ -136,6 +136,7 @@ export const translations = {
     'team.minion': '爪牙',
     'team.demon': '恶魔',
     'team.fabled': '说书人·传奇角色',
+    'team.loric': '说书人·洛克角色',
     'team.traveler': '旅行者',
 
     // 夜晚顺序
@@ -243,6 +244,7 @@ export const translations = {
     'minion': '爪牙',
     'demon': '恶魔',
     'fabled': '传奇',
+    'loric': '洛克',
     'traveler': '旅行者',
 
     // 角色库
@@ -400,6 +402,10 @@ export const translations = {
     'customJinx.management': '相克关系管理',
     'customJinx.addNew': '添加新相克关系',
     'customJinx.add': '添加',
+    'customJinx.hidden': '已隐藏',
+    'customJinx.show': '显示',
+    'customJinx.hide': '隐藏',
+    'customJinx.edit': '编辑',
 
     // 第二页组件
     'secondPage.addComponent': '添加组件',
@@ -550,6 +556,7 @@ export const translations = {
     'team.minion': 'Minion',
     'team.demon': 'Demon',
     'team.fabled': 'Fabled',
+    'team.loric': 'Loric',
     'team.traveler': 'Traveler',
 
     // Night Order
@@ -658,6 +665,7 @@ export const translations = {
     'minion': 'Minion',
     'demon': 'Demon',
     'fabled': 'Fabled',
+    'loric': 'Loric',
     'traveler': 'Traveler',
 
     // Character Library
@@ -812,6 +820,10 @@ export const translations = {
     'customJinx.management': 'Jinx Management',
     'customJinx.addNew': 'Add New Jinx',
     'customJinx.add': 'Add',
+    'customJinx.hidden': 'Hidden',
+    'customJinx.show': 'Show',
+    'customJinx.hide': 'Hide',
+    'customJinx.edit': 'Edit',
 
     // Second Page Components
     'secondPage.addComponent': 'Add Component',

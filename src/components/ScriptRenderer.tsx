@@ -108,12 +108,13 @@ const ScriptRenderer = observer(({
         // 人数配置表
         if (script.secondPagePplTable1) components.push('ppl_table1');
         if (script.secondPagePplTable2) components.push('ppl_table2');
-        // 传奇和旅行者
+        // 传奇、洛克和旅行者
         if (script.characters.fabled && script.characters.fabled.length > 0) components.push('fabled');
+        if (script.characters.loric && script.characters.loric.length > 0) components.push('loric');
         if (script.characters.traveler && script.characters.traveler.length > 0) components.push('traveler');
         // 未知团队
         Object.keys(script.characters)
-            .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
+            .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'loric', 'traveler'].includes(team))
             .forEach(team => {
                 if (script.characters[team] && script.characters[team].length > 0) {
                     components.push(`team_${team}`);
@@ -224,6 +225,23 @@ const ScriptRenderer = observer(({
                         key="fabled"
                         team="fabled"
                         characters={script.characters.fabled}
+                        script={script}
+                        onReorder={readOnly ? () => { } : onReorderCharacters}
+                        onUpdateCharacter={readOnly ? () => { } : onUpdateCharacter}
+                        onEditCharacter={readOnly ? () => { } : onEditCharacter}
+                        onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
+                        onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                        disableDrag={readOnly}
+                        readOnly={readOnly}
+                    />
+                ) : null;
+
+            case 'loric':
+                return script.characters.loric && script.characters.loric.length > 0 ? (
+                    <CharacterSection
+                        key="loric"
+                        team="loric"
+                        characters={script.characters.loric}
                         script={script}
                         onReorder={readOnly ? () => { } : onReorderCharacters}
                         onUpdateCharacter={readOnly ? () => { } : onUpdateCharacter}

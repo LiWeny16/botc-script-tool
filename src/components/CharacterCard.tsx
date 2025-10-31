@@ -2,7 +2,7 @@ import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText, Ico
 import { Edit as EditIcon, Delete as DeleteIcon, ContentCopy as CopyIcon, SwapHoriz as SwapIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
-import type { Character } from '../types';
+import type { Character, JinxInfo } from '../types';
 import { highlightAbilityText } from '../utils/scriptGenerator';
 import { THEME_COLORS, getTeamColor } from '../theme/colors';
 import { useSortable } from '@dnd-kit/sortable';
@@ -15,7 +15,7 @@ import { alertSuccess, alertError } from '../utils/alert';
 
 interface CharacterCardProps {
   character: Character;
-  jinxInfo?: Record<string, string>;
+  jinxInfo?: Record<string, JinxInfo>;
   allCharacters?: Character[];
   onUpdate?: (characterId: string, updates: Partial<Character>) => void;
   onEdit?: (character: Character) => void;
@@ -38,8 +38,8 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
   // 从 uiConfigStore 获取配置
   const config = uiConfigStore.config.characterCard;
 
-  // 判断是否是传奇角色
-  const isFabled = character.team === 'fabled';
+  // 判断是否是传奇角色或 Loric 角色
+  const isFabled = character.team === 'fabled' || character.team === 'loric';
 
   // 统一配置
   const CONFIG = {
@@ -367,101 +367,105 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
               />
 
               {/* 相克规则 - 放在描述文本下方,与描述文本左对齐 */}
-              {jinxInfo && Object.keys(jinxInfo).length > 0 && (
-                // 双页面模式：只显示灯神图标和相克角色图标的横排
-                uiConfigStore.config.enableTwoPageMode ? (
-                  <Box sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: CONFIG.jinx.iconGap,
-                    flexWrap: 'wrap',
-                  }}>
-                    {/* 灯神图标 */}
-                    <CharacterImage
-                      src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
-                      alt="Jinx Icon"
-                      sx={{
-                        width: CONFIG.jinx.icon.width,
-                        height: CONFIG.jinx.icon.height,
-                        borderRadius: CONFIG.jinx.icon.borderRadius,
-                        flexShrink: 0,
-                        userDrag: 'none',
-                        WebkitUserDrag: 'none',
-                        pointerEvents: 'none',
-                      }}
-                    />
-                    {/* 所有相克的角色图标 */}
-                    {Object.keys(jinxInfo).map((targetName) => {
-                      const targetChar = allCharacters?.find((c) => c.name === targetName);
-                      return targetChar ? (
-                        <CharacterImage
-                          key={targetName}
-                          src={targetChar.image}
-                          alt={targetName}
-                          sx={{
-                            width: CONFIG.jinx.icon.width,
-                            height: CONFIG.jinx.icon.height,
-                            borderRadius: CONFIG.jinx.icon.borderRadius,
-                            flexShrink: 0,
-                            userDrag: 'none',
-                            WebkitUserDrag: 'none',
-                            pointerEvents: 'none',
-                          }}
-                        />
-                      ) : null;
-                    })}
-                  </Box>
-                ) : (
-                  // 单页面模式：保持原有的详细展示
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
-                    {Object.entries(jinxInfo).map(([targetName, jinxText]) => {
-                      const targetChar = allCharacters?.find((c) => c.name === targetName);
-                      return (
-                        <Box
-                          key={targetName}
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderRadius: 1.7,
-                            gap: CONFIG.jinx.iconGap,
-                            p: CONFIG.jinx.padding,
-                            backgroundColor: CONFIG.jinx.backgroundColor,
-                            // borderRadius: CONFIG.jinx.borderRadius,
-                          }}
-                        >
-                          {targetChar && (
-                            <CharacterImage
-                              src={targetChar.image}
-                              alt={targetName}
-                              sx={{
-                                width: CONFIG.jinx.icon.width,
-                                height: CONFIG.jinx.icon.height,
-                                borderRadius: CONFIG.jinx.icon.borderRadius,
-                                flexShrink: 0,
-                                userDrag: 'none',
-                                WebkitUserDrag: 'none',
-                                pointerEvents: 'none',
-                              }}
-                            />
-                          )}
-                          <Typography
-                            variant="caption"
+              {jinxInfo && (() => {
+                // 过滤掉 display 为 false 的相克规则
+                const visibleJinxEntries = Object.entries(jinxInfo).filter(([_, jinxData]) => jinxData.display !== false);
+                return visibleJinxEntries.length > 0 && (
+                  // 双页面模式：只显示灯神图标和相克角色图标的横排
+                  uiConfigStore.config.enableTwoPageMode ? (
+                    <Box sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: CONFIG.jinx.iconGap,
+                      flexWrap: 'wrap',
+                    }}>
+                      {/* 灯神图标 */}
+                      <CharacterImage
+                        src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
+                        alt="Jinx Icon"
+                        sx={{
+                          width: CONFIG.jinx.icon.width,
+                          height: CONFIG.jinx.icon.height,
+                          borderRadius: CONFIG.jinx.icon.borderRadius,
+                          flexShrink: 0,
+                          userDrag: 'none',
+                          WebkitUserDrag: 'none',
+                          pointerEvents: 'none',
+                        }}
+                      />
+                      {/* 所有相克的角色图标 */}
+                      {visibleJinxEntries.map(([targetName, _]) => {
+                        const targetChar = allCharacters?.find((c) => c.name === targetName);
+                        return targetChar ? (
+                          <CharacterImage
+                            key={targetName}
+                            src={targetChar.image}
+                            alt={targetName}
                             sx={{
-                              fontSize: CONFIG.jinx.text.fontSize,
-                              color: THEME_COLORS.text.primary,
-                              lineHeight: CONFIG.jinx.text.lineHeight,
-                              fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
-                              flex: 1,
+                              width: CONFIG.jinx.icon.width,
+                              height: CONFIG.jinx.icon.height,
+                              borderRadius: CONFIG.jinx.icon.borderRadius,
+                              flexShrink: 0,
+                              userDrag: 'none',
+                              WebkitUserDrag: 'none',
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        ) : null;
+                      })}
+                    </Box>
+                  ) : (
+                    // 单页面模式：保持原有的详细展示
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
+                      {visibleJinxEntries.map(([targetName, jinxData]) => {
+                        const targetChar = allCharacters?.find((c) => c.name === targetName);
+                        return (
+                          <Box
+                            key={targetName}
+                            sx={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              borderRadius: 1.7,
+                              gap: CONFIG.jinx.iconGap,
+                              p: CONFIG.jinx.padding,
+                              backgroundColor: CONFIG.jinx.backgroundColor,
+                              // borderRadius: CONFIG.jinx.borderRadius,
                             }}
                           >
-                            {t('jinx.rule')}: {jinxText}
-                          </Typography>
-                        </Box>
-                      );
-                    })}
-                  </Box>
-                )
-              )}
+                            {targetChar && (
+                              <CharacterImage
+                                src={targetChar.image}
+                                alt={targetName}
+                                sx={{
+                                  width: CONFIG.jinx.icon.width,
+                                  height: CONFIG.jinx.icon.height,
+                                  borderRadius: CONFIG.jinx.icon.borderRadius,
+                                  flexShrink: 0,
+                                  userDrag: 'none',
+                                  WebkitUserDrag: 'none',
+                                  pointerEvents: 'none',
+                                }}
+                              />
+                            )}
+                            <Typography
+                              variant="caption"
+                              sx={{
+                                fontSize: CONFIG.jinx.text.fontSize,
+                                color: THEME_COLORS.text.primary,
+                                lineHeight: CONFIG.jinx.text.lineHeight,
+                                fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
+                                flex: 1,
+                              }}
+                            >
+                              {t('jinx.rule')}: {jinxData.reason}
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Box>
+                  )
+                );
+              })()}
             </Box>
           </Box>
         </Paper>
