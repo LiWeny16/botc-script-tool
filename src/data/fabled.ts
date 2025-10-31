@@ -73,7 +73,7 @@ export const getFabledCharacters = (language: string): Character[] => {
             name: isEnglish ? 'Deus Ex Fiasco 2' : '强权上帝',
             ability: isEnglish ? 'Ths god controls all the rules in this game.' : '上帝在本场游戏就是规则的主宰，但是一旦宣布了特殊规则就必须遵守，否则可能会被玩家群殴。',
             team: 'fabled',
-            image: 'https://oss.gstonegames.com/data_file/clocktower/web/icons/deus_ex_fiasco.png',
+            image: 'https://oss.gstonegames.com/data_file/clocktower/web/icons/deusexfiasco.png',
             firstNight: 0,
             otherNight: 0,
             firstNightReminder: '',
