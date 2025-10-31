@@ -477,6 +477,7 @@ const ScriptRenderer = observer(({
                         <Box sx={{
                             textAlign: 'center',
                             mb: 0,
+                            mt:8,
                             position: 'relative',
                             zIndex: 1,
                             px: { xs: 2, sm: 3, md: 4 },
@@ -512,6 +513,7 @@ const ScriptRenderer = observer(({
                                 {/* 标题 */}
                                 <Box
                                     sx={{
+
                                         position: { xs: 'relative', md: 'absolute' },
                                         top: { xs: 'auto', md: '50%' },
                                         left: { xs: 'auto', md: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%' },
@@ -577,6 +579,7 @@ const ScriptRenderer = observer(({
                                             onMouseLeave={() => !readOnly && setTitleHovered(false)}
                                             onDoubleClick={() => !readOnly && onTitleEdit()}
                                             sx={{
+
                                                 position: 'relative',
                                                 cursor: readOnly ? 'default' : 'pointer',
                                                 display: 'flex',
@@ -594,7 +597,7 @@ const ScriptRenderer = observer(({
                                                     fontFamily: uiConfigStore.scriptTitleFont,
                                                     fontWeight: 'bold',
                                                     fontSize: {
-                                                        xs: '2.5rem',
+                                                        xs: '2.3rem',
                                                         sm: '3.4rem',
                                                         md: uiConfigStore.titleFontSizeMd
                                                     },
