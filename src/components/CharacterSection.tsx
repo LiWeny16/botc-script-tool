@@ -90,6 +90,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
       'minion': t('team.minion'),
       'demon': t('team.demon'),
       'fabled': t('team.fabled'),
+      'loric': t('team.loric'),
       'traveler': t('team.traveler'),
     };
     return teamMap[teamKey] || getTeamName(teamKey);
