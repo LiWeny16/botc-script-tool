@@ -106,20 +106,13 @@ function getNightOrderFromChinese(
     }
   }
 
-  // 普通模式：JSON优先，JSON缺失时从官方库补充
-  // 1. 如果JSON中明确提供了值，直接使用
-  if (jsonFirstNight !== undefined || jsonOtherNight !== undefined) {
-    return {
-      firstNight: jsonFirstNight !== undefined ? (jsonFirstNight || 0) : 0,
-      otherNight: jsonOtherNight !== undefined ? (jsonOtherNight || 0) : 0,
-    };
-  }
-
-  // 2. JSON中没有，尝试从官方库获取
+  // 普通模式：JSON优先，JSON缺失时从中文官方库补充
+  // 1. 先尝试从中文官方库获取默认值（作为回退）
   const cnId = normalizeCharacterId(characterId, 'zh-CN');
   let officialFirstNight = 0;
   let officialOtherNight = 0;
 
+  // 始终从中文库（CHARACTERS）获取官方数据
   if (CHARACTERS[cnId]) {
     officialFirstNight = CHARACTERS[cnId].firstNight || 0;
     officialOtherNight = CHARACTERS[cnId].otherNight || 0;
@@ -128,10 +121,10 @@ function getNightOrderFromChinese(
     officialOtherNight = CHARACTERS[characterId].otherNight || 0;
   }
 
-  // 3. 返回官方数据（如果没有就是0）
+  // 2. JSON中有定义的字段优先使用JSON的值，否则使用官方库的值
   return {
-    firstNight: officialFirstNight,
-    otherNight: officialOtherNight,
+    firstNight: jsonFirstNight !== undefined ? (jsonFirstNight || 0) : officialFirstNight,
+    otherNight: jsonOtherNight !== undefined ? (jsonOtherNight || 0) : officialOtherNight,
   };
 }
 
