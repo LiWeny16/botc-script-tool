@@ -160,7 +160,7 @@ export const translations = {
     // 关于和致谢
     'about.title': '关于 & 致谢',
     'about.aboutProject': '关于项目',
-    'about.projectDescription': '这是一个完全免费且开源的血染钟楼剧本生成工具，旨在为钟楼爱好者提供便捷的剧本制作体验。本项目不收取任何费用，所有功能均可免费使用。如果您觉得这个工具对您有帮助，欢迎通过捐赠支持项目的持续开发和维护。',
+    'about.projectDescription': '这是一个完全免费的血染钟楼剧本生成工具，旨在为钟楼爱好者提供便捷的剧本制作体验。本项目不收取任何费用，所有功能均可免费使用。如果您觉得这个工具对您有帮助，欢迎通过捐赠支持项目的持续开发和维护。',
     'about.donate': '支持我们',
     'about.acknowledgments': '致谢',
     'about.specialThanks': '特别鸣谢',
@@ -592,7 +592,7 @@ export const translations = {
     // About and Acknowledgments
     'about.title': 'About & Thanks',
     'about.aboutProject': 'About the Project',
-    'about.projectDescription': `This is a free, open-source Blood on the Clocktower script generator for players to easily create scripts. No fees apply, and all features are free to use. If you find it helpful, you can donate to support the project's development and maintenance.`,
+    'about.projectDescription': `This is a free Blood on the Clocktower script generator for players to easily create scripts. No fees apply, and all features are free to use. If you find it helpful, you can donate to support the project's development and maintenance.`,
     'about.donate': 'Support Us',
     'about.acknowledgments': 'Acknowledgments',
     'about.thankValen': 'Valen - Art Advice & Bug Fixes',
