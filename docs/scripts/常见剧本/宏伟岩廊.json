@@ -1,0 +1,42 @@
+[
+  {
+    "id": "_meta",
+    "author": "Ben and Jams",
+    "name": "宏伟岩廊",
+    "titleImageSize": 160,
+    "use_title_image": false,
+    "playerCount": "7-15人"
+  },
+  "chef",
+  "noble",
+  "empath",
+  "snakecharmer",
+  "mathematician",
+  "monk",
+  "gambler",
+  "lycanthrope",
+  "seamstress",
+  "philosopher",
+  "princess",
+  "alchemist",
+  "farmer",
+  "butler",
+  "ogre",
+  "lunatic",
+  "puzzlemaster",
+  "devilsadvocate",
+  "harpy",
+  "pithag",
+  "goblin",
+  "pukka",
+  "imp",
+  "fanggu",
+  "lleech",
+  {
+    "id": "tor_loric",
+    "name": "廊塔守卫",
+    "ability": "玩家不会得知他们的角色和阵营。当他们死亡时，他们会得知自己的角色和阵营",
+    "team": "loric",
+    "image": "https://botc.letshare.fun/imgs/icons/Loric/tor.webp"
+  }
+]

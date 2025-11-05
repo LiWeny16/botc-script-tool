@@ -3678,7 +3678,7 @@ const custom_characters = {
     "name": "美术馆长",
     "ability": "每个夜晚*，你要选择一名玩家：如果他同意，你得知他的精神状态，但他的精神状态可能发生改变。",
     "team": "traveler",
-    "image": "/imgs/icons/血染德扑/insanity.png",
+    "image": "/imgs/icons/traveler/meishuguanzhang.png",
     "author": "Soup1618",
     "firstNight": 1,
     "otherNight": 1,
