@@ -19,8 +19,8 @@ export const getLoricCharacters = (language: string): Character[] => {
         },
         {
             id: 'tor_loric',
-            name: isEnglish ? 'Tor' : '黄昏',
-            ability: isEnglish ? "Players don't know their character or alignment. They learn them after they die." : "玩家不知道他们的角色或阵营。他们会在死后得知。",
+            name: isEnglish ? 'Tor' : '廊塔守卫',
+            ability: isEnglish ? "Players don't know their character or alignment. They learn them after they die." : "玩家不会得知他们的角色和阵营。当他们死亡时，他们会得知自己的角色和阵营。",
             team: 'loric',
             image: 'https://botc.letshare.fun/imgs/icons/Loric/tor_loric.png',
             firstNight: 0,
@@ -45,7 +45,7 @@ export const getLoricCharacters = (language: string): Character[] => {
         },
         {
             id: 'bigwig_loric',
-            name: isEnglish ? 'Big Wig' : '大假发',
+            name: isEnglish ? 'Big Wig' : '大人物',
             ability: isEnglish ? "Each nominee chooses a player: until voting, only they may speak & they are mad the nominee is good or they might die." : "每名被提名者选择一名玩家：直到投票前，只有他们可以发言，并且他们要疯狂地认为被提名者是善良的，否则他们可能会死亡。",
             team: 'loric',
             image: 'https://botc.letshare.fun/imgs/icons/Loric/bigwig_loric.png',
