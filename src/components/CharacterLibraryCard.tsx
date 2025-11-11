@@ -80,7 +80,7 @@ const CharacterLibraryCard = observer(({
             minion: [] as Character[],
             demon: [] as Character[],
             fabled: getFabledCharacters(language), // 使用多语言传奇角色
-            loric: getLoricCharacters(language), // 使用多语言洛克角色
+            loric: getLoricCharacters(language), // 使用多语言奇遇角色
             traveler: [] as Character[],
         };
 
@@ -89,7 +89,7 @@ const CharacterLibraryCard = observer(({
 
         Object.values(currentCharacterData).forEach((char) => {
             const character = char as Character;
-            // 跳过重复的角色ID和传奇角色、洛克角色（这些角色单独处理）
+            // 跳过重复的角色ID和传奇角色、奇遇角色（这些角色单独处理）
             if (seenIds.has(character.id) || character.team === 'fabled' || character.team === 'loric') {
                 return;
             }

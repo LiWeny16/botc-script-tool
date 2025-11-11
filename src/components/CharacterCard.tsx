@@ -381,7 +381,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                     }}>
                       {/* 灯神图标 */}
                       <CharacterImage
-                        src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
+                        src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
                         alt="Jinx Icon"
                         sx={{
                           width: CONFIG.jinx.icon.width,

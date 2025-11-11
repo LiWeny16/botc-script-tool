@@ -108,7 +108,7 @@ const ScriptRenderer = observer(({
         // 人数配置表
         if (script.secondPagePplTable1) components.push('ppl_table1');
         if (script.secondPagePplTable2) components.push('ppl_table2');
-        // 传奇、洛克和旅行者
+        // 传奇、奇遇和旅行者
         if (script.characters.fabled && script.characters.fabled.length > 0) components.push('fabled');
         if (script.characters.loric && script.characters.loric.length > 0) components.push('loric');
         if (script.characters.traveler && script.characters.traveler.length > 0) components.push('traveler');

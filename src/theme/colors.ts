@@ -11,7 +11,7 @@ export const THEME_COLORS = {
   // 传奇角色 - 金色系
   fabled: '#d4af37',
 
-  // 洛克角色 - 翡翠绿色
+  // 奇遇角色 - 翡翠绿色
   loric: '#359026',
 
   // 未知团队 - 翠墨绿色
@@ -57,7 +57,7 @@ export const TEAM_COLORS: Record<string, string> = {
   demon: THEME_COLORS.evil,        // 恶魔 - 红色
   traveler: THEME_COLORS.purple,   // 旅行者 - 紫色
   fabled: THEME_COLORS.fabled,     // 传奇角色 - 金色
-  loric: THEME_COLORS.loric,       // 洛克角色 - 翡翠绿色
+  loric: THEME_COLORS.loric,       // 奇遇角色 - 翡翠绿色
 };
 
 // 团队名称映射
@@ -68,7 +68,7 @@ export const TEAM_NAMES: Record<string, string> = {
   demon: '恶魔',
   traveler: '旅行者',
   fabled: '传奇角色',
-  loric: '洛克角色',
+  loric: '奇遇角色',
 };
 
 // 获取团队颜色（如果未定义则返回翠墨绿色）

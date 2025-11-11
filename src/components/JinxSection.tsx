@@ -90,7 +90,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                 mb: 2,
             }}>
                 <CharacterImage
-                    src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
+                    src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
                     alt="Jinx Icon"
                     sx={{
                         width: { xs: 30, sm: 35, md: 75 },
@@ -188,7 +188,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
 
                             {/* 灯神图标 */}
                             <CharacterImage
-                                src="https://wiki.bloodontheclocktower.com/images/8/86/Icon_djinn.png"
+                                src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
                                 alt="Jinx Icon"
                                 sx={{
                                     width: { xs: 30, sm: 35, md: 45 },

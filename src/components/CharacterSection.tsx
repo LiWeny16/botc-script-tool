@@ -58,7 +58,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
   const standardTeams = ['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'loric', 'traveler'];
   const isStandardTeam = standardTeams.includes(team);
 
-  // 传奇角色、洛克角色、旅行者和未知团队不显示阵营标签，直接显示类型
+  // 传奇角色、奇遇角色、旅行者和未知团队不显示阵营标签，直接显示类型
   const teamLabel =
     !isStandardTeam || team === 'fabled' || team === 'loric' || team === 'traveler'
       ? ''
@@ -140,7 +140,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
           }}
         >
           {!isStandardTeam || team === 'fabled' || team === 'loric' || team === 'traveler' ? (
-            // 传奇角色、洛克角色、旅行者和未知团队只显示类型名称
+            // 传奇角色、奇遇角色、旅行者和未知团队只显示类型名称
             <span style={{ color: getTeamColor(team, customColor) }}>{getTranslatedTeamName(team)}</span>
           ) : (
             // 标准角色显示阵营·类型

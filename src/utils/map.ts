@@ -136,7 +136,7 @@ export const translations = {
     'team.minion': '爪牙',
     'team.demon': '恶魔',
     'team.fabled': '说书人·传奇角色',
-    'team.loric': '说书人·洛克角色',
+    'team.loric': '说书人·奇遇角色',
     'team.traveler': '旅行者',
 
     // 夜晚顺序
@@ -244,7 +244,7 @@ export const translations = {
     'minion': '爪牙',
     'demon': '恶魔',
     'fabled': '传奇',
-    'loric': '洛克',
+    'loric': '奇遇',
     'traveler': '旅行者',
 
     // 角色库
