@@ -69,6 +69,19 @@ export const getLoricCharacters = (language: string): Character[] => {
             reminders: [],
             setup: false,
         },
+         {
+            id: 'Zenomancer_loric',
+            name: isEnglish ? 'Zenomancer' : '异术士',
+            ability: isEnglish ? "One or more players each have a goal. When achieved, that player learns a piece of true info." : "一名或多名玩家各自拥有一个目标。当达成目标后，他会获得一条正确信息。",
+            team: 'loric',
+            image: 'https://botc.letshare.fun/imgs/icons/Loric/zenomancer_loric.png',
+            firstNight: 0,
+            otherNight: 0,
+            firstNightReminder: '',
+            otherNightReminder: '',
+            reminders: [],
+            setup: false,
+        },
     ];
 };
 
