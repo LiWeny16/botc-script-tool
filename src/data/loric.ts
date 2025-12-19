@@ -82,6 +82,19 @@ export const getLoricCharacters = (language: string): Character[] => {
             reminders: [],
             setup: false,
         },
+        {
+            id: 'Hindu_loric',
+            name: isEnglish ? 'Hindu' : '印度教教徒',
+            ability: isEnglish ? "The first 4 players to die are immediately reincarnated as Travellers of the same alignment." : "最先死亡的四名玩家会立刻以相同阵营的旅行者转世重生。",
+            team: 'loric',
+            image: 'https://botc.letshare.fun/imgs/icons/Loric/hindu_loric.png',
+            firstNight: 0,
+            otherNight: 0,
+            firstNightReminder: '',
+            otherNightReminder: '',
+            reminders: [],
+            setup: false,
+        },
     ];
 };
 
