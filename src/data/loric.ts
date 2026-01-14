@@ -95,6 +95,19 @@ export const getLoricCharacters = (language: string): Character[] => {
             reminders: [],
             setup: false,
         },
+        {
+            id: 'pope_loric',
+            name: isEnglish ? 'Pope' : '教皇',
+            ability: isEnglish ? "There are duplicate good characters in play. They might also be bluffs." : "场上存在重复的善良角色。它们可能也是伪装身份。",
+            team: 'loric',
+            image: 'https://botc.letshare.fun/imgs/icons/Loric/pope_loric.png',
+            firstNight: 0,
+            otherNight: 0,
+            firstNightReminder: '',
+            otherNightReminder: '',
+            reminders: [],
+            setup: false,
+        },
     ];
 };
 
