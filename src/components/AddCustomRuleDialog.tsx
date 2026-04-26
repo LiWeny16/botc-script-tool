@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 import { Close as CloseIcon, Description as DescriptionIcon, LinkOff as LinkOffIcon } from '@mui/icons-material';
 import { useTranslation } from '../utils/i18n';
-import { getAllSpecialRuleTemplates, type SpecialRuleTemplate } from '../data/specialRules';
+import { getAllSpecialRuleTemplates, type SpecialRuleTemplate } from '../data/utils/specialRules';
 
 interface AddCustomRuleDialogProps {
   open: boolean;
@@ -36,6 +36,9 @@ const AddCustomRuleDialog = ({
   const [selectedType, setSelectedType] = useState<'special_rule' | 'custom_jinx' | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const templates = getAllSpecialRuleTemplates();
+  const isChinese = language === 'zh-CN';
+  const getTemplateText = (text?: SpecialRuleTemplate['title']): string =>
+    text?.[language] || text?.en || text?.['zh-CN'] || '';
 
   const handleAdd = () => {
     if (selectedType) {
@@ -56,21 +59,17 @@ const AddCustomRuleDialog = ({
     {
       type: 'special_rule' as const,
       title: t('specialRules.specialRule'),
-      description: language === 'zh-CN' 
-        ? '类似"第七把交椅"的自定义卷轴规则'
-        : 'Custom scroll rules like "The Seventh Chair"',
+      description: t('specialRules.specialRuleExample'),
       icon: <DescriptionIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
-      example: language === 'zh-CN' ? '第七把交椅' : 'The Seventh Chair',
+      example: t('specialRules.specialRuleExampleText'),
       disabled: false,
     },
     {
       type: 'custom_jinx' as const,
       title: t('customJinx.addTitle'),
-      description: language === 'zh-CN' 
-        ? '添加自定义角色相克关系规则'
-        : 'Add custom character jinx relationships',
+      description: t('customJinx.customJinxDescription'),
       icon: <LinkOffIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
-      example: language === 'zh-CN' ? '公主 & 食人族' : 'Princess & Cannibal',
+      example: t('customJinx.customJinxExample'),
       disabled: false,
     },
   ];
@@ -137,12 +136,12 @@ const AddCustomRuleDialog = ({
                           }}
                         >
                           <Typography variant="caption" color="text.secondary">
-                            {language === 'zh-CN' ? '示例：' : 'Example: '}{ruleType.example}
+                            {t('common.example')} {ruleType.example}
                           </Typography>
                         </Box>
                         {ruleType.disabled && (
                           <Typography variant="caption" color="warning.main" sx={{ fontStyle: 'italic' }}>
-                            {language === 'zh-CN' ? '敬请期待' : 'Coming Soon'}
+                            {t('common.comingSoon')}
                           </Typography>
                         )}
                       </Box>
@@ -155,7 +154,7 @@ const AddCustomRuleDialog = ({
         ) : (
           <>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-              {language === 'zh-CN' ? '选择一个模板开始，或直接添加空白规则' : 'Choose a template or add a blank rule'}
+              {t('addCustomRule.templateHint')}
             </Typography>
 
             <List>
@@ -172,8 +171,8 @@ const AddCustomRuleDialog = ({
                   }}
                 >
                   <ListItemText
-                    primary={language === 'zh-CN' ? '空白规则' : 'Blank Rule'}
-                    secondary={language === 'zh-CN' ? '从头开始创建自定义规则' : 'Start from scratch'}
+                    primary={t('addCustomRule.blankRule')}
+                    secondary={t('addCustomRule.blankRuleDesc')}
                   />
                 </ListItemButton>
               </ListItem>
@@ -196,14 +195,14 @@ const AddCustomRuleDialog = ({
                     }}
                   >
                     <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 0.5 }}>
-                      {template.title[language] || template.title['zh-CN']}
+                      {getTemplateText(template.title)}
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                      {template.content[language] || template.content['zh-CN']}
+                      {getTemplateText(template.content)}
                     </Typography>
                     {template.description && (
                       <Typography variant="caption" color="text.disabled" sx={{ fontStyle: 'italic' }}>
-                        {template.description[language] || template.description['zh-CN']}
+                        {getTemplateText(template.description)}
                       </Typography>
                     )}
                   </ListItemButton>
@@ -217,7 +216,7 @@ const AddCustomRuleDialog = ({
               variant="outlined"
               fullWidth
             >
-              {language === 'zh-CN' ? '← 返回选择类型' : '← Back to Type Selection'}
+              {t('common.backToTypeSelection')}
             </Button>
           </>
         )}

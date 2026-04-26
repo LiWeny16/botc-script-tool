@@ -4,6 +4,7 @@ import LanguageIcon from '@mui/icons-material/Language';
 import CheckIcon from '@mui/icons-material/Check';
 import { useState } from 'react';
 import { useTranslation } from '../utils/i18n';
+import { LANGUAGE_LABELS, LANGUAGE_SHORT_LABELS, SUPPORTED_LANGUAGES, type Language } from '../utils/languages';
 
 const LanguageSwitcher = observer(() => {
   const { language, setLanguage } = useTranslation();
@@ -18,13 +19,10 @@ const LanguageSwitcher = observer(() => {
     setAnchorEl(null);
   };
 
-  const handleLanguageChange = (lang: 'zh-CN' | 'en') => {
+  const handleLanguageChange = (lang: Language) => {
     setLanguage(lang);
     handleClose();
   };
-
-  // 显示切换到的目标语言
-  const displayText = language === 'zh-CN' ? 'English' : '中文';
 
   return (
     <>
@@ -44,7 +42,7 @@ const LanguageSwitcher = observer(() => {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
       >
-        {displayText}
+        {LANGUAGE_SHORT_LABELS[language]}
       </Button>
       <Menu
         id="language-menu"
@@ -61,18 +59,14 @@ const LanguageSwitcher = observer(() => {
           horizontal: 'right',
         }}
       >
-        <MenuItem onClick={() => handleLanguageChange('zh-CN')}>
-          <ListItemIcon>
-            {language === 'zh-CN' ? <CheckIcon fontSize="small" /> : <span style={{ width: 20 }} />}
-          </ListItemIcon>
-          <ListItemText>简体中文</ListItemText>
-        </MenuItem>
-        <MenuItem onClick={() => handleLanguageChange('en')}>
-          <ListItemIcon>
-            {language === 'en' ? <CheckIcon fontSize="small" /> : <span style={{ width: 20 }} />}
-          </ListItemIcon>
-          <ListItemText>English</ListItemText>
-        </MenuItem>
+        {SUPPORTED_LANGUAGES.map((lang) => (
+          <MenuItem key={lang} onClick={() => handleLanguageChange(lang)}>
+            <ListItemIcon>
+              {language === lang ? <CheckIcon fontSize="small" /> : <span style={{ width: 20 }} />}
+            </ListItemIcon>
+            <ListItemText>{LANGUAGE_LABELS[lang]}</ListItemText>
+          </MenuItem>
+        ))}
       </Menu>
     </>
   );

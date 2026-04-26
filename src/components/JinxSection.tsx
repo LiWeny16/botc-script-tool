@@ -8,8 +8,6 @@ import { THEME_COLORS } from '../theme/colors';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { useTranslation } from '../utils/i18n';
 import { scriptStore } from '../stores/ScriptStore';
-import { JINX_DATA, JINX_DATA_EN } from '../data/jinx';
-
 interface JinxSectionProps {
     script: Script;
 }

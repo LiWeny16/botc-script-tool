@@ -1,5 +1,7 @@
+import type { Language } from './languages';
+
 // i18n 翻译映射表
-export const translations = {
+const baseTranslations = {
   'zh-CN': {
     // 通用
     'common.back': '返回',
@@ -11,6 +13,12 @@ export const translations = {
     'common.error': '错误',
     'common.warning': '警告',
     'common.save': '保存',
+    'common.example': '示例：',
+    'common.comingSoon': '敬请期待',
+    'common.backToTypeSelection': '← 返回选择类型',
+    'addCustomRule.templateHint': '选择一个模板开始，或直接添加空白规则',
+    'addCustomRule.blankRule': '空白规则',
+    'addCustomRule.blankRuleDesc': '从头开始创建自定义规则',
 
     // 主页面
     'app.title': '血染钟楼剧本生成器',
@@ -111,6 +119,7 @@ export const translations = {
     'export.idOnlySuffix': '仅ID',
     'export.chineseLang': '中文',
     'export.englishLang': '英文',
+    'export.spanishLang': '西班牙语',
 
     // 导出图片对话框
     'dialog.exportImageTitle': '导出图片',
@@ -169,9 +178,14 @@ export const translations = {
     'about.museum': '钟楼博物馆',
     'about.letterClosing': '怀着感恩的心，BigOnion 敬上',
     // 新增致谢项
+    'about.thankValen': '特别鸣谢 Valen',
     'about.artAdviceTest': '美术建议与测试：Valen',
     'about.translationProofreading': '角色翻译与校对',
     'about.weedinAllen': 'Weedin & Allen',
+    'about.contactTitle': '联系方式',
+    'about.contactHint':
+      '若您有需要修改的内容，或希望新增角色，欢迎点击下方按钮复制邮箱：',
+    'about.emailCopied': '邮箱已复制到剪贴板',
 
     // 错误信息
     'error.scriptNotFound': '未找到剧本',
@@ -391,6 +405,13 @@ export const translations = {
     'specialRules.stateRule': '状态规则',
     'specialRules.cancel': '取消',
     'specialRules.confirm': '确定',
+    'specialRules.specialRuleExample': '类似"第七把交椅"的自定义卷轴规则',
+    'specialRules.specialRuleExampleText': '第七把交椅',
+    'specialRules.customJinxExample': '公主 & 食人族',
+    'specialRules.titleLabel': '标题',
+    'specialRules.titlePlaceholder': '请输入规则标题',
+    'specialRules.contentLabel': '内容',
+    'specialRules.contentPlaceholder': '请输入规则内容',
 
     // Custom Jinx
     'customJinx.addTitle': '添加自定义相克关系',
@@ -418,6 +439,8 @@ export const translations = {
     'customJinx.show': '显示',
     'customJinx.hide': '隐藏',
     'customJinx.edit': '编辑',
+    'customJinx.customJinxDescription': '添加自定义角色相克关系规则',
+    'customJinx.customJinxExample': '公主 & 食人族',
 
     // 第二页组件
     'secondPage.addComponent': '添加组件',
@@ -443,6 +466,12 @@ export const translations = {
     'common.error': 'Error',
     'common.warning': 'Warning',
     'common.save': 'Save',
+    'common.example': 'Example: ',
+    'common.comingSoon': 'Coming Soon',
+    'common.backToTypeSelection': '← Back to Type Selection',
+    'addCustomRule.templateHint': 'Choose a template or add a blank rule',
+    'addCustomRule.blankRule': 'Blank Rule',
+    'addCustomRule.blankRuleDesc': 'Start from scratch',
 
     // Main Page
     'app.title': 'Blood on the Clocktower Script Generator',
@@ -543,6 +572,7 @@ export const translations = {
     'export.idOnlySuffix': 'IDOnly',
     'export.chineseLang': 'Chinese',
     'export.englishLang': 'English',
+    'export.spanishLang': 'Spanish',
 
     // Export image dialog
     'dialog.exportImageTitle': 'Export Image',
@@ -605,6 +635,10 @@ export const translations = {
     'about.artAdviceTest': 'Art Advice & Test: Valen',
     'about.translationProofreading': 'Translation and Proofreading',
     'about.weedinAllen': 'Weedin & Allen',
+    'about.contactTitle': 'Contact',
+    'about.contactHint':
+      'For corrections, feature requests, or new characters, tap below to copy the email:',
+    'about.emailCopied': 'Email copied to clipboard',
 
     // Errors
     'error.scriptNotFound': 'Script not found',
@@ -696,6 +730,7 @@ export const translations = {
     'jinx.title': 'Jinx Rules',
     'jinx.section': 'Jinx Rules',
     'jinx.and': 'and',
+    'jinx.separator': ': ',
 
     // Character Actions
     'character.edit': 'Edit',
@@ -821,6 +856,13 @@ export const translations = {
     'specialRules.stateRule': 'State Rule',
     'specialRules.cancel': 'Cancel',
     'specialRules.confirm': 'Confirm',
+    'specialRules.specialRuleExample': 'Custom scroll rules like "The Seventh Chair"',
+    'specialRules.specialRuleExampleText': 'The Seventh Chair',
+    'specialRules.customJinxExample': 'Princess & Cannibal',
+    'specialRules.titleLabel': 'Title',
+    'specialRules.titlePlaceholder': 'Enter rule title',
+    'specialRules.contentLabel': 'Content',
+    'specialRules.contentPlaceholder': 'Enter rule content',
 
     // Custom Jinx
     'customJinx.addTitle': 'Add Custom Jinx',
@@ -848,6 +890,8 @@ export const translations = {
     'customJinx.show': 'Show',
     'customJinx.hide': 'Hide',
     'customJinx.edit': 'Edit',
+    'customJinx.customJinxDescription': 'Add custom character jinx relationships',
+    'customJinx.customJinxExample': 'Princess & Cannibal',
 
     // Second Page Components
     'secondPage.addComponent': 'Add Component',
@@ -865,6 +909,462 @@ export const translations = {
 };
 
 // 类型定义
-export type Language = 'zh-CN' | 'en';
-export type TranslationKey = keyof (typeof translations)['zh-CN'];
+export type TranslationKey = keyof (typeof baseTranslations)['zh-CN'];
+
+const spanishTranslations: Partial<Record<TranslationKey, string>> = {
+  // General
+  'common.back': 'Volver',
+  'common.loading': 'Cargando...',
+  'common.confirm': 'Confirmar',
+  'common.cancel': 'Cancelar',
+  'common.close': 'Cerrar',
+  'common.success': 'Éxito',
+  'common.error': 'Error',
+  'common.warning': 'Aviso',
+  'common.save': 'Guardar',
+  'common.example': 'Ejemplo: ',
+  'common.comingSoon': 'Próximamente',
+  'common.backToTypeSelection': '← Volver al tipo de regla',
+  'addCustomRule.templateHint': 'Elige una plantilla o añade una regla en blanco',
+  'addCustomRule.blankRule': 'Regla en blanco',
+  'addCustomRule.blankRuleDesc': 'Crear desde cero',
+
+  // Main page
+  'app.title': 'Generador de guiones de Blood on the Clocktower',
+  'app.scriptRepository': 'Repositorio de guiones',
+  'app.emptyState': 'Introduce el JSON del guion y pulsa «Generar guion»',
+
+  // SEO
+  'seo.title': 'Herramienta para Clocktower de Onion - Generador de guiones de Blood on the Clocktower',
+  'seo.description': 'Herramienta profesional para generar guiones de Blood on the Clocktower: configuración personalizada de personajes, exportación de guiones y varios modos de juego. Una experiencia cómoda para los aficionados a BOTC.',
+  'seo.keywords': 'Blood on the Clocktower,BOTC,Generador de guiones,Juego de mesa,Clocktower',
+  'seo.appTitle': 'Herramienta para Clocktower de Onion',
+
+  // Input panel
+  'input.jsonLabel': 'JSON del guion',
+  'input.jsonPlaceholder': 'Pega el JSON exportado por el creador oficial de guiones...',
+  'input.generateScript': 'Generar guion',
+  'input.uploadJson': 'Subir JSON',
+  'input.uploadImage': 'Pulsa o arrastra para subir una imagen',
+  'input.reuploadImage': 'Pulsa para volver a subir',
+  'input.exportPDF': 'Exportar PDF',
+  'input.exportImage': 'Exportar imagen',
+  'input.exportJson': 'Exportar JSON',
+  'input.shareScript': 'Compartir guion',
+  'input.clear': 'Limpiar',
+  'input.advancedOptions': 'Opciones avanzadas',
+  'input.titleLabel': 'Título del guion (opcional)',
+  'input.titlePlaceholder': 'Guion personalizado',
+  'input.authorLabel': 'Autor del guion (opcional)',
+  'input.authorPlaceholder': 'Nombre del autor',
+  'input.resetSettings': 'Restablecer ajustes',
+  'input.errorEmpty': 'Introduce datos JSON del guion',
+  'input.errorParse': 'No se pudo analizar el JSON',
+  'input.jsonCopied': 'JSON copiado al portapapeles',
+  'input.exportJsonFailed': 'No se pudo exportar el JSON, inténtalo de nuevo',
+  'input.exportImageFailed': 'No se pudo exportar la imagen, inténtalo de nuevo. Si el problema persiste, refresca la página y vuelve a intentarlo.',
+  'input.officialIdParseMode': 'Analizar solo ID oficiales (bilingüe)',
+  'input.officialIdParseModeWarning': 'No se pueden editar personajes con esta opción activada',
+  'input.twoPageMode': 'Modo de dos páginas',
+  'input.twoPageModeDesc': 'Interacciones, Legendarios y Viajeros en página aparte',
+
+  // Upload mode
+  'upload.selectMode': 'Selecciona el modo de subida:',
+  'upload.simpleMode': 'Subida sencilla',
+  'upload.syncMode': 'Sincronización de archivos',
+  'upload.experimental': 'Experimental',
+  'upload.simpleDesc': 'Selecciona e importa un archivo JSON local',
+  'upload.selectFile': 'Seleccionar archivo',
+  'upload.syncDesc': 'Sincroniza y edita en tiempo real un archivo JSON local',
+  'upload.syncFeature1': 'Los cambios se guardan automáticamente en el archivo local',
+  'upload.syncFeature2': 'Los cambios en el archivo se sincronizan automáticamente con el editor',
+  'upload.syncFeature3': 'Atajo de teclado Ctrl+S para guardar',
+  'upload.startSync': 'Abrir archivo y sincronizar',
+  'upload.dropToUpload': 'Suelta un archivo aquí para subir el JSON',
+  'upload.onlyJsonFiles': 'Solo se admiten archivos .json',
+  'upload.fileUploaded': 'Archivo JSON subido',
+  'upload.fileReadError': 'Error al leer el archivo',
+
+  // File sync banner
+  'fileSync.syncing': 'Sincronizando',
+  'fileSync.experimental': 'Experimental',
+  'fileSync.started': 'Sincronización de archivos activada',
+  'fileSync.stopped': 'Sincronización de archivos desactivada',
+  'fileSync.saved': 'Guardado en el archivo local',
+  'fileSync.fileChanged': 'Se detectó un cambio en el archivo, sincronizado automáticamente',
+
+  // Confirm dialogs
+  'dialog.resetTitle': 'Confirmar restablecimiento de ajustes',
+  'dialog.resetMessage': 'Esta acción borrará todos los ajustes personalizados (incluido el idioma) y volverá al estado predeterminado. ¿Continuar?',
+  'dialog.resetSuccess': 'Ajustes restablecidos correctamente',
+  'dialog.clearTitle': 'Confirmar borrado del guion',
+  'dialog.clearMessage': 'Esta acción borrará el guion actual, todas las selecciones de personajes y los datos JSON. ¿Continuar?',
+  'dialog.printTitle': 'Ajustes de impresión',
+  'dialog.printMessage': 'Para obtener los mejores resultados de impresión, configura según las siguientes recomendaciones',
+  'dialog.printBrowser': 'Navegador recomendado: Chrome o Edge',
+  'dialog.printDevice': 'Es posible que distintos dispositivos requieran ajustar el zoom',
+  'dialog.printPaper': 'Tamaño de papel: A4',
+  'dialog.printScale': 'Escala: 40-60 % (óptimo 53 %)',
+  'dialog.printMargin': 'Márgenes: Ninguno',
+  'dialog.printConfirm': 'Confirmar impresión',
+  'dialog.unlockModeTitle': 'Desbloquear modo de edición',
+  'dialog.unlockModeMessage': 'Actualmente estás en «modo de solo ID oficiales», que impide editar la información de los personajes. ¿Quieres desbloquear este modo para seguir editando?',
+  'dialog.unlockModeNote': 'Tras desbloquear, podrás editar libremente los nombres, descripciones, etc. de los personajes, pero esto podría afectar la visualización bilingüe.',
+  'dialog.unlockAndEdit': 'Desbloquear y editar',
+  'dialog.unlockSuccess': 'Modo de solo ID oficiales desbloqueado',
+  'dialog.exportJsonTitle': 'Opciones de exportación JSON',
+  'dialog.exportJsonMessage': 'Elige el formato de exportación:',
+  'dialog.exportCurrentLangJson': 'JSON completo (personajes oficiales)',
+  'dialog.exportCurrentLangJsonDesc': 'En el idioma actual, todos los personajes oficiales encontrados se exportarán como JSON completo según la descripción oficial en ese idioma; los personajes no oficiales conservarán el JSON original.',
+  'dialog.exportOriginalJson': 'JSON original (predeterminado) (personalizado)',
+  'dialog.exportOriginalJsonDesc': 'Exporta el contenido JSON sin cambios del editor, con el mayor nivel de personalización.',
+  'dialog.exportIdOnly': 'Solo ID oficiales (personajes oficiales)',
+  'dialog.exportIdOnlyDesc': 'Los personajes oficiales se exportarán solo con su ID; los que no tengan ID oficial conservarán el JSON completo, lo que facilita el cambio bilingüe.',
+
+  // Export filenames
+  'export.defaultScriptName': 'Guion',
+  'export.currentLangSuffix': 'completo',
+  'export.originalSuffix': 'original',
+  'export.idOnlySuffix': 'solo ID',
+  'export.chineseLang': 'chino',
+  'export.englishLang': 'inglés',
+  'export.spanishLang': 'español',
+
+  // Export image dialog
+  'dialog.exportImageTitle': 'Exportar imagen',
+  'dialog.exportImageMessage': 'Utiliza I 🧡 PDF para exportar el PDF a imagen',
+  'dialog.exportImageTip': 'Primero exporta a PDF y luego usa I 🧡 PDF para convertirlo a imagen',
+  'dialog.gotoILovePDF': 'Ir a I Love PDF',
+
+  // Info messages
+  'info.supportOfficial': '• Compatible con el formato JSON del creador oficial de guiones',
+  'info.supportFormats': '• Compatible con los formatos Trouble Brewing, Sects & Violets, Bad Moon Rising y otros',
+  'info.experimentalCharacters': '• Algunos personajes originales no están incluidos, usa el JSON completo',
+
+  // Script info
+  'script.author': 'Autor del guion',
+  'script.author2': 'Autor',
+  'script.playerCount': 'Jugadores',
+
+  // Team names
+  'team.good': 'Bando Bueno',
+  'team.evil': 'Bando Malvado',
+  'team.townsfolk': 'Aldeanos',
+  'team.outsider': 'Forasteros',
+  'team.minion': 'Esbirros',
+  'team.demon': 'Demonios',
+  'team.fabled': 'Legendarios',
+  'team.loric': 'Aventureros',
+  'team.traveler': 'Viajeros',
+
+  // Night order
+  'night.first': 'Primera noche',
+  'night.other': 'Otras noches',
+
+  // Script repository
+  'repo.title': 'Repositorio de guiones',
+  'repo.subtitle': 'Explora y previsualiza guiones de Blood on the Clocktower',
+  'repo.searchPlaceholder': 'Buscar por nombre de guion, autor...',
+  'repo.noResults': 'No se encontraron guiones coincidentes',
+  'repo.backToGenerator': 'Volver al generador',
+  'repo.backToRepository': 'Volver al repositorio',
+  'repo.exportJson': 'Exportar JSON',
+  'repo.author': 'Autor',
+  'repo.aboutAndThanks': 'Acerca de y agradecimientos',
+  'repo.categoryOfficial': 'Guiones oficiales',
+  'repo.categoryOfficialMix': 'Mezcla oficial',
+  'repo.categoryCustom': 'Guiones personalizados',
+
+  // About and acknowledgments
+  'about.title': 'Acerca de y agradecimientos',
+  'about.aboutProject': 'Acerca del proyecto',
+  'about.projectDescription': 'Este es un generador de guiones de Blood on the Clocktower completamente gratuito para que los aficionados creen guiones con facilidad. No se cobra ninguna tarifa y todas las funciones son de uso libre. Si te resulta útil, puedes hacer una donación para apoyar el desarrollo y mantenimiento del proyecto.',
+  'about.donate': 'Apóyanos',
+  'about.acknowledgments': 'Agradecimientos',
+  'about.thankValen': 'Valen - Consejos de arte y corrección de errores',
+  'about.specialThanks': 'Agradecimientos especiales',
+  'about.nusClub': 'NUS Ravenswood Bluff Town',
+  'about.designReference': 'Referencia de diseño',
+  'about.museum': 'Museo del Clocktower',
+  'about.letterClosing': 'Con corazón agradecido, BigOnion',
+  'about.artAdviceTest': 'Consejos de arte y pruebas: Valen',
+  'about.translationProofreading': 'Traducción y revisión de personajes',
+  'about.weedinAllen': 'Weedin y Allen',
+  'about.contactTitle': 'Contacto',
+  'about.contactHint':
+    'Para correcciones, sugerencias o nuevos personajes, pulsa abajo para copiar el correo:',
+  'about.emailCopied': 'Correo copiado al portapapeles',
+
+  // Error messages
+  'error.scriptNotFound': 'Guion no encontrado',
+  'error.noScriptName': 'No se especificó el nombre del guion',
+  'error.loadFailed': 'Error al cargar el guion',
+  'error.unknownError': 'Error desconocido',
+  'error.noJsonParam': 'Falta el parámetro JSON',
+
+  // Share feature
+  'share.title': 'Compartir guion con amigos',
+  'share.step1': 'Paso 1: Crear un Gist',
+  'share.step2': 'Paso 2: Generar enlace para compartir',
+  'share.step1Description': 'Visita gist.github.com, pega tus datos JSON, crea un Gist y copia el enlace Raw',
+  'share.openGist': 'Abrir Gist',
+  'share.copyJson': 'Copiar JSON',
+  'share.copyJsonTooltip': 'Copiar los datos JSON del guion actual',
+  'share.gistUrlLabel': 'Enlace Raw del Gist',
+  'share.generatedLinks': 'Enlaces para compartir generados',
+  'share.fullScriptLink': 'Enlace del guion completo',
+  'share.compressedLink': 'Enlace comprimido',
+  'share.compressedDescription': 'Utiliza un formato simplificado que solo incluye ID de personajes, URL más corta',
+  'share.copyLink': 'Copiar enlace',
+
+  // Character edit
+  'editCharacter': 'Editar personaje',
+  'basicInfo': 'Información básica',
+  'characterName': 'Nombre del personaje',
+  'team': 'Bando',
+  'ability': 'Descripción de la habilidad',
+  'imageUrl': 'URL de la imagen',
+  'nightOrder': 'Orden de acción nocturna',
+  'firstNight': 'Orden de la primera noche',
+  'otherNight': 'Orden de las demás noches',
+  'storytellerReminders': 'Recordatorios del narrador',
+  'firstNightReminder': 'Recordatorio de la primera noche',
+  'otherNightReminder': 'Recordatorio de las demás noches',
+  'reminderTokens': 'Fichas de recordatorio',
+  'addReminder': 'Añadir ficha de recordatorio (pulsa Intro)',
+  'addReminderPlaceholder': 'Introduce el texto del recordatorio',
+  'globalReminderTokens': 'Fichas de recordatorio global',
+  'addGlobalReminder': 'Añadir ficha de recordatorio global (pulsa Intro)',
+  'addGlobalReminderPlaceholder': 'Introduce el texto del recordatorio global',
+  'preview': 'Vista previa',
+
+  // Title edit dialog
+  'title.edit': 'Editar título',
+  'title.editFirstPage': 'Editar el título de la primera página',
+  'title.editSecondPage': 'Editar el título de la segunda página',
+  'title.title': 'Título del guion',
+  'title.titleText': 'Texto del título',
+  'title.titleImage': 'URL de la imagen del título (opcional)',
+  'title.subtitle': 'Subtítulo (opcional)',
+  'title.author': 'Autor',
+  'title.playerCount': 'Número de jugadores (opcional)',
+  'title.fontSize': 'Tamaño de fuente del título',
+  'title.fontSizeXs': 'Móvil',
+  'title.fontSizeSm': 'Tableta',
+  'title.fontSizeMd': 'Escritorio',
+  'title.imageSize': 'Tamaño de la imagen',
+  'title.useImage': 'Usar imagen como título',
+  'title.imageUrl': 'URL de la imagen',
+  'title.dragDropHint': 'Arrastra una imagen aquí o',
+  'title.clickUpload': 'pulsa para subir',
+  'title.save': 'Guardar',
+  'title.cancel': 'Cancelar',
+
+  // Teams (standalone)
+  'townsfolk': 'Aldeanos',
+  'outsider': 'Forasteros',
+  'minion': 'Esbirros',
+  'demon': 'Demonios',
+  'fabled': 'Legendarios',
+  'loric': 'Aventureros',
+  'traveler': 'Viajeros',
+
+  // Character library
+  'characterLibrary': 'Biblioteca de personajes',
+  'searchCharacters': 'Buscar por nombre de personaje, habilidad...',
+  'addToScript': 'Añadir al guion',
+  'noSearchResults': 'No se encontraron personajes coincidentes',
+  'noCharactersInTeam': 'No hay personajes en este bando',
+  'all': 'Todos',
+  'loading': 'Cargando...',
+  'selectedCharacters': 'Personajes seleccionados',
+  'selected': 'Seleccionado',
+
+  // Jinx rules
+  'jinx.rule': 'Interacción',
+  'jinx.title': 'Interacciones',
+  'jinx.section': 'Interacciones',
+  'jinx.and': 'y',
+
+  // Character actions
+  'character.edit': 'Editar',
+  'character.delete': 'Eliminar',
+  'character.copyJson': 'Copiar JSON del personaje',
+  'character.jsonCopied': 'JSON del personaje copiado al portapapeles',
+  'character.jsonCopyFailed': 'Error al copiar, inténtalo de nuevo',
+  'character.replace': 'Cambiar personaje',
+
+  // Character library actions
+  'library.pin': 'Fijar',
+  'library.unpin': 'Desfijar',
+
+  // UI settings
+  'ui.settings': 'Ajustes de interfaz',
+  'ui.pinDrawer': 'Fijar panel lateral',
+  'ui.unpinDrawer': 'Desfijar panel lateral',
+  'ui.searchSettings': 'Buscar ajustes...',
+  'ui.noResults': 'No se encontraron ajustes coincidentes',
+  'ui.manageCustomFonts': 'Gestionar fuentes personalizadas',
+  'ui.resetAllSettings': 'Restablecer todos los ajustes',
+  'ui.resetUISettings': 'Restablecer todos los ajustes de interfaz',
+  'dialog.resetUIMessage': '¿Estás seguro de que quieres restablecer todos los ajustes de interfaz?',
+
+  // Category 0: Background settings
+  'ui.category.backgroundSettings': 'Ajustes de fondo',
+  'ui.backgroundMode': 'Modo de fondo',
+  'ui.backgroundMode.official': 'Fondo oficial',
+  'ui.backgroundMode.custom': 'Subida personalizada',
+  'ui.nightOrderBackgroundLabel': 'Fondo del orden nocturno',
+  'ui.mainBackgroundLabel': 'Fondo del área principal',
+  'ui.uploadBackground': 'Subir fondo',
+  'ui.removeBackground': 'Eliminar fondo personalizado',
+  'ui.backgroundPreview': 'Vista previa del fondo',
+  'ui.backgroundTip': 'Consejo: las imágenes subidas se convertirán a Base64 y se almacenarán localmente',
+
+  // Category 1: Page layout
+  'ui.category.pageLayout': 'Diseño de página',
+  'ui.enableTwoPageMode': 'Activar modo de dos páginas',
+  'ui.twoPageModeDesc': 'Interacciones, legendarios y viajeros en página aparte',
+  'ui.titleHeight': 'Altura del área del título',
+  'ui.nightOrderBackground': 'Fondo del orden nocturno',
+  'ui.purpleBackground': 'Fondo morado',
+  'ui.yellowBackground': 'Fondo amarillo',
+  'ui.greenBackground': 'Fondo verde azulado',
+
+  // Category 2: Character card layout
+  'ui.category.cardLayout': 'Diseño de tarjetas de personaje',
+  'ui.cardPaddingX': 'Relleno de la tarjeta (horizontal)',
+  'ui.cardPaddingY': 'Relleno de la tarjeta (vertical)',
+  'ui.cardGap': 'Espaciado entre elementos de la tarjeta',
+  'ui.textAreaGap': 'Espaciado del área de texto',
+
+  // Category 3: Icon size configuration
+  'ui.category.iconSize': 'Configuración del tamaño de iconos',
+  'ui.avatarSize': 'Avatar del personaje',
+  'ui.avatarWidthMd': 'Ancho del avatar',
+  'ui.avatarHeightMd': 'Alto del avatar',
+  'ui.adjustUI': 'Ajustes de exportación PDF',
+  'ui.jinxIconSize': 'Icono de interacción',
+  'ui.jinxIconWidthMd': 'Ancho del icono de interacción',
+  'ui.jinxIconHeightMd': 'Alto del icono de interacción',
+  'ui.fabledIconSize': 'Icono de legendario',
+  'ui.fabledIconWidthMd': 'Ancho del icono de legendario',
+  'ui.fabledIconHeightMd': 'Alto del icono de legendario',
+
+  // Category 4: Font settings
+  'ui.category.fontSettings': 'Ajustes de fuente',
+  'ui.font.scriptTitle': 'Fuente del título del guion',
+  'ui.font.teamDivider': 'Fuente del texto del separador de bando',
+  'ui.font.characterName': 'Fuente del nombre del personaje',
+  'ui.font.characterAbility': 'Fuente de la descripción de la habilidad',
+  'ui.font.jinxText': 'Fuente de la regla de interacción',
+  'ui.font.stateRuleTitle': 'Fuente del título de la regla de la página 1',
+  'ui.font.stateRuleContent': 'Fuente del contenido de la regla de la página 1',
+  'ui.font.specialRuleTitle': 'Fuente del título de la regla de la página 2',
+  'ui.font.specialRuleContent': 'Fuente del contenido de la regla de la página 2',
+  'ui.font.page1Rules': 'Fuente de las reglas especiales de la página 1',
+  'ui.font.page2Rules': 'Fuente de las reglas especiales de la página 2',
+  'ui.font.titleFont': 'Fuente del título',
+  'ui.font.contentFont': 'Fuente del contenido',
+  'ui.font.titleFontSize': 'Tamaño de fuente del título',
+  'ui.font.contentFontSize': 'Tamaño de fuente del contenido',
+
+  // Font uploader
+  'fontUploader.title': 'Gestor de fuentes personalizadas',
+  'fontUploader.uploadNew': 'Subir nueva fuente',
+  'fontUploader.fontName': 'Nombre de la fuente',
+  'fontUploader.fontNameHelper': 'p. ej., Mi fuente personalizada',
+  'fontUploader.fontFamily': 'Nombre de la familia de fuentes',
+  'fontUploader.fontFamilyHelper': 'Nombre de la familia CSS, p. ej., MiFuentePersonalizada',
+  'fontUploader.selectFile': 'Seleccionar archivo de fuente',
+  'fontUploader.fileSelected': 'Archivo seleccionado',
+  'fontUploader.fileHelper': 'Formatos compatibles: .ttf, .otf, .woff, .woff2, tamaño máx. 15 MB',
+  'fontUploader.addFont': 'Añadir fuente',
+  'fontUploader.uploading': 'Subiendo...',
+  'fontUploader.uploadedFonts': 'Fuentes subidas',
+  'fontUploader.fontCount': '',
+  'fontUploader.close': 'Cerrar',
+  'fontUploader.deleteConfirm': '¿Estás seguro de que quieres eliminar esta fuente personalizada?',
+  'fontUploader.errorInvalidFile': 'Selecciona un archivo de fuente válido (.ttf, .otf, .woff, .woff2)',
+  'fontUploader.errorFileSize': 'El tamaño del archivo de fuente no puede superar los 15 MB',
+  'fontUploader.errorAllFields': 'Rellena todos los campos y selecciona un archivo de fuente',
+  'fontUploader.errorReadFile': 'Error al leer el archivo de fuente',
+  'fontUploader.errorUpload': 'Error al subir la fuente, inténtalo de nuevo',
+
+  // Decorative frame text
+  'decorative.page2Text': 'Interacciones · Legendarios · Viajeros',
+
+  // Credits
+  'credits.designTitle': 'Diseño gráfico',
+  'credits.designers': 'Onion',
+
+  // Special rules
+  'specialRules.title': 'Reglas especiales',
+  'specialRules.add': 'Añadir regla especial',
+  'specialRules.edit': 'Editar regla especial',
+  'specialRules.delete': 'Eliminar regla',
+  'specialRules.stateRules': 'Reglas de estado',
+  'specialRules.dialogTitle': 'Añadir regla personalizada',
+  'specialRules.selectType': 'Selecciona un tipo de regla',
+  'specialRules.specialRule': 'Regla especial',
+  'specialRules.stateRule': 'Regla de estado',
+  'specialRules.cancel': 'Cancelar',
+  'specialRules.confirm': 'Confirmar',
+  'specialRules.specialRuleExample': 'Reglas personalizadas de rollo como "La Séptima Silla"',
+  'specialRules.specialRuleExampleText': 'La Séptima Silla',
+  'specialRules.customJinxExample': 'Princesa y Caníbal',
+  'specialRules.titleLabel': 'Título',
+  'specialRules.titlePlaceholder': 'Introduce el título de la regla',
+  'specialRules.contentLabel': 'Contenido',
+  'specialRules.contentPlaceholder': 'Introduce el contenido de la regla',
+
+  // Custom jinx
+  'customJinx.addTitle': 'Añadir interacción personalizada',
+  'customJinx.editTitle': 'Editar interacción',
+  'customJinx.characterA': 'Personaje A',
+  'customJinx.characterB': 'Personaje B',
+  'customJinx.description': 'Descripción de la interacción',
+  'customJinx.descriptionZh': 'Descripción en chino',
+  'customJinx.descriptionEn': 'Descripción en inglés',
+  'customJinx.descriptionPlaceholder': 'Introduce la descripción de la interacción...',
+  'customJinx.selectCharacter': 'Seleccionar personaje',
+  'customJinx.selectTarget': 'Seleccionar personaje objetivo',
+  'customJinx.selectCharactersError': 'Selecciona dos personajes',
+  'customJinx.sameCharacterError': 'No se puede seleccionar el mismo personaje',
+  'customJinx.descriptionError': 'Rellena la descripción de la interacción',
+  'customJinx.hint': 'Consejo: el chino usa nombres de personajes como claves, el inglés usa IDs. Rellena al menos una descripción en un idioma.',
+  'customJinx.addCustomJinx': 'Añadir interacción personalizada',
+  'customJinx.delete': 'Eliminar',
+  'customJinx.custom': 'Personalizada',
+  'customJinx.official': 'Oficial',
+  'customJinx.management': 'Gestión de interacciones',
+  'customJinx.addNew': 'Añadir nueva interacción',
+  'customJinx.add': 'Añadir',
+  'customJinx.hidden': 'Oculta',
+  'customJinx.show': 'Mostrar',
+  'customJinx.hide': 'Ocultar',
+  'customJinx.edit': 'Editar',
+  'customJinx.customJinxDescription': 'Añade relaciones de jinx personalizadas',
+  'customJinx.customJinxExample': 'Princesa y Caníbal',
+
+  // Second page components
+  'secondPage.addComponent': 'Añadir componente',
+  'secondPage.title': 'Título de la segunda página',
+  'secondPage.playerTable1': 'Tabla de configuración de jugadores (estándar)',
+  'secondPage.playerTable2': 'Tabla de configuración de jugadores (6-9 jugadores)',
+
+  // Player count table
+  'playerTable.playerCount': 'Jugadores',
+  'playerTable.townsfolk': 'Aldeanos',
+  'playerTable.outsider': 'Forasteros',
+  'playerTable.minion': 'Esbirros',
+  'playerTable.demon': 'Demonios',
+};
+
+export const translations: Record<Language, Partial<Record<TranslationKey, string>>> = {
+  ...baseTranslations,
+  es: spanishTranslations,
+};
+
+export type { Language } from './languages';
 

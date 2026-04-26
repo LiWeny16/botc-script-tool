@@ -2,12 +2,13 @@ import React, { createContext, useContext, type ReactNode } from 'react';
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
 import { translations, type TranslationKey } from './map';
+import type { Language } from './languages';
 
 // 创建 i18n 上下文
 interface I18nContextType {
   t: (key: TranslationKey) => string;
-  language: 'zh-CN' | 'en';
-  setLanguage: (lang: 'zh-CN' | 'en') => void;
+  language: Language;
+  setLanguage: (lang: Language) => void;
 }
 
 const I18nContext = createContext<I18nContextType | null>(null);
@@ -16,10 +17,10 @@ const I18nContext = createContext<I18nContextType | null>(null);
 export const I18nProvider: React.FC<{ children: ReactNode }> = observer(({ children }) => {
   const t = (key: TranslationKey): string => {
     const lang = configStore.language;
-    return translations[lang][key] || key;
+    return translations[lang]?.[key] || translations.en[key] || translations['zh-CN'][key] || key;
   };
 
-  const setLanguage = (lang: 'zh-CN' | 'en') => {
+  const setLanguage = (lang: Language) => {
     configStore.setLanguage(lang);
   };
 

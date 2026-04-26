@@ -5,19 +5,161 @@ import {
   IconButton,
   Typography,
   Box,
-  Link,
   Divider,
   Button,
+  Stack,
+  Avatar,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { useState, useCallback, type ReactNode } from 'react';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
-import type { ReactNode } from 'react';
+import type { TranslationKey } from '../utils/map';
 
 interface AboutDialogProps {
   open: boolean;
   onClose: () => void;
+}
+
+const CONTACT_EMAIL = 'a454888395@gmail.com';
+
+async function copyEmailToClipboard(text: string): Promise<void> {
+  try {
+    await navigator.clipboard.writeText(text);
+  } catch {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+  }
+}
+
+function ContactCallout({
+  email,
+  t,
+}: {
+  email: string;
+  t: (key: TranslationKey) => string;
+}) {
+  const [copiedOpen, setCopiedOpen] = useState(false);
+
+  const handleCopyEmail = useCallback(async () => {
+    await copyEmailToClipboard(email);
+    setCopiedOpen(true);
+  }, [email]);
+
+  return (
+    <Box
+      sx={{
+        position: 'relative',
+        overflow: 'hidden',
+        borderRadius: 3,
+        border: '2px solid',
+        borderColor: 'rgba(99, 102, 241, 0.32)',
+        background:
+          'linear-gradient(145deg, rgba(238, 242, 255, 0.98) 0%, rgba(224, 231, 255, 0.88) 45%, rgba(199, 210, 254, 0.55) 100%)',
+        boxShadow: '0 6px 20px rgba(79, 70, 229, 0.12), inset 0 1px 0 rgba(255,255,255,0.65)',
+        px: { xs: 2, sm: 2.5 },
+        py: 2.5,
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 4,
+          background: 'linear-gradient(90deg, #6366f1 0%, #818cf8 45%, #a5b4fc 100%)',
+        },
+      }}
+    >
+      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'flex-start' }}>
+        <Avatar
+          sx={{
+            width: 52,
+            height: 52,
+            alignSelf: { xs: 'center', sm: 'flex-start' },
+            mt: { sm: 0.25 },
+            background: 'linear-gradient(145deg, #eef2ff 0%, #e0e7ff 100%)',
+            color: '#4f46e5',
+            border: '1px solid rgba(99, 102, 241, 0.35)',
+            boxShadow: '0 2px 8px rgba(79, 70, 229, 0.15)',
+          }}
+        >
+          <EmailOutlinedIcon sx={{ fontSize: 28 }} />
+        </Avatar>
+        <Box sx={{ flex: 1, minWidth: 0, textAlign: { xs: 'center', sm: 'left' } }}>
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 800,
+              letterSpacing: '0.02em',
+              color: '#312e81',
+              mb: 1,
+              fontSize: '1.05rem',
+            }}
+          >
+            {t('about.contactTitle')}
+          </Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'rgba(49, 46, 129, 0.82)',
+              lineHeight: 1.75,
+              mb: 2,
+              fontSize: '0.92rem',
+              maxWidth: 420,
+              mx: { xs: 'auto', sm: 0 },
+            }}
+          >
+            {t('about.contactHint')}
+          </Typography>
+          <Button
+            type="button"
+            variant="contained"
+            size="medium"
+            onClick={handleCopyEmail}
+            startIcon={<ContentCopyIcon sx={{ fontSize: 20 }} />}
+            aria-label={t('about.contactHint')}
+            sx={{
+              textTransform: 'none',
+              fontWeight: 700,
+              borderRadius: 2,
+              px: 2.25,
+              py: 1,
+              background: 'linear-gradient(180deg, #6366f1 0%, #4f46e5 100%)',
+              boxShadow: '0 4px 14px rgba(79, 70, 229, 0.35)',
+              wordBreak: 'break-all',
+              '&:hover': {
+                background: 'linear-gradient(180deg, #4f46e5 0%, #4338ca 100%)',
+                boxShadow: '0 6px 18px rgba(79, 70, 229, 0.42)',
+              },
+            }}
+          >
+            {email}
+          </Button>
+        </Box>
+      </Stack>
+      <Snackbar
+        open={copiedOpen}
+        autoHideDuration={2800}
+        onClose={() => setCopiedOpen(false)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={() => setCopiedOpen(false)} severity="success" variant="filled" sx={{ width: '100%' }}>
+          {t('about.emailCopied')}
+        </Alert>
+      </Snackbar>
+    </Box>
+  );
 }
 
 const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
@@ -157,6 +299,10 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
           >
             {t('about.letterClosing')}
           </Typography>
+
+          <Divider sx={{ my: 3 }} />
+
+          <ContactCallout email={CONTACT_EMAIL} t={t} />
         </Box>
       </DialogContent>
     </Dialog>
@@ -164,7 +310,6 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
 };
 
 export default AboutDialog;
-
 
 type TkxTheme = 'blue' | 'gold' | 'pink' | 'green';
 

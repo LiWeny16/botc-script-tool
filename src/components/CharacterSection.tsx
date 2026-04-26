@@ -1,7 +1,7 @@
 import { Box, Typography, Divider } from '@mui/material';
 import { observer } from 'mobx-react-lite';
 import type { Character, Script } from '../types';
-import { TEAM_COLORS } from '../data/characters';
+import { TEAM_COLORS } from '../data/characters/characters';
 import { THEME_COLORS, getTeamColor, getTeamName } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import { configStore } from '../stores/ConfigStore';

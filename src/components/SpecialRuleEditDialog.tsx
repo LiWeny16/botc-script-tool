@@ -37,12 +37,13 @@ const SpecialRuleEditDialog = ({
   });
   const [contentZh, setContentZh] = useState('');
   const [contentEn, setContentEn] = useState('');
+  const [contentEs, setContentEs] = useState('');
 
   // 辅助函数：从 string | I18nText 提取当前语言的文本
   const extractText = (text: string | I18nText | undefined): string => {
     if (!text) return '';
     if (typeof text === 'string') return text;
-    return text[language] || text['zh-CN'] || text['en'] || '';
+    return text[language] || text['zh-CN'] || text['en'] || text.es || '';
   };
 
   // 当 rule 或 language 变化时更新表单数据
@@ -57,10 +58,12 @@ const SpecialRuleEditDialog = ({
       if (content && typeof content !== 'string') {
         setContentZh(content['zh-CN'] ?? '');
         setContentEn(content['en'] ?? '');
+        setContentEs(content.es ?? '');
       } else {
         const fallback = typeof content === 'string' ? content : '';
         setContentZh(fallback);
         setContentEn(fallback);
+        setContentEs(fallback);
       }
     }
   }, [rule, language]);
@@ -77,11 +80,10 @@ const SpecialRuleEditDialog = ({
           if (language === 'zh-CN') {
             return newValue;
           }
-          // 如果是英文环境，创建 I18nText 对象
-          return {
-            'zh-CN': oldText || '',
-            'en': newValue,
-          };
+          // 非中文环境，创建 I18nText 对象并只更新当前语言
+          const nextText: I18nText = { 'zh-CN': oldText || '' };
+          nextText[language] = newValue;
+          return nextText;
         }
 
         // 如果旧值已经是 I18nText 对象，更新对应语言的值
@@ -89,7 +91,7 @@ const SpecialRuleEditDialog = ({
         result[language] = newValue;
 
         // 如果只有一个语言有值，简化为字符串（向后兼容）
-        if (result['zh-CN'] && !result['en']) {
+        if (result['zh-CN'] && !result['en'] && !result.es) {
           return result['zh-CN'];
         }
 
@@ -102,6 +104,7 @@ const SpecialRuleEditDialog = ({
         content: {
           'zh-CN': contentZh,
           'en': contentEn,
+          'es': contentEs,
         },
       });
       onClose();
@@ -147,18 +150,18 @@ const SpecialRuleEditDialog = ({
           {/* 标题 */}
           <TextField
             fullWidth
-            label={language === 'zh-CN' ? '标题' : 'Title'}
+            label={language === 'zh-CN' ? '标题' : language === 'es' ? 'Título' : 'Title'}
             value={formData.title}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, title: e.target.value }))
             }
-            placeholder={language === 'zh-CN' ? '请输入规则标题' : 'Enter rule title'}
+            placeholder={language === 'zh-CN' ? '请输入规则标题' : language === 'es' ? 'Introduce el título de la regla' : 'Enter rule title'}
           />
 
           {/* 内容 */}
           <TextField
             fullWidth
-            label={language === 'zh-CN' ? '内容' : 'Content'}
+            label={language === 'zh-CN' ? '内容' : language === 'es' ? 'Contenido' : 'Content'}
             value={formData.content}
             onChange={(e) => {
               const value = e.target.value;
@@ -167,9 +170,11 @@ const SpecialRuleEditDialog = ({
                 setContentZh(value);
               } else if (language === 'en') {
                 setContentEn(value);
+              } else if (language === 'es') {
+                setContentEs(value);
               }
             }}
-            placeholder={language === 'zh-CN' ? '请输入规则内容' : 'Enter rule content'}
+            placeholder={language === 'zh-CN' ? '请输入规则内容' : language === 'es' ? 'Introduce el contenido de la regla' : 'Enter rule content'}
             multiline
             rows={4}
           />

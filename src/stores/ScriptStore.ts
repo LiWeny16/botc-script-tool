@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx';
 import type { Script, Character } from '../types';
+import { isSameCharacter } from '../data/utils/characterIdMapping';
 import { configStore } from './ConfigStore';
 
 class ScriptStore {
@@ -220,7 +221,7 @@ class ScriptStore {
 
     // 找到要更新的角色（只应该在一个团队中）
     for (const team of Object.keys(updatedScript.characters)) {
-      const charIndex = updatedScript.characters[team].findIndex(c => c.id === characterId);
+      const charIndex = updatedScript.characters[team].findIndex(c => isSameCharacter(c.id, characterId));
       if (charIndex !== -1) {
         if (targetCharacter) {
           // 如果已经找到了一个角色，说明有重复ID，这是个问题
@@ -242,7 +243,7 @@ class ScriptStore {
           // 从原团队中删除
           updatedScript.characters = {
             ...updatedScript.characters,
-            [team]: updatedScript.characters[team].filter(c => c.id !== characterId)
+            [team]: updatedScript.characters[team].filter(c => !isSameCharacter(c.id, characterId))
           };
           
           // 如果原团队为空，删除该团队
@@ -264,7 +265,7 @@ class ScriptStore {
           updatedScript.characters = {
             ...updatedScript.characters,
             [team]: updatedScript.characters[team].map(c => 
-              c.id === characterId ? updatedCharacter : c
+              isSameCharacter(c.id, characterId) ? updatedCharacter : c
             )
           };
         }
@@ -276,7 +277,7 @@ class ScriptStore {
 
     // 更新all数组中的角色
     if (targetCharacter && updated) {
-      const allIndex = updatedScript.all.findIndex(c => c.id === characterId);
+      const allIndex = updatedScript.all.findIndex(c => isSameCharacter(c.id, characterId));
       if (allIndex !== -1) {
         updatedScript.all = [...updatedScript.all];
         updatedScript.all[allIndex] = {
@@ -290,7 +291,7 @@ class ScriptStore {
       this.setScript(updatedScript);
       console.log('ScriptStore - 角色更新成功，准备同步JSON:', {
         characterId,
-        updatedCharacter: updatedScript.all.find(c => c.id === characterId),
+        updatedCharacter: updatedScript.all.find(c => isSameCharacter(c.id, characterId)),
       });
       // 使用新的精准更新方法
       this.updateCharacterInJson(characterId, updates);
@@ -307,7 +308,7 @@ class ScriptStore {
       ...this.script,
       characters: {
         ...this.script.characters,
-        [team]: newOrder.map(id => this.script!.characters[team].find(c => c.id === id)!),
+        [team]: newOrder.map(id => this.script!.characters[team].find(c => isSameCharacter(c.id, id))!),
       },
     };
 
@@ -331,7 +332,7 @@ class ScriptStore {
     const updatedScript = { ...this.script };
     
     // 检查角色是否已存在
-    const exists = updatedScript.all.some(c => c.id === character.id);
+    const exists = updatedScript.all.some(c => isSameCharacter(c.id, character.id));
     if (exists) {
       return false; // 返回false表示角色已存在
     }
@@ -364,7 +365,7 @@ class ScriptStore {
     if (updatedScript.characters[character.team]) {
       updatedScript.characters = {
         ...updatedScript.characters,
-        [character.team]: updatedScript.characters[character.team].filter(c => c.id !== character.id)
+        [character.team]: updatedScript.characters[character.team].filter(c => !isSameCharacter(c.id, character.id))
       };
       
       // 如果团队为空，删除该团队
@@ -375,7 +376,7 @@ class ScriptStore {
     }
     
     // 从all数组中删除
-    updatedScript.all = updatedScript.all.filter(c => c.id !== character.id);
+    updatedScript.all = updatedScript.all.filter(c => !isSameCharacter(c.id, character.id));
 
     this.setScript(updatedScript);
     // 使用新的精准删除方法
@@ -389,13 +390,15 @@ class ScriptStore {
     const updatedScript = { ...this.script };
     
     // 检查新角色是否已存在（除非它就是要被替换的角色）
-    const exists = updatedScript.all.some(c => c.id === newCharacter.id && c.id !== oldCharacter.id);
+    const exists = updatedScript.all.some(
+      c => isSameCharacter(c.id, newCharacter.id) && !isSameCharacter(c.id, oldCharacter.id),
+    );
     if (exists) {
       return false; // 返回false表示新角色已存在
     }
 
     // 在all数组中找到旧角色的索引
-    const allIndex = updatedScript.all.findIndex(c => c.id === oldCharacter.id);
+    const allIndex = updatedScript.all.findIndex(c => isSameCharacter(c.id, oldCharacter.id));
     if (allIndex === -1) {
       return false; // 旧角色不存在
     }
@@ -407,11 +410,15 @@ class ScriptStore {
     // 处理团队数组
     // 1. 从旧团队中删除旧角色
     if (updatedScript.characters[oldCharacter.team]) {
-      const oldTeamIndex = updatedScript.characters[oldCharacter.team].findIndex(c => c.id === oldCharacter.id);
+      const oldTeamIndex = updatedScript.characters[oldCharacter.team].findIndex(c =>
+        isSameCharacter(c.id, oldCharacter.id),
+      );
       if (oldTeamIndex !== -1) {
         updatedScript.characters = {
           ...updatedScript.characters,
-          [oldCharacter.team]: updatedScript.characters[oldCharacter.team].filter(c => c.id !== oldCharacter.id)
+          [oldCharacter.team]: updatedScript.characters[oldCharacter.team].filter(
+            c => !isSameCharacter(c.id, oldCharacter.id),
+          ),
         };
         
         // 如果旧团队为空，删除该团队
@@ -692,21 +699,21 @@ class ScriptStore {
       const existingJinxIndex = jsonArray.findIndex((item: any) => {
         if (typeof item === 'string') return false;
         return item.team === 'a jinxed' && 
-               item.id === characterA.id && 
+               isSameCharacter(item.id, characterA.id) && 
                item.jinx && 
-               item.jinx.some((j: any) => j.id === characterB.id);
+               item.jinx.some((j: any) => isSameCharacter(j.id, characterB.id));
       });
 
       if (existingJinxIndex >= 0) {
         // 找到了现有的相克关系条目
         const jinxItem = jsonArray[existingJinxIndex];
-        const jinxEntry = jinxItem.jinx.find((j: any) => j.id === characterB.id);
+        const jinxEntry = jinxItem.jinx.find((j: any) => isSameCharacter(j.id, characterB.id));
         
         if (jinxEntry) {
           if (display === true && !jinxEntry.reason) {
             // 如果设置为显示，且没有自定义reason，说明是纯粹的官方相克
             // 应该删除这个条目，让它回归官方默认显示
-            jinxItem.jinx = jinxItem.jinx.filter((j: any) => j.id !== characterB.id);
+            jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterB.id));
             
             // 如果该角色没有其他相克关系，删除整个对象
             if (jinxItem.jinx.length === 0) {
@@ -722,7 +729,7 @@ class ScriptStore {
         // 如果是设置为显示（true），则不需要创建条目，保持官方默认即可
         const characterJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
-          return item.team === 'a jinxed' && item.id === characterA.id;
+          return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
         });
 
         const newJinxEntry: any = {
@@ -772,15 +779,15 @@ class ScriptStore {
         const existingJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
           return item.team === 'a jinxed' && 
-                 item.id === characterA.id && 
+                 isSameCharacter(item.id, characterA.id) && 
                  item.jinx && 
-                 item.jinx.some((j: any) => j.id === characterB.id);
+                 item.jinx.some((j: any) => isSameCharacter(j.id, characterB.id));
         });
 
         if (existingJinxIndex >= 0) {
           // 更新现有的相克关系
           const jinxItem = jsonArray[existingJinxIndex];
-          const jinxEntry = jinxItem.jinx.find((j: any) => j.id === characterB.id);
+          const jinxEntry = jinxItem.jinx.find((j: any) => isSameCharacter(j.id, characterB.id));
           if (jinxEntry && description) {
             // 更新描述
             jinxEntry.reason = description;
@@ -793,7 +800,7 @@ class ScriptStore {
           // 查找是否已有该角色的jinx对象
           const characterJinxIndex = jsonArray.findIndex((item: any) => {
             if (typeof item === 'string') return false;
-            return item.team === 'a jinxed' && item.id === characterA.id;
+            return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
           });
 
           const newJinxEntry: any = {
@@ -821,12 +828,12 @@ class ScriptStore {
         // 删除相克关系
         const characterJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
-          return item.team === 'a jinxed' && item.id === characterA.id;
+          return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
         });
 
         if (characterJinxIndex >= 0) {
           const jinxItem = jsonArray[characterJinxIndex];
-          jinxItem.jinx = jinxItem.jinx.filter((j: any) => j.id !== characterB.id);
+          jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterB.id));
           
           // 如果该角色没有其他相克关系，删除整个对象
           if (jinxItem.jinx.length === 0) {
@@ -837,12 +844,12 @@ class ScriptStore {
         // 同时检查反向关系
         const reverseJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
-          return item.team === 'a jinxed' && item.id === characterB.id;
+          return item.team === 'a jinxed' && isSameCharacter(item.id, characterB.id);
         });
 
         if (reverseJinxIndex >= 0) {
           const jinxItem = jsonArray[reverseJinxIndex];
-          jinxItem.jinx = jinxItem.jinx.filter((j: any) => j.id !== characterA.id);
+          jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterA.id));
           
           if (jinxItem.jinx.length === 0) {
             jsonArray.splice(reverseJinxIndex, 1);
@@ -1240,7 +1247,12 @@ class ScriptStore {
       const newJsonArray = jsonArray.map((item: any) => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
         
-        if (itemObj.id === characterId && itemObj.id !== '_meta' && itemObj.team !== 'a jinxed' && itemObj.team !== 'special_rule') {
+        if (
+          isSameCharacter(String(itemObj.id), characterId) &&
+          itemObj.id !== '_meta' &&
+          itemObj.team !== 'a jinxed' &&
+          itemObj.team !== 'special_rule'
+        ) {
           updated = true;
           
           // 如果是简化格式（只有ID字符串）

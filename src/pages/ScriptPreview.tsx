@@ -19,7 +19,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
 import { observer } from 'mobx-react-lite';
-import { getScriptJsonUrl, loadScriptJson } from '../data/scriptRepository';
+import { getScriptJsonUrl, loadScriptJson } from '../data/utils/scriptRepository';
 import { generateScript } from '../utils/scriptGenerator';
 import ScriptRenderer from '../components/ScriptRenderer';
 import { THEME_COLORS, THEME_FONTS } from '../theme/colors';

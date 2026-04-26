@@ -53,7 +53,12 @@ const CustomJinxDialog = observer(({
           setDescription(editingJinx.description);
         } else {
           // 根据当前语言选择对应的描述
-          setDescription(editingJinx.description[language] || editingJinx.description['zh-CN'] || '');
+          setDescription(
+            editingJinx.description[language] ||
+            editingJinx.description.en ||
+            editingJinx.description['zh-CN'] ||
+            ''
+          );
         }
       } else {
         setCharacterA(null);

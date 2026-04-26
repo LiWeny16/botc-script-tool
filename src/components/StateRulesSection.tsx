@@ -23,8 +23,8 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
   const getLocalizedText = (text: string | I18nText | undefined): string => {
     if (!text) return '';
     if (typeof text === 'string') return text;
-    // 优先使用当前语言，如果不存在则使用中文，再不存在则使用英文，最后返回空字符串
-    return text[language] || text['zh-CN'] || text['en'] || '';
+    // 优先使用当前语言；非中文环境优先回退英文，避免西语模式掉回中文。
+    return text[language] || (language === 'zh-CN' ? text['en'] : text['en'] || text['zh-CN']) || '';
   };
 
   return (
@@ -129,7 +129,7 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
                   fontFamily: uiConfigStore.stateRuleTitleFont,
                   fontWeight: 'bold',
                   color: THEME_COLORS.paper.primary,
-                  fontSize: language === 'en' 
+                  fontSize: language !== 'zh-CN' 
                     ? { xs: '1.4rem', sm: '1.7rem', md: '2.4rem' }
                     : { xs: '1.2rem', sm: '1.5rem', md: '2rem' },
                   mb: 2,
@@ -151,7 +151,7 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
                 variant="body1"
                 sx={{
                   fontFamily: uiConfigStore.stateRuleContentFont,
-                  fontSize: language === 'en'
+                  fontSize: language !== 'zh-CN'
                     ? { xs: '1rem', sm: '1.1rem', md: '1.2rem' }
                     : { xs: '0.9rem', sm: '1rem', md: '1.1rem' },
                   lineHeight: 1.8,

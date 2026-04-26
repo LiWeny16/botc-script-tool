@@ -1,3 +1,5 @@
+import type { Language } from '../utils/languages';
+
 // 角色类型定义 - 标准团队类型
 export type StandardTeam = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler' | 'fabled' | 'loric';
 
@@ -62,10 +64,7 @@ export interface StateItem {
 }
 
 // 国际化文本内容
-export interface I18nText {
-  'zh-CN'?: string;
-  'en'?: string;
-}
+export type I18nText = Partial<Record<Language, string>>;
 
 // 特殊说明卡片（可包含多个规则项）
 export interface SpecialRule {

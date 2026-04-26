@@ -1,20 +1,12 @@
 // 特殊规则模板库
 // 用于添加自定义规则时提供预设模板
+import type { I18nText } from '../../types';
 
 export interface SpecialRuleTemplate {
     id: string;
-    title: {
-        'zh-CN': string;
-        'en': string;
-    };
-    content: {
-        'zh-CN': string;
-        'en': string;
-    };
-    description?: {
-        'zh-CN': string;
-        'en': string;
-    };
+    title: I18nText;
+    content: I18nText;
+    description?: I18nText;
 }
 
 export const specialRuleTemplates: SpecialRuleTemplate[] = [

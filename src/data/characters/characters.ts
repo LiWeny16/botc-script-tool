@@ -1,4 +1,4 @@
-import { TEAM_COLORS, TEAM_NAMES } from '../theme/colors';
+import { TEAM_COLORS, TEAM_NAMES } from '../../theme/colors';
 
 // 导出团队颜色和名称（从统一配置导入）
 export { TEAM_COLORS, TEAM_NAMES };
@@ -6,7 +6,8 @@ export { TEAM_COLORS, TEAM_NAMES };
 
 
 
-const _characters = {
+/** 官方/核心角色中文文案（id 为中文规范，如 fortune_teller）；与 roles.json 通过 normalizeCharacterId 对齐 */
+export const ZH_CORE_CHARACTERS = {
   "bureaucrat": {
     "id": "bureaucrat",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/bureaucrat.png",
@@ -1770,7 +1771,7 @@ const _characters = {
     "setup": false
   },
   "ranfangfangzhu": {
-    "id": "ranfangfangsdthw4etq45",
+    "id": "ranfangfangzhu",
     "image": "https://oss.gstonegames.com/data_file/clocktower/web/icons/ranfangfangzhu.png",
     "edition": "custom",
     "name": "染坊坊主",
@@ -3568,32 +3569,3 @@ const _characters = {
 
 
 }
-// 导入传奇角色
-import { getFabledCharacters } from './fabled';
-// 导入 Loric 角色
-import { getLoricCharacters } from './loric';
-// 导入自定义角色
-import { getCustomCharacters } from './custom';
-
-// 将传奇角色整合到角色字典中
-const fabledCharacters = getFabledCharacters('zh-CN');
-const fabledDict = fabledCharacters.reduce((acc, char) => {
-  acc[char.id] = char;
-  return acc;
-}, {} as any);
-
-// 将 Loric 角色整合到角色字典中
-const loricCharacters = getLoricCharacters('zh-CN');
-const loricDict = loricCharacters.reduce((acc, char) => {
-  acc[char.id] = char;
-  return acc;
-}, {} as any);
-
-// 将自定义角色整合到角色字典中
-const customCharacters = getCustomCharacters('zh-CN');
-const customDict = customCharacters.reduce((acc, char) => {
-  acc[char.id] = char;
-  return acc;
-}, {} as any);
-
-export const CHARACTERS: any = { ..._characters, ...customDict, ...fabledDict, ...loricDict }

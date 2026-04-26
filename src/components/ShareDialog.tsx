@@ -21,7 +21,7 @@ import {
 } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
-import { normalizeCharacterId } from '../data/characterIdMapping';
+import { normalizeCharacterId } from '../data/utils/characterIdMapping';
 
 interface ShareDialogProps {
   open: boolean;

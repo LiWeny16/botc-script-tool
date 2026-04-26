@@ -1,0 +1,1223 @@
+[
+  {
+    "id": "washerwoman",
+    "name": "Lavandera",
+    "ability": "Empiezas conociendo que 1 de 2 jugadores es un Aldeano particular.",
+    "source": "https://villacuervos.es/wiki/personaje/washerwoman"
+  },
+  {
+    "id": "librarian",
+    "name": "Bibliotecario",
+    "ability": "Empiezas conociendo que 1 de 2 jugadores es un Forastero particular (o que hay 0 en juego).",
+    "source": "https://villacuervos.es/wiki/personaje/librarian"
+  },
+  {
+    "id": "investigator",
+    "name": "Investigador",
+    "ability": "Empiezas conociendo que 1 de 2 jugadores es un Esbirro particular.",
+    "source": "https://villacuervos.es/wiki/personaje/investigator"
+  },
+  {
+    "id": "chef",
+    "name": "Chef",
+    "ability": "Empiezas sabiendo cuántas parejas de jugadores malos hay.",
+    "source": "https://villacuervos.es/wiki/personaje/chef"
+  },
+  {
+    "id": "empath",
+    "name": "Empático",
+    "ability": "Cada noche sabes cuántos de tus vecinos vivos son malos.",
+    "source": "https://villacuervos.es/wiki/personaje/empath"
+  },
+  {
+    "id": "fortuneteller",
+    "name": "Pitonisa",
+    "ability": "Cada noche elige 2 jugadores: sabes si alguno es el Demonio. Hay 1 jugador bueno que aparece como Demonio para ti.",
+    "source": "https://villacuervos.es/wiki/personaje/fortuneteller"
+  },
+  {
+    "id": "undertaker",
+    "name": "Enterrador",
+    "ability": "Cada noche* descubres qué personaje ha muerto por ejecución hoy.",
+    "source": "https://villacuervos.es/wiki/personaje/undertaker"
+  },
+  {
+    "id": "monk",
+    "name": "Monje",
+    "ability": "Cada noche* elige 1 jugador (no a ti): está a salvo del Demonio esta noche.",
+    "source": "https://villacuervos.es/wiki/personaje/monk"
+  },
+  {
+    "id": "ravenkeeper",
+    "name": "Guardián de cuervos",
+    "ability": "Si mueres por la noche, te despiertan para que elijas 1 jugador: descubres su personaje.",
+    "source": "https://villacuervos.es/wiki/personaje/ravenkeeper"
+  },
+  {
+    "id": "virgin",
+    "name": "Virgen",
+    "ability": "La primera vez que te nominen, si quien nomina es Aldeano, es ejecutado inmediatamente.",
+    "source": "https://villacuervos.es/wiki/personaje/virgin"
+  },
+  {
+    "id": "slayer",
+    "name": "Exterminador",
+    "ability": "Una vez por partida, durante el día, elige públicamente 1 jugador: si es el Demonio, muere.",
+    "source": "https://villacuervos.es/wiki/personaje/slayer"
+  },
+  {
+    "id": "soldier",
+    "name": "Soldado",
+    "ability": "Estás a salvo del Demonio.",
+    "source": "https://villacuervos.es/wiki/personaje/soldier"
+  },
+  {
+    "id": "mayor",
+    "name": "Alcalde",
+    "ability": "Si sólo quedan 3 jugadores vivos y no hay ejecución, tu bando gana. Si mueres por la noche, en vez de eso puede morir otro jugador.",
+    "source": "https://villacuervos.es/wiki/personaje/mayor"
+  },
+  {
+    "id": "butler",
+    "name": "Mayordomo",
+    "ability": "Cada noche elige 1 jugador (no a ti): mañana sólo puedes votar si ese jugador está votando.",
+    "source": "https://villacuervos.es/wiki/personaje/butler"
+  },
+  {
+    "id": "drunk",
+    "name": "Borracho",
+    "ability": "No sabes que eres el Borracho. Crees que eres un Aldeano, pero no lo eres.",
+    "source": "https://villacuervos.es/wiki/personaje/drunk"
+  },
+  {
+    "id": "recluse",
+    "name": "Recluso",
+    "ability": "Puedes aparecer como malo y como Esbirro o Demonio, aunque estés muerto.",
+    "source": "https://villacuervos.es/wiki/personaje/recluse"
+  },
+  {
+    "id": "saint",
+    "name": "Santo",
+    "ability": "Si mueres por ejecución, tu equipo pierde.",
+    "source": "https://villacuervos.es/wiki/personaje/saint"
+  },
+  {
+    "id": "poisoner",
+    "name": "Envenenador",
+    "ability": "Cada noche elige 1 jugador: está envenenado esta noche y el día de mañana.",
+    "source": "https://villacuervos.es/wiki/personaje/poisoner"
+  },
+  {
+    "id": "spy",
+    "name": "Espía",
+    "ability": "Cada noche ves el Grimorio. Puedes aparecer como bueno y como Aldeano o Forastero, aunque estés muerto.",
+    "source": "https://villacuervos.es/wiki/personaje/spy"
+  },
+  {
+    "id": "scarletwoman",
+    "name": "Mujer escarlata",
+    "ability": "Si hay 5 o más jugadores vivos y el Demonio muere, te conviertes en el Demonio. (No cuentan los viajeros)",
+    "source": "https://villacuervos.es/wiki/personaje/scarletwoman"
+  },
+  {
+    "id": "baron",
+    "name": "Barón",
+    "ability": "Hay Forasteros extra en juego. [+2 Forasteros]",
+    "source": "https://villacuervos.es/wiki/personaje/baron"
+  },
+  {
+    "id": "imp",
+    "name": "Diablillo",
+    "ability": "Cada noche* elige 1 jugador: muere. Si te matas de esta forma, un Esbirro se convierte en el Diablillo.",
+    "source": "https://villacuervos.es/wiki/personaje/imp"
+  },
+  {
+    "id": "bureaucrat",
+    "name": "Burócrata",
+    "ability": "Cada noche elige 1 jugador (no a ti): su voto cuenta como 3 votos mañana.",
+    "source": "https://villacuervos.es/wiki/personaje/bureaucrat"
+  },
+  {
+    "id": "thief",
+    "name": "Ladrón",
+    "ability": "Cada noche elige 1 jugador (no a ti): su voto cuenta negativo mañana.",
+    "source": "https://villacuervos.es/wiki/personaje/thief"
+  },
+  {
+    "id": "gunslinger",
+    "name": "Pistolero",
+    "ability": "Cada día, después de que se haya contado la primera votación, puedes elegir 1 jugador que haya votado: muere.",
+    "source": "https://villacuervos.es/wiki/personaje/gunslinger"
+  },
+  {
+    "id": "scapegoat",
+    "name": "Chivo expiatorio",
+    "ability": "Si 1 jugador de tu alineamiento es ejecutado, en vez de eso puedes ser ejecutado tú.",
+    "source": "https://villacuervos.es/wiki/personaje/scapegoat"
+  },
+  {
+    "id": "beggar",
+    "name": "Mendigo",
+    "ability": "Debes usar una ficha de votación para votar. Si 1 jugador muerto te da la suya, descubres su alineamiento. Estás sobrio y sano.",
+    "source": "https://villacuervos.es/wiki/personaje/beggar"
+  },
+  {
+    "id": "grandmother",
+    "name": "Abuela",
+    "ability": "Empiezas conociendo 1 jugador bueno y su personaje. Si el Demonio le mata, tú también mueres.",
+    "source": "https://villacuervos.es/wiki/personaje/grandmother"
+  },
+  {
+    "id": "sailor",
+    "name": "Marinero",
+    "ability": "No puedes morir. Cada noche elige 1 jugador vivo: tú o ese jugador estáis borrachos hasta el crepúsculo.",
+    "source": "https://villacuervos.es/wiki/personaje/sailor"
+  },
+  {
+    "id": "chambermaid",
+    "name": "Sirvienta",
+    "ability": "Cada noche elige 2 jugadores vivos (no a ti). Descubres cuántos han despertado esta noche por su habilidad.",
+    "source": "https://villacuervos.es/wiki/personaje/chambermaid"
+  },
+  {
+    "id": "exorcist",
+    "name": "Exorcista",
+    "ability": "Cada noche* elige 1 jugador (diferente al de la noche anterior): si es el Demonio, éste sabe quién eres y no se despierta esta noche.",
+    "source": "https://villacuervos.es/wiki/personaje/exorcist"
+  },
+  {
+    "id": "innkeeper",
+    "name": "Posadero",
+    "ability": "Cada noche* elige 2 jugadores: no pueden morir esta noche, pero 1 está borracho hasta el crepúsculo.",
+    "source": "https://villacuervos.es/wiki/personaje/innkeeper"
+  },
+  {
+    "id": "gambler",
+    "name": "Tahúr",
+    "ability": "Cada noche* elige 1 jugador e intenta adivinar su personaje: si fallas, mueres.",
+    "source": "https://villacuervos.es/wiki/personaje/gambler"
+  },
+  {
+    "id": "gossip",
+    "name": "Chismoso",
+    "ability": "Cada día puedes hacer una declaración pública. Esta noche, si fue cierta, 1 jugador muere.",
+    "source": "https://villacuervos.es/wiki/personaje/gossip"
+  },
+  {
+    "id": "courtier",
+    "name": "Cortesano",
+    "ability": "Una vez por partida, por la noche, elige 1 personaje: está borracho durante 3 días y 3 noches.",
+    "source": "https://villacuervos.es/wiki/personaje/courtier"
+  },
+  {
+    "id": "professor",
+    "name": "Profesor",
+    "ability": "Una vez por partida, por la noche*, elige 1 jugador muerto. Si es Aldeano, resucita.",
+    "source": "https://villacuervos.es/wiki/personaje/professor"
+  },
+  {
+    "id": "minstrel",
+    "name": "Juglar",
+    "ability": "Cuando un Esbirro muera por ejecución, todos los jugadores (salvo viajeros) están borrachos hasta el crepúsculo de mañana.",
+    "source": "https://villacuervos.es/wiki/personaje/minstrel"
+  },
+  {
+    "id": "tealady",
+    "name": "Dama del té",
+    "ability": "Si tus vecinos vivos son buenos, no pueden morir.",
+    "source": "https://villacuervos.es/wiki/personaje/tealady"
+  },
+  {
+    "id": "pacifist",
+    "name": "Pacifista",
+    "ability": "Los jugadores buenos ejecutados pueden no morir.",
+    "source": "https://villacuervos.es/wiki/personaje/pacifist"
+  },
+  {
+    "id": "fool",
+    "name": "Bufón",
+    "ability": "La primera vez que mueras, no mueres.",
+    "source": "https://villacuervos.es/wiki/personaje/fool"
+  },
+  {
+    "id": "tinker",
+    "name": "Manitas",
+    "ability": "Puedes morir en cualquier momento.",
+    "source": "https://villacuervos.es/wiki/personaje/tinker"
+  },
+  {
+    "id": "moonchild",
+    "name": "Niña de la Luna",
+    "ability": "Cuando descubras que has muerto, elige públicamente 1 jugador vivo. Esta noche, si era bueno, muere.",
+    "source": "https://villacuervos.es/wiki/personaje/moonchild"
+  },
+  {
+    "id": "goon",
+    "name": "Matón",
+    "ability": "Cada noche, el primer jugador que te elija por su habilidad está borracho hasta el crepúsculo. Te conviertes a su alineamiento.",
+    "source": "https://villacuervos.es/wiki/personaje/goon"
+  },
+  {
+    "id": "lunatic",
+    "name": "Lunático",
+    "ability": "Crees que eres el Demonio, pero no lo eres. El Demonio sabe quién eres y a quién eliges por la noche.",
+    "source": "https://villacuervos.es/wiki/personaje/lunatic"
+  },
+  {
+    "id": "godfather",
+    "name": "Padrino",
+    "ability": "Empiezas conociendo qué Forasteros están en juego. Si 1 muere por el día, elige 1 jugador esta noche: muere. [-1 o +1 Forastero]",
+    "source": "https://villacuervos.es/wiki/personaje/godfather"
+  },
+  {
+    "id": "devilsadvocate",
+    "name": "Abogado del diablo",
+    "ability": "Cada noche elige 1 jugador vivo (diferente al de la noche anterior): si es ejecutado mañana, no muere.",
+    "source": "https://villacuervos.es/wiki/personaje/devilsadvocate"
+  },
+  {
+    "id": "assassin",
+    "name": "Asesino",
+    "ability": "Una vez por partida, por la noche*, elige 1 jugador: muere, incluso si por otro motivo no pudiera.",
+    "source": "https://villacuervos.es/wiki/personaje/assassin"
+  },
+  {
+    "id": "mastermind",
+    "name": "Mente maestra",
+    "ability": "Si el Demonio muere por ejecución (terminando la partida), juega 1 día más. Si 1 jugador es ejecutado ese día, su equipo pierde.",
+    "source": "https://villacuervos.es/wiki/personaje/mastermind"
+  },
+  {
+    "id": "zombuul",
+    "name": "Zombuul",
+    "ability": "Cada noche*, si nadie ha muerto durante el día, elige 1 jugador: muere. La primera vez que mueras, vives pero apareces como muerto.",
+    "source": "https://villacuervos.es/wiki/personaje/zombuul"
+  },
+  {
+    "id": "pukka",
+    "name": "Pukka",
+    "ability": "Cada noche elige 1 jugador: está envenenado. El anterior jugador envenenado muere y después está sano.",
+    "source": "https://villacuervos.es/wiki/personaje/pukka"
+  },
+  {
+    "id": "shabaloth",
+    "name": "Shabaloth",
+    "ability": "Cada noche* elige 2 jugadores: mueren. 1 jugador muerto elegido la noche anterior puede ser regurgitado.",
+    "source": "https://villacuervos.es/wiki/personaje/shabaloth"
+  },
+  {
+    "id": "po",
+    "name": "Po",
+    "ability": "Cada noche* puedes elegir 1 jugador: muere. Si tu última elección fue no elegir a nadie, elige a 3 jugadores esta noche.",
+    "source": "https://villacuervos.es/wiki/personaje/po"
+  },
+  {
+    "id": "apprentice",
+    "name": "Aprendiz",
+    "ability": "En tu primera noche ganas la habilidad de 1 Aldeano (si eres bueno) o 1 Esbirro (si eres malo).",
+    "source": "https://villacuervos.es/wiki/personaje/apprentice"
+  },
+  {
+    "id": "matron",
+    "name": "Institutriz",
+    "ability": "Cada día puedes elegir hasta 3 parejas de jugadores para que cambien sus asientos. Los jugadores no pueden levantarse para hablar en privado.",
+    "source": "https://villacuervos.es/wiki/personaje/matron"
+  },
+  {
+    "id": "judge",
+    "name": "Juez",
+    "ability": "Una vez por partida, si otro jugador ha nominado, puedes forzar la ejecución o impedirla.",
+    "source": "https://villacuervos.es/wiki/personaje/judge"
+  },
+  {
+    "id": "bishop",
+    "name": "Obispo",
+    "ability": "Sólo puede nominar el Narrador. Debe nominar al menos a 1 jugador del alineamiento contrario al Obispo cada día.",
+    "source": "https://villacuervos.es/wiki/personaje/bishop"
+  },
+  {
+    "id": "voudon",
+    "name": "Voudon",
+    "ability": "Solo tú y los muertos podéis votar. No necesitan ficha de votación para hacerlo. No es necesaria una mayoría para ejecutar.",
+    "source": "https://villacuervos.es/wiki/personaje/voudon"
+  },
+  {
+    "id": "clockmaker",
+    "name": "Relojero",
+    "ability": "Empiezas sabiendo a cuántos pasos está el Demonio de su Esbirro más cercano.",
+    "source": "https://villacuervos.es/wiki/personaje/clockmaker"
+  },
+  {
+    "id": "dreamer",
+    "name": "Soñador",
+    "ability": "Cada noche elige 1 jugador (no a ti o viajeros): descubres 1 personaje bueno y 1 personaje malo, 1 de ellos es correcto.",
+    "source": "https://villacuervos.es/wiki/personaje/dreamer"
+  },
+  {
+    "id": "snakecharmer",
+    "name": "Encantador de Serpientes",
+    "ability": "Cada noche elige 1 jugador vivo: si es el Demonio intercambiáis personajes y alineamiento y después está envenenado.",
+    "source": "https://villacuervos.es/wiki/personaje/snakecharmer"
+  },
+  {
+    "id": "mathematician",
+    "name": "Matemático",
+    "ability": "Cada noche sabes cuántas habilidades de personajes han funcionado anormalmente (desde el amanecer) por las habilidades de otros personajes.",
+    "source": "https://villacuervos.es/wiki/personaje/mathematician"
+  },
+  {
+    "id": "flowergirl",
+    "name": "Florista",
+    "ability": "Cada noche* descubres si el Demonio ha votado hoy.",
+    "source": "https://villacuervos.es/wiki/personaje/flowergirl"
+  },
+  {
+    "id": "towncrier",
+    "name": "Pregonero",
+    "ability": "Cada noche* descubres si 1 Esbirro ha nominado hoy.",
+    "source": "https://villacuervos.es/wiki/personaje/towncrier"
+  },
+  {
+    "id": "oracle",
+    "name": "Oráculo",
+    "ability": "Cada noche* sabes cuántos jugadores muertos son malos.",
+    "source": "https://villacuervos.es/wiki/personaje/oracle"
+  },
+  {
+    "id": "savant",
+    "name": "Erudito",
+    "ability": "Cada día puedes visitar en privado al Narrador para que te diga 2 informaciones: 1 es cierta y 1 es falsa.",
+    "source": "https://villacuervos.es/wiki/personaje/savant"
+  },
+  {
+    "id": "seamstress",
+    "name": "Costurera",
+    "ability": "Una vez por partida, por la noche, elige 2 jugadores (no a ti): descubres si son del mismo alineamiento.",
+    "source": "https://villacuervos.es/wiki/personaje/seamstress"
+  },
+  {
+    "id": "philosopher",
+    "name": "Filósofo",
+    "ability": "Una vez por partida, por la noche, elige 1 personaje bueno: ganas su habilidad. Si el personaje está en juego, está borracho.",
+    "source": "https://villacuervos.es/wiki/personaje/philosopher"
+  },
+  {
+    "id": "artist",
+    "name": "Artista",
+    "ability": "Una vez por partida, durante el día, hazle en privado al Narrador una pregunta de sí o no.",
+    "source": "https://villacuervos.es/wiki/personaje/artist"
+  },
+  {
+    "id": "juggler",
+    "name": "Malabarista",
+    "ability": "En tu primer día declara públicamente el personaje de hasta 5 jugadores. Esta noche sabes cuántos has acertado.",
+    "source": "https://villacuervos.es/wiki/personaje/juggler"
+  },
+  {
+    "id": "sage",
+    "name": "Sabio",
+    "ability": "Si el Demonio te mata descubres que es 1 de 2 jugadores.",
+    "source": "https://villacuervos.es/wiki/personaje/sage"
+  },
+  {
+    "id": "mutant",
+    "name": "Mutante",
+    "ability": "Si estás loco sobre que eres un Forastero, puedes ser ejecutado.",
+    "source": "https://villacuervos.es/wiki/personaje/mutant"
+  },
+  {
+    "id": "sweetheart",
+    "name": "Adorable",
+    "ability": "Cuando mueras, 1 jugador está borracho.",
+    "source": "https://villacuervos.es/wiki/personaje/sweetheart"
+  },
+  {
+    "id": "barber",
+    "name": "Barbero",
+    "ability": "Cuando mueras, el Demonio puede elegir 2 jugadores por la noche (no otro Demonio) para que intercambien personajes.",
+    "source": "https://villacuervos.es/wiki/personaje/barber"
+  },
+  {
+    "id": "klutz",
+    "name": "Patoso",
+    "ability": "Cuando descubras que has muerto, elige públicamente 1 jugador vivo: si es malo, tu equipo pierde.",
+    "source": "https://villacuervos.es/wiki/personaje/klutz"
+  },
+  {
+    "id": "eviltwin",
+    "name": "Gemela malvada",
+    "ability": "Tú y 1 jugador del equipo contrario os conocéis. Si el jugador bueno es ejecutado, los malos ganan. Los buenos no pueden ganar si ambos vivís.",
+    "source": "https://villacuervos.es/wiki/personaje/eviltwin"
+  },
+  {
+    "id": "witch",
+    "name": "Bruja",
+    "ability": "Cada noche elige 1 jugador: si mañana nomina, muere. Si sólo hay 3 jugadores vivos pierdes esta habilidad.",
+    "source": "https://villacuervos.es/wiki/personaje/witch"
+  },
+  {
+    "id": "cerenovus",
+    "name": "Cerenovus",
+    "ability": "Cada noche, elige 1 jugador y 1 personaje bueno: mañana el jugador está loco sobre que es ese personaje o puede ser ejecutado.",
+    "source": "https://villacuervos.es/wiki/personaje/cerenovus"
+  },
+  {
+    "id": "pithag",
+    "name": "Pit-Hag",
+    "ability": "Cada noche* elige 1 jugador y 1 personaje al que se convierte (si no está en juego). Si creas un Demonio, las muertes esta noche son arbitrarias.",
+    "source": "https://villacuervos.es/wiki/personaje/pithag"
+  },
+  {
+    "id": "fanggu",
+    "name": "Fang Gu",
+    "ability": "Cada noche* elige 1 jugador: muere. El primer Forastero que mates se convierte en Fang Gu malo y, en vez de morir, mueres tú. [+1 Forastero]",
+    "source": "https://villacuervos.es/wiki/personaje/fanggu"
+  },
+  {
+    "id": "vigormortis",
+    "name": "Vigormortis",
+    "ability": "Cada noche* elige 1 jugador: muere. Los Esbirros que mates mantienen su habilidad y 1 Aldeano vecino suyo está envenenado. [-1 Forastero]",
+    "source": "https://villacuervos.es/wiki/personaje/vigormortis"
+  },
+  {
+    "id": "nodashii",
+    "name": "No Dashii",
+    "ability": "Cada noche* elige 1 jugador: muere. Tus 2 vecinos Aldeanos están envenenados.",
+    "source": "https://villacuervos.es/wiki/personaje/nodashii"
+  },
+  {
+    "id": "vortox",
+    "name": "Vortox",
+    "ability": "Cada noche* elige 1 jugador: muere. Las habilidades de los Aldeanos dan información falsa. Cada día, si nadie es ejecutado, ganan los malos.",
+    "source": "https://villacuervos.es/wiki/personaje/vortox"
+  },
+  {
+    "id": "barista",
+    "name": "Barista",
+    "ability": "Cada noche, hasta el crepúsculo, 1) un jugador está sobrio, sano y recibe información verdadera, o 2) su habilidad funciona 2 veces. El jugador sabe cuál de las dos.",
+    "source": "https://villacuervos.es/wiki/personaje/barista"
+  },
+  {
+    "id": "harlot",
+    "name": "Meretriz",
+    "ability": "Cada noche* elige 1 jugador vivo: si accede, descubres su personaje, pero ambos podéis morir.",
+    "source": "https://villacuervos.es/wiki/personaje/harlot"
+  },
+  {
+    "id": "butcher",
+    "name": "Carnicero",
+    "ability": "Cada día, después de la primera ejecución, puedes nominar otra vez.",
+    "source": "https://villacuervos.es/wiki/personaje/butcher"
+  },
+  {
+    "id": "bonecollector",
+    "name": "Coleccionista de Huesos",
+    "ability": "Una vez por partida, por la noche, elige 1 jugador muerto: vuelve a ganar su habilidad hasta el crepúsculo.",
+    "source": "https://villacuervos.es/wiki/personaje/bonecollector"
+  },
+  {
+    "id": "deviant",
+    "name": "Pervertido",
+    "ability": "Si has sido gracioso hoy no puedes ser exiliado.",
+    "source": "https://villacuervos.es/wiki/personaje/deviant"
+  },
+  {
+    "id": "noble",
+    "name": "Noble",
+    "ability": "Empiezas conociendo 3 jugadores, 1 y solo 1 de ellos es malo.",
+    "source": "https://villacuervos.es/wiki/personaje/noble"
+  },
+  {
+    "id": "bountyhunter",
+    "name": "Cazarrecompensas",
+    "ability": "Empiezas conociendo 1 jugador malo. Si ese jugador muere, descubres 1 jugador malo esta noche. [1 Aldeano es malo]",
+    "source": "https://villacuervos.es/wiki/personaje/bountyhunter"
+  },
+  {
+    "id": "pixie",
+    "name": "Duendecillo",
+    "ability": "Empiezas conociendo 1 Aldeano en juego. Si estás loco sobre que eres ese personaje, ganas su habilidad cuando muera.",
+    "source": "https://villacuervos.es/wiki/personaje/pixie"
+  },
+  {
+    "id": "general",
+    "name": "General",
+    "ability": "Cada noche sabes qué alineamiento cree el Narrador que está ganando: bueno, malo o ninguno.",
+    "source": "https://villacuervos.es/wiki/personaje/general"
+  },
+  {
+    "id": "preacher",
+    "name": "Predicador",
+    "ability": "Cada noche elige 1 jugador: si es Esbirro lo sabe. Los Esbirros elegidos no tienen habilidad.",
+    "source": "https://villacuervos.es/wiki/personaje/preacher"
+  },
+  {
+    "id": "king",
+    "name": "Rey",
+    "ability": "Cada noche, si hay igual o más muertos que vivos, descubres 1 personaje vivo. El Demonio sabe que eres el Rey.",
+    "source": "https://villacuervos.es/wiki/personaje/king"
+  },
+  {
+    "id": "balloonist",
+    "name": "Aeronauta",
+    "ability": "Cada noche descubres 1 jugador de un tipo diferente al de la noche anterior. [+0 o +1 Forastero]",
+    "source": "https://villacuervos.es/wiki/personaje/balloonist"
+  },
+  {
+    "id": "cultleader",
+    "name": "Líder de culto",
+    "ability": "Cada noche te conviertes al alineamiento de 1 vecino vivo. Si todos los jugadores buenos eligen unirse a tu culto, tu bando gana.",
+    "source": "https://villacuervos.es/wiki/personaje/cultleader"
+  },
+  {
+    "id": "lycanthrope",
+    "name": "Licántropo",
+    "ability": "Cada noche* elige 1 jugador vivo: si es bueno, muere y el Demonio no mata esta noche. Un jugador bueno aparece como malo.",
+    "source": "https://villacuervos.es/wiki/personaje/lycanthrope"
+  },
+  {
+    "id": "amnesiac",
+    "name": "Amnésico",
+    "ability": "No sabes cuál es tu habilidad. Cada día intenta adivinarla en privado y sabes lo cerca que estás.",
+    "source": "https://villacuervos.es/wiki/personaje/amnesiac"
+  },
+  {
+    "id": "nightwatchman",
+    "name": "Sereno",
+    "ability": "Una vez por partida, por la noche, elige 1 jugador: descubre que eres Sereno.",
+    "source": "https://villacuervos.es/wiki/personaje/nightwatchman"
+  },
+  {
+    "id": "engineer",
+    "name": "Ingeniero",
+    "ability": "Una vez por partida, por la noche, elige qué Esbirros o qué Demonio está en juego.",
+    "source": "https://villacuervos.es/wiki/personaje/engineer"
+  },
+  {
+    "id": "fisherman",
+    "name": "Pescador",
+    "ability": "Una vez por partida, durante el día, puedes visitar al Narrador para que te aconseje sobre cómo debe ganar tu bando.",
+    "source": "https://villacuervos.es/wiki/personaje/fisherman"
+  },
+  {
+    "id": "huntsman",
+    "name": "Cazador",
+    "ability": "Una vez por partida, por la noche, elige 1 jugador vivo: si es la Damisela se convierte en 1 Aldeano que no esté en juego. [+ Damisela]",
+    "source": "https://villacuervos.es/wiki/personaje/huntsman"
+  },
+  {
+    "id": "alchemist",
+    "name": "Alquimista",
+    "ability": "Tienes la habilidad de un Esbirro. Cuando la uses, el Narrador puede pedirte que hagas otra elección.",
+    "source": "https://villacuervos.es/wiki/personaje/alchemist"
+  },
+  {
+    "id": "farmer",
+    "name": "Granjero",
+    "ability": "Cuando mueres por la noche, 1 jugador vivo bueno se convierte en Granjero.",
+    "source": "https://villacuervos.es/wiki/personaje/farmer"
+  },
+  {
+    "id": "magician",
+    "name": "Mago",
+    "ability": "El Demonio piensa que eres un Esbirro. Los Esbirros piensan que eres un Demonio.",
+    "source": "https://villacuervos.es/wiki/personaje/magician"
+  },
+  {
+    "id": "choirboy",
+    "name": "Niño del coro",
+    "ability": "Si el Demonio mata al Rey, descubres qué jugador es el Demonio [+ Rey]",
+    "source": "https://villacuervos.es/wiki/personaje/choirboy"
+  },
+  {
+    "id": "poppygrower",
+    "name": "Cultivador de opio",
+    "ability": "Los Esbirros y el Demonio no se conocen. Si mueres, se conocen esta noche.",
+    "source": "https://villacuervos.es/wiki/personaje/poppygrower"
+  },
+  {
+    "id": "atheist",
+    "name": "Ateo",
+    "ability": "El Narrador puede romper las reglas. Si el Narrador es ejecutado, ganan los buenos, aunque estés muerto. [No hay malos]",
+    "source": "https://villacuervos.es/wiki/personaje/atheist"
+  },
+  {
+    "id": "cannibal",
+    "name": "Caníbal",
+    "ability": "Tienes la habilidad del último jugador muerto ejecutado. Si es malo, estás envenenado hasta que 1 bueno muera ejecutado.",
+    "source": "https://villacuervos.es/wiki/personaje/cannibal"
+  },
+  {
+    "id": "snitch",
+    "name": "Soplón",
+    "ability": "Los Esbirros empiezan conociendo 3 faroles.",
+    "source": "https://villacuervos.es/wiki/personaje/snitch"
+  },
+  {
+    "id": "acrobat",
+    "name": "Acróbata",
+    "ability": "Cada noche* elige 1 jugador: si está borracho o envenenado, o acaba estándolo esta noche, mueres.",
+    "source": "https://villacuervos.es/wiki/personaje/acrobat"
+  },
+  {
+    "id": "puzzlemaster",
+    "name": "Maestro del puzle",
+    "ability": "Un jugador está borracho, aunque estés muerto. Si adivinas quién es (una vez por partida), descubres quién es el Demonio, pero si fallas recibes información falsa.",
+    "source": "https://villacuervos.es/wiki/personaje/puzzlemaster"
+  },
+  {
+    "id": "heretic",
+    "name": "Hereje",
+    "ability": "Quien gane, pierde y quien pierda gana, aunque estés muerto.",
+    "source": "https://villacuervos.es/wiki/personaje/heretic"
+  },
+  {
+    "id": "damsel",
+    "name": "Damisela",
+    "ability": "Los Esbirros saben que una Damisela está en juego. Si un Esbirro adivina quién eres (una vez por partida) tu equipo pierde.",
+    "source": "https://villacuervos.es/wiki/personaje/damsel"
+  },
+  {
+    "id": "golem",
+    "name": "Gólem",
+    "ability": "Sólo puedes nominar 1 vez. Cuando lo hagas, si el nominado no es el Demonio, muere.",
+    "source": "https://villacuervos.es/wiki/personaje/golem"
+  },
+  {
+    "id": "politician",
+    "name": "Político",
+    "ability": "Si eres el jugador más responsable de que tu equipo pierda, cambias de alineamiento y ganas, aunque estés muerto.",
+    "source": "https://villacuervos.es/wiki/personaje/politician"
+  },
+  {
+    "id": "widow",
+    "name": "Viuda",
+    "ability": "En tu primera noche ves el Grimorio y eliges 1 jugador: está envenenado. 1 jugador bueno sabe que el Viuda está en juego.",
+    "source": "https://villacuervos.es/wiki/personaje/widow"
+  },
+  {
+    "id": "fearmonger",
+    "name": "Fearmonger",
+    "ability": "Cada noche elige 1 jugador: si le nominas y ejecutas, su equipo pierde. Todos los jugadores saben si has elegido a un nuevo jugador.",
+    "source": "https://villacuervos.es/wiki/personaje/fearmonger"
+  },
+  {
+    "id": "psychopath",
+    "name": "Psicópata",
+    "ability": "Cada día, antes de las nominaciones, puedes elegir públicamente 1 jugador: muere. Si eres ejecutado, solo mueres si pierdes a piedra-papel-tijera.",
+    "source": "https://villacuervos.es/wiki/personaje/psychopath"
+  },
+  {
+    "id": "goblin",
+    "name": "Goblin",
+    "ability": "Si públicamente declaras ser Goblin cuando te nominen y eres ejecutado ese día, tu equipo gana.",
+    "source": "https://villacuervos.es/wiki/personaje/goblin"
+  },
+  {
+    "id": "mezepheles",
+    "name": "Mezepheles",
+    "ability": "Empiezas conociendo 1 palabra secreta. El primer jugador bueno en decirla se convierte en malo esta noche.",
+    "source": "https://villacuervos.es/wiki/personaje/mezepheles"
+  },
+  {
+    "id": "marionette",
+    "name": "Marioneta",
+    "ability": "Piensas que eres un personaje bueno, pero no lo eres. El Demonio sabe quién eres. [Estás adyacente al Demonio]",
+    "source": "https://villacuervos.es/wiki/personaje/marionette"
+  },
+  {
+    "id": "boomdandy",
+    "name": "Boomdandy",
+    "ability": "Si eres ejecutado, todos los jugadores menos 3 mueren. Después de una cuenta atrás de 10 a 1, el jugador con más jugadores apuntándole muere.",
+    "source": "https://villacuervos.es/wiki/personaje/boomdandy"
+  },
+  {
+    "id": "lilmonsta",
+    "name": "Lil' Monsta",
+    "ability": "Cada noche los Esbirros eligen quién cuida a Lil' Monsta y «es el Demonio». Cada noche* 1 jugador puede morir. [+1 Esbirro]",
+    "source": "https://villacuervos.es/wiki/personaje/lilmonsta"
+  },
+  {
+    "id": "lleech",
+    "name": "Lleech",
+    "ability": "Cada noche* elige 1 jugador: muere. Empiezas eligiendo 1 jugador: está envenenado. Mueres si y sólo si ese jugador está muerto.",
+    "source": "https://villacuervos.es/wiki/personaje/lleech"
+  },
+  {
+    "id": "alhadikhia",
+    "name": "Al-Hadikhia",
+    "ability": "Cada noche* puedes elegir a 3 jugadores (todos descubren quiénes son): cada uno elige en silencio si vive o muere, pero si todos viven, todos mueren.",
+    "source": "https://villacuervos.es/wiki/personaje/alhadikhia"
+  },
+  {
+    "id": "legion",
+    "name": "Legión",
+    "ability": "Cada noche* 1 jugador puede morir. Las ejecuciones fallan si sólo votan los malos. Apareces también como Esbirro. [La mayoría de jugadores son Legión]",
+    "source": "https://villacuervos.es/wiki/personaje/legion"
+  },
+  {
+    "id": "leviathan",
+    "name": "Leviatán",
+    "ability": "Si más de 1 jugador bueno es ejecutado, los malos ganan. Todos los jugadores saben que estás en juego. Después del día 5, los malos ganan.",
+    "source": "https://villacuervos.es/wiki/personaje/leviathan"
+  },
+  {
+    "id": "riot",
+    "name": "Riot",
+    "ability": "En día 3, los Esbirros se convierten en Riot y los nominados mueren pero pueden nominar a un jugador vivo inmediatamente. Esto debe pasar.",
+    "source": "https://villacuervos.es/wiki/personaje/riot"
+  },
+  {
+    "id": "gangster",
+    "name": "Gánster",
+    "ability": "Una vez por día puedes matar a uno de tus vecinos vivos si el otro vecino vivo lo acepta.",
+    "source": "https://villacuervos.es/wiki/personaje/gangster"
+  },
+  {
+    "id": "alsaahir",
+    "name": "Alsaahir",
+    "ability": "Cada día, si adivinas públicamente qué jugadores son Esbirros y qué jugadores son Demonios, ganan los buenos.",
+    "source": "https://villacuervos.es/wiki/personaje/alsaahir"
+  },
+  {
+    "id": "banshee",
+    "name": "Banshee",
+    "ability": "Si el Demonio te mata, todos los jugadores lo saben. A partir de ahora, puedes nominar 2 veces por día y votar 2 veces por nominación.",
+    "source": "https://villacuervos.es/wiki/personaje/banshee"
+  },
+  {
+    "id": "highpriestess",
+    "name": "Suma sacerdotisa",
+    "ability": "Cada noche sabes con qué jugador cree el Narrador que deberías hablar más.",
+    "source": "https://villacuervos.es/wiki/personaje/highpriestess"
+  },
+  {
+    "id": "knight",
+    "name": "Caballero",
+    "ability": "Empiezas conociendo 2 jugadores que no son el Demonio.",
+    "source": "https://villacuervos.es/wiki/personaje/knight"
+  },
+  {
+    "id": "shugenja",
+    "name": "Shugenja",
+    "ability": "Empiezas sabiendo si el jugador malo más cercano está a tu izquierda o tu derecha. Si es equidistante, la información es arbitraria.",
+    "source": "https://villacuervos.es/wiki/personaje/shugenja"
+  },
+  {
+    "id": "villageidiot",
+    "name": "Tonto del pueblo",
+    "ability": "Cada noche elige 1 jugador: descubres su alineamiento. [+0 a +2 Tontos del pueblo, uno extra está borracho]",
+    "source": "https://villacuervos.es/wiki/personaje/villageidiot"
+  },
+  {
+    "id": "hatter",
+    "name": "Sombrerero",
+    "ability": "Si mueres hoy o esta noche, los Esbirros y el Demonio pueden elegir nuevos Esbirros y Demonios que ser.",
+    "source": "https://villacuervos.es/wiki/personaje/hatter"
+  },
+  {
+    "id": "ogre",
+    "name": "Ogro",
+    "ability": "En tu primera noche elige 1 jugador (no a ti): te conviertes a su alineamiento (no sabes cuál) incluso aunque estés borracho o envenenado.",
+    "source": "https://villacuervos.es/wiki/personaje/ogre"
+  },
+  {
+    "id": "plaguedoctor",
+    "name": "Doctor de plaga",
+    "ability": "Cuando mueres, el Narrador gana la habilidad de un Esbirro.",
+    "source": "https://villacuervos.es/wiki/personaje/plaguedoctor"
+  },
+  {
+    "id": "zealot",
+    "name": "Fanático",
+    "ability": "Si hay 5 o más jugadores vivos, debes votar en todas las nominaciones.",
+    "source": "https://villacuervos.es/wiki/personaje/zealot"
+  },
+  {
+    "id": "boffin",
+    "name": "Rata de laboratorio",
+    "ability": "El Demonio (incluso borracho o envenenado) tiene la habilidad de un bueno que no esté en juego. Ambos sabéis cuál.",
+    "source": "https://villacuervos.es/wiki/personaje/boffin"
+  },
+  {
+    "id": "harpy",
+    "name": "Arpía",
+    "ability": "Cada noche elige 2 jugadores: mañana, el primer jugador está loco sobre que el segundo es malo o uno o ambos pueden morir.",
+    "source": "https://villacuervos.es/wiki/personaje/harpy"
+  },
+  {
+    "id": "organgrinder",
+    "name": "Organillero",
+    "ability": "Todos los jugadores cierran los ojos al votar y su voto se cuenta en secreto. Cada noche decides si estás borracho hasta el crepúsculo o no.",
+    "source": "https://villacuervos.es/wiki/personaje/organgrinder"
+  },
+  {
+    "id": "summoner",
+    "name": "Invocador",
+    "ability": "Recibes 3 faroles. En la tercera noche elige 1 jugador: se vuelve malo y el Demonio que elijas. [No hay Demonio]",
+    "source": "https://villacuervos.es/wiki/personaje/summoner"
+  },
+  {
+    "id": "vizier",
+    "name": "Visir",
+    "ability": "Todos los jugadores saben que eres el Visir. No puedes morir durante el día. Si algún bueno vota, puedes elegir ejecutar inmediatamente.",
+    "source": "https://villacuervos.es/wiki/personaje/vizier"
+  },
+  {
+    "id": "wizard",
+    "name": "Hechicero",
+    "ability": "Una vez por partida pídele en privado un deseo al Narrador: si se concede, tu deseo puede tener un precio y deja pistas de su naturaleza.",
+    "source": "https://villacuervos.es/wiki/personaje/wizard"
+  },
+  {
+    "id": "xaan",
+    "name": "Xaan",
+    "ability": "En la noche X, todos los Aldeanos están envenenados hasta el crepúsculo. [X Forasteros]",
+    "source": "https://villacuervos.es/wiki/personaje/xaan"
+  },
+  {
+    "id": "kazali",
+    "name": "Kazali",
+    "ability": "Cada noche* elige 1 jugador: muere. [Eliges los Esbirros en juego y qué jugadores son. -? a +? Forasteros]",
+    "source": "https://villacuervos.es/wiki/personaje/kazali"
+  },
+  {
+    "id": "lordoftyphon",
+    "name": "Señor de Typhon",
+    "ability": "Cada noche* elige 1 jugador: muere. [Los personajes malos están en una línea. Tú estás en medio. +1 Esbirro. -? a +? Forasteros]",
+    "source": "https://villacuervos.es/wiki/personaje/lordoftyphon"
+  },
+  {
+    "id": "ojo",
+    "name": "Ojo",
+    "ability": "Cada noche* elige 1 personaje: muere. Si no está en juego, el Narrador decide quién muere.",
+    "source": "https://villacuervos.es/wiki/personaje/ojo"
+  },
+  {
+    "id": "yaggababble",
+    "name": "Yaggababble",
+    "ability": "Empiezas conociendo 1 frase secreta. Cada vez que la digas públicamente hoy, 1 jugador puede morir.",
+    "source": "https://villacuervos.es/wiki/personaje/yaggababble"
+  },
+  {
+    "id": "gnome",
+    "name": "Gnomo",
+    "ability": "Todos los jugadores empiezan conociendo a un jugador de tu alineamiento. Puedes elegir matar a quien le nomine.",
+    "source": "https://villacuervos.es/wiki/personaje/gnome"
+  },
+  {
+    "id": "hermit",
+    "name": "Ermitaño",
+    "ability": "Tienes todas las habilidades de Forasteros. [-0 o -1 Forasteros]",
+    "source": "https://villacuervos.es/wiki/personaje/hermit"
+  },
+  {
+    "id": "princess",
+    "name": "Princesa",
+    "ability": "En tu primer día, si nominas y ejecutas a un jugador, el Demonio no mata esta noche.",
+    "source": "https://villacuervos.es/wiki/personaje/princess"
+  },
+  {
+    "id": "cacklejack",
+    "name": "Risistencia",
+    "ability": "Cada día elige 1 jugador: un jugador diferente cambia de personaje esta noche.",
+    "source": "https://villacuervos.es/wiki/personaje/cacklejack"
+  },
+  {
+    "id": "wraith",
+    "name": "Espectro",
+    "ability": "Puedes abrir los ojos por la noche. Despiertas cuando otros jugadores malos lo hagan.",
+    "source": "https://villacuervos.es/wiki/personaje/wraith"
+  },
+  {
+    "id": "steward",
+    "name": "Administrador",
+    "ability": "Empiezas conociendo 1 jugador bueno.",
+    "source": "https://villacuervos.es/wiki/personaje/steward"
+  },
+  {
+    "id": "xizi",
+    "name": "Actor",
+    "ability": "Todos los Actores se conocen entre si. Independientemente de cuantos Actores haya en juego o vivos, la condicion de victoria se invierte. [Todos los jugadores buenos son Actores]"
+  },
+  {
+    "id": "jiaohuazi",
+    "name": "Mendigo",
+    "ability": "Una vez por dia, puedes elegir publicamente a otro jugador. El elige un personaje que no sea Demonio: puedes ganar la habilidad de ese personaje hasta el siguiente amanecer."
+  },
+  {
+    "id": "yinyangshi",
+    "name": "Adivino Yin-Yang",
+    "ability": "En tu primera noche, descubres 2 personajes buenos y 2 personajes malos. Exactamente 2 de estos personajes estan en juego."
+  },
+  {
+    "id": "qintianjian",
+    "name": "Astrologo",
+    "ability": "En tu primera noche, descubres a cual de tus lados (izquierda/derecha/igual) esta el jugador malo mas cercano. Si un jugador malo esta adyacente a ti, recibes informacion falsa."
+  },
+  {
+    "id": "dianxiaoer",
+    "name": "Camarero",
+    "ability": "En tu primera noche, descubres 2 jugadores buenos. Uno de ellos esta borracho, incluso si estas muerto."
+  },
+  {
+    "id": "xionghaizi",
+    "name": "Travieso",
+    "ability": "Cada noche elige 1 personaje Aldeano: su habilidad devuelve informacion falsa hasta el siguiente crepusculo."
+  },
+  {
+    "id": "langzhong",
+    "name": "Herbolario",
+    "ability": "Cada noche elige 1 jugador que no seas tu: descubres una palabra relacionada con su habilidad."
+  },
+  {
+    "id": "dagengren",
+    "name": "Vigilante nocturno",
+    "ability": "Cada noche* debes adivinar la distancia al primer jugador que morira esta noche. Si aciertas, todos los demas jugadores no pueden morir esta noche, pero tu si."
+  },
+  {
+    "id": "jinyiwei",
+    "name": "Brocadier",
+    "ability": "Cada noche* elige 1 jugador: si moriria antes del siguiente crepusculo, mueres tu en su lugar."
+  },
+  {
+    "id": "heshang",
+    "name": "Heshang",
+    "ability": "Cada noche, la primera vez que la habilidad de un jugador malo apunte o afecte a un vecino vivo tuyo, esa habilidad falla hasta el amanecer, y descubres que tu habilidad se activo."
+  },
+  {
+    "id": "geling",
+    "name": "Diva",
+    "ability": "Una vez por partida, durante el dia, puedes proponer que todos los jugadores vean tu actuacion, y elegir a tu publico entre quienes acepten. Si el Demonio esta en el publico, mueres esta noche."
+  },
+  {
+    "id": "bianlianshi",
+    "name": "Cambiarostros",
+    "ability": "Cada dia, si estas loco sobre que eres un personaje bueno (diferente al anterior), puedes ganar la habilidad de ese personaje esta noche, hasta el siguiente crepusculo."
+  },
+  {
+    "id": "banxian",
+    "name": "Banxian",
+    "ability": "Cualquier otro jugador que use su habilidad para elegirte por la noche, en su lugar elige a un jugador malo."
+  },
+  {
+    "id": "wudaozhe",
+    "name": "Iluminado",
+    "ability": "Crees que eres un Forastero, pero no lo eres. Si la habilidad de un jugador malo te apunta o te afecta, te conviertes en un personaje Aldeano que no este en juego antes de que se resuelva."
+  },
+  {
+    "id": "bingbi",
+    "name": "Escriba",
+    "ability": "Si mueres durante el dia, descubres un jugador bueno esa noche. Si mueres por la noche, descubres un jugador malo esa noche."
+  },
+  {
+    "id": "chongfei",
+    "name": "Consorte Favorita",
+    "ability": "Una vez por partida, el Narrador rompera las reglas para ti. Despues, descubres en privado lo que hizo el Narrador."
+  },
+  {
+    "id": "daoke",
+    "name": "Espadachin",
+    "ability": "En tu primera noche, descubres un Esbirro en juego. Una vez por partida, puedes elegir publicamente a un jugador: si es el personaje que descubriste, muere."
+  },
+  {
+    "id": "daoshi",
+    "name": "Daoshi",
+    "ability": "Cada noche* elige 1 jugador: si eliges al Demonio, mueres y el se vuelve borracho hasta el siguiente amanecer."
+  },
+  {
+    "id": "fangshi",
+    "name": "Fangshi",
+    "ability": "En tu primera noche, elige un numero. En la noche correspondiente a ese numero, descubres esa cantidad de personajes que estan en juego."
+  },
+  {
+    "id": "fengshuishi",
+    "name": "Maestro del Feng Shui",
+    "ability": "En tu primera noche, descubres el tipo de personaje de un jugador. Cada noche*, descubres el tipo de personaje del siguiente jugador que no sea Viajero en sentido horario."
+  },
+  {
+    "id": "limao",
+    "name": "Li Mao",
+    "ability": "Cada noche* elige 1 jugador: si es un personaje bueno y es asesinado por un jugador malo esta noche, tu y el intercambiais personajes."
+  },
+  {
+    "id": "qianke",
+    "name": "Corredor",
+    "ability": "Cada noche elige 2 jugadores vivos: si tienen el mismo alineamiento, cualquier habilidad usada en uno de ellos esta noche apunta al otro en su lugar."
+  },
+  {
+    "id": "ranfangfangzhu",
+    "name": "Tintorero",
+    "ability": "Si mueres por la noche, la habilidad del Demonio se convierte en 'Cada noche*, un jugador puede morir'."
+  },
+  {
+    "id": "shiguan",
+    "name": "Historiador",
+    "ability": "Cada noche*, si un jugador murio por ejecucion hoy, descubres el numero de Aldeanos vivos."
+  },
+  {
+    "id": "tixingguan",
+    "name": "Magistrado",
+    "ability": "La noche despues de que nombres por primera vez a un jugador, descubres su personaje. El Demonio cuenta como personaje bueno para tu habilidad."
+  },
+  {
+    "id": "xuncha",
+    "name": "Patrullero",
+    "ability": "Cada noche* elige 2 personajes buenos (diferentes a los de anoche): si ambos estan vivos, no pueden morir esta noche."
+  },
+  {
+    "id": "yanshi",
+    "name": "Titiritero",
+    "ability": "Si mueres por la noche, intercambias personaje con un Esbirro vivo."
+  },
+  {
+    "id": "yishi",
+    "name": "Mensajero",
+    "ability": "Cada dia, puedes declarar publicamente un personaje. Esa noche, descubres si ese personaje esta en juego. Si descubres 'no' por esto, pierdes esta habilidad."
+  },
+  {
+    "id": "yinluren",
+    "name": "Guia",
+    "ability": "Cada noche elige hasta 3 jugadores: descubres si la habilidad de un jugador malo apunto o afecto a alguno de ellos esta noche."
+  },
+  {
+    "id": "yongjiang",
+    "name": "Artesano",
+    "ability": "Si no hay jugadores malos entre los muertos, solo puedes morir por ejecucion."
+  },
+  {
+    "id": "zhen",
+    "name": "Zhen",
+    "ability": "Una vez por partida, por la noche*, puedes elegir un personaje Aldeano: si esta en juego, esta envenenado y muere."
+  },
+  {
+    "id": "zhifu",
+    "name": "Prefecto",
+    "ability": "Cada noche* descubres si algun jugador que no sea Aldeano ni Viajero murio hoy."
+  },
+  {
+    "id": "shaxing",
+    "name": "Senor de la Desgracia",
+    "ability": "Si mueres, uno de tus vecinos vivos puede morir esta noche."
+  },
+  {
+    "id": "nichen",
+    "name": "Renegado",
+    "ability": "En tu primera noche, elige 1 jugador que no seas tu: si muere por ejecucion primero, te conviertes en malo esa noche. Si mueres por ejecucion primero, el se convierte en malo esa noche."
+  },
+  {
+    "id": "shusheng",
+    "name": "Pedante",
+    "ability": "El Demonio sabe que hay un Pedante en juego. Una vez por partida, el Demonio puede visitar al Narrador y adivinar que tu eres el Pedante. Si acierta, incluso si estas muerto, el Demonio elige un jugador esta noche: muere."
+  },
+  {
+    "id": "shijie",
+    "name": "Enviado",
+    "ability": "Una vez por noche, un jugador que use su habilidad para elegir a un jugador malo, en su lugar te elige a ti, incluso si estas muerto."
+  },
+  {
+    "id": "jiubao",
+    "name": "Barman",
+    "ability": "Uno de tus vecinos buenos esta borracho, incluso si estas muerto."
+  },
+  {
+    "id": "rulianshi",
+    "name": "Tanatopractor",
+    "ability": "Si nombras al Demonio y muere por esa ejecucion, te conviertes en ese Demonio malo. Pierdes esta habilidad cuando queden 4 o menos jugadores vivos (sin contar Viajeros)."
+  },
+  {
+    "id": "shutong",
+    "name": "Paje",
+    "ability": "En tu primera noche, elige 1 jugador que no seas tu: cada noche (excepto la primera), si es apuntado o afectado por la habilidad de un jugador malo, mueres esta noche."
+  },
+  {
+    "id": "humeiniang",
+    "name": "Hu Meiniang",
+    "ability": "En tu primera noche, elige 1 jugador: descubren que hay una Hu Meiniang en juego. Si mueres por ejecucion, se convierte en malo esa noche."
+  },
+  {
+    "id": "yangguren",
+    "name": "Guardian de insectos",
+    "ability": "Un jugador que te nombre mientras estas vivo muere esta noche, incluso si estas muerto."
+  },
+  {
+    "id": "jinweijun",
+    "name": "Imperialista",
+    "ability": "Un jugador que este loco sobre que quiere morir puede ser ejecutado inmediatamente."
+  },
+  {
+    "id": "jinweijun2",
+    "name": "Imperialista II",
+    "ability": "En tu primera noche, debes elegir 'vivo' o 'muerto'. Un jugador que este loco sobre que quiere hacer esto puede ser ejecutado inmediatamente."
+  },
+  {
+    "id": "ganshiren",
+    "name": "Caminante de cadaveres",
+    "ability": "Tus dos vecinos Aldeanos se tratan como vivos la primera vez que mueren. [-1 Forastero]"
+  },
+  {
+    "id": "gudiao",
+    "name": "Gu Diao",
+    "ability": "Cada noche, elige izquierda o derecha: descubres el personaje del siguiente jugador bueno vivo en esa direccion. Esta envenenado y registra como Gu Diao malo, hasta el siguiente crepusculo."
+  },
+  {
+    "id": "huapi",
+    "name": "Huapi",
+    "ability": "En tu primera noche, elige 1 jugador vivo: muere pero se trata como vivo. La proxima vez que moriria, resucita, y recuperas esta habilidad."
+  },
+  {
+    "id": "mengpo",
+    "name": "Meng Po",
+    "ability": "Cada noche* elige 1 jugador: si esta vivo, debe elegir entre perder su habilidad, o morir y mantener su habilidad hasta el siguiente crepusculo."
+  },
+  {
+    "id": "niangjiushi",
+    "name": "Cervecero",
+    "ability": "Cada noche, elige 1 personaje Aldeano: la proxima vez que obtenga informacion de su habilidad, descubre lo que tu decidas en su lugar."
+  },
+  {
+    "id": "hundun",
+    "name": "Hundun",
+    "ability": "Cada noche* elige 1 jugador: muere. Si matas a un vecino Aldeano de esta forma, todos los jugadores buenos (excepto Viajeros) estan envenenados hasta el siguiente crepusculo."
+  },
+  {
+    "id": "qiongqi",
+    "name": "Qiongqi",
+    "ability": "Cada noche* elige 1 jugador: muere. Si un Forastero murio hoy, en su lugar elige 1 jugador: muere pero se trata como vivo, y despues muere otro jugador. [+1 Forastero]"
+  },
+  {
+    "id": "taowu",
+    "name": "Taowu",
+    "ability": "Cada noche* elige 1 jugador: muere. Cuando moririas, un Esbirro vivo con habilidad la pierde en su lugar. No descubres informacion de Demonio."
+  },
+  {
+    "id": "taotie",
+    "name": "Taotie",
+    "ability": "Cada noche* elige cualquier numero de jugadores que no sean Viajeros, o 1 Viajero: si sus tipos de personaje son todos diferentes, mueren. [+1 Forastero]"
+  },
+  {
+    "id": "baojun",
+    "name": "Tirano",
+    "ability": "Cada noche* puedes elegir hasta 2 jugadores: mueren. El numero de jugadores que elijas no puede ser el mismo que el numero de jugadores que murieron anoche (mas de 2 cuenta como 2)."
+  },
+  {
+    "id": "dianyuzhang",
+    "name": "Alcaide",
+    "ability": "Cada noche elige hasta 3 jugadores: si uno de ellos muere por ejecucion manana, los demas que elegiste anoche mueren esta noche. En caso contrario, uno de ellos muere esta noche."
+  },
+  {
+    "id": "guhuoniao",
+    "name": "Guhuo",
+    "ability": "Cada noche* elige 1 jugador: muere. Puedes tener la habilidad del ultimo Esbirro que murio por ejecucion."
+  },
+  {
+    "id": "jianning",
+    "name": "Adulador",
+    "ability": "Cada noche* elige 1 jugador: muere. Si no votaste hoy, puedes actuar dos veces esta noche."
+  },
+  {
+    "id": "yanluo",
+    "name": "Yanluo",
+    "ability": "En tu primera noche, ves el Grimorio y eliges 1 jugador: muere en la 3a noche, incluso si por alguna razon no pudiera. Cada noche, elige 1 jugador: el jugador que elegiste anoche muere."
+  }
+]

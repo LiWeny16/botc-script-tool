@@ -84,7 +84,7 @@ const ScriptRenderer = observer(({
     const displayedTitle = useMemo(() => {
         const titleEn = (script as any).titleEn as string | undefined;
         const base = script.secondPageTitleText || script.title;
-        if (language === 'en' && titleEn && titleEn.trim()) return titleEn.trim();
+        if (language !== 'zh-CN' && titleEn && titleEn.trim()) return titleEn.trim();
         return base;
     }, [language, script]);
 

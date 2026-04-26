@@ -41,10 +41,8 @@ import { useTranslation } from './utils/i18n';
 import { SEOManager } from './components/SEOManager';
 import { scriptStore } from './stores/ScriptStore';
 import { configStore } from './stores/ConfigStore';
-import { getSpecialRuleTemplate } from './data/specialRules';
-import { CHARACTERS } from './data/characters';
-import { CHARACTERS_EN } from './data/charactersEn';
-import { normalizeCharacterId } from './data/characterIdMapping';
+import { getSpecialRuleTemplate } from './data/utils/specialRules';
+import { getAllCharacterDictionaries, getCharacterDictionary, getCharacterInDictionary } from './data';
 import UISettingsDrawer from './components/UISettingsDrawer';
 import AboutDialog from './components/AboutDialog';
 import {
@@ -268,17 +266,27 @@ const App = observer(() => {
           if (stored) {
             const message = language === 'zh-CN'
               ? `已保存到本地存储`
-              : `Saved to local storage`;
+              : language === 'es'
+                ? `Guardado en almacenamiento local`
+                : `Saved to local storage`;
             showSaveAlert(message, 2500);
           }
         } catch (error) {
           console.error('JSON格式错误:', error);
-          const message = language === 'zh-CN' ? '✗ JSON格式错误，无法保存' : '✗ Invalid JSON format';
+          const message = language === 'zh-CN'
+            ? '✗ JSON格式错误，无法保存'
+            : language === 'es'
+              ? '✗ Formato JSON no válido'
+              : '✗ Invalid JSON format';
           alertUseMui(message, 2500, { kind: 'error' });
         }
       } else {
         console.log('没有可保存的JSON数据');
-        const message = language === 'zh-CN' ? '⚠ 没有可保存的JSON' : '⚠ No JSON to save';
+        const message = language === 'zh-CN'
+          ? '⚠ 没有可保存的JSON'
+          : language === 'es'
+            ? '⚠ No hay JSON para guardar'
+            : '⚠ No JSON to save';
         alertUseMui(message, 2000, { kind: 'warning' });
       }
     };
@@ -592,13 +600,15 @@ const App = observer(() => {
         newRule = {
           id: `custom_rule_${Date.now()}`,
           title: {
-            'zh-CN': template.title['zh-CN'],
-            'en': template.title['en'],
+            'zh-CN': template.title['zh-CN'] || '',
+            'en': template.title['en'] || template.title['zh-CN'] || '',
+            'es': template.title['es'] || template.title['en'] || template.title['zh-CN'] || '',
           },
           team: "special_rule",
           content: {
-            'zh-CN': template.content['zh-CN'],
-            'en': template.content['en'],
+            'zh-CN': template.content['zh-CN'] || '',
+            'en': template.content['en'] || template.content['zh-CN'] || '',
+            'es': template.content['es'] || template.content['en'] || template.content['zh-CN'] || '',
           },
           sourceType: 'special_rule' as const,
           sourceIndex: 0,
@@ -610,11 +620,13 @@ const App = observer(() => {
           title: {
             'zh-CN': '新规则',
             'en': 'New Rule',
+            'es': 'Nueva regla',
           },
           team: "special_rule",
           content: {
             'zh-CN': '请输入规则内容...',
             'en': 'Enter rule content...',
+            'es': 'Introduce el contenido de la regla...',
           },
           sourceType: 'special_rule' as const,
           sourceIndex: 0,
@@ -667,7 +679,7 @@ const App = observer(() => {
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
       // 当前语言的角色字典
-      const currentDict = language === 'en' ? CHARACTERS_EN : CHARACTERS;
+      const currentDict = getCharacterDictionary(language);
 
       // 辅助函数：根据name或id在角色库中查找
       const findCharacterInDict = (item: any): Character | null => {
@@ -682,16 +694,8 @@ const App = observer(() => {
           }
         }
 
-        // 2. 通过id查找（直接匹配）
-        if (currentDict[itemObj.id]) {
-          return currentDict[itemObj.id] as Character;
-        }
-
-        // 3. 通过标准化ID查找
-        const normalizedId = normalizeCharacterId(itemObj.id, language);
-        if (currentDict[normalizedId]) {
-          return currentDict[normalizedId] as Character;
-        }
+        const byId = getCharacterInDictionary(currentDict, itemObj.id);
+        if (byId) return byId;
 
         return null;
       };
@@ -742,7 +746,11 @@ const App = observer(() => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const langSuffix = language === 'zh-CN' ? t('export.chineseLang') : t('export.englishLang');
+      const langSuffix = language === 'zh-CN'
+        ? t('export.chineseLang')
+        : language === 'es'
+          ? t('export.spanishLang')
+          : t('export.englishLang');
       const scriptName = script?.title || t('export.defaultScriptName');
       link.download = `${scriptName}-${langSuffix}${t('export.currentLangSuffix')}.json`;
       link.click();
@@ -783,39 +791,28 @@ const App = observer(() => {
       const parsedJson = JSON.parse(normalizedJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 辅助函数：在中英文库中查找官方ID
+      // 辅助函数：在所有官方语言库中查找官方ID
       const findOfficialIdByNameOrId = (item: any): { found: boolean; id?: string } => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
 
-        // 1. 通过name在中文库查找
+        const allDictionaries = getAllCharacterDictionaries();
+
+        // 1. 通过name在各语言库查找
         if (itemObj.name && typeof itemObj.name === 'string') {
-          for (const [id, char] of Object.entries(CHARACTERS)) {
-            if ((char as Character).name === itemObj.name) {
-              return { found: true, id };
-            }
-          }
-
-          // 2. 通过name在英文库查找
-          for (const [id, char] of Object.entries(CHARACTERS_EN)) {
-            if ((char as Character).name === itemObj.name) {
-              return { found: true, id };
+          for (const [, dict] of allDictionaries) {
+            for (const [id, char] of Object.entries(dict)) {
+              if ((char as Character).name === itemObj.name) {
+                return { found: true, id };
+              }
             }
           }
         }
 
-        // 3. 通过id直接匹配
-        if (CHARACTERS[itemObj.id]) {
-          return { found: true, id: itemObj.id };
-        }
-
-        if (CHARACTERS_EN[itemObj.id]) {
-          return { found: true, id: itemObj.id };
-        }
-
-        // 4. 通过标准化ID查找
-        const normalizedId = normalizeCharacterId(itemObj.id, 'en');
-        if (CHARACTERS[normalizedId] || CHARACTERS_EN[normalizedId]) {
-          return { found: true, id: normalizedId };
+        for (const [, dict] of allDictionaries) {
+          const found = getCharacterInDictionary(dict, itemObj.id);
+          if (found) {
+            return { found: true, id: found.id };
+          }
         }
 
         return { found: false };
@@ -1166,6 +1163,8 @@ const App = observer(() => {
             onClick={() => {
               const url = language === 'zh-CN'
                 ? 'https://www.ilovepdf.com/zh-cn/pdf_to_jpg'
+                : language === 'es'
+                  ? 'https://www.ilovepdf.com/es/pdf_a_jpg'
                 : 'https://www.ilovepdf.com/pdf_to_jpg';
               window.open(url, '_blank');
               setExportImageDialogOpen(false);

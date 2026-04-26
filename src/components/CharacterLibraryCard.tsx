@@ -23,16 +23,15 @@ import {
     PushPin as PushPinIcon,
     PushPinOutlined as PushPinOutlinedIcon,
 } from '@mui/icons-material';
-import { CHARACTERS } from '../data/characters';
-import { CHARACTERS_EN } from '../data/charactersEn';
+import { getCharacterDictionary } from '../data';
 import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
 import type { Character } from '../types';
 import { THEME_COLORS } from '../theme/colors';
-import { getFabledCharacters } from '../data/fabled';
-import { getLoricCharacters } from '../data/loric';
+import { getFabledCharacters } from '../data/extras/fabled';
+import { getLoricCharacters } from '../data/extras/loric';
 import { configStore } from '../stores/ConfigStore';
-import { PINYIN_MAP } from '../data/pinyinMap';
+import { PINYIN_MAP } from '../data/utils/pinyinMap';
 
 interface CharacterLibraryCardProps {
     open: boolean;
@@ -69,7 +68,7 @@ const CharacterLibraryCard = observer(({
 
     // 根据当前语言选择角色数据源
     const currentCharacterData = useMemo(() => {
-        return language === 'en' ? CHARACTERS_EN : CHARACTERS;
+        return getCharacterDictionary(language);
     }, [language]);
 
     // 按团队分类角色，包含传奇角色和 Loric 角色，去重处理

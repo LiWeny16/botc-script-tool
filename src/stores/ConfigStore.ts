@@ -1,13 +1,14 @@
 import { makeAutoObservable } from 'mobx';
+import { DEFAULT_LANGUAGE, isSupportedLanguage, normalizeLanguage, type Language } from '../utils/languages';
 
 export interface AppConfig {
-  language: 'zh-CN' | 'en';
+  language: Language;
   officialIdParseMode: boolean; // 是否开启官方ID解析模式
   // 可以在此添加更多配置项
 }
 
 const DEFAULT_CONFIG: AppConfig = {
-  language: 'zh-CN',
+  language: DEFAULT_LANGUAGE,
   officialIdParseMode: false, // 默认关闭官方ID解析模式
 };
 
@@ -29,7 +30,11 @@ class ConfigStore {
       const savedConfig = localStorage.getItem(STORAGE_KEY);
       if (savedConfig) {
         const parsed = JSON.parse(savedConfig);
-        this.config = { ...DEFAULT_CONFIG, ...parsed };
+        this.config = {
+          ...DEFAULT_CONFIG,
+          ...parsed,
+          language: normalizeLanguage(parsed.language),
+        };
       }
     } catch (error) {
       console.error('Failed to load config from localStorage:', error);
@@ -61,7 +66,7 @@ class ConfigStore {
       const searchParams = new URLSearchParams(window.location.search);
       langParam = searchParams.get('lang');
       
-      if (langParam === 'en' || langParam === 'zh-CN') {
+      if (isSupportedLanguage(langParam)) {
         // 找到语言参数，更新配置并清理 hash 前的参数，移到 hash 后面
         this.config.language = langParam;
         this.saveConfig();
@@ -83,7 +88,7 @@ class ConfigStore {
       const params = new URLSearchParams(queryString);
       langParam = params.get('lang');
       
-      if (langParam === 'en' || langParam === 'zh-CN') {
+      if (isSupportedLanguage(langParam)) {
         // 从 URL 读取语言，直接更新配置，不再更新 URL（避免循环）
         if (this.config.language !== langParam) {
           this.config.language = langParam;
@@ -98,7 +103,7 @@ class ConfigStore {
   }
 
   // 更新 URL 中的语言参数（支持 hash 路由）
-  updateUrlLanguage(lang: 'zh-CN' | 'en') {
+  updateUrlLanguage(lang: Language) {
     const hash = window.location.hash;
     const questionMarkIndex = hash.indexOf('?');
     
@@ -116,7 +121,7 @@ class ConfigStore {
   }
 
   // 设置语言
-  setLanguage(language: 'zh-CN' | 'en') {
+  setLanguage(language: Language) {
     this.config.language = language;
     this.saveConfig();
     this.updateUrlLanguage(language);

@@ -16,7 +16,7 @@ import {
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { observer } from 'mobx-react-lite';
-import { searchScripts, type ScriptData } from '../data/scriptRepository';
+import { searchScripts, type ScriptData } from '../data/utils/scriptRepository';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';

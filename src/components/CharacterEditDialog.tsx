@@ -33,13 +33,12 @@ import {
   Cancel as CancelIcon,
 } from '@mui/icons-material';
 import type { Character } from '../types';
-import { CHARACTERS } from '../data/characters';
+import { getCharacterDictionary, getCharacterInDictionary } from '../data';
 import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
 import { configStore } from '../stores/ConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import { observer } from 'mobx-react-lite';
-import { JINX_DATA, JINX_DATA_EN } from '../data/jinx';
 import type { JinxInfo } from '../types';
 
 interface CharacterEditDialogProps {
@@ -77,12 +76,10 @@ export default observer(function CharacterEditDialog({
   // 获取当前剧本中的所有角色（排除当前编辑的角色）
   const availableCharacters = scriptStore.script?.all.filter(c => c.id !== character?.id) || [];
 
-  // 获取官方相克数据
-  const officialJinxData = language === 'en' ? JINX_DATA_EN : JINX_DATA;
-
   useEffect(() => {
     if (character && scriptStore.script) {
-      const defaultData = CHARACTERS[character.id] || {};
+      const defaultData: Partial<Character> =
+        getCharacterInDictionary(getCharacterDictionary(language), character.id) ?? {};
       const mergedData = {
         ...defaultData,
         ...character,
@@ -213,7 +210,8 @@ export default observer(function CharacterEditDialog({
     
     if (character) {
       const updates: Partial<Character> = {};
-      const defaultData = CHARACTERS[character.id] || {};
+      const defaultData: Partial<Character> =
+        getCharacterInDictionary(getCharacterDictionary(language), character.id) ?? {};
       
       // 创建完整的原始数据（包含默认值）
       const originalData = {
