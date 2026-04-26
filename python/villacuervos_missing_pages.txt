@@ -1,0 +1,57 @@
+xizi	Actor	missing Villacuervos page/data
+jiaohuazi	Pauper	missing Villacuervos page/data
+yinyangshi	Yin-Yang Diviner	missing Villacuervos page/data
+qintianjian	Stargazer	missing Villacuervos page/data
+dianxiaoer	Waiter	missing Villacuervos page/data
+xionghaizi	Rascal	missing Villacuervos page/data
+langzhong	Herb Doctor	missing Villacuervos page/data
+dagengren	Firewatcher	missing Villacuervos page/data
+jinyiwei	Brocadier	missing Villacuervos page/data
+heshang	Heshang	missing Villacuervos page/data
+geling	Diva	missing Villacuervos page/data
+bianlianshi	Face Changer	missing Villacuervos page/data
+banxian	Banxian	missing Villacuervos page/data
+wudaozhe	Enlightened One	missing Villacuervos page/data
+bingbi	Brush Holder	missing Villacuervos page/data
+chongfei	Favored Consort	missing Villacuervos page/data
+daoke	Swordman	missing Villacuervos page/data
+daoshi	Daoshi	missing Villacuervos page/data
+fangshi	Fangshi	missing Villacuervos page/data
+fengshuishi	Fengshui Master	missing Villacuervos page/data
+limao	Li Mao	missing Villacuervos page/data
+qianke	Broker	missing Villacuervos page/data
+ranfangfangzhu	Dyer	missing Villacuervos page/data
+shiguan	Historian	missing Villacuervos page/data
+tixingguan	Magistrate	missing Villacuervos page/data
+xuncha	Patrolman	missing Villacuervos page/data
+yanshi	Puppeteer	missing Villacuervos page/data
+yishi	Messenger	missing Villacuervos page/data
+yinluren	Guide	missing Villacuervos page/data
+yongjiang	Artisan	missing Villacuervos page/data
+zhen	Zhen	missing Villacuervos page/data
+zhifu	Prefect	missing Villacuervos page/data
+shaxing	Mr. Misfortune	missing Villacuervos page/data
+nichen	Turncoat	missing Villacuervos page/data
+shusheng	Pedant	missing Villacuervos page/data
+shijie	Envoy	missing Villacuervos page/data
+jiubao	Bartender	missing Villacuervos page/data
+rulianshi	Mortician	missing Villacuervos page/data
+shutong	Bookboy	missing Villacuervos page/data
+humeiniang	Hu Meiniang	missing Villacuervos page/data
+yangguren	Bug Keeper	missing Villacuervos page/data
+jinweijun	Imperialist	missing Villacuervos page/data
+jinweijun2	Imperialist Ⅱ	missing Villacuervos page/data
+ganshiren	Corpse Walker	missing Villacuervos page/data
+gudiao	Gu Diao	missing Villacuervos page/data
+huapi	Huapi	missing Villacuervos page/data
+mengpo	Meng Po	missing Villacuervos page/data
+niangjiushi	Brewer	missing Villacuervos page/data
+hundun	Hundun	missing Villacuervos page/data
+qiongqi	Qiongqi	missing Villacuervos page/data
+taowu	Taowu	missing Villacuervos page/data
+taotie	Taotie	missing Villacuervos page/data
+baojun	Tyrant	missing Villacuervos page/data
+dianyuzhang	Warden	missing Villacuervos page/data
+guhuoniao	Guhuo	missing Villacuervos page/data
+jianning	Sycophant	missing Villacuervos page/data
+yanluo	Yanluo	missing Villacuervos page/data

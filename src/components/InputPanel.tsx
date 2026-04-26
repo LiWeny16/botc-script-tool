@@ -546,9 +546,9 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: { xs: 'stretch', sm: 'center' },
+          flexDirection: { xs: 'column', sm: 'row' },
           mb: 3,
-          flexWrap: 'wrap',
           gap: 2,
         }}
       >
@@ -558,17 +558,37 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
             fontWeight: 'bold',
             color: '#333',
             fontSize: { xs: '1.3rem', sm: '1.5rem' },
+            width: { xs: '100%', sm: 'auto' },
+            minWidth: 0,
           }}
         >
           {t('app.title')}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <LanguageSwitcher />
+        <Stack
+          direction={{ xs: 'column', sm: 'row' }}
+          spacing={{ xs: 1.5, sm: 1 }}
+          sx={{
+            width: { xs: '100%', sm: 'auto' },
+            minWidth: { xs: 0, sm: 'min-content' },
+            alignItems: { xs: 'stretch', sm: 'center' },
+            flexShrink: { sm: 0 },
+          }}
+        >
+          <LanguageSwitcher
+            buttonSx={{
+              width: { xs: '100%', sm: 'auto' },
+              justifyContent: { xs: 'flex-start', sm: 'center' },
+              boxSizing: 'border-box',
+            }}
+          />
           <Button
             variant="outlined"
             startIcon={<InfoIcon />}
             onClick={onOpenAboutDialog}
             sx={{
+              width: { xs: '100%', sm: 'auto' },
+              boxSizing: 'border-box',
+              whiteSpace: { xs: 'normal', sm: 'nowrap' },
               borderColor: '#4caf50',
               color: '#4caf50',
               '&:hover': {
@@ -584,6 +604,9 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
             startIcon={<LibraryBooks />}
             onClick={() => navigate('/repo')}
             sx={{
+              width: { xs: '100%', sm: 'auto' },
+              boxSizing: 'border-box',
+              whiteSpace: { xs: 'normal', sm: 'nowrap' },
               borderColor: '#0078ba',
               color: '#0078ba',
               '&:hover': {
@@ -594,7 +617,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
           >
             {t('app.scriptRepository')}
           </Button>
-        </Box>
+        </Stack>
       </Box>
 
       <Stack spacing={2}>

@@ -150,18 +150,18 @@ const SpecialRuleEditDialog = ({
           {/* 标题 */}
           <TextField
             fullWidth
-            label={language === 'zh-CN' ? '标题' : language === 'es' ? 'Título' : 'Title'}
+            label={t('specialRules.titleLabel')}
             value={formData.title}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, title: e.target.value }))
             }
-            placeholder={language === 'zh-CN' ? '请输入规则标题' : language === 'es' ? 'Introduce el título de la regla' : 'Enter rule title'}
+            placeholder={t('specialRules.titlePlaceholder')}
           />
 
           {/* 内容 */}
           <TextField
             fullWidth
-            label={language === 'zh-CN' ? '内容' : language === 'es' ? 'Contenido' : 'Content'}
+            label={t('specialRules.contentLabel')}
             value={formData.content}
             onChange={(e) => {
               const value = e.target.value;
@@ -174,7 +174,7 @@ const SpecialRuleEditDialog = ({
                 setContentEs(value);
               }
             }}
-            placeholder={language === 'zh-CN' ? '请输入规则内容' : language === 'es' ? 'Introduce el contenido de la regla' : 'Enter rule content'}
+            placeholder={t('specialRules.contentPlaceholder')}
             multiline
             rows={4}
           />

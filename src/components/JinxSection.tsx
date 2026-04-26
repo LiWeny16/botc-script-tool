@@ -226,7 +226,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                                         fontStyle: 'italic',
                                     }}
                                 >
-                                    <strong>{jinx.characterA.name}</strong> {t('jinx.and')} <strong>{jinx.characterB.name}</strong>：{jinx.jinxInfo.reason}
+                                    <strong>{jinx.characterA.name}</strong> {t('jinx.and')} <strong>{jinx.characterB.name}</strong>{t('jinx.separator')}{jinx.jinxInfo.reason}
                                 </Typography>
                             </Box>
                         </Paper>

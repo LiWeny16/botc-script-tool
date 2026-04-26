@@ -108,7 +108,7 @@ const PrintDialog: React.FC<PrintDialogProps> = ({ open, onClose, onConfirm, t, 
                             mb: 1.5,
                         }}
                     >
-                        {language === 'zh-CN' ? '推荐配置' : language === 'es' ? 'Configuración recomendada' : 'Recommended Settings'}
+                        {t('dialog.printSettings')}
                     </Typography>
 
                     {/* 设置项 */}

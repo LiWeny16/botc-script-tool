@@ -155,7 +155,7 @@ const ScriptPreview = observer(() => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${script?.title || '剧本'}.json`;
+      link.download = `${script?.title || t('export.defaultScriptName')}.json`;
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {

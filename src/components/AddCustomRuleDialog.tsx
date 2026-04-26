@@ -36,7 +36,6 @@ const AddCustomRuleDialog = ({
   const [selectedType, setSelectedType] = useState<'special_rule' | 'custom_jinx' | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const templates = getAllSpecialRuleTemplates();
-  const isChinese = language === 'zh-CN';
   const getTemplateText = (text?: SpecialRuleTemplate['title']): string =>
     text?.[language] || text?.en || text?.['zh-CN'] || '';
 
