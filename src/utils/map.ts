@@ -332,6 +332,8 @@ const baseTranslations = {
     'ui.cardPaddingY': '卡片内边距（竖直）',
     'ui.cardGap': '卡片元素间距',
     'ui.textAreaGap': '文本区域间距',
+    'ui.cardBorderRadius': '卡片圆角',
+    'ui.avatarBorderRadius': '头像圆角',
 
     // 分类3: 图标大小配置
     'ui.category.iconSize': '图标大小配置',
@@ -787,6 +789,8 @@ const baseTranslations = {
     'ui.cardPaddingY': 'Card Padding (Vertical)',
     'ui.cardGap': 'Card Element Gap',
     'ui.textAreaGap': 'Text Area Gap',
+    'ui.cardBorderRadius': 'Card Border Radius',
+    'ui.avatarBorderRadius': 'Avatar Border Radius',
 
     // Category 3: Icon Size Configuration
     'ui.category.iconSize': 'Icon Size Configuration',
@@ -1243,6 +1247,8 @@ const spanishTranslations: Partial<Record<TranslationKey, string>> = {
   'ui.cardPaddingY': 'Relleno de la tarjeta (vertical)',
   'ui.cardGap': 'Espaciado entre elementos de la tarjeta',
   'ui.textAreaGap': 'Espaciado del área de texto',
+  'ui.cardBorderRadius': 'Radio de borde de tarjeta',
+  'ui.avatarBorderRadius': 'Radio de borde de avatar',
 
   // Category 3: Icon size configuration
   'ui.category.iconSize': 'Configuración del tamaño de iconos',

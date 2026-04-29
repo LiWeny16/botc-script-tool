@@ -1263,10 +1263,14 @@ class ScriptStore {
               console.log('官方ID模式：保持简化格式，不保存自定义到JSON');
               return item;
             } else {
-              // 普通模式：升级为完整格式，只添加被修改的字段
+              // 普通模式：升级为完整格式，保留角色所有字段（避免丢失 name/ability/team）
               console.log('普通模式：升级为完整格式，添加自定义字段');
+              const fullCharacter = this.script?.all.find(c => isSameCharacter(c.id, characterId));
+              const base = fullCharacter
+                ? { id: characterId, name: fullCharacter.name, ability: fullCharacter.ability, team: fullCharacter.team, image: fullCharacter.image }
+                : { id: characterId };
               return {
-                id: characterId,
+                ...base,
                 ...updates,
               };
             }
@@ -1527,8 +1531,26 @@ class ScriptStore {
         timestamp: Date.now(),
       };
       localStorage.setItem('botc-script-data', JSON.stringify(data));
-    } catch (error) {
-      console.warn('保存到 localStorage 失败:', error);
+    } catch (error: any) {
+      // 捕获 QuotaExceededError（base64 图片可能导致数据量过大）
+      if (error?.name === 'QuotaExceededError' || error?.code === 22) {
+        console.error('localStorage 空间不足（可能因为 base64 图片数据过大）');
+        // 尝试只保存核心数据（去掉 normalizedJson 缩减体积）
+        try {
+          const minimalData = {
+            script: this.script,
+            originalJson: this.originalJson,
+            customTitle: this.customTitle,
+            customAuthor: this.customAuthor,
+            timestamp: Date.now(),
+          };
+          localStorage.setItem('botc-script-data', JSON.stringify(minimalData));
+        } catch {
+          console.error('即使精简后仍然无法保存到 localStorage');
+        }
+      } else {
+        console.warn('保存到 localStorage 失败:', error);
+      }
     }
   }
 

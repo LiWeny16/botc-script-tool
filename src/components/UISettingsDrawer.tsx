@@ -621,6 +621,21 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                       valueLabelDisplay="auto"
                     />
                   </Box>
+
+                  {/* 头像圆角 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.avatarBorderRadius')}: {uiConfigStore.config.characterCard.avatarBorderRadius}
+                    </Typography>
+                    <Slider
+                      value={uiConfigStore.config.characterCard.avatarBorderRadius}
+                      onChange={(_, value) => uiConfigStore.updateCharacterCardConfig({ avatarBorderRadius: value as number })}
+                      min={0}
+                      max={10}
+                      step={0.5}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
                 </Stack>
               </AccordionDetails>
             </Accordion>

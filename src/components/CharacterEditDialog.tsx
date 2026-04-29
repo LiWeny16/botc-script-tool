@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -21,16 +21,19 @@ import {
   Paper,
   List,
   ListItem,
+  Slider,
+  Stack,
 } from '@mui/material';
-import { 
-  Close as CloseIcon, 
-  Delete as DeleteIcon, 
-  Add as AddIcon, 
+import {
+  Close as CloseIcon,
+  Delete as DeleteIcon,
+  Add as AddIcon,
   Edit as EditIcon,
   Visibility as VisibilityIcon,
   VisibilityOff as VisibilityOffIcon,
   Check as CheckIcon,
   Cancel as CancelIcon,
+  Upload as UploadIcon,
 } from '@mui/icons-material';
 import type { Character } from '../types';
 import { getCharacterDictionary, getCharacterInDictionary } from '../data';
@@ -38,6 +41,7 @@ import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
 import { configStore } from '../stores/ConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
+import { uiConfigStore } from '../stores/UIConfigStore';
 import { observer } from 'mobx-react-lite';
 import type { JinxInfo } from '../types';
 
@@ -69,7 +73,62 @@ export default observer(function CharacterEditDialog({
   const [newJinxDescription, setNewJinxDescription] = useState('');
   const [editingJinxId, setEditingJinxId] = useState<string | null>(null);
   const [editingJinxReason, setEditingJinxReason] = useState('');
-  
+  const [dragActive, setDragActive] = useState(false);
+
+  // 样式滑块本地状态（拖拽时不写 store，松手才同步）
+  const cc = uiConfigStore.config.characterCard;
+  const [sliderAvatarBR, setSliderAvatarBR] = useState(cc.avatarBorderRadius);
+  const [sliderAvatarW, setSliderAvatarW] = useState(cc.avatarWidthMd);
+  const [sliderAvatarH, setSliderAvatarH] = useState(cc.avatarHeightMd);
+  const [sliderPadX, setSliderPadX] = useState(cc.cardPaddingX);
+  const [sliderGap, setSliderGap] = useState(cc.cardGap);
+
+  const handleChange = (field: keyof Character, value: any) => {
+    setEditData(prev => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      if (!file.type.startsWith('image/')) return;
+      if (file.size > 2 * 1024 * 1024) return; // 2MB 限制
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        handleChange('image', event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
+  const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (!file.type.startsWith('image/')) return;
+      if (file.size > 2 * 1024 * 1024) return; // 2MB 限制
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        handleChange('image', event.target?.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  }, []);
+
   // 官方ID解析模式下禁用所有编辑
   const isEditDisabled = configStore.config.officialIdParseMode;
 
@@ -269,13 +328,6 @@ export default observer(function CharacterEditDialog({
     }
   };
 
-  const handleChange = (field: keyof Character, value: any) => {
-    setEditData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
   if (!character) return null;
 
   const teamOptions = [
@@ -303,9 +355,9 @@ export default observer(function CharacterEditDialog({
         },
       }}
     >
-      {/* --- 更紧凑的顶部固定预览区 --- */}
+      {/* --- 顶部预览区（使用实际卡片配置） --- */}
       <DialogTitle sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
           <Typography variant="h6">
             {t('editCharacter')}
           </Typography>
@@ -313,20 +365,33 @@ export default observer(function CharacterEditDialog({
             <CloseIcon />
           </IconButton>
         </Box>
-        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+        <Paper
+          elevation={0}
+          sx={{
+            display: 'flex',
+            gap: `${sliderGap * 0.6}px`,
+            alignItems: 'center',
+            px: sliderPadX * 0.6,
+            py: cc.cardPaddingY * 0.6,
+            borderRadius: 1,
+            border: '1px solid',
+            borderColor: 'divider',
+            backgroundColor: 'background.default',
+          }}
+        >
           <CharacterImage
             src={editData.image || character?.image || ''}
             alt={editData.name || character?.name || ''}
             sx={{
-              width: 50, // 缩小图片
-              height: 50, // 缩小图片
-              borderRadius: 1,
+              width: sliderAvatarW * 0.5,
+              height: sliderAvatarH * 0.5,
+              borderRadius: sliderAvatarBR,
               objectFit: 'cover',
               flexShrink: 0,
             }}
           />
-          <Box>
-            <Typography variant="subtitle1" fontWeight="bold" color="primary">
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography variant="subtitle1" fontWeight="bold" color="primary" noWrap>
               {editData.name || character.name}
             </Typography>
             <Typography variant="body2" color="text.secondary" sx={{
@@ -335,11 +400,13 @@ export default observer(function CharacterEditDialog({
               WebkitLineClamp: 2,
               overflow: 'hidden',
               textOverflow: 'ellipsis',
+              fontSize: uiConfigStore.config.characterCard.descriptionFontSizeMd,
+              lineHeight: uiConfigStore.config.characterCard.descriptionLineHeight,
             }}>
               {editData.ability}
             </Typography>
           </Box>
-        </Box>
+        </Paper>
       </DialogTitle>
 
       {/* --- 全面采用 Flexbox 的可滚动表单区域 --- */}
@@ -380,13 +447,153 @@ export default observer(function CharacterEditDialog({
                 onChange={(e) => handleChange('ability', e.target.value)}
                 disabled={isEditDisabled}
               />
-              <TextField
-                fullWidth
-                label={t('imageUrl')}
-                value={editData.image || ''}
-                onChange={(e) => handleChange('image', e.target.value)}
-                disabled={isEditDisabled}
-              />
+              <Box>
+                <Paper
+                  onDragEnter={handleDrag}
+                  onDragOver={handleDrag}
+                  onDragLeave={handleDrag}
+                  onDrop={handleDrop}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    p: 1.5,
+                    minHeight: 56,
+                    cursor: isEditDisabled ? 'default' : 'pointer',
+                    backgroundColor: dragActive ? 'action.hover' : 'background.paper',
+                    borderStyle: 'dashed',
+                    borderWidth: 1.5,
+                    borderColor: dragActive ? 'primary.main' : 'divider',
+                    transition: 'all 0.2s',
+                    opacity: isEditDisabled ? 0.6 : 1,
+                  }}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileInput}
+                    style={{ display: 'none' }}
+                    id="character-image-upload"
+                    disabled={isEditDisabled}
+                  />
+                  <label htmlFor="character-image-upload" style={{ cursor: isEditDisabled ? 'default' : 'pointer', width: '100%' }}>
+                    {editData.image ? (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                        <Box
+                          component="img"
+                          src={editData.image}
+                          alt=""
+                          sx={{ width: 36, height: 36, borderRadius: 0.5, objectFit: 'cover', flexShrink: 0 }}
+                        />
+                        <Typography variant="body2" color="text.secondary" noWrap sx={{ flex: 1 }}>
+                          {t('input.reuploadImage')}
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                        <UploadIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
+                        <Typography variant="body2" color="text.secondary">
+                          {t('input.uploadImage')}
+                        </Typography>
+                      </Box>
+                    )}
+                  </label>
+                </Paper>
+                <TextField
+                  fullWidth
+                  label={t('imageUrl')}
+                  value={editData.image || ''}
+                  onChange={(e) => handleChange('image', e.target.value)}
+                  disabled={isEditDisabled}
+                  size="small"
+                  sx={{ mt: 1 }}
+                  slotProps={{ inputLabel: { shrink: true } }}
+                />
+              </Box>
+
+              {/* 图片样式控制 */}
+              <Box sx={{ mt: 1 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'medium', display: 'block', mb: 1 }}>
+                  {t('ui.category.iconSize')}
+                </Typography>
+                <Stack spacing={2}>
+                  {/* 头像圆角 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.avatarBorderRadius')}: {sliderAvatarBR}
+                    </Typography>
+                    <Slider
+                      value={sliderAvatarBR}
+                      onChange={(_, v) => setSliderAvatarBR(v as number)}
+                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ avatarBorderRadius: v as number })}
+                      min={0}
+                      max={10}
+                      step={0.5}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                  {/* 头像宽度 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.avatarWidthMd')}: {sliderAvatarW}
+                    </Typography>
+                    <Slider
+                      value={sliderAvatarW}
+                      onChange={(_, v) => setSliderAvatarW(v as number)}
+                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ avatarWidthMd: v as number })}
+                      min={50}
+                      max={150}
+                      step={1}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                  {/* 头像高度 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.avatarHeightMd')}: {sliderAvatarH}
+                    </Typography>
+                    <Slider
+                      value={sliderAvatarH}
+                      onChange={(_, v) => setSliderAvatarH(v as number)}
+                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ avatarHeightMd: v as number })}
+                      min={40}
+                      max={120}
+                      step={1}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                  {/* 卡片内边距 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.cardPaddingX')}: {sliderPadX}
+                    </Typography>
+                    <Slider
+                      value={sliderPadX}
+                      onChange={(_, v) => setSliderPadX(v as number)}
+                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ cardPaddingX: v as number })}
+                      min={0}
+                      max={5}
+                      step={0.5}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                  {/* 卡片元素间距 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.cardGap')}: {sliderGap}
+                    </Typography>
+                    <Slider
+                      value={sliderGap}
+                      onChange={(_, v) => setSliderGap(v as number)}
+                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ cardGap: v as number })}
+                      min={0}
+                      max={5}
+                      step={0.5}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                </Stack>
+              </Box>
             </Box>
           </Box>
 
