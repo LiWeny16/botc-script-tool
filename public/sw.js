@@ -30,7 +30,8 @@ self.addEventListener('fetch', (event) => {
 
       try {
         const response = await fetch(event.request);
-        if (response.ok) {
+        // ok = 本地资源；opaque = 外部 CDN 跨域资源（status 不可见但请求成功）
+        if (response.ok || response.type === 'opaque') {
           cache.put(event.request, response.clone());
         }
         return response;
