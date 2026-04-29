@@ -5,6 +5,7 @@ const LOCAL_PATTERNS = [
   /^\/imgs\/icons\//,
   /^\/imgs\/images\/sources\//,
   /^\/bg\.png$/,
+  /^\/assets\/.*-vendor-.*\.js$/,   // react/mui/state/dnd vendor chunks
 ];
 
 // 外部 CDN 图标匹配
@@ -33,7 +34,11 @@ self.addEventListener('fetch', (event) => {
         const response = await fetch(event.request);
         // ok = 本地资源；opaque = 外部 CDN 跨域资源（status 不可见但请求成功）
         if (response.ok || response.type === 'opaque') {
-          cache.put(event.request, response.clone());
+          try {
+            cache.put(event.request, response.clone());
+          } catch {
+            // CDN Content-Length 不匹配等情况下缓存失败，忽略
+          }
         }
         return response;
       } catch {

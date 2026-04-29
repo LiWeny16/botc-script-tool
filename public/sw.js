@@ -5,6 +5,7 @@ const LOCAL_PATTERNS = [
   /^\/imgs\/icons\//,
   /^\/imgs\/images\/sources\//,
   /^\/bg\.png$/,
+  /^\/assets\/.*-vendor-.*\.js$/,   // react/mui/state/dnd vendor chunks
 ];
 
 // 外部 CDN 图标匹配

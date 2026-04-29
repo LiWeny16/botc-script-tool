@@ -15,12 +15,19 @@ export default defineConfig({
         // 分包策略 - 使用函数形式
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
+            // 状态管理 + 路由 + 滚动条（极少更新，必须在 react 前匹配）
+            if (id.includes('mobx') || id.includes('react-router') || id.includes('overlayscrollbars')) {
+              return 'state-vendor'
+            }
+            // React 核心（极少更新）
+            if (id.includes('react-dom') || id.endsWith('/react/') || id.includes('/react/esm') || id.includes('react/index')) {
               return 'react-vendor'
             }
+            // UI 库（偶尔更新）
             if (id.includes('@mui') || id.includes('@emotion')) {
               return 'mui-vendor'
             }
+            // 拖拽库（极少更新）
             if (id.includes('@dnd-kit')) {
               return 'dnd-vendor'
             }
