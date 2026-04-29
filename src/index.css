@@ -1,6 +1,6 @@
 @font-face {
   font-family: 'huangjin';
-  src: url('/font/huangjin/huangjin.ttf') format('truetype');
+  src: url('/font/huangjin/huangjin.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: 'maokenshi';
-  src: url('/font/maokenshi/maokenshi.ttf') format('truetype');
+  src: url('/font/maokenshi/maokenshi.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F;
