@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://botc.letshare.fun/sitemap.xml

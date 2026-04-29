@@ -6,6 +6,7 @@ import CheckIcon from '@mui/icons-material/Check';
 import { useState } from 'react';
 import { useTranslation } from '../utils/i18n';
 import { LANGUAGE_LABELS, LANGUAGE_SHORT_LABELS, SUPPORTED_LANGUAGES, type Language } from '../utils/languages';
+import { trackLanguageSwitch } from '../utils/analytics';
 
 export interface LanguageSwitcherProps {
   /** 合并到语言按钮的 sx，用于响应式全宽等 */
@@ -26,6 +27,7 @@ const LanguageSwitcher = observer(({ buttonSx }: LanguageSwitcherProps) => {
   };
 
   const handleLanguageChange = (lang: Language) => {
+    trackLanguageSwitch({ from: language, to: lang });
     setLanguage(lang);
     handleClose();
   };

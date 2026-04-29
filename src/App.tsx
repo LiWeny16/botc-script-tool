@@ -53,6 +53,7 @@ import { OverlayScrollbars } from 'overlayscrollbars';
 import PrintDialog from './components/AppSub/PrintDialog';
 import UnlockModeDialog from './components/AppSub/UnlockModeDialog';
 import ExportJsonDialog from './components/AppSub/ExportJsonDialog';
+import { trackGenerateScript, trackExportJson, trackExportImage, trackExportPdf, trackClearScript, trackAddCharacter, trackRemoveCharacter, trackEditCharacter } from './utils/analytics';
 
 // 把它放在 App 组件上面，或者 theme 定义的下面
 const printStyles = {
@@ -326,6 +327,12 @@ const App = observer(() => {
 
       // 清除错误提示
       setJsonParseError('');
+
+      // Track analytics
+      const characterCount = Object.values(generatedScript.characters).reduce(
+        (sum: number, chars: Character[]) => sum + chars.length, 0
+      );
+      trackGenerateScript({ characterCount, hasCustomTitle: !!title });
     } catch (error) {
       // 生成失败时显示错误
       const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
@@ -375,6 +382,7 @@ const App = observer(() => {
 
     setEditingCharacter(character);
     setEditDialogOpen(true);
+    trackEditCharacter({ characterId: character.id });
   };
 
   // 处理解锁模式并继续编辑
@@ -414,6 +422,7 @@ const App = observer(() => {
     } else {
       // 正常添加模式
       scriptStore.addCharacter(character);
+      trackAddCharacter({ characterId: character.id, team: character.team });
       // 不再自动关闭角色库
     }
   };
@@ -421,6 +430,7 @@ const App = observer(() => {
   // 处理从剧本中删除角色
   const handleRemoveCharacter = (character: Character) => {
     scriptStore.removeCharacter(character);
+    trackRemoveCharacter({ characterId: character.id, team: character.team });
   };
 
   // 处理更换角色
@@ -756,6 +766,7 @@ const App = observer(() => {
       link.click();
       URL.revokeObjectURL(url);
       setExportJsonDialogOpen(false);
+      trackExportJson({ exportType: 'current_language' });
     } catch (error) {
       console.error('导出当前语言JSON失败:', error);
       alert(t('input.exportJsonFailed'));
@@ -776,6 +787,7 @@ const App = observer(() => {
       link.click();
       URL.revokeObjectURL(url);
       setExportJsonDialogOpen(false);
+      trackExportJson({ exportType: 'original' });
     } catch (error) {
       console.error('导出原始JSON失败:', error);
       alert(t('input.exportJsonFailed'));
@@ -853,6 +865,7 @@ const App = observer(() => {
       link.click();
       URL.revokeObjectURL(url);
       setExportJsonDialogOpen(false);
+      trackExportJson({ exportType: 'id_only' });
     } catch (error) {
       console.error('导出仅ID JSON失败:', error);
       alert(t('input.exportJsonFailed'));
@@ -860,11 +873,13 @@ const App = observer(() => {
   };
 
   const handleExportPDF = () => {
+    trackExportPdf();
     // 显示打印设置对话框
     setPrintDialogOpen(true);
   };
 
   const handleExportImage = () => {
+    trackExportImage();
     // 显示导出图片提示对话框
     setExportImageDialogOpen(true);
   };
@@ -878,6 +893,7 @@ const App = observer(() => {
 
   // 清空所有数据，但保留默认JSON框架
   const handleClear = () => {
+    trackClearScript();
     // 创建一个默认的JSON框架
     const defaultJson = JSON.stringify([
       {

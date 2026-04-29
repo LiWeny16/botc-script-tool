@@ -1,38 +1,34 @@
 <!doctype html>
-<html lang="zh-CN">
-
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/32x32.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- 基础SEO标签 -->
-  <title>Onion的钟楼工具-血染钟楼剧本生成器</title>
-  <meta name="description" content="专业的血染钟楼剧本生成工具，支持自定义角色配置、剧本导出、多种游戏模式。为血染钟楼爱好者提供便捷的剧本制作体验。" />
-  <meta name="keywords" content="血染钟楼,剧本生成器,BOTC,Blood on the Clock Tower" />
-  <meta name="author" content="Onion" />
-  <meta name="robots" content="index, follow" />
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Onion的钟楼工具 - 血染钟楼剧本生成器" />
-  <meta property="og:description" content="专业的血染钟楼剧本生成工具，支持自定义角色配置、剧本导出、多种游戏模式。为血染钟楼爱好者提供便捷的剧本制作体验。" />
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Onion's BOTC Tool - Blood on the Clocktower Script Generator" />
-  <meta name="twitter:description" content="The best bilingual BOTC script generator with professional-grade design. Create custom scripts with ease, featuring intuitive interface, export options, and comprehensive character libraries for Blood on the Clocktower enthusiasts." />
-
-  <!-- 语言相关 -->
-  <script type="module" crossorigin src="/assets/index-Dv2TwX16.js"></script>
-  <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-y2wrX6ue.js">
-  <link rel="modulepreload" crossorigin href="/assets/dnd-vendor-HKLgJs3t.js">
-  <link rel="modulepreload" crossorigin href="/assets/react-vendor-BbDLWN3g.js">
-  <link rel="modulepreload" crossorigin href="/assets/mui-vendor-BLE_uROX.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-GGP2ugNX.css">
+  <title>Onion's Clocktower Tool</title>
+  <script>
+    (function() {
+      var supported = ["zh-CN","en","es"];
+      var defaultLang = 'zh-CN';
+      var browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      var matched = defaultLang;
+      for (var i = 0; i < supported.length; i++) {
+        if (browserLang === supported[i].toLowerCase()) {
+          matched = supported[i];
+          break;
+        }
+      }
+      if (matched === defaultLang) {
+        for (var i = 0; i < supported.length; i++) {
+          if (browserLang.startsWith(supported[i].split('-')[0])) {
+            matched = supported[i];
+            break;
+          }
+        }
+      }
+      window.location.replace('/' + matched + '/');
+    })();
+  </script>
 </head>
-
 <body>
-  <div id="root"></div>
+  <p>Redirecting...</p>
 </body>
-
 </html>

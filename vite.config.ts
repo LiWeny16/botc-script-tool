@@ -4,6 +4,7 @@ import viteCompression from 'vite-plugin-compression'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/', // Absolute paths so assets load from language subdirectories
   plugins: [
     react(),
     // gzip 压缩插件 - 压缩大于 128kb 的文件
@@ -41,5 +42,8 @@ export default defineConfig({
     },
     // 设置警告大小限制
     chunkSizeWarningLimit: 1000,
+  },
+  define: {
+    VITE_GA_MEASUREMENT_ID: JSON.stringify(process.env.VITE_GA_MEASUREMENT_ID || 'G-VB8HT63ZX6'),
   },
 })

@@ -11,6 +11,7 @@
     "b": "tsc -b && vite build",
     "prebuild": "python ./python/generate_manifest.py || py -3 ./python/generate_manifest.py",
     "build": "yarn prebuild && tsc -b && vite build",
+    "postbuild": "node scripts/generate-seo-html.cjs",
     "gen:manifest": "python ./python/generate_manifest.py || py -3 ./python/generate_manifest.py",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -29,7 +30,8 @@
     "overlayscrollbars": "^2.12.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "web-vitals": "^5.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

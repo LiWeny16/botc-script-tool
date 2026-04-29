@@ -35,6 +35,7 @@ import { scriptStore } from '../stores/ScriptStore';
 import { useTranslation } from '../utils/i18n';
 import { alertSuccess, alertInfo, alertWarning } from '../utils/alert';
 import { registerFileSyncSaveCallback, unregisterFileSyncSaveCallback } from '../utils/event';
+import { trackUploadJson } from '../utils/analytics';
 import LanguageSwitcher from './LanguageSwitcher';
 import IOSSwitch from './IOSSwitch';
 import UploadJsonDialog from './UploadJsonDialog';
@@ -290,6 +291,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
         const content = event.target?.result as string;
         handleJsonInputChange(content);
         alertSuccess(t('upload.fileUploaded'), 2000);
+        trackUploadJson();
       };
       reader.onerror = () => {
         alertWarning(t('upload.fileReadError'), 2500);
@@ -376,6 +378,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
   // 简单上传
   const handleSimpleUpload = (content: string) => {
     handleJsonInputChange(content);
+    trackUploadJson();
   };
 
   // 开启文件同步

@@ -22,6 +22,7 @@ import {
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
 import { normalizeCharacterId } from '../data/utils/characterIdMapping';
+import { trackShareScript } from '../utils/analytics';
 
 interface ShareDialogProps {
   open: boolean;
@@ -108,7 +109,7 @@ const ShareDialog = observer(({ open, onClose, script, originalJson, normalizedJ
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      // 可以添加一个成功提示
+      trackShareScript();
     } catch (error) {
       // 降级方案
       const textarea = document.createElement('textarea');

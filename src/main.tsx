@@ -8,7 +8,11 @@ import ScriptRepository from './pages/ScriptRepository.tsx'
 import ScriptPreview from './pages/ScriptPreview.tsx'
 // import NewPreview from './pages/NewPreview.tsx'
 import { I18nProvider } from './utils/i18n.tsx'
+import { initAnalytics, initWebVitals } from './utils/analytics'
 
+// Initialize GA4 page view tracking and web vitals
+initAnalytics();
+initWebVitals();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

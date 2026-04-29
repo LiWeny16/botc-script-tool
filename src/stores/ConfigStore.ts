@@ -4,7 +4,6 @@ import { DEFAULT_LANGUAGE, isSupportedLanguage, normalizeLanguage, type Language
 export interface AppConfig {
   language: Language;
   officialIdParseMode: boolean; // 是否开启官方ID解析模式
-  // 可以在此添加更多配置项
 }
 
 const DEFAULT_CONFIG: AppConfig = {
@@ -20,6 +19,7 @@ class ConfigStore {
   constructor() {
     makeAutoObservable(this);
     this.loadConfig();
+    this.detectLanguageFromPath(); // Highest priority: URL path prefix
     this.detectLanguageFromUrl();
     this.setupUrlListener(); // 监听 URL 变化
   }
@@ -57,6 +57,20 @@ class ConfigStore {
     });
   }
 
+  // 从 URL 路径前缀检测语言（最高优先级）
+  // e.g., /en/#/ or /es/#/repo or /zh-CN/
+  detectLanguageFromPath() {
+    const pathname = window.location.pathname;
+    const match = pathname.match(/^\/(en|es|zh-CN)(?:\/|$)/);
+    if (match && isSupportedLanguage(match[1])) {
+      const lang = match[1] as Language;
+      if (this.config.language !== lang) {
+        this.config.language = lang;
+        this.saveConfig();
+      }
+    }
+  }
+
   // 从 URL 检测并设置语言（支持 hash 路由）
   detectLanguageFromUrl() {
     let langParam: string | null = null;
@@ -65,12 +79,12 @@ class ConfigStore {
     if (window.location.search) {
       const searchParams = new URLSearchParams(window.location.search);
       langParam = searchParams.get('lang');
-      
+
       if (isSupportedLanguage(langParam)) {
         // 找到语言参数，更新配置并清理 hash 前的参数，移到 hash 后面
         this.config.language = langParam;
         this.saveConfig();
-        
+
         // 清理 hash 前的参数，移到 hash 后面
         const newUrl = window.location.pathname + window.location.hash;
         window.history.replaceState({}, '', newUrl);
@@ -82,12 +96,12 @@ class ConfigStore {
     // 2. 再检查 hash 后面的查询参数（如 #/?lang=en）
     const hash = window.location.hash;
     const questionMarkIndex = hash.indexOf('?');
-    
+
     if (questionMarkIndex !== -1) {
       const queryString = hash.substring(questionMarkIndex + 1);
       const params = new URLSearchParams(queryString);
       langParam = params.get('lang');
-      
+
       if (isSupportedLanguage(langParam)) {
         // 从 URL 读取语言，直接更新配置，不再更新 URL（避免循环）
         if (this.config.language !== langParam) {
@@ -97,7 +111,7 @@ class ConfigStore {
         return;
       }
     }
-    
+
     // 3. 如果没有 lang 参数，添加当前语言到 URL
     this.updateUrlLanguage(this.config.language);
   }
@@ -106,15 +120,15 @@ class ConfigStore {
   updateUrlLanguage(lang: Language) {
     const hash = window.location.hash;
     const questionMarkIndex = hash.indexOf('?');
-    
+
     let path = hash;
     let params = new URLSearchParams();
-    
+
     if (questionMarkIndex !== -1) {
       path = hash.substring(0, questionMarkIndex);
       params = new URLSearchParams(hash.substring(questionMarkIndex + 1));
     }
-    
+
     params.set('lang', lang);
     const newHash = `${path}?${params.toString()}`;
     window.history.replaceState({}, '', newHash);
@@ -154,4 +168,3 @@ class ConfigStore {
 
 // 创建单例
 export const configStore = new ConfigStore();
-

@@ -25,6 +25,7 @@ import ScriptRenderer from '../components/ScriptRenderer';
 import { THEME_COLORS, THEME_FONTS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { trackPreviewScript } from '../utils/analytics';
 import type { Script } from '../types';
 import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
@@ -92,6 +93,7 @@ const ScriptPreview = observer(() => {
           setOriginalJson(jsonString);
           const generatedScript = generateScript(jsonString, language);
           setScript(generatedScript);
+          trackPreviewScript({ scriptName: scriptName || 'shared' });
         } catch (err) {
           setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
         } finally {
@@ -124,6 +126,7 @@ const ScriptPreview = observer(() => {
         setOriginalJson(jsonString);
         const generatedScript = generateScript(jsonString, language);
         setScript(generatedScript);
+        trackPreviewScript({ scriptName: decodedName });
       } catch (err) {
         setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
       } finally {

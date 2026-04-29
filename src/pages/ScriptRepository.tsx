@@ -20,6 +20,7 @@ import { searchScripts, type ScriptData } from '../data/utils/scriptRepository';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import { trackOpenRepo } from '../utils/analytics';
 
 type RepoScript = ScriptData & { nameEn?: string };
 
@@ -56,6 +57,10 @@ const ScriptRepository = observer(() => {
       setCategory(urlCategory);
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    trackOpenRepo();
+  }, []);
 
   useEffect(() => {
     const q = searchQuery.toLowerCase();
