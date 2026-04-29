@@ -1,7 +1,18 @@
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
-import { SITE_URL, LANGUAGES, DEFAULT_LANGUAGE, STRUCTURED_DATA } from '../utils/seoData';
+import { SITE_URL, LANGUAGES, DEFAULT_LANGUAGE, STRUCTURED_DATA, OG_IMAGE } from '../utils/seoData';
+
+function setMeta(attr: string, key: string, value: string) {
+  const sel = `meta[${attr}="${key}"]`;
+  let el = document.querySelector(sel) as HTMLMetaElement | null;
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', value);
+}
 
 export const SEOManager = observer(() => {
   const { t, language } = useTranslation();
@@ -14,38 +25,21 @@ export const SEOManager = observer(() => {
     document.documentElement.lang = language;
 
     // 更新meta描述
-    const descriptionMeta = document.querySelector('meta[name="description"]');
-    if (descriptionMeta) {
-      descriptionMeta.setAttribute('content', t('seo.description'));
-    }
+    setMeta('name', 'description', t('seo.description'));
 
     // 更新meta关键词
-    const keywordsMeta = document.querySelector('meta[name="keywords"]');
-    if (keywordsMeta) {
-      keywordsMeta.setAttribute('content', t('seo.keywords'));
-    }
+    setMeta('name', 'keywords', t('seo.keywords'));
 
     // 更新Open Graph标签
-    const ogTitleMeta = document.querySelector('meta[property="og:title"]');
-    if (ogTitleMeta) {
-      ogTitleMeta.setAttribute('content', t('seo.title'));
-    }
-
-    const ogDescriptionMeta = document.querySelector('meta[property="og:description"]');
-    if (ogDescriptionMeta) {
-      ogDescriptionMeta.setAttribute('content', t('seo.description'));
-    }
+    setMeta('property', 'og:title', t('seo.title'));
+    setMeta('property', 'og:description', t('seo.description'));
+    setMeta('property', 'og:url', `${SITE_URL}/${language}/`);
+    setMeta('property', 'og:image', OG_IMAGE);
 
     // 更新Twitter标签
-    const twitterTitleMeta = document.querySelector('meta[name="twitter:title"]');
-    if (twitterTitleMeta) {
-      twitterTitleMeta.setAttribute('content', t('seo.title'));
-    }
-
-    const twitterDescriptionMeta = document.querySelector('meta[name="twitter:description"]');
-    if (twitterDescriptionMeta) {
-      twitterDescriptionMeta.setAttribute('content', t('seo.description'));
-    }
+    setMeta('name', 'twitter:title', t('seo.title'));
+    setMeta('name', 'twitter:description', t('seo.description'));
+    setMeta('name', 'twitter:image', OG_IMAGE);
 
     // 更新 Hreflang 链接
     updateHreflangLinks(language);

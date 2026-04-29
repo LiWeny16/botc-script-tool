@@ -8,24 +8,32 @@ const SITE_URL = 'https://botc.letshare.fun';
 const DEFAULT_LANGUAGE = 'zh-CN';
 const LANGUAGES = ['zh-CN', 'en', 'es'];
 
+const OG_IMAGE = `${SITE_URL}/imgs/screenshots/promo.png`;
+
 const META = {
   'zh-CN': {
     title: 'Onion的钟楼工具 - 血染钟楼剧本生成器',
     description: '专业的血染钟楼剧本生成工具，支持自定义角色配置、剧本导出、多种游戏模式。为血染钟楼爱好者提供便捷的剧本制作体验。',
     keywords: '血染钟楼,剧本生成器,BOTC,Blood on the Clocktower,桌游工具',
     appTitle: 'Onion的钟楼工具',
+    ogLocale: 'zh_CN',
+    ogAlternate: ['en_US', 'es_ES'],
   },
   en: {
     title: "Onion's Clocktower Tool - Blood on the Clocktower Script Generator",
     description: 'Professional Blood on the Clocktower script generation tool with custom character configuration, script export, and multiple game modes. Providing convenient script creation experience for BOTC enthusiasts.',
     keywords: 'Blood on the Clocktower,BOTC,Script Generator,Board Game Tool,Clocktower',
     appTitle: "Onion's Clocktower Tool",
+    ogLocale: 'en_US',
+    ogAlternate: ['zh_CN', 'es_ES'],
   },
   es: {
     title: 'Herramienta para Clocktower de Onion - Generador de guiones de Blood on the Clocktower',
     description: 'Herramienta profesional para generar guiones de Blood on the Clocktower: configuración personalizada de personajes, exportación de guiones y varios modos de juego. Una experiencia cómoda para los aficionados a BOTC.',
     keywords: 'Blood on the Clocktower,BOTC,Generador de guiones,Juego de mesa,Clocktower',
     appTitle: 'Herramienta para Clocktower de Onion',
+    ogLocale: 'es_ES',
+    ogAlternate: ['zh_CN', 'en_US'],
   },
 };
 
@@ -41,6 +49,12 @@ function buildStructuredData(lang) {
     operatingSystem: 'Web',
     author: { '@type': 'Person', name: 'Onion' },
     inLanguage: LANGUAGES,
+    image: OG_IMAGE,
+    dateModified: new Date().toISOString().split('T')[0],
+    areaServed: {
+      '@type': 'GeoShape',
+      name: 'Worldwide',
+    },
   };
 }
 
@@ -61,4 +75,5 @@ module.exports = {
   META,
   STRUCTURED_DATA,
   PAGES,
+  OG_IMAGE,
 };

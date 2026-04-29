@@ -7,7 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { SITE_URL, DEFAULT_LANGUAGE, LANGUAGES, META, STRUCTURED_DATA, PAGES } = require('./seo-config.cjs');
+const { SITE_URL, DEFAULT_LANGUAGE, LANGUAGES, META, STRUCTURED_DATA, PAGES, OG_IMAGE } = require('./seo-config.cjs');
 
 const DOCS_DIR = path.resolve(__dirname, '..', 'docs');
 const BUILT_HTML = path.join(DOCS_DIR, 'index.html');
@@ -27,6 +27,8 @@ function stripDynamicTags(html) {
   // Remove GA gtag scripts (both the async script tag and inline config)
   html = html.replace(/<script async src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=[^"]*"><\/script>\n?/g, '');
   html = html.replace(/<script>\s*window\.dataLayer[\s\S]*?gtag\('config',[^)]*\);\s*<\/script>\n?/g, '');
+  // Remove og:locale:alternate tags (regenerated per-language)
+  html = html.replace(/<meta property="og:locale:alternate" content="[^"]*" \/>\n?/g, '');
   return html;
 }
 
@@ -104,6 +106,38 @@ function generateLanguageHtml(lang, sourceHtml) {
   html = html.replace(
     /<meta name="twitter:description" content="[^"]*"/,
     `<meta name="twitter:description" content="${m.description}"`
+  );
+
+  // Update og:url
+  html = html.replace(
+    /<meta property="og:url" content="[^"]*"/,
+    `<meta property="og:url" content="${SITE_URL}/${lang}/"`
+  );
+
+  // Update og:locale
+  html = html.replace(
+    /<meta property="og:locale" content="[^"]*"[^>]*>/,
+    `<meta property="og:locale" content="${m.ogLocale}" />`
+  );
+
+  // Update og:locale:alternate (remove existing, add new after og:locale)
+  html = html.replace(/<meta property="og:locale:alternate" content="[^"]*"[^>]*>\n?/g, '');
+  const alternateTags = m.ogAlternate.map(l => `  <meta property="og:locale:alternate" content="${l}" />`).join('\n');
+  html = html.replace(
+    /<meta property="og:locale" content="[^"]*"[^>]*>/,
+    `<meta property="og:locale" content="${m.ogLocale}" />\n${alternateTags}`
+  );
+
+  // Update og:image
+  html = html.replace(
+    /<meta property="og:image" content="[^"]*"/,
+    `<meta property="og:image" content="${OG_IMAGE}"`
+  );
+
+  // Update twitter:image
+  html = html.replace(
+    /<meta name="twitter:image" content="[^"]*"/,
+    `<meta name="twitter:image" content="${OG_IMAGE}"`
   );
 
   // Insert hreflang, canonical, JSON-LD, and GA before </head>
