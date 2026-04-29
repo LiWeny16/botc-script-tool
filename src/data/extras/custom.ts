@@ -1,7 +1,7 @@
 import type { Character } from '../../types';
 
 function t<T extends string | string[]>(lang: string, zh: T, en: T, es: T): T {
-    if (lang === 'zh-CN') return zh;
+    if (lang === 'cn') return zh;
     if (lang === 'es') return es;
     return en;
 }

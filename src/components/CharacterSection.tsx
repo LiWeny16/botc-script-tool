@@ -38,7 +38,7 @@ interface CharacterSectionProps {
 
 const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, disableDrag = false, readOnly = false }: CharacterSectionProps) => {
   const { t } = useTranslation();
-  const isChinese = configStore.language === 'zh-CN';
+  const isChinese = configStore.language === 'cn';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {

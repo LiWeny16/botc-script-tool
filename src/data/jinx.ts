@@ -31,7 +31,7 @@ const jinxEn = parseJinxSource(jinxEnData as JinxSourceEntry[]);
 const jinxEs = parseJinxSource(jinxEsData as JinxSourceEntry[]);
 
 const JINX_BY_LANG: Record<Language, Record<string, Record<string, string>>> = {
-  'zh-CN': jinxZh,
+  'cn': jinxZh,
   en: jinxEn,
   es: jinxEs,
 };
@@ -44,7 +44,7 @@ function normalizedPair(charA: string, charB: string): [string, string] {
   return [toZhCanonicalCharacterId(charA), toZhCanonicalCharacterId(charB)];
 }
 
-export function hasJinx(charA: string, charB: string, language: Language = 'zh-CN'): boolean {
+export function hasJinx(charA: string, charB: string, language: Language = 'cn'): boolean {
   const data = getJinxDictionary(language);
   const [ka, kb] = normalizedPair(charA, charB);
   if (ka in data && kb in data[ka]) return true;
@@ -52,7 +52,7 @@ export function hasJinx(charA: string, charB: string, language: Language = 'zh-C
   return false;
 }
 
-export function getJinx(charA: string, charB: string, language: Language = 'zh-CN'): string {
+export function getJinx(charA: string, charB: string, language: Language = 'cn'): string {
   const data = getJinxDictionary(language);
   const [ka, kb] = normalizedPair(charA, charB);
   if (ka in data && kb in data[ka]) return data[ka][kb];

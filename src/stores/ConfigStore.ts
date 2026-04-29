@@ -1,5 +1,5 @@
 import { makeAutoObservable } from 'mobx';
-import { DEFAULT_LANGUAGE, isSupportedLanguage, normalizeLanguage, type Language } from '../utils/languages';
+import { DEFAULT_LANGUAGE, isSupportedLanguage, normalizeLanguage, SUPPORTED_LANGUAGES, type Language } from '../utils/languages';
 
 export interface AppConfig {
   language: Language;
@@ -19,7 +19,6 @@ class ConfigStore {
   constructor() {
     makeAutoObservable(this);
     this.loadConfig();
-    this.detectLanguageFromPath(); // Highest priority: URL path prefix
     this.detectLanguageFromUrl();
     this.setupUrlListener(); // 监听 URL 变化
   }
@@ -57,80 +56,77 @@ class ConfigStore {
     });
   }
 
-  // 从 URL 路径前缀检测语言（最高优先级）
-  // e.g., /en/#/ or /es/#/repo or /zh-CN/
-  detectLanguageFromPath() {
-    const pathname = window.location.pathname;
-    const match = pathname.match(/^\/(en|es|zh-CN)(?:\/|$)/);
-    if (match && isSupportedLanguage(match[1])) {
-      const lang = match[1] as Language;
-      if (this.config.language !== lang) {
-        this.config.language = lang;
-        this.saveConfig();
-      }
+  // 检测浏览器语言，匹配支持的语言
+  detectBrowserLanguage(): Language {
+    const browserLang = (navigator.language || (navigator as any).userLanguage || '').toLowerCase();
+    // 精确匹配（如 en-US → en，zh-CN → zh-CN）
+    for (const lang of SUPPORTED_LANGUAGES) {
+      if (browserLang === lang.toLowerCase()) return lang;
     }
+    // 前缀匹配（如 fr → 无匹配，zh → zh-CN）
+    for (const lang of SUPPORTED_LANGUAGES) {
+      if (browserLang.startsWith(lang.split('-')[0])) return lang;
+    }
+    return DEFAULT_LANGUAGE;
   }
 
-  // 从 URL 检测并设置语言（支持 hash 路由）
+  // 从 URL 检测并设置语言
   detectLanguageFromUrl() {
-    let langParam: string | null = null;
-
-    // 1. 先检查 hash 前面的查询参数（如 ?lang=en#/）
+    // 1. 清理 hash 前的 ?lang= 参数（移到 hash 内）
     if (window.location.search) {
       const searchParams = new URLSearchParams(window.location.search);
-      langParam = searchParams.get('lang');
+      const searchLang = searchParams.get('lang');
+      const newUrl = window.location.pathname + window.location.hash;
+      window.history.replaceState({}, '', newUrl);
 
-      if (isSupportedLanguage(langParam)) {
-        // 找到语言参数，更新配置并清理 hash 前的参数，移到 hash 后面
-        this.config.language = langParam;
+      if (isSupportedLanguage(searchLang)) {
+        this.config.language = searchLang;
         this.saveConfig();
-
-        // 清理 hash 前的参数，移到 hash 后面
-        const newUrl = window.location.pathname + window.location.hash;
-        window.history.replaceState({}, '', newUrl);
-        this.updateUrlLanguage(langParam);
+        this.updateUrlLanguage(searchLang);
         return;
       }
     }
 
-    // 2. 再检查 hash 后面的查询参数（如 #/?lang=en）
+    // 2. 检查 hash 内的 ?lang= 参数
     const hash = window.location.hash;
     const questionMarkIndex = hash.indexOf('?');
 
     if (questionMarkIndex !== -1) {
-      const queryString = hash.substring(questionMarkIndex + 1);
-      const params = new URLSearchParams(queryString);
-      langParam = params.get('lang');
+      const params = new URLSearchParams(hash.substring(questionMarkIndex + 1));
+      const hashLang = params.get('lang');
 
-      if (isSupportedLanguage(langParam)) {
-        // 从 URL 读取语言，直接更新配置，不再更新 URL（避免循环）
-        if (this.config.language !== langParam) {
-          this.config.language = langParam;
+      if (isSupportedLanguage(hashLang)) {
+        if (this.config.language !== hashLang) {
+          this.config.language = hashLang;
           this.saveConfig();
         }
         return;
       }
     }
 
-    // 3. 如果没有 lang 参数，添加当前语言到 URL
-    this.updateUrlLanguage(this.config.language);
+    // 3. 首次访问（无 localStorage、无 ?lang=）：检测浏览器语言
+    const browserLang = this.detectBrowserLanguage();
+    if (this.config.language !== browserLang) {
+      this.config.language = browserLang;
+      this.saveConfig();
+    }
+    this.updateUrlLanguage(browserLang);
   }
 
-  // 更新 URL 中的语言参数（支持 hash 路由）
+  // 更新 URL 中的语言参数
   updateUrlLanguage(lang: Language) {
     const hash = window.location.hash;
     const questionMarkIndex = hash.indexOf('?');
-
-    let path = hash;
+    let hashPath = hash;
     let params = new URLSearchParams();
 
     if (questionMarkIndex !== -1) {
-      path = hash.substring(0, questionMarkIndex);
+      hashPath = hash.substring(0, questionMarkIndex);
       params = new URLSearchParams(hash.substring(questionMarkIndex + 1));
     }
 
     params.set('lang', lang);
-    const newHash = `${path}?${params.toString()}`;
+    const newHash = `${hashPath}?${params.toString()}`;
     window.history.replaceState({}, '', newHash);
   }
 

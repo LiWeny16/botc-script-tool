@@ -37,7 +37,7 @@ const AddCustomRuleDialog = ({
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const templates = getAllSpecialRuleTemplates();
   const getTemplateText = (text?: SpecialRuleTemplate['title']): string =>
-    text?.[language] || text?.en || text?.['zh-CN'] || '';
+    text?.[language] || text?.en || text?.['cn'] || '';
 
   const handleAdd = () => {
     if (selectedType) {

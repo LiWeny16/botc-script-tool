@@ -56,7 +56,7 @@ const CustomJinxDialog = observer(({
           setDescription(
             editingJinx.description[language] ||
             editingJinx.description.en ||
-            editingJinx.description['zh-CN'] ||
+            editingJinx.description['cn'] ||
             ''
           );
         }

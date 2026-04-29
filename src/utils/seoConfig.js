@@ -5,15 +5,18 @@
  */
 
 export const SITE_URL = 'https://botc.letshare.fun';
-export const DEFAULT_LANGUAGE = 'zh-CN';
-export const LANGUAGES = ['zh-CN', 'en', 'es'];
+export const DEFAULT_LANGUAGE = 'en';
+export const LANGUAGES = ['cn', 'en', 'es'];
+
+// 内部语言码 → BCP 47 标准码（用于 HTML lang 属性）
+export const LANG_TO_BCP47 = { cn: 'zh-CN', en: 'en', es: 'es' };
 
 export const OG_IMAGE = `${SITE_URL}/imgs/images/screenshots/promo-gpt.png`;
 export const OG_IMAGE_WIDTH = 1731;
 export const OG_IMAGE_HEIGHT = 909;
 
 export const META = {
-  'zh-CN': {
+  cn: {
     title: 'Onion的钟楼工具 - 血染钟楼板子美化器与自定义剧本工具',
     description:
       '免费血染钟楼板子美化器和自定义剧本工具，支持导入官方 JSON、编辑角色与相克关系、特殊规则、双页排版，并导出 PDF、图片和多语言 JSON。',
@@ -130,7 +133,7 @@ function buildStructuredData(lang) {
         name: m.appTitle,
         alternateName: m.title,
         description: m.description,
-        url: `${SITE_URL}/${lang}/`,
+        url: `${SITE_URL}/`,
         applicationCategory: 'GameApplication',
         operatingSystem: 'Web',
         author: { '@type': 'Person', name: 'Onion' },

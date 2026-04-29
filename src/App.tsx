@@ -265,7 +265,7 @@ const App = observer(() => {
           // 这里只需要显示保存成功的提示
           const stored = localStorage.getItem('botc-script-data');
           if (stored) {
-            const message = language === 'zh-CN'
+            const message = language === 'cn'
               ? `已保存到本地存储`
               : language === 'es'
                 ? `Guardado en almacenamiento local`
@@ -274,7 +274,7 @@ const App = observer(() => {
           }
         } catch (error) {
           console.error('JSON格式错误:', error);
-          const message = language === 'zh-CN'
+          const message = language === 'cn'
             ? '✗ JSON格式错误，无法保存'
             : language === 'es'
               ? '✗ Formato JSON no válido'
@@ -283,7 +283,7 @@ const App = observer(() => {
         }
       } else {
         console.log('没有可保存的JSON数据');
-        const message = language === 'zh-CN'
+        const message = language === 'cn'
           ? '⚠ 没有可保存的JSON'
           : language === 'es'
             ? '⚠ No hay JSON para guardar'
@@ -610,15 +610,15 @@ const App = observer(() => {
         newRule = {
           id: `custom_rule_${Date.now()}`,
           title: {
-            'zh-CN': template.title['zh-CN'] || '',
-            'en': template.title['en'] || template.title['zh-CN'] || '',
-            'es': template.title['es'] || template.title['en'] || template.title['zh-CN'] || '',
+            'cn': template.title['cn'] || '',
+            'en': template.title['en'] || template.title['cn'] || '',
+            'es': template.title['es'] || template.title['en'] || template.title['cn'] || '',
           },
           team: "special_rule",
           content: {
-            'zh-CN': template.content['zh-CN'] || '',
-            'en': template.content['en'] || template.content['zh-CN'] || '',
-            'es': template.content['es'] || template.content['en'] || template.content['zh-CN'] || '',
+            'cn': template.content['cn'] || '',
+            'en': template.content['en'] || template.content['cn'] || '',
+            'es': template.content['es'] || template.content['en'] || template.content['cn'] || '',
           },
           sourceType: 'special_rule' as const,
           sourceIndex: 0,
@@ -628,13 +628,13 @@ const App = observer(() => {
         newRule = {
           id: `custom_rule_${Date.now()}`,
           title: {
-            'zh-CN': '新规则',
+            'cn': '新规则',
             'en': 'New Rule',
             'es': 'Nueva regla',
           },
           team: "special_rule",
           content: {
-            'zh-CN': '请输入规则内容...',
+            'cn': '请输入规则内容...',
             'en': 'Enter rule content...',
             'es': 'Introduce el contenido de la regla...',
           },
@@ -756,7 +756,7 @@ const App = observer(() => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      const langSuffix = language === 'zh-CN'
+      const langSuffix = language === 'cn'
         ? t('export.chineseLang')
         : language === 'es'
           ? t('export.spanishLang')
@@ -1177,7 +1177,7 @@ const App = observer(() => {
             variant="contained"
             endIcon={<OpenInNewIcon />}
             onClick={() => {
-              const url = language === 'zh-CN'
+              const url = language === 'cn'
                 ? 'https://www.ilovepdf.com/zh-cn/pdf_to_jpg'
                 : language === 'es'
                   ? 'https://www.ilovepdf.com/es/pdf_a_jpg'

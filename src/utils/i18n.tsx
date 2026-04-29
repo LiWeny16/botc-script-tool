@@ -17,7 +17,7 @@ const I18nContext = createContext<I18nContextType | null>(null);
 export const I18nProvider: React.FC<{ children: ReactNode }> = observer(({ children }) => {
   const t = (key: TranslationKey): string => {
     const lang = configStore.language;
-    return translations[lang]?.[key] || translations.en[key] || translations['zh-CN'][key] || key;
+    return translations[lang]?.[key] || translations.en[key] || translations.cn[key] || key;
   };
 
   const setLanguage = (lang: Language) => {

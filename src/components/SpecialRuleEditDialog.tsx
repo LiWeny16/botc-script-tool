@@ -43,7 +43,7 @@ const SpecialRuleEditDialog = ({
   const extractText = (text: string | I18nText | undefined): string => {
     if (!text) return '';
     if (typeof text === 'string') return text;
-    return text[language] || text['zh-CN'] || text['en'] || text.es || '';
+    return text[language] || text['cn'] || text['en'] || text.es || '';
   };
 
   // 当 rule 或 language 变化时更新表单数据
@@ -56,7 +56,7 @@ const SpecialRuleEditDialog = ({
 
       const content = rule.content;
       if (content && typeof content !== 'string') {
-        setContentZh(content['zh-CN'] ?? '');
+        setContentZh(content['cn'] ?? '');
         setContentEn(content['en'] ?? '');
         setContentEs(content.es ?? '');
       } else {
@@ -77,11 +77,11 @@ const SpecialRuleEditDialog = ({
         // 如果旧值是字符串，需要转换为 I18nText 对象
         if (typeof oldText === 'string' || !oldText) {
           // 如果是中文环境，只保存中文
-          if (language === 'zh-CN') {
+          if (language === 'cn') {
             return newValue;
           }
           // 非中文环境，创建 I18nText 对象并只更新当前语言
-          const nextText: I18nText = { 'zh-CN': oldText || '' };
+          const nextText: I18nText = { 'cn': oldText || '' };
           nextText[language] = newValue;
           return nextText;
         }
@@ -91,8 +91,8 @@ const SpecialRuleEditDialog = ({
         result[language] = newValue;
 
         // 如果只有一个语言有值，简化为字符串（向后兼容）
-        if (result['zh-CN'] && !result['en'] && !result.es) {
-          return result['zh-CN'];
+        if (result['cn'] && !result['en'] && !result.es) {
+          return result['cn'];
         }
 
         return result;
@@ -102,7 +102,7 @@ const SpecialRuleEditDialog = ({
         ...rule,
         title: updateI18nText(rule.title, formData.title),
         content: {
-          'zh-CN': contentZh,
+          'cn': contentZh,
           'en': contentEn,
           'es': contentEs,
         },
@@ -166,7 +166,7 @@ const SpecialRuleEditDialog = ({
             onChange={(e) => {
               const value = e.target.value;
               setFormData((prev) => ({ ...prev, content: value }));
-              if (language === 'zh-CN') {
+              if (language === 'cn') {
                 setContentZh(value);
               } else if (language === 'en') {
                 setContentEn(value);

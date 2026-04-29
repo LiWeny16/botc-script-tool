@@ -43,7 +43,7 @@ const spanishOverrides = new Map(
 export function buildCoreCanonicalBases(): CanonicalCharacterBase[] {
   return (rolesData as Record<string, unknown>[]).map((role) => {
     const id = role.id as string;
-    const cnId = normalizeCharacterId(id, 'zh-CN');
+    const cnId = normalizeCharacterId(id, 'cn');
     // ZH_CORE 为历史大包，条目不保证满足 Character 完整类型
     const zhChar = (ZH_CORE_CHARACTERS as unknown as Record<string, Character | undefined>)[cnId];
     const esRow = spanishOverrides.get(id);
@@ -60,7 +60,7 @@ export function buildCoreCanonicalBases(): CanonicalCharacterBase[] {
       teamColor: zhChar?.teamColor,
       locales: {
         en: partialLocaleFromRole(role),
-        'zh-CN': zhChar ? partialLocaleFromCharacter(zhChar) : undefined,
+        'cn': zhChar ? partialLocaleFromCharacter(zhChar) : undefined,
         es: esRow
           ? {
               ...(esRow.name !== undefined ? { name: esRow.name } : {}),
@@ -106,19 +106,19 @@ export function getMergedCharacterDictionary(language: Language): Record<string,
   return mergedDictCache[language]!;
 }
 
-export const CHARACTERS = getMergedCharacterDictionary('zh-CN');
+export const CHARACTERS = getMergedCharacterDictionary('cn');
 export const CHARACTERS_EN = getMergedCharacterDictionary('en');
 export const CHARACTERS_ES = getMergedCharacterDictionary('es');
 
 const CHARACTER_DICTIONARIES: Record<Language, Record<string, Character>> = {
-  'zh-CN': CHARACTERS,
+  'cn': CHARACTERS,
   en: CHARACTERS_EN,
   es: CHARACTERS_ES,
 };
 
 /** 按界面语言取完整角色表（含扩展），与 {@link getMergedCharacterDictionary} 等价 */
 export function getCharacterDictionary(language: Language): Record<string, Character> {
-  return CHARACTER_DICTIONARIES[language] ?? CHARACTER_DICTIONARIES['zh-CN'];
+  return CHARACTER_DICTIONARIES[language] ?? CHARACTER_DICTIONARIES['cn'];
 }
 
 export function getAllCharacterDictionaries(): Array<[Language, Record<string, Character>]> {

@@ -88,14 +88,14 @@ export function resolveLocale(
   language: Language,
 ): CharacterLocale {
   if (language === 'es') {
-    const enFilled = mergeLocale(locales['en'], locales['zh-CN']);
+    const enFilled = mergeLocale(locales['en'], locales['cn']);
     return mergeLocale(locales['es'], enFilled);
   }
   if (language === 'en') {
-    return mergeLocale(locales['en'], locales['zh-CN']);
+    return mergeLocale(locales['en'], locales['cn']);
   }
   // zh-CN：先用中文，缺失字段从英文补充
-  return mergeLocale(locales['zh-CN'], locales['en']);
+  return mergeLocale(locales['cn'], locales['en']);
 }
 
 /** 将 CanonicalCharacterBase 按指定语言构建为运行时 Character */

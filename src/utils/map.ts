@@ -2,7 +2,7 @@ import type { Language } from './languages';
 
 // i18n 翻译映射表
 const baseTranslations = {
-  'zh-CN': {
+  cn: {
     // 通用
     'common.back': '返回',
     'common.loading': '加载中...',
@@ -913,7 +913,7 @@ const baseTranslations = {
 };
 
 // 类型定义
-export type TranslationKey = keyof (typeof baseTranslations)['zh-CN'];
+export type TranslationKey = keyof (typeof baseTranslations)['cn'];
 
 const spanishTranslations: Partial<Record<TranslationKey, string>> = {
   // General

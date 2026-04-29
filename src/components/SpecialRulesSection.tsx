@@ -37,7 +37,7 @@ const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile }: SpecialRules
     if (!text) return '';
     if (typeof text === 'string') return text;
     // 优先使用当前语言；非中文环境优先回退英文，避免西语模式掉回中文。
-    return text[language] || (language === 'zh-CN' ? text['en'] : text['en'] || text['zh-CN']) || '';
+    return text[language] || (language === 'cn' ? text['en'] : text['en'] || text['cn']) || '';
   };
 
   return (
@@ -177,7 +177,7 @@ const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile }: SpecialRules
                     fontFamily: uiConfigStore.specialRuleContentFont,
                     color: '#5a4a3a',
                     fontSize: contentFontSize,
-                    lineHeight: language !== 'zh-CN' ? 1 : 1.3,
+                    lineHeight: language !== 'cn' ? 1 : 1.3,
                     textAlign: 'justify',
                     wordBreak: 'break-word',
                     whiteSpace: 'pre-wrap',

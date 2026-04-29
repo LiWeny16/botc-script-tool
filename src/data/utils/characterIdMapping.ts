@@ -36,7 +36,7 @@ Object.entries(CN_TO_EN_ID_MAP).forEach(([cnId, enId]) => {
 
 // 统一化角色ID的函数
 export function normalizeCharacterId(id: string, targetLanguage: Language): string {
-  if (targetLanguage === 'zh-CN') {
+  if (targetLanguage === 'cn') {
     // 转换为中文ID
     return EN_TO_CN_ID_MAP[id] || id;
   } else {
@@ -57,7 +57,7 @@ export function toOfficialEnCharacterId(id: string): string {
  * 转为中文规范 id（下划线/连字符形式），与 `ZH_CORE_CHARACTERS` 键、jinx 表键、图标路径段一致。
  */
 export function toZhCanonicalCharacterId(id: string): string {
-  return normalizeCharacterId(id, 'zh-CN');
+  return normalizeCharacterId(id, 'cn');
 }
 
 // 检查两个ID是否指向同一个角色

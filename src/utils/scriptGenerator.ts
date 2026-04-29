@@ -23,7 +23,7 @@ import type { Language } from './languages';
 function findCharacterIdByName(
   name: string,
   charactersDict: Record<string, Character>,
-  language: Language = 'zh-CN',
+  language: Language = 'cn',
   skipCrossLanguageSearch: boolean = false
 ): string | null {
   // 1. 优先查找当前语言字典的Name（核心场景）
@@ -125,7 +125,7 @@ function getCharacterDictKey(
   officialIdParseMode: boolean = false
 ): { dictKey: string; found: boolean } {
   // 非中文模式：优先基于 id，回退到 name（支持跨语言查找）
-  if (language !== 'zh-CN') {
+  if (language !== 'cn') {
     // 1. 使用 id 字段查找（精确匹配优先）
     let dictKey = item.id;
 
@@ -149,7 +149,7 @@ function getCharacterDictKey(
       }
 
       // 2.2 尝试在中文库中通过 name 查找（可能是中文name），然后转换为英文ID
-      const cnId = findCharacterIdByName(item.name, CHARACTERS, 'zh-CN');
+      const cnId = findCharacterIdByName(item.name, CHARACTERS, 'cn');
       if (cnId) {
         // 将中文 ID 转换为英文 ID
         const enFound = getCharacterInDictionary(charactersDict, cnId);
@@ -191,7 +191,7 @@ function getCharacterDictKey(
 }
 
 // 解析 JSON 并生成剧本对象
-export function generateScript(jsonString: string, language: Language = 'zh-CN'): Script {
+export function generateScript(jsonString: string, language: Language = 'cn'): Script {
   const json = JSON.parse(jsonString);
 
   if (!Array.isArray(json)) {
@@ -639,9 +639,9 @@ export function generateScript(jsonString: string, language: Language = 'zh-CN')
   for (const charA of script.all) {
     for (const charB of script.all) {
       if (charA.id !== charB.id) {
-        // 相克数据字典 key 统一为 normalizeCharacterId(id, 'zh-CN')
-        const keyA = normalizeCharacterId(charA.id, 'zh-CN');
-        const keyB = normalizeCharacterId(charB.id, 'zh-CN');
+        // 相克数据字典 key 统一为 normalizeCharacterId(id, 'cn')
+        const keyA = normalizeCharacterId(charA.id, 'cn');
+        const keyB = normalizeCharacterId(charB.id, 'cn');
 
         if (hasJinx(keyA, keyB, language)) {
           // 存储相克关系：统一使用角色的name字段作为key
@@ -672,7 +672,7 @@ export function generateScript(jsonString: string, language: Language = 'zh-CN')
 }
 
 // 高亮能力文本中的关键词
-export function highlightAbilityText(text: string, language: Language = 'zh-CN'): string {
+export function highlightAbilityText(text: string, language: Language = 'cn'): string {
   // 防御性检查：如果 text 为 undefined 或 null，返回空字符串
   if (!text) {
     return '';
@@ -733,9 +733,9 @@ export function highlightAbilityText(text: string, language: Language = 'zh-CN')
   const purpleKeywordsES = ['Viajero', 'Viajeros', 'loco', 'locura'];
 
   // 根据语言选择对应的关键词列表
-  let redKeywords = language === 'zh-CN' ? redKeywordsCN : language === 'es' ? redKeywordsES : redKeywordsEN;
-  let blueKeywords = language === 'zh-CN' ? blueKeywordsCN : language === 'es' ? blueKeywordsES : blueKeywordsEN;
-  let purpleKeywords = language === 'zh-CN' ? purpleKeywordsCN : language === 'es' ? purpleKeywordsES : purpleKeywordsEN;
+  let redKeywords = language === 'cn' ? redKeywordsCN : language === 'es' ? redKeywordsES : redKeywordsEN;
+  let blueKeywords = language === 'cn' ? blueKeywordsCN : language === 'es' ? blueKeywordsES : blueKeywordsEN;
+  let purpleKeywords = language === 'cn' ? purpleKeywordsCN : language === 'es' ? purpleKeywordsES : purpleKeywordsEN;
 
   // 转义正则表达式特殊字符的辅助函数
   const escapeRegex = (str: string) => {
@@ -743,7 +743,7 @@ export function highlightAbilityText(text: string, language: Language = 'zh-CN')
   };
 
   // 英文需要按长度排序（长的在前），避免短词先被替换导致长短语无法匹配
-  if (language !== 'zh-CN') {
+  if (language !== 'cn') {
     redKeywords = [...redKeywords].sort((a, b) => b.length - a.length);
     blueKeywords = [...blueKeywords].sort((a, b) => b.length - a.length);
     purpleKeywords = [...purpleKeywords].sort((a, b) => b.length - a.length);
@@ -752,7 +752,7 @@ export function highlightAbilityText(text: string, language: Language = 'zh-CN')
   let result = text;
 
   // 英文需要使用单词边界匹配，中文直接替换
-  if (language !== 'zh-CN') {
+  if (language !== 'cn') {
     // 拉丁字母语言：使用正则表达式确保只匹配完整单词
     redKeywords.forEach((keyword) => {
       const escapedKeyword = escapeRegex(keyword);

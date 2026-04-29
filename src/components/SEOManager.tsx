@@ -11,6 +11,7 @@ import {
   OG_IMAGE_HEIGHT,
   META,
 } from '../utils/seoConfig';
+import { LANG_TO_BCP47 } from '../utils/languages';
 
 function setMeta(attr: string, key: string, value: string) {
   const sel = `meta[${attr}="${key}"]`;
@@ -32,8 +33,8 @@ export const SEOManager = observer(() => {
     // 更新页面标题
     document.title = m.title;
 
-    // 更新HTML lang属性
-    document.documentElement.lang = language;
+    // 更新HTML lang属性（使用 BCP 47 标准码）
+    document.documentElement.lang = LANG_TO_BCP47[language as keyof typeof LANG_TO_BCP47] ?? language;
 
     // 更新meta描述
     setMeta('name', 'description', m.description);
@@ -44,7 +45,7 @@ export const SEOManager = observer(() => {
     // 更新Open Graph标签
     setMeta('property', 'og:title', m.title);
     setMeta('property', 'og:description', m.description);
-    setMeta('property', 'og:url', `${SITE_URL}/${language}/`);
+    setMeta('property', 'og:url', SITE_URL);
     setMeta('property', 'og:image', OG_IMAGE);
     setMeta('property', 'og:image:width', String(OG_IMAGE_WIDTH));
     setMeta('property', 'og:image:height', String(OG_IMAGE_HEIGHT));
@@ -77,26 +78,26 @@ function updateHreflangLinks(currentLang: string) {
   for (const lang of LANGUAGES) {
     const link = document.createElement('link');
     link.rel = 'alternate';
-    link.setAttribute('hreflang', lang);
-    link.href = `${SITE_URL}/${lang}/`;
+    link.setAttribute('hreflang', LANG_TO_BCP47[lang as keyof typeof LANG_TO_BCP47] || lang);
+    link.href = SITE_URL;
     document.head.appendChild(link);
   }
 
   const xDefault = document.createElement('link');
   xDefault.rel = 'alternate';
   xDefault.setAttribute('hreflang', 'x-default');
-  xDefault.href = `${SITE_URL}/${DEFAULT_LANGUAGE}/`;
+  xDefault.href = SITE_URL;
   document.head.appendChild(xDefault);
 }
 
-function updateCanonical(lang: string) {
+function updateCanonical(_lang: string) {
   let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
   if (!canonical) {
     canonical = document.createElement('link');
     canonical.rel = 'canonical';
     document.head.appendChild(canonical);
   }
-  canonical.href = `${SITE_URL}/${lang}/`;
+  canonical.href = SITE_URL;
 }
 
 function updateJsonLd(lang: string) {

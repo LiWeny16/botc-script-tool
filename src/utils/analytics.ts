@@ -28,7 +28,7 @@ function getLanguage(): string {
   try {
     return configStore.language;
   } catch {
-    return 'zh-CN';
+    return 'cn';
   }
 }
 

@@ -12,6 +12,7 @@ import {
   SITE_URL,
   DEFAULT_LANGUAGE,
   LANGUAGES,
+  LANG_TO_BCP47,
   META,
   STRUCTURED_DATA,
   PAGES,
@@ -52,9 +53,9 @@ function stripDynamicTags(html) {
 function buildHreflangLinks() {
   let links = '';
   for (const lang of LANGUAGES) {
-    links += `  <link rel="alternate" hreflang="${lang}" href="${SITE_URL}/${lang}/" />\n`;
+    links += `  <link rel="alternate" hreflang="${LANG_TO_BCP47[lang] || lang}" href="${SITE_URL}/" />\n`;
   }
-  links += `  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/${DEFAULT_LANGUAGE}/" />\n`;
+  links += `  <link rel="alternate" hreflang="x-default" href="${SITE_URL}/" />\n`;
   return links;
 }
 
@@ -83,8 +84,8 @@ function generateLanguageHtml(lang, sourceHtml) {
   // Strip tags that will be regenerated per-language
   html = stripDynamicTags(html);
 
-  // Update html lang attribute
-  html = html.replace(/<html lang="[^"]*">/, `<html lang="${lang}">`);
+  // Update html lang attribute (BCP 47)
+  html = html.replace(/<html lang="[^"]*">/, `<html lang="${LANG_TO_BCP47[lang] || lang}">`);
 
   // Update title
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${m.title}</title>`);
@@ -116,7 +117,7 @@ function generateLanguageHtml(lang, sourceHtml) {
   // Update og:url
   html = html.replace(
     /<meta property="og:url" content="[^"]*"/,
-    `<meta property="og:url" content="${SITE_URL}/${lang}/"`,
+    `<meta property="og:url" content="${SITE_URL}/"`,
   );
 
   // Update og:locale
@@ -165,7 +166,7 @@ function generateLanguageHtml(lang, sourceHtml) {
 
   // Insert hreflang, canonical, JSON-LD, and GA before </head>
   const hreflangBlock = buildHreflangLinks();
-  const canonicalLink = `  <link rel="canonical" href="${SITE_URL}/${lang}/" />`;
+  const canonicalLink = `  <link rel="canonical" href="${SITE_URL}/" />`;
   const jsonLd = buildJsonLd(lang);
   const gaScript = buildGaScript();
 
@@ -177,64 +178,22 @@ function generateLanguageHtml(lang, sourceHtml) {
   return html;
 }
 
-function generateRedirectorHtml() {
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>${META[DEFAULT_LANGUAGE].title}</title>
-  <meta name="description" content="${META[DEFAULT_LANGUAGE].description}" />
-  <script>
-    (function() {
-      var supported = ${JSON.stringify(LANGUAGES)};
-      var defaultLang = '${DEFAULT_LANGUAGE}';
-      var browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-      var matched = defaultLang;
-      for (var i = 0; i < supported.length; i++) {
-        if (browserLang === supported[i].toLowerCase()) {
-          matched = supported[i];
-          break;
-        }
-      }
-      if (matched === defaultLang) {
-        for (var i = 0; i < supported.length; i++) {
-          if (browserLang.startsWith(supported[i].split('-')[0])) {
-            matched = supported[i];
-            break;
-          }
-        }
-      }
-      window.location.replace('/' + matched + '/');
-    })();
-  </script>
-</head>
-<body>
-  <p>Redirecting...</p>
-</body>
-</html>`;
-}
-
 function generateSitemapXml() {
   let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
   xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n';
   xml += '        xmlns:xhtml="http://www.w3.org/1999/xhtml">\n';
 
   for (const page of PAGES) {
+    const loc = page.path === '/' ? `${SITE_URL}/` : `${SITE_URL}${page.path}`;
+    xml += '  <url>\n';
+    xml += `    <loc>${loc}</loc>\n`;
     for (const lang of LANGUAGES) {
-      const loc = page.path === '/' ? `${SITE_URL}/${lang}/` : `${SITE_URL}/${lang}${page.path}`;
-      xml += '  <url>\n';
-      xml += `    <loc>${loc}</loc>\n`;
-      for (const altLang of LANGUAGES) {
-        const altHref = page.path === '/' ? `${SITE_URL}/${altLang}/` : `${SITE_URL}/${altLang}${page.path}`;
-        xml += `    <xhtml:link rel="alternate" hreflang="${altLang}" href="${altHref}"/>\n`;
-      }
-      const xDefault = page.path === '/' ? `${SITE_URL}/${DEFAULT_LANGUAGE}/` : `${SITE_URL}/${DEFAULT_LANGUAGE}${page.path}`;
-      xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${xDefault}"/>\n`;
-      xml += `    <priority>${page.priority}</priority>\n`;
-      xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
-      xml += '  </url>\n';
+      xml += `    <xhtml:link rel="alternate" hreflang="${LANG_TO_BCP47[lang] || lang}" href="${loc}"/>\n`;
     }
+    xml += `    <xhtml:link rel="alternate" hreflang="x-default" href="${loc}"/>\n`;
+    xml += `    <priority>${page.priority}</priority>\n`;
+    xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
+    xml += '  </url>\n';
   }
 
   xml += '</urlset>\n';
@@ -261,22 +220,10 @@ function main() {
   console.log('[generate-seo-html] Reading built HTML...');
   const sourceHtml = readBuiltHtml();
 
-  for (const lang of LANGUAGES) {
-    const langDir = path.join(DOCS_DIR, lang);
-    if (!DRY_RUN && !fs.existsSync(langDir)) {
-      fs.mkdirSync(langDir, { recursive: true });
-    }
-
-    const langHtml = generateLanguageHtml(lang, sourceHtml);
-    const outPath = path.join(langDir, 'index.html');
-    writeFile(outPath, langHtml);
-    console.log(`[generate-seo-html] Written: ${lang}/index.html`);
-  }
-
-  // Rewrite root index.html as language-detection redirector
-  const redirectorHtml = generateRedirectorHtml();
-  writeFile(BUILT_HTML, redirectorHtml);
-  console.log('[generate-seo-html] Written: index.html (redirector)');
+  // Generate a single root index.html with default language (en) SEO tags
+  const rootHtml = generateLanguageHtml(DEFAULT_LANGUAGE, sourceHtml);
+  writeFile(BUILT_HTML, rootHtml);
+  console.log('[generate-seo-html] Written: index.html (single language-neutral page)');
 
   // Generate sitemap.xml
   const sitemapXml = generateSitemapXml();
