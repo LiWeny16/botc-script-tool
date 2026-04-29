@@ -1,0 +1,46 @@
+{
+  "name": "botc-script-design-knowledge",
+  "version": 1,
+  "updatedAt": "2026-04-30",
+  "purpose": "Personal source-linked knowledge base for AI-assisted Blood on the Clocktower script generation and review.",
+  "entrypoints": [
+    "knowledge/botc/README.md",
+    "knowledge/botc/sources.md",
+    "knowledge/botc/core-rules.md",
+    "knowledge/botc/mechanics-ontology.md",
+    "knowledge/botc/script-design.md",
+    "knowledge/botc/ai-generation-playbook.md",
+    "knowledge/botc/data-contract.md"
+  ],
+  "localData": {
+    "characters": "src/data/sources/roles.json",
+    "jinxEn": "src/data/sources/jinxEn.json",
+    "jinxZh": "src/data/sources/jinxZh.json",
+    "canonicalBuilder": "src/data/canonicalCharacters.ts"
+  },
+  "sourcePolicy": {
+    "bulkScraping": false,
+    "storeOfficialPageCopies": false,
+    "storeOfficialVisualAssets": false,
+    "storeSourceUrls": true,
+    "labelUnofficialOutputs": true
+  },
+  "sources": [
+    {
+      "id": "tpi-script-wiki",
+      "url": "https://wiki.bloodontheclocktower.com/Script_Tool"
+    },
+    {
+      "id": "tpi-scripts-page",
+      "url": "https://bloodontheclocktower.com/pages/script-and-wiki"
+    },
+    {
+      "id": "tpi-terms",
+      "url": "https://bloodontheclocktower.com/pages/legal-terms-of-use"
+    },
+    {
+      "id": "tpi-app-schema",
+      "url": "https://github.com/ThePandemoniumInstitute/botc-release/blob/main/script-schema.json"
+    }
+  ]
+}
