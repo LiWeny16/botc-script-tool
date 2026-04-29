@@ -108,7 +108,7 @@ export const getLoricCharacters = (language: string): Character[] => {
             name: t(language, '教皇', 'Pope', 'Papa'),
             ability: t(language, "场上存在重复的善良角色。它们可能也是伪装身份。", "There are duplicate good characters in play. They might also be bluffs.", 'Hay personajes buenos duplicados en juego. También pueden ser faroles.'),
             team: 'loric',
-            image: 'https://botc.letshare.fun/imgs/icons/Loric/pope_loric.png',
+            image: 'https://botc.letshare.fun/imgs/icons/Loric/pope_loric.webp',
             firstNight: 0,
             otherNight: 0,
             firstNightReminder: '',
