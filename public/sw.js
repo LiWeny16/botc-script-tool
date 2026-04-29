@@ -1,4 +1,4 @@
-const CACHE_NAME = 'botc-static-v1';
+const CACHE_NAME = 'botc-static-v2';
 
 // 本地资源匹配（pathname）
 const LOCAL_PATTERNS = [
@@ -20,6 +20,15 @@ function shouldCache(url) {
   const pattern = EXTERNAL_HOSTS[host];
   return pattern ? pattern.test(pathname) : false;
 }
+
+// 新版本激活时清除旧缓存
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k))),
+    ),
+  );
+});
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
