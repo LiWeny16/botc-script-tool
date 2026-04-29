@@ -1,35 +1,147 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/32x32.ico" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Onion的钟楼工具 - 血染钟楼板子美化器与自定义剧本工具</title>
-  <meta name="description" content="免费血染钟楼板子美化器和自定义剧本工具，支持导入官方 JSON、编辑角色与相克关系、特殊规则、双页排版，并导出 PDF、图片和多语言 JSON。" />
-  <script>
-    (function() {
-      var supported = ["zh-CN","en","es"];
-      var defaultLang = 'zh-CN';
-      var browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
-      var matched = defaultLang;
-      for (var i = 0; i < supported.length; i++) {
-        if (browserLang === supported[i].toLowerCase()) {
-          matched = supported[i];
-          break;
-        }
+
+  <!-- 基础SEO标签 -->
+  <title>Onion's Clocktower Tool - BOTC Script Generator and Layout Beautifier</title>
+  <meta name="description" content="Free BOTC script generator and layout beautifier for Blood on the Clocktower. Import official JSON, edit characters, custom jinxes and special rules, then export PDF, image workflow and multilingual JSON." />
+  <meta name="keywords" content="Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,Clocktower script maker,custom BOTC script,custom jinx relationships,how to customize BOTC jinx,script JSON,board game tool" />
+  <meta name="author" content="Onion" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Onion's Clocktower Tool - BOTC Script Generator and Layout Beautifier" />
+  <meta property="og:description" content="Free BOTC script generator and layout beautifier for Blood on the Clocktower. Import official JSON, edit characters, custom jinxes and special rules, then export PDF, image workflow and multilingual JSON." />
+  <meta property="og:url" content="https://botc.letshare.fun/" />
+  <meta property="og:locale" content="en_US" />
+  <meta property="og:locale:alternate" content="zh_CN" />
+  <meta property="og:locale:alternate" content="es_ES" />
+      <meta property="og:image" content="https://botc.letshare.fun/imgs/images/screenshots/promo-gpt.png" />
+  <meta property="og:image:width" content="1731" />
+  <meta property="og:image:height" content="909" />
+  <meta property="og:image:alt" content="Onion's Clocktower Tool: BOTC script generator and layout beautifier" />
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Onion's Clocktower Tool - BOTC Script Generator and Layout Beautifier" />
+  <meta name="twitter:description" content="Free BOTC script generator and layout beautifier for Blood on the Clocktower. Import official JSON, edit characters, custom jinxes and special rules, then export PDF, image workflow and multilingual JSON." />
+  <meta name="twitter:image" content="https://botc.letshare.fun/imgs/images/screenshots/promo-gpt.png" />
+  <meta name="twitter:image:alt" content="Onion's Clocktower Tool: BOTC script generator and layout beautifier" />
+  <script type="module" crossorigin src="/assets/index-x0TEiWo3.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/rolldown-runtime-y2wrX6ue.js">
+  <link rel="modulepreload" crossorigin href="/assets/dnd-vendor-HKLgJs3t.js">
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-DkepQJNm.js">
+  <link rel="modulepreload" crossorigin href="/assets/mui-vendor-BLE_uROX.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-GGP2ugNX.css">
+  <!-- Hreflang -->
+  <link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/" />
+  <link rel="alternate" hreflang="en" href="https://botc.letshare.fun/" />
+  <link rel="alternate" hreflang="es" href="https://botc.letshare.fun/" />
+  <link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/" />
+
+  <!-- Canonical -->
+  <link rel="canonical" href="https://botc.letshare.fun/" />
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "Onion's Clocktower Tool",
+      "alternateName": "Onion's Clocktower Tool - BOTC Script Generator and Layout Beautifier",
+      "description": "Free BOTC script generator and layout beautifier for Blood on the Clocktower. Import official JSON, edit characters, custom jinxes and special rules, then export PDF, image workflow and multilingual JSON.",
+      "url": "https://botc.letshare.fun/",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Web",
+      "author": {
+        "@type": "Person",
+        "name": "Onion"
+      },
+      "inLanguage": "en",
+      "availableLanguage": [
+        "cn",
+        "en",
+        "es"
+      ],
+      "image": "https://botc.letshare.fun/imgs/images/screenshots/promo-gpt.png",
+      "screenshot": "https://botc.letshare.fun/imgs/images/screenshots/promo-gpt.png",
+      "keywords": "Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,Clocktower script maker,custom BOTC script,custom jinx relationships,how to customize BOTC jinx,script JSON,board game tool",
+      "featureList": [
+        "Import official script maker JSON",
+        "Customize characters, special rules and jinx relationships",
+        "Beautify layouts with two-page mode, backgrounds and fonts",
+        "Export PDF, image workflow and multilingual JSON",
+        "Chinese, English and Spanish interface"
+      ],
+      "dateModified": "2026-04-29",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "areaServed": {
+        "@type": "GeoShape",
+        "name": "Worldwide"
       }
-      if (matched === defaultLang) {
-        for (var i = 0; i < supported.length; i++) {
-          if (browserLang.startsWith(supported[i].split('-')[0])) {
-            matched = supported[i];
-            break;
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "How do I customize jinx relationships in a BOTC script tool?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "After importing or generating a script, open Add Special Rule, choose Add Custom Jinx, select two characters and write the rule description. The tool renders the jinx relationship on the script sheet."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What can this Blood on the Clocktower layout beautifier export?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "It supports PDF, image workflow, original JSON, full JSON in the current language and official-ID-only JSON for printing, sharing and multilingual switching."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can this custom BOTC script maker use official JSON?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. It imports JSON from the official script maker, keeps full JSON for custom characters, and supports Chinese, English and Spanish UI and exports."
           }
         }
-      }
-      window.location.replace('/' + matched + '/');
-    })();
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "name": "Onion's Clocktower Tool",
+      "url": "https://botc.letshare.fun",
+      "inLanguage": "en"
+    }
+  ]
+}
+  </script>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VB8HT63ZX6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-VB8HT63ZX6', {
+      page_location: window.location.href,
+      page_title: document.title,
+    });
   </script>
 </head>
+
 <body>
-  <p>Redirecting...</p>
+  <div id="root"></div>
 </body>
+
 </html>

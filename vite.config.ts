@@ -1,21 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import viteCompression from 'vite-plugin-compression'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/', // Absolute paths so assets load from language subdirectories
   plugins: [
     react(),
-    // gzip 压缩插件 - 压缩大于 128kb 的文件
-    viteCompression({
-      verbose: true, // 是否在控制台输出压缩结果
-      disable: false, // 是否禁用
-      threshold: 128 * 1024, // 文件大小大于 128kb 时才压缩
-      algorithm: 'gzip', // 压缩算法，可选 'gzip' | 'brotliCompress' | 'deflate' | 'deflateRaw'
-      ext: '.gz', // 生成的压缩文件扩展名
-      deleteOriginFile: false, // 是否删除源文件
-    }),
   ],
   build: {
     outDir: 'docs', // 打包输出目录改为 docs（适合 GitHub Pages）

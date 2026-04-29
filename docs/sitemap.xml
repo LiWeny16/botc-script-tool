@@ -2,56 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://botc.letshare.fun/zh-CN/</loc>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/zh-CN/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/en/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/es/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/zh-CN/"/>
+    <loc>https://botc.letshare.fun/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/"/>
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://botc.letshare.fun/en/</loc>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/zh-CN/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/en/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/es/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/zh-CN/"/>
-    <priority>1.0</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://botc.letshare.fun/es/</loc>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/zh-CN/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/en/"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/es/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/zh-CN/"/>
-    <priority>1.0</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://botc.letshare.fun/zh-CN/repo</loc>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/zh-CN/repo"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/en/repo"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/es/repo"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/zh-CN/repo"/>
-    <priority>0.8</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://botc.letshare.fun/en/repo</loc>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/zh-CN/repo"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/en/repo"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/es/repo"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/zh-CN/repo"/>
-    <priority>0.8</priority>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://botc.letshare.fun/es/repo</loc>
-    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/zh-CN/repo"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/en/repo"/>
-    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/es/repo"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/zh-CN/repo"/>
+    <loc>https://botc.letshare.fun/repo</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/repo"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/repo"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/repo"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/repo"/>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
