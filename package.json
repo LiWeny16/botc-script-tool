@@ -24,6 +24,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
+    "framer-motion": "^12.38.0",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "overlayscrollbars": "^2.12.0",

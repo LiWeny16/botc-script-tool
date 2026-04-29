@@ -1250,6 +1250,15 @@ flatted@^3.2.9:
   resolved "https://registry.npmmirror.com/flatted/-/flatted-3.3.3.tgz#67c8fad95454a7c7abebf74bb78ee74a44023358"
   integrity sha512-GX+ysw4PBCz0PzosHDepZGANEuFCMLrnRTiEy9McGjmkCQYwRq4A/X786G/fjM/+OjsWSU1ZrY5qyARZmO/uwg==
 
+framer-motion@^12.38.0:
+  version "12.38.0"
+  resolved "https://registry.npmmirror.com/framer-motion/-/framer-motion-12.38.0.tgz#cf28e072a95942881ca4e33fd33be41192fd146b"
+  integrity sha512-rFYkY/pigbcswl1XQSb7q424kSTQ8q6eAC+YUsSKooHQYuLdzdHjrt6uxUC+PRAO++q5IS7+TamgIw1AphxR+g==
+  dependencies:
+    motion-dom "^12.38.0"
+    motion-utils "^12.36.0"
+    tslib "^2.4.0"
+
 fs-extra@^10.0.0:
   version "10.1.0"
   resolved "https://registry.npmmirror.com/fs-extra/-/fs-extra-10.1.0.tgz#02873cfbc4084dde127eaa5f9905eef2325d1abf"
@@ -1593,6 +1602,18 @@ mobx@^6.15.0:
   version "6.15.0"
   resolved "https://registry.npmmirror.com/mobx/-/mobx-6.15.0.tgz#78b9b82d383724eebb4b6e50c2eb4ae2da861cb5"
   integrity sha512-UczzB+0nnwGotYSgllfARAqWCJ5e/skuV2K/l+Zyck/H6pJIhLXuBnz+6vn2i211o7DtbE78HQtsYEKICHGI+g==
+
+motion-dom@^12.38.0:
+  version "12.38.0"
+  resolved "https://registry.npmmirror.com/motion-dom/-/motion-dom-12.38.0.tgz#9ef3253ea0fb28b6757588327073848d940e9aab"
+  integrity sha512-pdkHLD8QYRp8VfiNLb8xIBJis1byQ9gPT3Jnh2jqfFtAsWUA3dEepDlsWe/xMpO8McV+VdpKVcp+E+TGJEtOoA==
+  dependencies:
+    motion-utils "^12.36.0"
+
+motion-utils@^12.36.0:
+  version "12.36.0"
+  resolved "https://registry.npmmirror.com/motion-utils/-/motion-utils-12.36.0.tgz#cff2df2a28c3fe53a3de7e0103ba7f73ff7d77a7"
+  integrity sha512-eHWisygbiwVvf6PZ1vhaHCLamvkSbPIeAYxWUuL3a2PD/TROgE7FvfHWTIH4vMl798QLfMw15nRqIaRDXTlYRg==
 
 ms@^2.1.3:
   version "2.1.3"

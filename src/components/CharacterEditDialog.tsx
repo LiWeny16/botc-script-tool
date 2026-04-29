@@ -9,7 +9,6 @@ import {
   Box,
   Typography,
   FormControl,
-  InputLabel,
   Select,
   MenuItem,
   IconButton,
@@ -23,7 +22,11 @@ import {
   ListItem,
   Slider,
   Stack,
+  Tabs,
+  Tab,
 } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Close as CloseIcon,
   Delete as DeleteIcon,
@@ -44,6 +47,7 @@ import { scriptStore } from '../stores/ScriptStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { observer } from 'mobx-react-lite';
 import type { JinxInfo } from '../types';
+import { getTeamColor } from '../theme/colors';
 
 interface CharacterEditDialogProps {
   open: boolean;
@@ -74,6 +78,7 @@ export default observer(function CharacterEditDialog({
   const [editingJinxId, setEditingJinxId] = useState<string | null>(null);
   const [editingJinxReason, setEditingJinxReason] = useState('');
   const [dragActive, setDragActive] = useState(false);
+  const [activeTab, setActiveTab] = useState(0);
 
   // 样式滑块本地状态（拖拽时不写 store，松手才同步）
   const cc = uiConfigStore.config.characterCard;
@@ -143,22 +148,11 @@ export default observer(function CharacterEditDialog({
         ...defaultData,
         ...character,
       };
-      console.log('CharacterEditDialog - 角色数据:', {
-        characterId: character.id,
-        characterReminders: character.reminders,
-        characterRemindersGlobal: character.remindersGlobal,
-        defaultReminders: defaultData.reminders,
-        defaultRemindersGlobal: defaultData.remindersGlobal,
-        mergedReminders: mergedData.reminders,
-        mergedRemindersGlobal: mergedData.remindersGlobal,
-      });
       setEditData(mergedData);
 
       // 加载该角色相关的相克关系
       const jinxes: JinxItem[] = [];
       const currentCharName = character.name;
-      const currentCharId = character.id;
-
       // 遍历剧本中的相克关系
       if (scriptStore.script.jinx[currentCharName]) {
         Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, jinxInfo]) => {
@@ -186,8 +180,6 @@ export default observer(function CharacterEditDialog({
       setTimeout(() => {
         const jinxes: JinxItem[] = [];
         const currentCharName = character.name;
-        const currentCharId = character.id;
-
         if (scriptStore.script && scriptStore.script.jinx[currentCharName]) {
           Object.entries(scriptStore.script.jinx[currentCharName]).forEach(([targetName, jinxInfo]) => {
             const targetChar = scriptStore.script!.all.find(c => c.name === targetName);
@@ -316,12 +308,6 @@ export default observer(function CharacterEditDialog({
 
       // 如果有任何更改，则保存
       if (Object.keys(updates).length > 0) {
-        console.log('CharacterEditDialog - 保存角色更新:', {
-          characterId: character.id,
-          updates,
-          remindersInUpdates: updates.reminders,
-          remindersGlobalInUpdates: updates.remindersGlobal,
-        });
         onSave(character.id, updates);
       }
       onClose();
@@ -340,115 +326,391 @@ export default observer(function CharacterEditDialog({
     { value: 'traveler', label: t('traveler') },
   ];
 
+  const displayName = editData.name || character.name;
+  const displayAbility = editData.ability || character.ability || '';
+  const displayImage = editData.image || character.image || '';
+  const activeTeam = String(editData.team || character.team || 'townsfolk');
+  const rawTeamColor = getTeamColor(activeTeam, editData.teamColor);
+  const mutedTeamColors: Record<string, string> = {
+    townsfolk: '#3f6f8a',
+    outsider: '#3f6f8a',
+    minion: '#884247',
+    demon: '#884247',
+    traveler: '#6d5a8a',
+    fabled: '#9a7a31',
+    loric: '#4f7d4a',
+  };
+  const teamColor = editData.teamColor || mutedTeamColors[activeTeam] || rawTeamColor;
+  const dialogGlow = alpha(teamColor, 0.18);
+  const contentMinHeight = { xs: 'calc(100dvh - 168px)', sm: 566 };
+  const tabMotionProps = {
+    initial: { opacity: 0, y: 10, filter: 'blur(3px)' },
+    animate: { opacity: 1, y: 0, filter: 'blur(0px)' },
+    exit: { opacity: 0, y: -6, filter: 'blur(3px)' },
+    transition: { duration: 0.2, ease: [0.22, 1, 0.36, 1] },
+  } as const;
+  const tabSx = {
+    minHeight: 48,
+    px: { xs: 1.5, sm: 2 },
+    textTransform: 'none',
+    fontWeight: 760,
+    fontSize: 14,
+    color: '#667085',
+  };
+
+  const sectionTitleSx = {
+    mb: 2,
+    fontSize: 13,
+    fontWeight: 760,
+    letterSpacing: 0,
+    color: '#2b3035',
+  };
+
+  const formLabelSx = {
+    mb: 0.75,
+    fontSize: 12,
+    fontWeight: 720,
+    color: '#667085',
+  };
+
+  const fieldSx = {
+    '& .MuiOutlinedInput-root': {
+      borderRadius: 2,
+      backgroundColor: '#f4f6f7',
+      boxShadow: `inset 0 0 0 1px ${alpha('#101828', 0.06)}, 0 1px 2px ${alpha('#101828', 0.03)}`,
+      transition: 'background-color 160ms ease, box-shadow 160ms ease',
+      '& fieldset': { borderColor: 'transparent' },
+      '&:hover': { backgroundColor: '#eef2f4' },
+      '&:hover fieldset': { borderColor: 'transparent' },
+      '&.Mui-focused': {
+        backgroundColor: '#fff',
+        boxShadow: `inset 0 0 0 1px ${alpha(teamColor, 0.32)}, 0 0 0 4px ${alpha(teamColor, 0.12)}`,
+      },
+      '&.Mui-focused fieldset': { borderColor: alpha(teamColor, 0.52) },
+    },
+    '& .MuiInputBase-input': {
+      fontSize: 15,
+      lineHeight: 1.5,
+    },
+  };
+
+  const orderFieldSx = {
+    ...fieldSx,
+    '& .MuiInputBase-input': {
+      fontSize: 30,
+      fontWeight: 820,
+      textAlign: 'center',
+      letterSpacing: 0,
+      fontVariantNumeric: 'tabular-nums',
+      color: '#1f2933',
+      py: 1.35,
+    },
+  };
+
+  const renderSlider = (
+    label: string,
+    value: number,
+    onChange: (value: number) => void,
+    onCommit: (value: number) => void,
+    min: number,
+    max: number,
+    step: number,
+  ) => (
+    <Box>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, mb: 0.5 }}>
+        <Typography variant="body2" sx={{ fontWeight: 650 }}>
+          {label}
+        </Typography>
+        <Chip
+          label={value}
+          size="small"
+          sx={{
+            height: 22,
+            borderRadius: 1,
+            fontWeight: 700,
+            backgroundColor: alpha(teamColor, 0.1),
+            color: teamColor,
+          }}
+        />
+      </Box>
+      <Slider
+        value={value}
+        onChange={(_, v) => onChange(v as number)}
+        onChangeCommitted={(_, v) => onCommit(v as number)}
+        min={min}
+        max={max}
+        step={step}
+        valueLabelDisplay="auto"
+        sx={{
+          py: 0.75,
+          color: teamColor,
+          '& .MuiSlider-thumb': {
+            width: 16,
+            height: 16,
+            boxShadow: `0 0 0 5px ${alpha(teamColor, 0.12)}`,
+          },
+        }}
+      />
+    </Box>
+  );
+
+  const previewPanel = (
+    <Box
+      sx={{
+        width: { xs: '100%', md: '32%' },
+        minWidth: { md: 300 },
+        flexShrink: 0,
+        position: { md: 'sticky' },
+        top: { md: 20 },
+        alignSelf: 'flex-start',
+        p: 2,
+        borderRadius: 3,
+        background: `linear-gradient(180deg, ${alpha(teamColor, 0.08)}, #f2f4f5 46%)`,
+        boxShadow: `inset 0 0 0 1px ${alpha(teamColor, 0.08)}, 0 18px 48px ${alpha('#101828', 0.06)}`,
+      }}
+    >
+      <Typography sx={{ ...sectionTitleSx, mb: 1.5 }}>{t('preview')}</Typography>
+      <Paper
+        component={motion.div}
+        whileHover={{
+          rotateX: -2,
+          rotateY: 3,
+          y: -4,
+          scale: 1.015,
+        }}
+        transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+        elevation={0}
+        sx={{
+          p: 2.25,
+          borderRadius: 2.5,
+          backgroundColor: '#fff',
+          transformStyle: 'preserve-3d',
+          transformOrigin: 'center',
+          willChange: 'transform',
+          boxShadow: `0 16px 36px ${alpha(teamColor, 0.14)}, 0 1px 0 ${alpha('#fff', 0.9)} inset`,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+          <CharacterImage
+            src={displayImage}
+            alt={displayName}
+            sx={{
+              width: Math.max(42, sliderAvatarW * 0.58),
+              height: Math.max(42, sliderAvatarH * 0.58),
+              borderRadius: sliderAvatarBR,
+              objectFit: 'cover',
+              flexShrink: 0,
+              backgroundColor: alpha(teamColor, 0.08),
+              border: `1px solid ${alpha(teamColor, 0.2)}`,
+            }}
+          />
+          <Box sx={{ minWidth: 0, flex: 1 }}>
+            <Typography variant="h6" sx={{ fontSize: 18, fontWeight: 800, color: teamColor }} noWrap>
+              {displayName}
+            </Typography>
+            <Chip
+              label={teamOptions.find((option) => option.value === activeTeam)?.label || activeTeam}
+              size="small"
+              sx={{
+                mt: 0.5,
+                height: 22,
+                borderRadius: 1,
+                backgroundColor: alpha(teamColor, 0.12),
+                color: teamColor,
+                fontWeight: 700,
+              }}
+            />
+          </Box>
+        </Box>
+        <Typography
+          variant="body2"
+          sx={{
+            color: '#344054',
+            lineHeight: 1.7,
+            fontSize: 14,
+            overflowWrap: 'anywhere',
+          }}
+        >
+          {displayAbility}
+        </Typography>
+      </Paper>
+    </Box>
+  );
+
   return (
     <Dialog
       open={open}
       onClose={onClose}
       disableScrollLock={true}
-      maxWidth="md"
+      maxWidth="lg"
       fullWidth
       fullScreen={isMobile}
       PaperProps={{
         sx: {
-          maxHeight: { xs: '100vh', sm: '90vh' },
+          height: { xs: '100dvh', sm: 'min(860px, 92vh)' },
+          maxHeight: { xs: '100dvh', sm: '92vh' },
           margin: { xs: 0, sm: 2 },
+          borderRadius: { xs: 0, sm: 3 },
+          overflow: 'hidden',
+          backgroundColor: '#f6f7f8',
+          boxShadow: `0 28px 80px ${alpha('#101828', 0.22)}, 0 0 0 1px ${alpha(teamColor, 0.2)}, 0 0 0 8px ${dialogGlow}`,
         },
       }}
     >
-      {/* --- 顶部预览区（使用实际卡片配置） --- */}
-      <DialogTitle sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1 }}>
-          <Typography variant="h6">
-            {t('editCharacter')}
-          </Typography>
-          <IconButton onClick={onClose} size="small">
+      <DialogTitle
+        sx={{
+          px: { xs: 2, sm: 3 },
+          py: 2.25,
+          borderBottom: '1px solid',
+          borderColor: alpha('#101828', 0.08),
+          background: `linear-gradient(120deg, #fff 0%, #fff 58%, ${alpha(teamColor, 0.14)} 100%)`,
+          flexShrink: 0,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+          <Box sx={{ minWidth: 0 }}>
+            <Typography sx={{ color: '#667085', fontSize: 13, fontWeight: 720, mb: 0.5 }}>
+              {t('editCharacter')}
+            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+              <Typography variant="h5" sx={{ fontWeight: 820, color: '#101828', letterSpacing: 0 }} noWrap>
+                {displayName}
+              </Typography>
+              <Chip
+                label={teamOptions.find((option) => option.value === activeTeam)?.label || activeTeam}
+                size="small"
+                sx={{
+                  borderRadius: 1,
+                  backgroundColor: alpha(teamColor, 0.14),
+                  color: teamColor,
+                  fontWeight: 800,
+                  boxShadow: `inset 0 0 0 1px ${alpha(teamColor, 0.08)}`,
+                }}
+              />
+            </Box>
+          </Box>
+          <IconButton
+            onClick={onClose}
+            size="small"
+            sx={{
+              width: 36,
+              height: 36,
+              borderRadius: 1.5,
+              color: '#475467',
+              backgroundColor: alpha('#fff', 0.78),
+              boxShadow: `inset 0 0 0 1px ${alpha('#101828', 0.06)}`,
+              '&:hover': { backgroundColor: '#fff', color: teamColor },
+            }}
+          >
             <CloseIcon />
           </IconButton>
         </Box>
-        <Paper
-          elevation={0}
-          sx={{
-            display: 'flex',
-            gap: `${sliderGap * 0.6}px`,
-            alignItems: 'center',
-            px: sliderPadX * 0.6,
-            py: cc.cardPaddingY * 0.6,
-            borderRadius: 1,
-            border: '1px solid',
-            borderColor: 'divider',
-            backgroundColor: 'background.default',
-          }}
-        >
-          <CharacterImage
-            src={editData.image || character?.image || ''}
-            alt={editData.name || character?.name || ''}
-            sx={{
-              width: sliderAvatarW * 0.5,
-              height: sliderAvatarH * 0.5,
-              borderRadius: sliderAvatarBR,
-              objectFit: 'cover',
-              flexShrink: 0,
-            }}
-          />
-          <Box sx={{ minWidth: 0, flex: 1 }}>
-            <Typography variant="subtitle1" fontWeight="bold" color="primary" noWrap>
-              {editData.name || character.name}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{
-              display: '-webkit-box',
-              WebkitBoxOrient: 'vertical',
-              WebkitLineClamp: 2,
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              fontSize: uiConfigStore.config.characterCard.descriptionFontSizeMd,
-              lineHeight: uiConfigStore.config.characterCard.descriptionLineHeight,
-            }}>
-              {editData.ability}
-            </Typography>
-          </Box>
-        </Paper>
       </DialogTitle>
 
-      {/* --- 全面采用 Flexbox 的可滚动表单区域 --- */}
-      <DialogContent sx={{ p: { xs: 2, sm: 3 } }}>
-        <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+      <Box
+        sx={{
+          px: { xs: 1.5, sm: 3 },
+          borderBottom: '1px solid',
+          borderColor: alpha('#101828', 0.08),
+          backgroundColor: '#fff',
+          flexShrink: 0,
+        }}
+      >
+        <Tabs
+          value={activeTab}
+          onChange={(_, value) => setActiveTab(value)}
+          variant="scrollable"
+          scrollButtons="auto"
+          sx={{
+            minHeight: 42,
+            '& .MuiTabs-indicator': {
+              height: 2,
+              borderRadius: 999,
+              backgroundColor: teamColor,
+              boxShadow: `0 0 10px ${alpha(teamColor, 0.35)}`,
+            },
+            '& .Mui-selected': {
+              color: `${teamColor} !important`,
+            },
+          }}
+        >
+          <Tab label={t('basicInfo')} sx={tabSx} />
+          <Tab label={t('nightOrder')} sx={tabSx} />
+          <Tab label={t('reminderTokens')} sx={tabSx} />
+          <Tab label={t('customJinx.management')} sx={tabSx} />
+          <Tab label={t('ui.category.iconSize')} sx={tabSx} />
+        </Tabs>
+      </Box>
 
-          {/* 基本信息区块 */}
-          <Box component="section">
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>{t('basicInfo')}</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-                <TextField
-                  sx={{ flex: 1 }}
-                  label={t('characterName')}
-                  value={editData.name || ''}
-                  onChange={(e) => handleChange('name', e.target.value)}
-                  disabled={isEditDisabled}
-                />
-                <FormControl sx={{ flex: 1 }} disabled={isEditDisabled}>
-                  <InputLabel>{t('team')}</InputLabel>
-                  <Select
-                    value={editData.team || ''}
-                    label={t('team')}
-                    onChange={(e) => handleChange('team', e.target.value)}
-                  >
-                    {teamOptions.map((option) => (
-                      <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Box>
-              <TextField
-                fullWidth
-                label={t('ability')}
-                multiline
-                rows={2}
-                value={editData.ability || ''}
-                onChange={(e) => handleChange('ability', e.target.value)}
-                disabled={isEditDisabled}
-              />
-              <Box>
+      <DialogContent
+        sx={{
+          p: { xs: 2, sm: 3 },
+          height: contentMinHeight,
+          overflowY: 'auto',
+          background: `radial-gradient(circle at 12% 0%, ${alpha(teamColor, 0.08)}, transparent 30%), #f6f7f8`,
+        }}
+      >
+        <Box
+          component="form"
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            gap: 2.5,
+            alignItems: 'flex-start',
+          }}
+        >
+          <Box sx={{ flex: '1 1 68%', minWidth: 0, width: '100%' }}>
+            <AnimatePresence mode="wait" initial={false}>
+              <Box component={motion.div} key={activeTab} {...tabMotionProps}>
+            {activeTab === 0 && (
+              <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2.25 }}>
+                <Typography sx={sectionTitleSx}>{t('basicInfo')}</Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('characterName')}</Typography>
+                    <TextField
+                      fullWidth
+                      value={editData.name || ''}
+                      onChange={(e) => handleChange('name', e.target.value)}
+                      disabled={isEditDisabled}
+                      size="small"
+                      sx={fieldSx}
+                      slotProps={{ htmlInput: { 'aria-label': t('characterName') } }}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('team')}</Typography>
+                    <FormControl fullWidth disabled={isEditDisabled} sx={fieldSx}>
+                      <Select
+                        value={editData.team || ''}
+                        onChange={(e) => handleChange('team', e.target.value)}
+                        size="small"
+                        displayEmpty
+                      >
+                        {teamOptions.map((option) => (
+                          <MenuItem key={option.value} value={option.value}>{option.label}</MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
+                <Box>
+                  <Typography sx={formLabelSx}>{t('ability')}</Typography>
+                  <TextField
+                    fullWidth
+                    multiline
+                    minRows={4}
+                    maxRows={7}
+                    value={editData.ability || ''}
+                    onChange={(e) => handleChange('ability', e.target.value)}
+                    disabled={isEditDisabled}
+                    sx={fieldSx}
+                    slotProps={{ htmlInput: { 'aria-label': t('ability') } }}
+                  />
+                </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '104px 1fr' }, gap: 1.5, alignItems: 'stretch' }}>
                 <Paper
+                  component="label"
                   onDragEnter={handleDrag}
                   onDragOver={handleDrag}
                   onDragLeave={handleDrag}
@@ -457,15 +719,21 @@ export default observer(function CharacterEditDialog({
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    p: 1.5,
-                    minHeight: 56,
+                    minHeight: 96,
                     cursor: isEditDisabled ? 'default' : 'pointer',
-                    backgroundColor: dragActive ? 'action.hover' : 'background.paper',
+                    backgroundColor: dragActive ? alpha(teamColor, 0.1) : '#fff',
                     borderStyle: 'dashed',
-                    borderWidth: 1.5,
-                    borderColor: dragActive ? 'primary.main' : 'divider',
+                    borderWidth: 1,
+                    borderColor: dragActive ? teamColor : alpha('#2c2416', 0.18),
+                    borderRadius: 2,
+                    boxShadow: `0 8px 22px ${alpha('#101828', 0.06)}`,
                     transition: 'all 0.2s',
                     opacity: isEditDisabled ? 0.6 : 1,
+                    overflow: 'hidden',
+                    '&:hover': {
+                      borderColor: teamColor,
+                      backgroundColor: alpha(teamColor, 0.06),
+                    },
                   }}
                 >
                   <input
@@ -476,185 +744,122 @@ export default observer(function CharacterEditDialog({
                     id="character-image-upload"
                     disabled={isEditDisabled}
                   />
-                  <label htmlFor="character-image-upload" style={{ cursor: isEditDisabled ? 'default' : 'pointer', width: '100%' }}>
-                    {editData.image ? (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Box
-                          component="img"
-                          src={editData.image}
-                          alt=""
-                          sx={{ width: 36, height: 36, borderRadius: 0.5, objectFit: 'cover', flexShrink: 0 }}
-                        />
-                        <Typography variant="body2" color="text.secondary" noWrap sx={{ flex: 1 }}>
-                          {t('input.reuploadImage')}
-                        </Typography>
-                      </Box>
-                    ) : (
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <UploadIcon sx={{ fontSize: 20, color: 'text.secondary' }} />
-                        <Typography variant="body2" color="text.secondary">
-                          {t('input.uploadImage')}
-                        </Typography>
-                      </Box>
-                    )}
-                  </label>
+                  {displayImage ? (
+                    <Box
+                      component="img"
+                      src={displayImage}
+                      alt=""
+                      sx={{ width: '100%', height: '100%', minHeight: 96, objectFit: 'contain', p: 1 }}
+                    />
+                  ) : (
+                    <Stack alignItems="center" spacing={0.5}>
+                      <UploadIcon sx={{ fontSize: 24, color: teamColor }} />
+                      <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 700 }}>
+                        {t('input.uploadImage')}
+                      </Typography>
+                    </Stack>
+                  )}
                 </Paper>
-                <TextField
-                  fullWidth
-                  label={t('imageUrl')}
-                  value={editData.image || ''}
-                  onChange={(e) => handleChange('image', e.target.value)}
-                  disabled={isEditDisabled}
-                  size="small"
-                  sx={{ mt: 1 }}
-                  slotProps={{ inputLabel: { shrink: true } }}
-                />
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    <Typography sx={formLabelSx}>{t('imageUrl')}</Typography>
+                    <TextField
+                      fullWidth
+                      value={editData.image || ''}
+                      onChange={(e) => handleChange('image', e.target.value)}
+                      disabled={isEditDisabled}
+                      size="small"
+                      sx={fieldSx}
+                      slotProps={{ htmlInput: { 'aria-label': t('imageUrl') } }}
+                    />
+                    <Button
+                      component="label"
+                      variant="outlined"
+                      startIcon={<UploadIcon />}
+                      disabled={isEditDisabled}
+                      sx={{
+                        alignSelf: 'flex-start',
+                        borderRadius: 1.5,
+                        textTransform: 'none',
+                        borderColor: alpha(teamColor, 0.4),
+                        color: teamColor,
+                        fontWeight: 750,
+                        backgroundColor: '#fff',
+                        boxShadow: `0 5px 14px ${alpha(teamColor, 0.08)}`,
+                      }}
+                    >
+                      {displayImage ? t('input.reuploadImage') : t('input.uploadImage')}
+                      <input type="file" accept="image/*" hidden onChange={handleFileInput} />
+                    </Button>
+                  </Box>
               </Box>
-
-              {/* 图片样式控制 */}
-              <Box sx={{ mt: 1 }}>
-                <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 'medium', display: 'block', mb: 1 }}>
-                  {t('ui.category.iconSize')}
-                </Typography>
-                <Stack spacing={2}>
-                  {/* 头像圆角 */}
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      {t('ui.avatarBorderRadius')}: {sliderAvatarBR}
-                    </Typography>
-                    <Slider
-                      value={sliderAvatarBR}
-                      onChange={(_, v) => setSliderAvatarBR(v as number)}
-                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ avatarBorderRadius: v as number })}
-                      min={0}
-                      max={10}
-                      step={0.5}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
-                  {/* 头像宽度 */}
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      {t('ui.avatarWidthMd')}: {sliderAvatarW}
-                    </Typography>
-                    <Slider
-                      value={sliderAvatarW}
-                      onChange={(_, v) => setSliderAvatarW(v as number)}
-                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ avatarWidthMd: v as number })}
-                      min={50}
-                      max={150}
-                      step={1}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
-                  {/* 头像高度 */}
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      {t('ui.avatarHeightMd')}: {sliderAvatarH}
-                    </Typography>
-                    <Slider
-                      value={sliderAvatarH}
-                      onChange={(_, v) => setSliderAvatarH(v as number)}
-                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ avatarHeightMd: v as number })}
-                      min={40}
-                      max={120}
-                      step={1}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
-                  {/* 卡片内边距 */}
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      {t('ui.cardPaddingX')}: {sliderPadX}
-                    </Typography>
-                    <Slider
-                      value={sliderPadX}
-                      onChange={(_, v) => setSliderPadX(v as number)}
-                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ cardPaddingX: v as number })}
-                      min={0}
-                      max={5}
-                      step={0.5}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
-                  {/* 卡片元素间距 */}
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      {t('ui.cardGap')}: {sliderGap}
-                    </Typography>
-                    <Slider
-                      value={sliderGap}
-                      onChange={(_, v) => setSliderGap(v as number)}
-                      onChangeCommitted={(_, v) => uiConfigStore.updateCharacterCardConfig({ cardGap: v as number })}
-                      min={0}
-                      max={5}
-                      step={0.5}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
-                </Stack>
               </Box>
-            </Box>
-          </Box>
+            )}
 
-          <Divider />
+            {activeTab === 1 && (
+              <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <Typography sx={sectionTitleSx}>{t('nightOrder')}</Typography>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('firstNight')}</Typography>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={editData.firstNight || 0}
+                      onChange={(e) => handleChange('firstNight', Number(e.target.value))}
+                      disabled={isEditDisabled}
+                      sx={orderFieldSx}
+                      slotProps={{ htmlInput: { 'aria-label': t('firstNight') } }}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('otherNight')}</Typography>
+                    <TextField
+                      fullWidth
+                      type="number"
+                      value={editData.otherNight || 0}
+                      onChange={(e) => handleChange('otherNight', Number(e.target.value))}
+                      disabled={isEditDisabled}
+                      sx={orderFieldSx}
+                      slotProps={{ htmlInput: { 'aria-label': t('otherNight') } }}
+                    />
+                  </Box>
+                </Box>
+                <Divider sx={{ borderColor: alpha('#101828', 0.08) }} />
+                <Typography sx={sectionTitleSx}>{t('storytellerReminders')}</Typography>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('firstNightReminder')}</Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      minRows={4}
+                      value={editData.firstNightReminder || ''}
+                      onChange={(e) => handleChange('firstNightReminder', e.target.value)}
+                      disabled={isEditDisabled}
+                      sx={fieldSx}
+                      slotProps={{ htmlInput: { 'aria-label': t('firstNightReminder') } }}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('otherNightReminder')}</Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      minRows={4}
+                      value={editData.otherNightReminder || ''}
+                      onChange={(e) => handleChange('otherNightReminder', e.target.value)}
+                      disabled={isEditDisabled}
+                      sx={fieldSx}
+                      slotProps={{ htmlInput: { 'aria-label': t('otherNightReminder') } }}
+                    />
+                  </Box>
+                </Box>
+              </Box>
+            )}
 
-          {/* 夜晚行动顺序区块 */}
-          <Box component="section">
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>{t('nightOrder')}</Typography>
-            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
-              <TextField
-                sx={{ flex: 1 }}
-                label={t('firstNight')}
-                type="number"
-                value={editData.firstNight || 0}
-                onChange={(e) => handleChange('firstNight', Number(e.target.value))}
-                disabled={isEditDisabled}
-              />
-              <TextField
-                sx={{ flex: 1 }}
-                label={t('otherNight')}
-                type="number"
-                value={editData.otherNight || 0}
-                onChange={(e) => handleChange('otherNight', Number(e.target.value))}
-                disabled={isEditDisabled}
-              />
-            </Box>
-          </Box>
-
-          <Divider />
-
-          {/* 说书人提醒区块 */}
-          <Box component="section">
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>{t('storytellerReminders')}</Typography>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-              <TextField
-                fullWidth
-                label={t('firstNightReminder')}
-                multiline
-                rows={2}
-                value={editData.firstNightReminder || ''}
-                onChange={(e) => handleChange('firstNightReminder', e.target.value)}
-                disabled={isEditDisabled}
-              />
-              <TextField
-                fullWidth
-                label={t('otherNightReminder')}
-                multiline
-                rows={2}
-                value={editData.otherNightReminder || ''}
-                onChange={(e) => handleChange('otherNightReminder', e.target.value)}
-                disabled={isEditDisabled}
-              />
-            </Box>
-            <>
-              <Divider />
-
-              {/* 提醒标记区块 */}
-              <Box component="section">
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>
-                  {t('reminderTokens')}
-                </Typography>
+            {activeTab === 2 && (
+              <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <Typography sx={sectionTitleSx}>{t('reminderTokens')}</Typography>
                 <Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                     {(editData.reminders || []).map((reminder, index) => (
@@ -669,11 +874,14 @@ export default observer(function CharacterEditDialog({
                       />
                     ))}
                   </Box>
+                  <Typography sx={formLabelSx}>{t('addReminder')}</Typography>
                   <TextField
                     fullWidth
-                    label={t('addReminder')}
                     placeholder={t('addReminderPlaceholder')}
                     disabled={isEditDisabled}
+                    size="small"
+                    sx={fieldSx}
+                    slotProps={{ htmlInput: { 'aria-label': t('addReminder') } }}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -687,13 +895,8 @@ export default observer(function CharacterEditDialog({
                     }}
                   />
                 </Box>
-              </Box>
-
-              {/* 全局提醒标记区块 */}
-              <Box component="section">
-                <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>
-                  {t('globalReminderTokens')}
-                </Typography>
+                <Divider sx={{ borderColor: alpha('#101828', 0.08) }} />
+                <Typography sx={sectionTitleSx}>{t('globalReminderTokens')}</Typography>
                 <Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
                     {(editData.remindersGlobal || []).map((reminder, index) => (
@@ -709,11 +912,14 @@ export default observer(function CharacterEditDialog({
                       />
                     ))}
                   </Box>
+                  <Typography sx={formLabelSx}>{t('addGlobalReminder')}</Typography>
                   <TextField
                     fullWidth
-                    label={t('addGlobalReminder')}
                     placeholder={t('addGlobalReminderPlaceholder')}
                     disabled={isEditDisabled}
+                    size="small"
+                    sx={fieldSx}
+                    slotProps={{ htmlInput: { 'aria-label': t('addGlobalReminder') } }}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
@@ -728,18 +934,11 @@ export default observer(function CharacterEditDialog({
                   />
                 </Box>
               </Box>
-            </>
-          </Box>
+            )}
 
-          <Divider />
-
-          {/* 自定义相克关系区块 */}
-          <Box component="section">
-            <Typography variant="subtitle1" fontWeight="bold" sx={{ mb: 1.5 }}>
-              {t('customJinx.management')}
-            </Typography>
-            
-            {/* 现有相克关系列表 */}
+            {activeTab === 3 && (
+              <Box component="section">
+                <Typography sx={sectionTitleSx}>{t('customJinx.management')}</Typography>
             {jinxItems.length > 0 && (
               <List sx={{ mb: 2, p: 0 }}>
                 {jinxItems.map((jinx, index) => {
@@ -750,14 +949,15 @@ export default observer(function CharacterEditDialog({
                     <ListItem
                       key={index}
                       sx={{
-                        border: 1,
-                        borderColor: isHidden ? 'error.main' : 'divider',
-                        borderRadius: 1,
-                        mb: 1,
-                        p: 1.5,
+                        borderRadius: 2.5,
+                        mb: 1.25,
+                        p: 1.75,
                         backgroundColor: jinx.jinxInfo.isOfficial 
-                          ? 'transparent' 
-                          : 'rgba(25, 118, 210, 0.08)',
+                          ? '#fff'
+                          : alpha(teamColor, 0.08),
+                        boxShadow: isHidden
+                          ? `inset 0 0 0 1px ${alpha('#d92d20', 0.35)}`
+                          : `0 8px 20px ${alpha('#101828', 0.05)}`,
                         opacity: isHidden ? 0.6 : 1,
                         flexDirection: 'column',
                         alignItems: 'stretch',
@@ -778,8 +978,7 @@ export default observer(function CharacterEditDialog({
                               <Chip 
                                 label={t('customJinx.official')} 
                                 size="small" 
-                                color="primary"
-                                sx={{ height: 20 }}
+                                sx={{ height: 20, borderRadius: 1, backgroundColor: alpha(teamColor, 0.12), color: teamColor, fontWeight: 700 }}
                               />
                             )}
                             {isHidden && (
@@ -889,77 +1088,166 @@ export default observer(function CharacterEditDialog({
               </List>
             )}
 
-            {/* 添加新相克关系 */}
             {!isEditDisabled && (
-              <Paper variant="outlined" sx={{ p: 2, backgroundColor: 'rgba(0, 0, 0, 0.02)' }}>
-                <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
+              <Paper elevation={0} sx={{ p: 2.25, borderRadius: 2.5, backgroundColor: '#fff', boxShadow: `0 10px 24px ${alpha('#101828', 0.05)}` }}>
+                <Typography variant="subtitle2" sx={{ mb: 2, fontWeight: 760, color: '#1f2933' }}>
                   {t('customJinx.addNew')}
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                  <Autocomplete
-                    value={newJinxTarget}
-                    onChange={(_, newValue) => setNewJinxTarget(newValue)}
-                    options={availableCharacters}
-                    getOptionLabel={(option) => option.name}
-                    renderOption={(props, option) => (
-                      <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <CharacterImage
-                          src={option.image}
-                          alt={option.name}
-                          sx={{ width: 32, height: 32, borderRadius: 1 }}
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('customJinx.selectTarget')}</Typography>
+                    <Autocomplete
+                      value={newJinxTarget}
+                      onChange={(_, newValue) => setNewJinxTarget(newValue)}
+                      options={availableCharacters}
+                      getOptionLabel={(option) => option.name}
+                      renderOption={(props, option) => (
+                        <Box component="li" {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                          <CharacterImage
+                            src={option.image}
+                            alt={option.name}
+                            sx={{ width: 32, height: 32, borderRadius: 1 }}
+                          />
+                          <Typography>{option.name}</Typography>
+                        </Box>
+                      )}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          placeholder={t('customJinx.selectCharacter')}
+                            size="small"
+                          sx={fieldSx}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: newJinxTarget && (
+                              <CharacterImage
+                                src={newJinxTarget.image}
+                                alt={newJinxTarget.name}
+                                sx={{ width: 32, height: 32, ml: 1, borderRadius: 1 }}
+                              />
+                            ),
+                          }}
                         />
-                        <Typography>{option.name}</Typography>
-                      </Box>
-                    )}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label={t('customJinx.selectTarget')}
-                        placeholder={t('customJinx.selectCharacter')}
-                        InputProps={{
-                          ...params.InputProps,
-                          startAdornment: newJinxTarget && (
-                            <CharacterImage
-                              src={newJinxTarget.image}
-                              alt={newJinxTarget.name}
-                              sx={{ width: 32, height: 32, ml: 1, borderRadius: 1 }}
-                            />
-                          ),
-                        }}
-                      />
-                    )}
-                  />
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={3}
-                    label={t('customJinx.description')}
-                    placeholder={t('customJinx.descriptionPlaceholder')}
-                    value={newJinxDescription}
-                    onChange={(e) => setNewJinxDescription(e.target.value)}
-                  />
+                      )}
+                    />
+                  </Box>
+                  <Box>
+                    <Typography sx={formLabelSx}>{t('customJinx.description')}</Typography>
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={3}
+                      placeholder={t('customJinx.descriptionPlaceholder')}
+                      value={newJinxDescription}
+                      onChange={(e) => setNewJinxDescription(e.target.value)}
+                      sx={fieldSx}
+                      slotProps={{ htmlInput: { 'aria-label': t('customJinx.description') } }}
+                    />
+                  </Box>
                   <Button
                     variant="contained"
                     startIcon={<AddIcon />}
                     onClick={handleAddJinx}
                     disabled={!newJinxTarget || !newJinxDescription.trim()}
                     fullWidth
+                    sx={{ borderRadius: 1.5, textTransform: 'none', fontWeight: 800 }}
                   >
                     {t('customJinx.add')}
                   </Button>
                 </Box>
               </Paper>
             )}
-          </Box>
+              </Box>
+            )}
 
+            {activeTab === 4 && (
+              <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Typography sx={sectionTitleSx}>{t('ui.category.iconSize')}</Typography>
+                <Paper elevation={0} sx={{ p: 2.25, borderRadius: 2.5, backgroundColor: '#fff', boxShadow: `0 10px 24px ${alpha('#101828', 0.05)}` }}>
+                  <Stack spacing={2.25}>
+                    {renderSlider(
+                      t('ui.avatarBorderRadius'),
+                      sliderAvatarBR,
+                      setSliderAvatarBR,
+                      (v) => uiConfigStore.updateCharacterCardConfig({ avatarBorderRadius: v }),
+                      0,
+                      10,
+                      0.5,
+                    )}
+                    {renderSlider(
+                      t('ui.avatarWidthMd'),
+                      sliderAvatarW,
+                      setSliderAvatarW,
+                      (v) => uiConfigStore.updateCharacterCardConfig({ avatarWidthMd: v }),
+                      50,
+                      150,
+                      1,
+                    )}
+                    {renderSlider(
+                      t('ui.avatarHeightMd'),
+                      sliderAvatarH,
+                      setSliderAvatarH,
+                      (v) => uiConfigStore.updateCharacterCardConfig({ avatarHeightMd: v }),
+                      40,
+                      120,
+                      1,
+                    )}
+                    {renderSlider(
+                      t('ui.cardPaddingX'),
+                      sliderPadX,
+                      setSliderPadX,
+                      (v) => uiConfigStore.updateCharacterCardConfig({ cardPaddingX: v }),
+                      0,
+                      5,
+                      0.5,
+                    )}
+                    {renderSlider(
+                      t('ui.cardGap'),
+                      sliderGap,
+                      setSliderGap,
+                      (v) => uiConfigStore.updateCharacterCardConfig({ cardGap: v }),
+                      0,
+                      5,
+                      0.5,
+                    )}
+                  </Stack>
+                </Paper>
+              </Box>
+            )}
+              </Box>
+            </AnimatePresence>
+          </Box>
+          {previewPanel}
         </Box>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose}>
+      <DialogActions
+        sx={{
+          px: { xs: 2, sm: 3 },
+          py: 1.5,
+          borderTop: '1px solid',
+          borderColor: alpha('#101828', 0.08),
+          backgroundColor: '#fff',
+          flexShrink: 0,
+        }}
+      >
+        <Button onClick={onClose} sx={{ textTransform: 'none', fontWeight: 750 }}>
           {t('common.cancel')}
         </Button>
-        <Button onClick={handleSave} variant="contained" disabled={isEditDisabled}>
+        <Button
+          onClick={handleSave}
+          variant="contained"
+          disabled={isEditDisabled}
+          sx={{
+            borderRadius: 1.5,
+            px: 2.5,
+            textTransform: 'none',
+            fontWeight: 850,
+            backgroundColor: teamColor,
+            boxShadow: `0 10px 22px ${alpha(teamColor, 0.25)}`,
+            '&:hover': { backgroundColor: teamColor, filter: 'brightness(0.92)' },
+          }}
+        >
           {t('common.save')}
         </Button>
       </DialogActions>
