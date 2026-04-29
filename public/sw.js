@@ -6,15 +6,17 @@ const LOCAL_PATTERNS = [
   /^\/bg\.png$/,
 ];
 
-// 外部 CDN 图标匹配（pathname）
-const EXTERNAL_ICON_HOST = 'oss.gstonegames.com';
-const EXTERNAL_ICON_PATH = /^\/data_file\/clocktower\/web\/icons\//;
+// 外部 CDN 图标匹配
+const EXTERNAL_HOSTS = {
+  'oss.gstonegames.com': /^\/data_file\/clocktower\/web\/icons\//,
+  'botcgrimoire.top': /^\/img\//,
+};
 
 function shouldCache(url) {
   const { host, pathname } = new URL(url);
   if (LOCAL_PATTERNS.some((re) => re.test(pathname))) return true;
-  if (host === EXTERNAL_ICON_HOST && EXTERNAL_ICON_PATH.test(pathname)) return true;
-  return false;
+  const pattern = EXTERNAL_HOSTS[host];
+  return pattern ? pattern.test(pathname) : false;
 }
 
 self.addEventListener('fetch', (event) => {
