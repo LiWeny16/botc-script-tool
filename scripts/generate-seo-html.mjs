@@ -203,6 +203,29 @@ function generateSitemapXml() {
 function generateRobotsTxt() {
   return `User-agent: *
 Allow: /
+
+# AI Search Engine Bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
 Sitemap: ${SITE_URL}/sitemap.xml
 `;
 }
@@ -213,6 +236,50 @@ function writeFile(outPath, content) {
     return;
   }
   fs.writeFileSync(outPath, content, 'utf-8');
+}
+
+function generateLlmsTxt() {
+  const en = META.en;
+  const cn = META.cn;
+
+  const enFaqLines = en.faq.map((item) => `Q: ${item.question}\nA: ${item.answer}`).join('\n\n');
+  const cnFaqLines = cn.faq.map((item) => `Q: ${item.question}\nA: ${item.answer}`).join('\n\n');
+  const enHowTo = en.howToSteps.map((s, i) => `${i + 1}. ${s.name}: ${s.text}`).join('\n');
+
+  return `# Free BOTC Script Tool — Blood on the Clocktower Layout Beautifier & Script Generator
+# 免费血染钟楼剧本美化器与自定义剧本工具
+
+URL: ${SITE_URL}/
+Script Repository: ${SITE_URL}/#/repo
+Languages: Chinese (Simplified), English, Spanish
+
+## What this tool does
+
+This is a free, browser-based tool for Blood on the Clocktower (BOTC) players and storytellers to create, customize, and beautify script sheets. It runs entirely in the browser — no signup, no installation, no server uploads.
+
+Key capabilities:
+${en.featureList.map((f) => `- ${f}`).join('\n')}
+- Built-in script repository with community-shared scripts
+
+## How to use (${en.howToSteps.length} steps)
+
+${enHowTo}
+
+Total time: approximately 5 minutes from open to exported PDF.
+
+## FAQ (English)
+
+${enFaqLines}
+
+## FAQ（中文）
+
+${cnFaqLines}
+
+## Keywords
+
+${en.keywords}
+${cn.keywords}
+`;
 }
 
 // ---- Main ----
@@ -234,6 +301,11 @@ function main() {
   const robotsTxt = generateRobotsTxt();
   writeFile(path.join(DOCS_DIR, 'robots.txt'), robotsTxt);
   console.log('[generate-seo-html] Written: robots.txt');
+
+  // Generate llms.txt
+  const llmsTxt = generateLlmsTxt();
+  writeFile(path.join(DOCS_DIR, 'llms.txt'), llmsTxt);
+  console.log('[generate-seo-html] Written: llms.txt');
 
   console.log('[generate-seo-html] Done!');
 }
