@@ -14,6 +14,11 @@ import { initAnalytics, initWebVitals } from './utils/analytics'
 initAnalytics();
 initWebVitals();
 
+// Register service worker for long-term image caching (icons + background)
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <I18nProvider>
