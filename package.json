@@ -9,10 +9,10 @@
     "d": "vite",
     "dev": "vite",
     "b": "tsc -b && vite build",
-    "prebuild": "python ./python/generate_manifest.py || py -3 ./python/generate_manifest.py",
+    "prebuild": "node ./scripts/generate-manifest.mjs",
     "build": "yarn prebuild && tsc -b && vite build",
-    "postbuild": "node scripts/generate-seo-html.cjs",
-    "gen:manifest": "python ./python/generate_manifest.py || py -3 ./python/generate_manifest.py",
+    "postbuild": "node scripts/generate-seo-html.mjs",
+    "gen:manifest": "node ./scripts/generate-manifest.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },

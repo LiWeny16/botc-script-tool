@@ -2,18 +2,32 @@
  * Post-build script: generates language-specific HTML entry points,
  * sitemap.xml, robots.txt, and a language-detection redirector at the root.
  *
- * Run after `vite build` (via postbuild hook in package.json or vite plugin).
+ * Run after `vite build` (via `postbuild` hook in package.json).
  */
 
-const fs = require('fs');
-const path = require('path');
-const { SITE_URL, DEFAULT_LANGUAGE, LANGUAGES, META, STRUCTURED_DATA, PAGES, OG_IMAGE } = require('./seo-config.cjs');
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import {
+  SITE_URL,
+  DEFAULT_LANGUAGE,
+  LANGUAGES,
+  META,
+  STRUCTURED_DATA,
+  PAGES,
+  OG_IMAGE,
+  OG_IMAGE_WIDTH,
+  OG_IMAGE_HEIGHT,
+} from '../src/utils/seoConfig.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DOCS_DIR = path.resolve(__dirname, '..', 'docs');
 const BUILT_HTML = path.join(DOCS_DIR, 'index.html');
 
 // GA Measurement ID — set via VITE_GA_MEASUREMENT_ID env var to override
 const GA_ID = process.env.VITE_GA_MEASUREMENT_ID || 'G-VB8HT63ZX6';
+
+const DRY_RUN = process.argv.includes('--dry-run') || process.env.DRY_RUN === '1';
 
 function readBuiltHtml() {
   return fs.readFileSync(BUILT_HTML, 'utf-8');
@@ -25,7 +39,10 @@ function stripDynamicTags(html) {
   html = html.replace(/<link rel="canonical" href="[^"]*" \/>\n?/g, '');
   html = html.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/g, '');
   // Remove GA gtag scripts (both the async script tag and inline config)
-  html = html.replace(/<script async src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=[^"]*"><\/script>\n?/g, '');
+  html = html.replace(
+    /<script async src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=[^"]*"><\/script>\n?/g,
+    '',
+  );
   html = html.replace(/<script>\s*window\.dataLayer[\s\S]*?gtag\('config',[^)]*\);\s*<\/script>\n?/g, '');
   // Remove og:locale:alternate tags (regenerated per-language)
   html = html.replace(/<meta property="og:locale:alternate" content="[^"]*" \/>\n?/g, '');
@@ -73,72 +90,78 @@ function generateLanguageHtml(lang, sourceHtml) {
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${m.title}</title>`);
 
   // Update meta description
-  html = html.replace(
-    /<meta name="description" content="[^"]*"/,
-    `<meta name="description" content="${m.description}"`
-  );
+  html = html.replace(/<meta name="description" content="[^"]*"/, `<meta name="description" content="${m.description}"`);
 
   // Update meta keywords
-  html = html.replace(
-    /<meta name="keywords" content="[^"]*"/,
-    `<meta name="keywords" content="${m.keywords}"`
-  );
+  html = html.replace(/<meta name="keywords" content="[^"]*"/, `<meta name="keywords" content="${m.keywords}"`);
 
   // Update og:title
-  html = html.replace(
-    /<meta property="og:title" content="[^"]*"/,
-    `<meta property="og:title" content="${m.title}"`
-  );
+  html = html.replace(/<meta property="og:title" content="[^"]*"/, `<meta property="og:title" content="${m.title}"`);
 
   // Update og:description
   html = html.replace(
     /<meta property="og:description" content="[^"]*"/,
-    `<meta property="og:description" content="${m.description}"`
+    `<meta property="og:description" content="${m.description}"`,
   );
 
   // Update twitter:title
-  html = html.replace(
-    /<meta name="twitter:title" content="[^"]*"/,
-    `<meta name="twitter:title" content="${m.title}"`
-  );
+  html = html.replace(/<meta name="twitter:title" content="[^"]*"/, `<meta name="twitter:title" content="${m.title}"`);
 
   // Update twitter:description
   html = html.replace(
     /<meta name="twitter:description" content="[^"]*"/,
-    `<meta name="twitter:description" content="${m.description}"`
+    `<meta name="twitter:description" content="${m.description}"`,
   );
 
   // Update og:url
   html = html.replace(
     /<meta property="og:url" content="[^"]*"/,
-    `<meta property="og:url" content="${SITE_URL}/${lang}/"`
+    `<meta property="og:url" content="${SITE_URL}/${lang}/"`,
   );
 
   // Update og:locale
   html = html.replace(
     /<meta property="og:locale" content="[^"]*"[^>]*>/,
-    `<meta property="og:locale" content="${m.ogLocale}" />`
+    `<meta property="og:locale" content="${m.ogLocale}" />`,
   );
 
   // Update og:locale:alternate (remove existing, add new after og:locale)
   html = html.replace(/<meta property="og:locale:alternate" content="[^"]*"[^>]*>\n?/g, '');
-  const alternateTags = m.ogAlternate.map(l => `  <meta property="og:locale:alternate" content="${l}" />`).join('\n');
+  const alternateTags = m.ogAlternate.map((l) => `  <meta property="og:locale:alternate" content="${l}" />`).join('\n');
   html = html.replace(
     /<meta property="og:locale" content="[^"]*"[^>]*>/,
-    `<meta property="og:locale" content="${m.ogLocale}" />\n${alternateTags}`
+    `<meta property="og:locale" content="${m.ogLocale}" />\n${alternateTags}`,
   );
 
   // Update og:image
+  html = html.replace(/<meta property="og:image" content="[^"]*"/, `<meta property="og:image" content="${OG_IMAGE}"`);
   html = html.replace(
-    /<meta property="og:image" content="[^"]*"/,
-    `<meta property="og:image" content="${OG_IMAGE}"`
+    /<meta property="og:image:width" content="[^"]*"/,
+    `<meta property="og:image:width" content="${OG_IMAGE_WIDTH}"`,
   );
+  html = html.replace(
+    /<meta property="og:image:height" content="[^"]*"/,
+    `<meta property="og:image:height" content="${OG_IMAGE_HEIGHT}"`,
+  );
+  if (!html.includes('property="og:image:alt"')) {
+    html = html.replace(
+      /(<meta property="og:image:height" content="[^"]*" \/>)/,
+      `$1\n  <meta property="og:image:alt" content="${m.ogImageAlt}" />`,
+    );
+  } else {
+    html = html.replace(/<meta property="og:image:alt" content="[^"]*"/, `<meta property="og:image:alt" content="${m.ogImageAlt}"`);
+  }
 
   // Update twitter:image
-  html = html.replace(
-    /<meta name="twitter:image" content="[^"]*"/,
-    `<meta name="twitter:image" content="${OG_IMAGE}"`
-  );
+  html = html.replace(/<meta name="twitter:image" content="[^"]*"/, `<meta name="twitter:image" content="${OG_IMAGE}"`);
+  if (!html.includes('name="twitter:image:alt"')) {
+    html = html.replace(
+      /(<meta name="twitter:image" content="[^"]*" \/>)/,
+      `$1\n  <meta name="twitter:image:alt" content="${m.ogImageAlt}" />`,
+    );
+  } else {
+    html = html.replace(/<meta name="twitter:image:alt" content="[^"]*"/, `<meta name="twitter:image:alt" content="${m.ogImageAlt}"`);
+  }
 
   // Insert hreflang, canonical, JSON-LD, and GA before </head>
   const hreflangBlock = buildHreflangLinks();
@@ -148,7 +171,7 @@ function generateLanguageHtml(lang, sourceHtml) {
 
   html = html.replace(
     '</head>',
-    `  <!-- Hreflang -->\n${hreflangBlock}\n  <!-- Canonical -->\n${canonicalLink}\n  <!-- Structured Data -->\n${jsonLd}\n  <!-- Google Analytics -->\n${gaScript}\n</head>`
+    `  <!-- Hreflang -->\n${hreflangBlock}\n  <!-- Canonical -->\n${canonicalLink}\n  <!-- Structured Data -->\n${jsonLd}\n  <!-- Google Analytics -->\n${gaScript}\n</head>`,
   );
 
   return html;
@@ -160,7 +183,8 @@ function generateRedirectorHtml() {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Onion's Clocktower Tool</title>
+  <title>${META[DEFAULT_LANGUAGE].title}</title>
+  <meta name="description" content="${META[DEFAULT_LANGUAGE].description}" />
   <script>
     (function() {
       var supported = ${JSON.stringify(LANGUAGES)};
@@ -224,37 +248,44 @@ Sitemap: ${SITE_URL}/sitemap.xml
 `;
 }
 
-// ---- Main ----
+function writeFile(outPath, content) {
+  if (DRY_RUN) {
+    console.log(`[generate-seo-html] dry-run would write: ${path.relative(process.cwd(), outPath)}`);
+    return;
+  }
+  fs.writeFileSync(outPath, content, 'utf-8');
+}
 
+// ---- Main ----
 function main() {
   console.log('[generate-seo-html] Reading built HTML...');
   const sourceHtml = readBuiltHtml();
 
   for (const lang of LANGUAGES) {
     const langDir = path.join(DOCS_DIR, lang);
-    if (!fs.existsSync(langDir)) {
+    if (!DRY_RUN && !fs.existsSync(langDir)) {
       fs.mkdirSync(langDir, { recursive: true });
     }
 
     const langHtml = generateLanguageHtml(lang, sourceHtml);
     const outPath = path.join(langDir, 'index.html');
-    fs.writeFileSync(outPath, langHtml, 'utf-8');
+    writeFile(outPath, langHtml);
     console.log(`[generate-seo-html] Written: ${lang}/index.html`);
   }
 
   // Rewrite root index.html as language-detection redirector
   const redirectorHtml = generateRedirectorHtml();
-  fs.writeFileSync(BUILT_HTML, redirectorHtml, 'utf-8');
+  writeFile(BUILT_HTML, redirectorHtml);
   console.log('[generate-seo-html] Written: index.html (redirector)');
 
   // Generate sitemap.xml
   const sitemapXml = generateSitemapXml();
-  fs.writeFileSync(path.join(DOCS_DIR, 'sitemap.xml'), sitemapXml, 'utf-8');
+  writeFile(path.join(DOCS_DIR, 'sitemap.xml'), sitemapXml);
   console.log('[generate-seo-html] Written: sitemap.xml');
 
   // Generate robots.txt
   const robotsTxt = generateRobotsTxt();
-  fs.writeFileSync(path.join(DOCS_DIR, 'robots.txt'), robotsTxt, 'utf-8');
+  writeFile(path.join(DOCS_DIR, 'robots.txt'), robotsTxt);
   console.log('[generate-seo-html] Written: robots.txt');
 
   console.log('[generate-seo-html] Done!');

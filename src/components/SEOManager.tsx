@@ -1,7 +1,16 @@
 import { useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
-import { SITE_URL, LANGUAGES, DEFAULT_LANGUAGE, STRUCTURED_DATA, OG_IMAGE } from '../utils/seoData';
+import {
+  SITE_URL,
+  LANGUAGES,
+  DEFAULT_LANGUAGE,
+  STRUCTURED_DATA,
+  OG_IMAGE,
+  OG_IMAGE_WIDTH,
+  OG_IMAGE_HEIGHT,
+  META,
+} from '../utils/seoConfig';
 
 function setMeta(attr: string, key: string, value: string) {
   const sel = `meta[${attr}="${key}"]`;
@@ -15,31 +24,37 @@ function setMeta(attr: string, key: string, value: string) {
 }
 
 export const SEOManager = observer(() => {
-  const { t, language } = useTranslation();
+  const { language } = useTranslation();
 
   useEffect(() => {
+    const m = META[language as keyof typeof META] ?? META[DEFAULT_LANGUAGE];
+
     // 更新页面标题
-    document.title = t('seo.title');
+    document.title = m.title;
 
     // 更新HTML lang属性
     document.documentElement.lang = language;
 
     // 更新meta描述
-    setMeta('name', 'description', t('seo.description'));
+    setMeta('name', 'description', m.description);
 
     // 更新meta关键词
-    setMeta('name', 'keywords', t('seo.keywords'));
+    setMeta('name', 'keywords', m.keywords);
 
     // 更新Open Graph标签
-    setMeta('property', 'og:title', t('seo.title'));
-    setMeta('property', 'og:description', t('seo.description'));
+    setMeta('property', 'og:title', m.title);
+    setMeta('property', 'og:description', m.description);
     setMeta('property', 'og:url', `${SITE_URL}/${language}/`);
     setMeta('property', 'og:image', OG_IMAGE);
+    setMeta('property', 'og:image:width', String(OG_IMAGE_WIDTH));
+    setMeta('property', 'og:image:height', String(OG_IMAGE_HEIGHT));
+    setMeta('property', 'og:image:alt', m.ogImageAlt);
 
     // 更新Twitter标签
-    setMeta('name', 'twitter:title', t('seo.title'));
-    setMeta('name', 'twitter:description', t('seo.description'));
+    setMeta('name', 'twitter:title', m.title);
+    setMeta('name', 'twitter:description', m.description);
     setMeta('name', 'twitter:image', OG_IMAGE);
+    setMeta('name', 'twitter:image:alt', m.ogImageAlt);
 
     // 更新 Hreflang 链接
     updateHreflangLinks(language);
@@ -50,7 +65,7 @@ export const SEOManager = observer(() => {
     // 更新 JSON-LD 结构化数据
     updateJsonLd(language);
 
-  }, [t, language]);
+  }, [language]);
 
   return null; // 这是一个工具组件，不渲染任何内容
 });
