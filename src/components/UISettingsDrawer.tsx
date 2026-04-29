@@ -164,7 +164,6 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
         hideBackdrop={isPinned} // 固定时隐藏背景，未固定时显示背景
       disableScrollLock={true} // 禁用滚动锁定，不隐藏页面滚动条
       ModalProps={{
-        keepMounted: true, // 保持组件挂载
         disableEnforceFocus: true, // 允许焦点离开抽屉
         disableAutoFocus: true, // 不自动聚焦
         disableScrollLock: true, // 禁用滚动锁定

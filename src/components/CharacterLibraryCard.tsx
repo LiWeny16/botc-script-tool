@@ -33,6 +33,162 @@ import { getLoricCharacters } from '../data/extras/loric';
 import { configStore } from '../stores/ConfigStore';
 import { PINYIN_MAP } from '../data/utils/pinyinMap';
 
+// 懒加载图片组件 - 使用统一的CharacterImage组件
+const LazyAvatar = React.memo(({ character, teamColor }: { character: Character; teamColor: string }) => {
+    return (
+        <CharacterImage
+            component="avatar"
+            src={character.image}
+            alt={character.name}
+            sx={{
+                width: 48,
+                height: 48,
+                border: `2px solid ${teamColor}`,
+            }}
+        />
+    );
+});
+
+interface CharacterItemProps {
+    character: Character;
+    index: number;
+    teamColor: string;
+    showTeamChip: boolean;
+    isSelected: boolean;
+    teamTabs: Array<{ key: string; label: string; color: string }>;
+    onAddCharacter: (character: Character) => void;
+    onRemoveCharacter?: (character: Character) => void;
+}
+
+// 角色项组件，使用memo优化
+const CharacterItem = React.memo(({
+    character,
+    index,
+    teamColor,
+    showTeamChip,
+    isSelected,
+    teamTabs,
+    onAddCharacter,
+    onRemoveCharacter
+}: CharacterItemProps) => {
+    const { t } = useTranslation();
+    const uniqueKey = `${character.team}-${character.id}-${index}`;
+
+    const handleClick = () => {
+        if (isSelected && onRemoveCharacter) {
+            onRemoveCharacter(character);
+        } else {
+            onAddCharacter(character);
+        }
+    };
+
+    return (
+        <React.Fragment key={uniqueKey}>
+            <ListItem
+                component="div"
+                onClick={handleClick}
+                sx={{
+                    py: 1.5,
+                    cursor: 'pointer',
+                    backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
+                    border: isSelected ? '1px solid rgba(25, 118, 210, 0.3)' : '1px solid transparent',
+                    borderRadius: 1,
+                    mb: 0.5,
+                    '&:hover': {
+                        backgroundColor: isSelected
+                            ? 'rgba(25, 118, 210, 0.12)'
+                            : 'rgba(0, 0, 0, 0.04)',
+                    },
+                }}
+            >
+                <ListItemAvatar>
+                    <LazyAvatar character={character} teamColor={teamColor} />
+                </ListItemAvatar>
+                <ListItemText
+                    primary={
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                            <Typography
+                                variant="subtitle2"
+                                sx={{
+                                    fontWeight: 'bold',
+                                    color: teamColor,
+                                    fontSize: '0.9rem',
+                                }}
+                            >
+                                {character.name}
+                            </Typography>
+
+                            {isSelected && (
+                                <Chip
+                                    label={t('selected')}
+                                    size="small"
+                                    sx={{
+                                        height: 18,
+                                        fontSize: '0.6rem',
+                                        backgroundColor: THEME_COLORS.good,
+                                        color: '#fff',
+                                        '& .MuiChip-label': {
+                                            px: 0.5,
+                                        },
+                                    }}
+                                />
+                            )}
+                            {showTeamChip && (
+                                <Chip
+                                    label={teamTabs.find(t => t.key === character.team)?.label || character.team}
+                                    size="small"
+                                    sx={{
+                                        height: 18,
+                                        fontSize: '0.6rem',
+                                        backgroundColor: teamColor,
+                                        color: '#fff',
+                                        '& .MuiChip-label': {
+                                            px: 0.5,
+                                        },
+                                    }}
+                                />
+                            )}
+                            {/* 作者标签 */}
+                            {character.author && (
+                                <Chip
+                                    label={`@${character.author}`}
+                                    size="small"
+                                    sx={{
+                                        height: 16,
+                                        fontSize: '0.55rem',
+                                        backgroundColor: '#9e9e9e',
+                                        color: '#fff',
+                                        '& .MuiChip-label': {
+                                            px: 0.5,
+                                        },
+                                    }}
+                                />
+                            )}
+                        </Box>
+                    }
+                    secondary={
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{
+                                fontSize: '0.75rem',
+                                lineHeight: 1.3,
+                                display: '-webkit-box',
+                                WebkitLineClamp: 2,
+                                WebkitBoxOrient: 'vertical',
+                                overflow: 'hidden',
+                            }}
+                        >
+                            {character.ability}
+                        </Typography>
+                    }
+                />
+            </ListItem>
+            <Divider />
+        </React.Fragment>
+    );
+});
+
 interface CharacterLibraryCardProps {
     open: boolean;
     onClose: () => void;
@@ -73,6 +229,18 @@ const CharacterLibraryCard = observer(({
 
     // 按团队分类角色，包含传奇角色和 Loric 角色，去重处理
     const charactersByTeam = useMemo(() => {
+        if (!open) {
+            return {
+                townsfolk: [] as Character[],
+                outsider: [] as Character[],
+                minion: [] as Character[],
+                demon: [] as Character[],
+                fabled: [] as Character[],
+                loric: [] as Character[],
+                traveler: [] as Character[],
+            };
+        }
+
         const teams = {
             townsfolk: [] as Character[],
             outsider: [] as Character[],
@@ -101,7 +269,7 @@ const CharacterLibraryCard = observer(({
         });
 
         return teams;
-    }, [currentCharacterData, language]);
+    }, [currentCharacterData, language, open]);
 
     // 搜索过滤 - 只在组件可见时计算
     const filteredCharacters = useMemo(() => {
@@ -346,161 +514,10 @@ const CharacterLibraryCard = observer(({
         }
     }, [isDragging, handleMouseMove, handleMouseUp]);
 
-    // 懒加载图片组件 - 使用统一的CharacterImage组件
-    const LazyAvatar = React.memo(({ character, teamColor }: { character: Character; teamColor: string }) => {
-        return (
-            <CharacterImage
-                component="avatar"
-                src={character.image}
-                alt={character.name}
-                sx={{
-                    width: 48,
-                    height: 48,
-                    border: `2px solid ${teamColor}`,
-                }}
-            />
-        );
-    });
-
-    // 角色项组件，使用memo优化
-    const CharacterItem = React.memo(({
-        character,
-        index,
-        teamColor,
-        showTeamChip,
-        isSelected,
-        onAddCharacter,
-        onRemoveCharacter
-    }: {
-        character: Character;
-        index: number;
-        teamColor: string;
-        showTeamChip: boolean;
-        isSelected: boolean;
-        onAddCharacter: (character: Character) => void;
-        onRemoveCharacter?: (character: Character) => void;
-    }) => {
-        const uniqueKey = `${character.team}-${character.id}-${index}`;
-
-        const handleClick = () => {
-            if (isSelected && onRemoveCharacter) {
-                onRemoveCharacter(character);
-            } else {
-                onAddCharacter(character);
-            }
-        };
-
-        return (
-            <React.Fragment key={uniqueKey}>
-                <ListItem
-                    component="div"
-                    onClick={handleClick}
-                    sx={{
-                        py: 1.5,
-                        cursor: 'pointer',
-                        backgroundColor: isSelected ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
-                        border: isSelected ? '1px solid rgba(25, 118, 210, 0.3)' : '1px solid transparent',
-                        borderRadius: 1,
-                        mb: 0.5,
-                        '&:hover': {
-                            backgroundColor: isSelected
-                                ? 'rgba(25, 118, 210, 0.12)'
-                                : 'rgba(0, 0, 0, 0.04)',
-                        },
-                    }}
-                >
-                    <ListItemAvatar>
-                        <LazyAvatar character={character} teamColor={teamColor} />
-                    </ListItemAvatar>
-                    <ListItemText
-                        primary={
-                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
-                                <Typography
-                                    variant="subtitle2"
-                                    sx={{
-                                        fontWeight: 'bold',
-                                        color: teamColor,
-                                        fontSize: '0.9rem',
-                                    }}
-                                >
-                                    {character.name}
-                                </Typography>
-
-                                {isSelected && (
-                                    <Chip
-                                        label={t('selected')}
-                                        size="small"
-                                        sx={{
-                                            height: 18,
-                                            fontSize: '0.6rem',
-                                            backgroundColor: THEME_COLORS.good,
-                                            color: '#fff',
-                                            '& .MuiChip-label': {
-                                                px: 0.5,
-                                            },
-                                        }}
-                                    />
-                                )}
-                                {showTeamChip && (
-                                    <Chip
-                                        label={teamTabs.find(t => t.key === character.team)?.label || character.team}
-                                        size="small"
-                                        sx={{
-                                            height: 18,
-                                            fontSize: '0.6rem',
-                                            backgroundColor: teamColor,
-                                            color: '#fff',
-                                            '& .MuiChip-label': {
-                                                px: 0.5,
-                                            },
-                                        }}
-                                    />
-                                )}
-                                {/* 作者标签 */}
-                                {character.author && (
-                                    <Chip
-                                        label={`@${character.author}`}
-                                        size="small"
-                                        sx={{
-                                            height: 16,
-                                            fontSize: '0.55rem',
-                                            backgroundColor: '#9e9e9e',
-                                            color: '#fff',
-                                            '& .MuiChip-label': {
-                                                px: 0.5,
-                                            },
-                                        }}
-                                    />
-                                )}
-                            </Box>
-                        }
-                        secondary={
-                            <Typography
-                                variant="body2"
-                                color="text.secondary"
-                                sx={{
-                                    fontSize: '0.75rem',
-                                    lineHeight: 1.3,
-                                    display: '-webkit-box',
-                                    WebkitLineClamp: 2,
-                                    WebkitBoxOrient: 'vertical',
-                                    overflow: 'hidden',
-                                }}
-                            >
-                                {character.ability}
-                            </Typography>
-                        }
-                    />
-                </ListItem>
-                <Divider />
-            </React.Fragment>
-        );
-    });
-
-    return (
+    return open ? (
         <>
             {/* 背景遮罩层 - 点击关闭 (透明) */}
-            {open && !isPinned && (
+            {!isPinned && (
                 <Box
                     onClick={handleBackdropClick}
                     sx={{
@@ -511,7 +528,6 @@ const CharacterLibraryCard = observer(({
                         bottom: 0,
                         zIndex: 1000,
                         backgroundColor: 'transparent',
-                        display: open ? 'block' : 'none',
                         '@media print': {
                             display: 'none',
                         },
@@ -534,7 +550,6 @@ const CharacterLibraryCard = observer(({
                     }),
                     // transform 由 DOM 直接操作，不在这里设置
                     zIndex: 1001,
-                    display: open ? 'block' : 'none',
                     '@media print': {
                         display: 'none',
                     },
@@ -807,6 +822,7 @@ const CharacterLibraryCard = observer(({
                                         teamColor={characterTeamColor}
                                         showTeamChip={currentTeam.key === 'all' || currentTeam.key === 'selected'}
                                         isSelected={isSelected}
+                                        teamTabs={teamTabs}
                                         onAddCharacter={handleAddCharacter}
                                         onRemoveCharacter={handleRemoveCharacter}
                                     />
@@ -818,7 +834,7 @@ const CharacterLibraryCard = observer(({
             </Card>
         </Box>
         </>
-    );
+    ) : null;
 });
 
 export default CharacterLibraryCard;

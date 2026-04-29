@@ -11,7 +11,6 @@ import {
   Typography,
   Alert,
 } from '@mui/material';
-import { observer } from 'mobx-react-lite';
 import type { Character, I18nText } from '../types';
 import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
@@ -28,7 +27,7 @@ interface CustomJinxDialogProps {
   } | null;
 }
 
-const CustomJinxDialog = observer(({
+const CustomJinxDialog = ({
   open,
   onClose,
   onSave,
@@ -233,6 +232,6 @@ const CustomJinxDialog = observer(({
       </DialogActions>
     </Dialog>
   );
-});
+};
 
 export default CustomJinxDialog;

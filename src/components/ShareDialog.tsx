@@ -19,7 +19,6 @@ import {
   Launch,
   Close,
 } from '@mui/icons-material';
-import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
 import { normalizeCharacterId } from '../data/utils/characterIdMapping';
 import { trackShareScript } from '../utils/analytics';
@@ -32,7 +31,7 @@ interface ShareDialogProps {
   normalizedJson: string; // 使用规范化JSON进行分享和压缩
 }
 
-const ShareDialog = observer(({ open, onClose, script, originalJson, normalizedJson }: ShareDialogProps) => {
+const ShareDialog = ({ open, onClose, script, originalJson, normalizedJson }: ShareDialogProps) => {
   const { t } = useTranslation();
   const [gistUrl, setGistUrl] = useState('');
   const [fullUrl, setFullUrl] = useState('');
@@ -235,6 +234,6 @@ const ShareDialog = observer(({ open, onClose, script, originalJson, normalizedJ
       
     </Dialog>
   );
-});
+};
 
 export default ShareDialog;

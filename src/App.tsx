@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Container,
@@ -54,6 +54,8 @@ import PrintDialog from './components/AppSub/PrintDialog';
 import UnlockModeDialog from './components/AppSub/UnlockModeDialog';
 import ExportJsonDialog from './components/AppSub/ExportJsonDialog';
 import { trackGenerateScript, trackExportJson, trackExportImage, trackExportPdf, trackClearScript, trackAddCharacter, trackRemoveCharacter, trackEditCharacter } from './utils/analytics';
+import { AnimatePresence } from 'framer-motion';
+import AnimatedDialog from './components/AnimatedDialog';
 
 // 把它放在 App 组件上面，或者 theme 定义的下面
 const printStyles = {
@@ -366,9 +368,9 @@ const App = observer(() => {
   };
 
   // 更新角色信息并同步到JSON
-  const handleUpdateCharacter = (characterId: string, updates: Partial<Character>) => {
+  const handleUpdateCharacter = useCallback((characterId: string, updates: Partial<Character>) => {
     scriptStore.updateCharacter(characterId, updates);
-  };
+  }, []);
 
   // 处理编辑角色
   const handleEditCharacter = (character: Character) => {
@@ -403,10 +405,23 @@ const App = observer(() => {
   };
 
   // 关闭编辑对话框
-  const handleCloseEditDialog = () => {
+  const handleCloseEditDialog = useCallback(() => {
     setEditDialogOpen(false);
     setEditingCharacter(null);
-  };
+  }, []);
+
+  // 稳定的关闭回调（避免内联箭头函数导致 observer 组件重渲染）
+  const handleCloseUISettings = useCallback(() => setUiSettingsOpen(false), []);
+  const handleCloseShareDialog = useCallback(() => setShareDialogOpen(false), []);
+  const handleCloseTitleEdit = useCallback(() => setTitleEditDialogOpen(false), []);
+  const handleCloseSecondPageTitleEdit = useCallback(() => setSecondPageTitleEditDialogOpen(false), []);
+  const handleCloseExportJson = useCallback(() => setExportJsonDialogOpen(false), []);
+  const handleCloseExportImage = useCallback(() => setExportImageDialogOpen(false), []);
+  const handleCloseSpecialRuleEdit = useCallback(() => setSpecialRuleEditDialogOpen(false), []);
+  const handleCloseAddCustomRule = useCallback(() => setAddCustomRuleDialogOpen(false), []);
+  const handleCloseAboutDialog = useCallback(() => setAboutDialogOpen(false), []);
+  const handleCloseCustomJinx = useCallback(() => setCustomJinxDialogOpen(false), []);
+  const handleClosePrintDialog = useCallback(() => setPrintDialogOpen(false), []);
 
   // 处理添加角色到剧本
   const handleAddCharacter = (character: Character) => {
@@ -954,14 +969,17 @@ const App = observer(() => {
             currentJson={originalJson}
             jsonParseError={jsonParseError}
           />
-          <ExportJsonDialog
-            open={exportJsonDialogOpen}
-            onClose={() => setExportJsonDialogOpen(false)}
-            onExportOriginal={handleExportOriginalJson}
-            onExportCurrentLanguage={handleExportCurrentLanguageJson}
-            onExportIdOnly={handleExportIdOnlyJson}
-            t={t as (key: string) => string}
-          />
+          {exportJsonDialogOpen && (
+            <ExportJsonDialog
+              key="export-json"
+              open={exportJsonDialogOpen}
+              onClose={handleCloseExportJson}
+              onExportOriginal={handleExportOriginalJson}
+              onExportCurrentLanguage={handleExportCurrentLanguageJson}
+              onExportIdOnly={handleExportIdOnlyJson}
+              t={t as (key: string) => string}
+            />
+          )}
 
           {/* 剧本展示区域 - 使用 ScriptRenderer 组件 */}
           {script && (
@@ -1006,37 +1024,44 @@ const App = observer(() => {
         </Container >
       </Box >
 
-      {/* 分享对话框 */}
-      < ShareDialog
-        open={shareDialogOpen}
-        onClose={() => setShareDialogOpen(false)}
-        script={script}
-        originalJson={originalJson}
-        normalizedJson={normalizedJson}
-      />
+      <AnimatePresence>
+      {shareDialogOpen && (
+        <ShareDialog
+          key="share-dialog"
+          open={shareDialogOpen}
+          onClose={handleCloseShareDialog}
+          script={script}
+          originalJson={originalJson}
+          normalizedJson={normalizedJson}
+        />
+      )}
 
-      {/* 角色编辑对话框 */}
-      < CharacterEditDialog
-        open={editDialogOpen}
-        character={editingCharacter}
-        onClose={handleCloseEditDialog}
-        onSave={handleUpdateCharacter}
-      />
+      {editDialogOpen && (
+        <CharacterEditDialog
+          key="edit-dialog"
+          open={editDialogOpen}
+          character={editingCharacter}
+          onClose={handleCloseEditDialog}
+          onSave={handleUpdateCharacter}
+        />
+      )}
 
-      {/* 角色库悬浮卡片 */}
-      < CharacterLibraryCard
-        open={libraryCardOpen}
-        onClose={() => {
-          setLibraryCardOpen(false);
-          setReplacingCharacter(null);
-          setLibraryPosition(undefined);
-        }}
-        onAddCharacter={handleAddCharacter}
-        onRemoveCharacter={handleRemoveCharacter}
-        selectedCharacters={script?.all || []}
-        initialTeam={replacingCharacter?.team}
-        position={libraryPosition}
-      />
+      {libraryCardOpen && (
+        <CharacterLibraryCard
+          key="library-card"
+          open={libraryCardOpen}
+          onClose={() => {
+            setLibraryCardOpen(false);
+            setReplacingCharacter(null);
+            setLibraryPosition(undefined);
+          }}
+          onAddCharacter={handleAddCharacter}
+          onRemoveCharacter={handleRemoveCharacter}
+          selectedCharacters={script?.all || []}
+          initialTeam={replacingCharacter?.team}
+          position={libraryPosition}
+        />
+      )}
 
       {/* 悬浮添加按钮 */}
       <FloatingAddButton
@@ -1044,181 +1069,202 @@ const App = observer(() => {
         show={!!script || !!originalJson} // 有剧本或有JSON输入时显示
       />
 
-      {/* UI设置抽屉 */}
-      <UISettingsDrawer
-        open={uiSettingsOpen}
-        onClose={() => setUiSettingsOpen(false)}
-      />
+      {uiSettingsOpen && (
+        <UISettingsDrawer
+          key="ui-settings"
+          open={uiSettingsOpen}
+          onClose={handleCloseUISettings}
+        />
+      )}
 
-      {/* 第一页标题编辑对话框 */}
-      <TitleEditDialog
-        open={titleEditDialogOpen}
-        title={script?.title || ''}
-        titleImage={script?.titleImage}
-        titleImageSize={script?.titleImageSize}
-        useTitleImage={script?.useTitleImage}
-        author={script?.author || ''}
-        playerCount={script?.playerCount || ''}
-        onClose={() => setTitleEditDialogOpen(false)}
-        onSave={handleTitleSave}
-      />
+      {titleEditDialogOpen && (
+        <TitleEditDialog
+          key="title-edit"
+          open={titleEditDialogOpen}
+          title={script?.title || ''}
+          titleImage={script?.titleImage}
+          titleImageSize={script?.titleImageSize}
+          useTitleImage={script?.useTitleImage}
+          author={script?.author || ''}
+          playerCount={script?.playerCount || ''}
+          onClose={handleCloseTitleEdit}
+          onSave={handleTitleSave}
+        />
+      )}
 
-      {/* 第二页标题编辑对话框 */}
-      <SecondPageTitleEditDialog
-        open={secondPageTitleEditDialogOpen}
-        title={script?.secondPageTitleText || script?.title || ''}
-        titleImage={script?.secondPageTitleImage}
-        fontSize={script?.secondPageTitleFontSize}
-        imageSize={script?.secondPageTitleImageSize}
-        useImage={script?.useSecondPageTitleImage}
-        defaultImageUrl={script?.titleImage}
-        onClose={() => setSecondPageTitleEditDialogOpen(false)}
-        onSave={handleSecondPageTitleSave}
-      />
+      {secondPageTitleEditDialogOpen && (
+        <SecondPageTitleEditDialog
+          key="second-page-title-edit"
+          open={secondPageTitleEditDialogOpen}
+          title={script?.secondPageTitleText || script?.title || ''}
+          titleImage={script?.secondPageTitleImage}
+          fontSize={script?.secondPageTitleFontSize}
+          imageSize={script?.secondPageTitleImageSize}
+          useImage={script?.useSecondPageTitleImage}
+          defaultImageUrl={script?.titleImage}
+          onClose={handleCloseSecondPageTitleEdit}
+          onSave={handleSecondPageTitleSave}
+        />
+      )}
 
-      {/* 特殊规则编辑对话框 */}
-      <SpecialRuleEditDialog
-        open={specialRuleEditDialogOpen}
-        rule={editingSpecialRule}
-        onClose={() => setSpecialRuleEditDialogOpen(false)}
-        onSave={handleSpecialRuleSave}
-      />
+      {specialRuleEditDialogOpen && (
+        <SpecialRuleEditDialog
+          key="special-rule-edit"
+          open={specialRuleEditDialogOpen}
+          rule={editingSpecialRule}
+          onClose={handleCloseSpecialRuleEdit}
+          onSave={handleSpecialRuleSave}
+        />
+      )}
 
-      {/* 添加自定义规则对话框 */}
-      <AddCustomRuleDialog
-        open={addCustomRuleDialogOpen}
-        onClose={() => setAddCustomRuleDialogOpen(false)}
-        onAddRule={handleAddNewRule}
-      />
+      {addCustomRuleDialogOpen && (
+        <AddCustomRuleDialog
+          key="add-custom-rule"
+          open={addCustomRuleDialogOpen}
+          onClose={handleCloseAddCustomRule}
+          onAddRule={handleAddNewRule}
+        />
+      )}
 
-      {/* 关于&致谢对话框 */}
-      <AboutDialog
-        open={aboutDialogOpen}
-        onClose={() => setAboutDialogOpen(false)}
-      />
+      {aboutDialogOpen && (
+        <AboutDialog
+          key="about"
+          open={aboutDialogOpen}
+          onClose={handleCloseAboutDialog}
+        />
+      )}
 
-      {/* 自定义相克关系对话框 */}
-      <CustomJinxDialog
-        open={customJinxDialogOpen}
-        onClose={() => setCustomJinxDialogOpen(false)}
-        onSave={(characterA, characterB, description) => {
-          scriptStore.addCustomJinx(characterA, characterB, description);
-          setCustomJinxDialogOpen(false);
-        }}
-        characters={script?.all || []}
-      />
+      {customJinxDialogOpen && (
+        <CustomJinxDialog
+          key="custom-jinx"
+          open={customJinxDialogOpen}
+          onClose={handleCloseCustomJinx}
+          onSave={(characterA, characterB, description) => {
+            scriptStore.addCustomJinx(characterA, characterB, description);
+            setCustomJinxDialogOpen(false);
+          }}
+          characters={script?.all || []}
+        />
+      )}
 
 
 
-      {/* 导出图片提示对话框 */}
-      <Dialog
-        open={exportImageDialogOpen}
-        onClose={() => setExportImageDialogOpen(false)}
-        disableScrollLock={true}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{
-          sx: {
-            borderRadius: 3,
-            boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
-          }
-        }}
-      >
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1.5,
-            pb: 2,
-            pt: 3,
-            px: 3,
+      {exportImageDialogOpen && (
+        <AnimatedDialog
+          key="export-image"
+          open={exportImageDialogOpen}
+          onClose={handleCloseExportImage}
+          disableScrollLock={true}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 3,
+              boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
+            }
           }}
         >
-          <ImageIcon sx={{ fontSize: 32, color: '#ff9800' }} />
-          <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
-            {t('dialog.exportImageTitle')}
-          </Typography>
-        </DialogTitle>
-        <DialogContent sx={{ px: 3, pb: 3 }}>
-          <Typography variant="body1" sx={{ color: '#333', mb: 3, lineHeight: 1.8, fontSize: '1rem' }}>
-            {t('dialog.exportImageMessage')}
-          </Typography>
-
-          <Box
+          <DialogTitle
             sx={{
-              p: 2.5,
-              borderRadius: 2,
-              border: '2px solid #fff3e0',
-              backgroundColor: '#fffbf5',
-              mb: 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1.5,
+              pb: 2,
+              pt: 3,
+              px: 3,
             }}
           >
-            <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem', lineHeight: 1.6 }}>
-              💡 {t('dialog.exportImageTip')}
+            <ImageIcon sx={{ fontSize: 32, color: '#ff9800' }} />
+            <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
+              {t('dialog.exportImageTitle')}
             </Typography>
-          </Box>
-        </DialogContent>
-        <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa', gap: 1 }}>
-          <Button
-            onClick={() => setExportImageDialogOpen(false)}
-            sx={{
-              px: 3,
-              py: 1,
-              fontWeight: 500,
-              color: '#757575',
-              '&:hover': {
-                backgroundColor: '#eeeeee',
-              }
-            }}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button
-            variant="contained"
-            endIcon={<OpenInNewIcon />}
-            onClick={() => {
-              const url = language === 'cn'
-                ? 'https://www.ilovepdf.com/zh-cn/pdf_to_jpg'
-                : language === 'es'
-                  ? 'https://www.ilovepdf.com/es/pdf_a_jpg'
-                : 'https://www.ilovepdf.com/pdf_to_jpg';
-              window.open(url, '_blank');
-              setExportImageDialogOpen(false);
-            }}
-            sx={{
-              px: 3,
-              py: 1,
-              fontWeight: 600,
-              backgroundColor: '#ff9800',
-              '&:hover': {
-                backgroundColor: '#f57c00',
-              }
-            }}
-          >
-            {t('dialog.gotoILovePDF')}
-          </Button>
-        </DialogActions>
-      </Dialog>
+          </DialogTitle>
+          <DialogContent sx={{ px: 3, pb: 3 }}>
+            <Typography variant="body1" sx={{ color: '#333', mb: 3, lineHeight: 1.8, fontSize: '1rem' }}>
+              {t('dialog.exportImageMessage')}
+            </Typography>
 
-      {/* 打印设置对话框 */}
-      <PrintDialog
-        open={printDialogOpen}
-        onClose={() => setPrintDialogOpen(false)}
-        onConfirm={handleConfirmPrint}
-        t={t as (key: string) => string}
-        language={language}
-      />
+            <Box
+              sx={{
+                p: 2.5,
+                borderRadius: 2,
+                border: '2px solid #fff3e0',
+                backgroundColor: '#fffbf5',
+                mb: 2,
+              }}
+            >
+              <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem', lineHeight: 1.6 }}>
+                {t('dialog.exportImageTip')}
+              </Typography>
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa', gap: 1 }}>
+            <Button
+              onClick={() => setExportImageDialogOpen(false)}
+              sx={{
+                px: 3,
+                py: 1,
+                fontWeight: 500,
+                color: '#757575',
+                '&:hover': {
+                  backgroundColor: '#eeeeee',
+                }
+              }}
+            >
+              {t('common.cancel')}
+            </Button>
+            <Button
+              variant="contained"
+              endIcon={<OpenInNewIcon />}
+              onClick={() => {
+                const url = language === 'cn'
+                  ? 'https://www.ilovepdf.com/zh-cn/pdf_to_jpg'
+                  : language === 'es'
+                    ? 'https://www.ilovepdf.com/es/pdf_a_jpg'
+                  : 'https://www.ilovepdf.com/pdf_to_jpg';
+                window.open(url, '_blank');
+                setExportImageDialogOpen(false);
+              }}
+              sx={{
+                px: 3,
+                py: 1,
+                fontWeight: 600,
+                backgroundColor: '#ff9800',
+                '&:hover': {
+                  backgroundColor: '#f57c00',
+                }
+              }}
+            >
+              {t('dialog.gotoILovePDF')}
+            </Button>
+          </DialogActions>
+        </AnimatedDialog>
+      )}
 
-      {/* 解锁只以id解析模式确认对话框 */}
-      <UnlockModeDialog
-        open={unlockModeDialogOpen}
-        onClose={() => {
-          setUnlockModeDialogOpen(false);
-          setPendingEditCharacter(null);
-        }}
-        onConfirm={handleUnlockAndEdit}
-        t={t as (key: string) => string}
-      />
+      {printDialogOpen && (
+        <PrintDialog
+          key="print"
+          open={printDialogOpen}
+          onClose={handleClosePrintDialog}
+          onConfirm={handleConfirmPrint}
+          t={t as (key: string) => string}
+          language={language}
+        />
+      )}
+
+      {unlockModeDialogOpen && (
+        <UnlockModeDialog
+          key="unlock-mode"
+          open={unlockModeDialogOpen}
+          onClose={() => {
+            setUnlockModeDialogOpen(false);
+            setPendingEditCharacter(null);
+          }}
+          onConfirm={handleUnlockAndEdit}
+          t={t as (key: string) => string}
+        />
+      )}
+      </AnimatePresence>
     </ThemeProvider >
   );
 });
