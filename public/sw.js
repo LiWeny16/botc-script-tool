@@ -1,14 +1,20 @@
 const CACHE_NAME = 'botc-static-v1';
 
-// 只缓存这些 URL 模式的资源（角色图标 + 背景图）
-const CACHE_PATTERNS = [
+// 本地资源匹配（pathname）
+const LOCAL_PATTERNS = [
   /^\/imgs\/icons\//,
   /^\/bg\.png$/,
 ];
 
+// 外部 CDN 图标匹配（pathname）
+const EXTERNAL_ICON_HOST = 'oss.gstonegames.com';
+const EXTERNAL_ICON_PATH = /^\/data_file\/clocktower\/web\/icons\//;
+
 function shouldCache(url) {
-  const pathname = new URL(url).pathname;
-  return CACHE_PATTERNS.some((re) => re.test(pathname));
+  const { host, pathname } = new URL(url);
+  if (LOCAL_PATTERNS.some((re) => re.test(pathname))) return true;
+  if (host === EXTERNAL_ICON_HOST && EXTERNAL_ICON_PATH.test(pathname)) return true;
+  return false;
 }
 
 self.addEventListener('fetch', (event) => {
