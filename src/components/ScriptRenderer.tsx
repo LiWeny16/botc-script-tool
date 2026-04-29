@@ -164,7 +164,7 @@ const ScriptRenderer = observer(({
                         key="top_image"
                         id="second_page_top"
                         component="img"
-                        src={"/imgs/images/back_4.png"}
+                        src={"/imgs/images/sources/back_4.png"}
                         alt="Decorative torn paper"
                         sx={{
                             position: "relative",
@@ -339,7 +339,7 @@ const ScriptRenderer = observer(({
                 >
                     {/* 装饰花纹 */}
                     <CharacterImage
-                        src="/imgs/images/flower3_2.png"
+                        src="/imgs/images/sources/flower3_2.png"
                         alt="左下角装饰花纹"
                         sx={{
                             position: 'absolute',
@@ -354,7 +354,7 @@ const ScriptRenderer = observer(({
                         }}
                     />
                     <CharacterImage
-                        src="/imgs/images/flower4.png"
+                        src="/imgs/images/sources/flower4.png"
                         alt="右下角装饰花纹"
                         sx={{
                             position: 'absolute',
@@ -369,7 +369,7 @@ const ScriptRenderer = observer(({
                         }}
                     />
                     <CharacterImage
-                        src="/imgs/images/flower7.png"
+                        src="/imgs/images/sources/flower7.png"
                         alt="右上角装饰花纹"
                         sx={{
                             position: 'absolute',
@@ -384,7 +384,7 @@ const ScriptRenderer = observer(({
                         }}
                     />
                     <CharacterImage
-                        src="/imgs/images/flower4_2.png"
+                        src="/imgs/images/sources/flower4_2.png"
                         alt="左上角装饰花纹"
                         sx={{
                             position: 'absolute',
@@ -519,7 +519,7 @@ const ScriptRenderer = observer(({
                                         transform: 'translate(-50%, -50%)',
                                         width: { xs: "80%", md: "48%" },
                                         height: '100%',
-                                        backgroundImage: "url(/imgs/images/pattern.png)",
+                                        backgroundImage: "url(/imgs/images/sources/pattern.png)",
                                         backgroundSize: 'contain',
                                         backgroundPosition: "center",
                                         backgroundRepeat: "no-repeat",
@@ -779,7 +779,7 @@ const ScriptRenderer = observer(({
                         {/* 背景装饰 */}
                         <CharacterImage
                             component="img"
-                            src={"/imgs/images/back_tower.png"}
+                            src={"/imgs/images/sources/back_tower.png"}
                             alt={"back_tower"}
                             sx={{
                                 position: "absolute",
@@ -795,7 +795,7 @@ const ScriptRenderer = observer(({
                         />
                         <CharacterImage
                             component="img"
-                            src={"/imgs/images/back_tower2.png"}
+                            src={"/imgs/images/sources/back_tower2.png"}
                             alt={"back_tower2"}
                             sx={{
                                 position: "absolute",
@@ -877,7 +877,7 @@ const ScriptRenderer = observer(({
                     >
                         {/* 装饰花纹 */}
                         <CharacterImage
-                            src="/imgs/images/flower3_2.png"
+                            src="/imgs/images/sources/flower3_2.png"
                             alt="左下角装饰花纹"
                             sx={{
                                 position: 'absolute',
@@ -892,7 +892,7 @@ const ScriptRenderer = observer(({
                             }}
                         />
                         <CharacterImage
-                            src="/imgs/images/flower4.png"
+                            src="/imgs/images/sources/flower4.png"
                             alt="右下角装饰花纹"
                             sx={{
                                 position: 'absolute',
@@ -907,7 +907,7 @@ const ScriptRenderer = observer(({
                             }}
                         />
                         <CharacterImage
-                            src="/imgs/images/flower7.png"
+                            src="/imgs/images/sources/flower7.png"
                             alt="右上角装饰花纹"
                             sx={{
                                 position: 'absolute',
@@ -922,7 +922,7 @@ const ScriptRenderer = observer(({
                             }}
                         />
                         <CharacterImage
-                            src="/imgs/images/flower4_2.png"
+                            src="/imgs/images/sources/flower4_2.png"
                             alt="左上角装饰花纹"
                             sx={{
                                 position: 'absolute',
@@ -1018,7 +1018,7 @@ const ScriptRenderer = observer(({
                             {/* 背景装饰 - 放在 Paper 容器内，DndContext 外 */}
                             <CharacterImage
                                 component="img"
-                                src={"/imgs/images/back_tower.png"}
+                                src={"/imgs/images/sources/back_tower.png"}
                                 alt={"back_tower"}
                                 sx={{
                                     position: "absolute",
@@ -1035,7 +1035,7 @@ const ScriptRenderer = observer(({
                             />
                             <CharacterImage
                                 component="img"
-                                src={"/imgs/images/back_tower2.png"}
+                                src={"/imgs/images/sources/back_tower2.png"}
                                 alt={"back_tower2"}
                                 sx={{
                                     position: "absolute",

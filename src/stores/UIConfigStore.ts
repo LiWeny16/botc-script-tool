@@ -441,7 +441,7 @@ class UIConfigStore {
     }
     
     // 否则使用官方背景
-    return '/imgs/images/main_back.jpg';
+    return '/imgs/images/sources/main_back.jpg';
   }
 
   get titleHeight() {

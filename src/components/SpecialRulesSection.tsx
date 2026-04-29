@@ -82,7 +82,7 @@ const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile }: SpecialRules
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundImage: "url(/imgs/images/卷轴.png)",
+              backgroundImage: "url(/imgs/images/sources/卷轴.png)",
               backgroundSize: "100% 100%",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
