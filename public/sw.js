@@ -3,6 +3,7 @@ const CACHE_NAME = 'botc-static-v1';
 // 本地资源匹配（pathname）
 const LOCAL_PATTERNS = [
   /^\/imgs\/icons\//,
+  /^\/imgs\/images\/sources\//,
   /^\/bg\.png$/,
 ];
 
