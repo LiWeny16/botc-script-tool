@@ -26,7 +26,7 @@
  */
 @font-face {
   font-family: 'jicao';
-  src: url('/font/jicao/HYJiFengTiU.ttf') format('truetype');
+  src: url('/font/jicao/HYJiFengTiU.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
   unicode-range: U+4E00-9FFF, U+3400-4DBF, U+20000-2A6DF, U+2A700-2B73F, U+2B740-2B81F, U+2B820-2CEAF, U+F900-FAFF, U+2F800-2FA1F;

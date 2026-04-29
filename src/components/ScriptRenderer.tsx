@@ -414,7 +414,7 @@ const ScriptRenderer = observer(({
                         }}>
                             <Box
                                 component="img"
-                                src="/imgs/icons/fabled/onion.png"
+                                src="/imgs/icons/fabled/onion.webp"
                                 alt="Onion Avatar"
                                 sx={{
                                     width: { xs: 50, sm: 60, md: 70 },

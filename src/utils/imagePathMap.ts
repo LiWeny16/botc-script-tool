@@ -260,7 +260,7 @@ export const IMAGE_PATH_MAP: Record<string, string> = {
   "fiddler.png": "fabled",
   "gardener.png": "fabled",
   "hells_librarian.png": "fabled",
-  "onion.png": "fabled",
+  "onion.webp": "fabled",
   "qilin.png": "fabled",
   "revolutionary.png": "fabled",
   "sentinel.png": "fabled",

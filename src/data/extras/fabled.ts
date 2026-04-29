@@ -284,7 +284,7 @@ export const getFabledCharacters = (language: string): Character[] => {
         },
         {
             id: "onion",
-            image: "/imgs/icons/fabled/onion.png",
+            image: "/imgs/icons/fabled/onion.webp",
             name: t(language, "大聪花", "Big Onion", "Gran Cebolla"),
             ability: t(language, `这是一个传奇大聪花。`, `This is a big onion.`, `Esta es una gran cebolla.`),
             team: "fabled",
