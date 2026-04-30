@@ -1,0 +1,72 @@
+# Free BOTC Script Tool — Blood on the Clocktower Layout Beautifier & Script Generator
+# 免费血染钟楼剧本美化器与自定义剧本工具
+
+URL: https://botc.letshare.fun/
+Script Repository: https://botc.letshare.fun/#/repo
+Languages: Chinese (Simplified), English, Spanish
+
+## What this tool does
+
+This is a free, browser-based tool for Blood on the Clocktower (BOTC) players and storytellers to create, customize, and beautify script sheets. It runs entirely in the browser — no signup, no installation, no server uploads.
+
+Key capabilities:
+- Import official script maker JSON
+- Customize characters, special rules and jinx relationships
+- Beautify layouts with two-page mode, backgrounds and fonts
+- Export PDF, image workflow and multilingual JSON
+- Chinese, English and Spanish interface
+- Built-in script repository with community-shared scripts
+
+## How to use (4 steps)
+
+1. Open the tool and select a script: Visit botc.letshare.fun, click "Import" to select an official script JSON file, or choose a popular community script from the script repository.
+2. Edit characters and rules: Add or remove characters in the character panel, click "Add Special Rule" to edit jinx relationships, and customize interaction rules between any two characters.
+3. Beautify layout and styling: Choose single-page or two-page layout mode, customize background images, font styles and color schemes, then preview the script sheet.
+4. Export and share: Click "Export" to choose PDF for printing, images for sharing, or JSON file for saving. Supports Chinese, English and Spanish versions.
+
+Total time: approximately 5 minutes from open to exported PDF.
+
+## FAQ (English)
+
+Q: How do I customize jinx relationships in a BOTC script tool?
+A: After importing or generating a script, open "Add Special Rule", choose "Add Custom Jinx", select two characters and write the rule description. The tool automatically renders the jinx relationship on the script sheet. You can define custom jinxes between any two characters to support community-designed homebrew scripts.
+
+Q: What export formats does this Blood on the Clocktower layout beautifier support?
+A: It supports 5 export formats: PDF for printing, image workflow for social media sharing, original JSON for the official script tool, full JSON in the current language to preserve custom character data, and official-ID-only JSON for multilingual switching. This covers all use cases from physical printing to online sharing.
+
+Q: Can this custom BOTC script maker use official JSON?
+A: Yes. Import JSON exported from the official BOTC script tool and the generator automatically parses the character list, jinx relationships and special rules. It supports freely switching between Chinese, English and Spanish interfaces, and exporting localized versions.
+
+Q: Is this BOTC script tool free? Do I need to create an account?
+A: Completely free, no account required, no software installation needed. The tool runs entirely in your browser with all data processing done locally on your device. Nothing is uploaded to any server. Just open the page and start creating scripts.
+
+Q: How do I import a script into the tool?
+A: Click the Import button and select a JSON file exported from the official BOTC script maker or any compatible JSON file. The tool automatically parses and displays all characters, jinx relationships and special rules. You can also browse the script repository to select popular community-shared scripts directly.
+
+Q: What is two-page layout mode and how do I use it?
+A: Two-page layout mode splits the script content across two pages: page one shows the character list and team information, page two displays jinx relationships and special rules. Ideal for printing on A3 or A4 double-sided paper. Toggle "Two-page mode" in settings to enable it, with custom background images and font styles.
+
+## FAQ（中文）
+
+Q: BOTC 剧本工具相克关系怎么定制？
+A: 导入或生成剧本后，点击"添加特殊规则"，选择"添加自定义相克"，选中两个角色并填写规则描述，工具会自动将相克关系渲染到剧本板子中。支持自定义任意两个角色之间的相克关系，满足社区自制剧本的灵活需求。
+
+Q: 血染钟楼板子美化器支持哪些导出格式？
+A: 支持 5 种导出格式：PDF（适合打印）、图片流程（适合社交媒体分享）、原始 JSON（用于官方剧本工具）、当前语言完整 JSON（保留自定义角色数据）和仅官方 ID JSON（用于多语言切换），全面覆盖从打印到线上的所有使用场景。
+
+Q: 血染钟楼自定义剧本工具能处理官方 JSON 吗？
+A: 可以。直接导入官方剧本制作器（script tool）导出的 JSON 文件，工具自动解析角色列表、相克关系和特殊规则，并支持在中文、英文、西班牙语界面之间自由切换，导出对应语言版本。
+
+Q: 这个工具是免费的吗？需要注册账号吗？
+A: 完全免费，无需注册账号，无需安装任何软件。工具完全在浏览器中运行，所有数据处理都在本地完成，不上传到服务器。打开网页即可使用。
+
+Q: 如何导入剧本到工具中？
+A: 点击导入按钮，选择从官方 BOTC 剧本制作器导出的 JSON 文件，或任何兼容格式的 JSON 文件。工具会自动解析并显示剧本中的所有角色、相克关系和特殊规则。也支持从剧本仓库直接选择社区共享的热门剧本。
+
+Q: 双页排版模式是什么？怎么使用？
+A: 双页排版模式将剧本内容分成两页显示，第一页为角色列表和阵营信息，第二页为相克关系和特殊规则说明。适合打印为 A3 或 A4 双面。在设置中切换"双页模式"即可开启，支持自定义背景图和字体样式。
+
+## Keywords
+
+Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,Clocktower script maker,custom BOTC script,custom jinx relationships,how to customize BOTC jinx,script JSON,board game tool
+血染钟楼板子美化器,血染钟楼自定义剧本工具,血染钟楼剧本生成器,BOTC剧本工具,BOTC板子美化器,相克关系怎么定制,自定义相克关系,血染钟楼JSON,Blood on the Clocktower

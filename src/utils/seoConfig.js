@@ -33,19 +33,19 @@ export const META = {
     ],
     faq: [
       {
-        question: 'BOTC 剧本工具相克关系怎么定制？',
+        question: '官方血染钟楼剧本工具导出的 PDF 为什么不好看？有更好的美化方案吗？',
         answer:
-          '导入或生成剧本后，点击"添加特殊规则"，选择"添加自定义相克"，选中两个角色并填写规则描述，工具会自动将相克关系渲染到剧本板子中。支持自定义任意两个角色之间的相克关系，满足社区自制剧本的灵活需求。',
+          '官方剧本工具（script.bloodontheclocktower.com）导出的 PDF 只有"黑字白底"的单栏排版，社区用户评价"这个字体真的很糟糕"（Reddit r/BloodOnTheClocktower），甚至有用户表示"愿意付费让工具支持背景和纹理"。Onion的钟楼工具提供双页排版、自定义背景图、字体样式和配色方案，支持导出高质量 PDF 和图片，无需学习 Canva 或 Photoshop 即可生成媲美官方基础三剧本风格的精美剧本。',
       },
       {
-        question: '血染钟楼板子美化器支持哪些导出格式？',
+        question: '官方剧本工具能自定义自制角色图标吗？怎么上传自制角色图片？',
         answer:
-          '支持 5 种导出格式：PDF（适合打印）、图片流程（适合社交媒体分享）、原始 JSON（用于官方剧本工具）、当前语言完整 JSON（保留自定义角色数据）和仅官方 ID JSON（用于多语言切换），全面覆盖从打印到线上的所有使用场景。',
+          '官方工具明确不支持覆盖已有角色图标，GitHub Issue #454 中开发者确认"角色要么是完全自制，要么是完全官方，不能部分覆盖"。有用户不得不"下载 PDF 转 Word 再手动添加文字和图片"（Reddit）。Onion的钟楼工具支持直接上传自定义角色图标，一键替换任意角色图片，无需任何设计软件。',
       },
       {
-        question: '血染钟楼自定义剧本工具能处理官方 JSON 吗？',
+        question: '血染钟楼剧本工具能自定义夜间行动顺序吗？',
         answer:
-          '可以。直接导入官方剧本制作器（script tool）导出的 JSON 文件，工具自动解析角色列表、相克关系和特殊规则，并支持在中文、英文、西班牙语界面之间自由切换，导出对应语言版本。',
+          '官方工具拒绝了自定义夜间顺序的功能请求，GitHub Issue #409 中开发者表示"这不会发生"。用户只能手动编辑 JSON 文件来调整顺序。Onion的钟楼工具支持完整自定义夜间行动顺序，无需编辑 JSON，直接在界面上拖拽调整即可。',
       },
       {
         question: '这个工具是免费的吗？需要注册账号吗？',
@@ -53,14 +53,14 @@ export const META = {
           '完全免费，无需注册账号，无需安装任何软件。工具完全在浏览器中运行，所有数据处理都在本地完成，不上传到服务器。打开网页即可使用。',
       },
       {
-        question: '如何导入剧本到工具中？',
+        question: '血染钟楼剧本工具支持自定义相克关系吗？',
         answer:
-          '点击导入按钮，选择从官方 BOTC 剧本制作器导出的 JSON 文件，或任何兼容格式的 JSON 文件。工具会自动解析并显示剧本中的所有角色、相克关系和特殊规则。也支持从剧本仓库直接选择社区共享的热门剧本。',
+          '支持。官方工具不支持修改或删除相克关系，Reddit 用户表示"希望能删除或修改相克关系"。Onion的钟楼工具支持添加、编辑和删除任意两个角色之间的相克关系，满足社区自制剧本的灵活需求。',
       },
       {
-        question: '双页排版模式是什么？怎么使用？',
+        question: '血染钟楼板子美化器支持哪些导出格式？',
         answer:
-          '双页排版模式将剧本内容分成两页显示，第一页为角色列表和阵营信息，第二页为相克关系和特殊规则说明。适合打印为 A3 或 A4 双面。在设置中切换"双页模式"即可开启，支持自定义背景图和字体样式。',
+          '支持 5 种导出格式：PDF（适合打印）、图片流程（适合社交媒体分享）、原始 JSON（用于官方剧本工具）、当前语言完整 JSON（保留自定义角色数据）和仅官方 ID JSON（用于多语言切换），全面覆盖从打印到线上的所有使用场景。',
       },
     ],
     howToSteps: [
@@ -101,34 +101,34 @@ export const META = {
     ],
     faq: [
       {
-        question: 'How do I customize jinx relationships in a BOTC script tool?',
+        question: 'Why does the official BOTC script tool PDF look bad? How to make a beautiful script?',
         answer:
-          'After importing or generating a script, open "Add Special Rule", choose "Add Custom Jinx", select two characters and write the rule description. The tool automatically renders the jinx relationship on the script sheet. You can define custom jinxes between any two characters to support community-designed homebrew scripts.',
+          'The official script tool (script.bloodontheclocktower.com) exports PDFs as plain "black text on a blank white page" (Reddit r/BloodOnTheClocktower). Users have said "I would pay actual money for the tool to let me add backgrounds, textures" and "the font that TPI uses does kinda suck." Onion\'s Clocktower Tool provides two-page layout, custom backgrounds, fonts, and color schemes — export print-ready PDFs and images without learning Canva or Photoshop. 7+ community developers built alternative tools specifically to address this gap.',
       },
       {
-        question: 'What export formats does this Blood on the Clocktower layout beautifier support?',
+        question: 'Can the official BOTC script tool use custom character icons for homebrew scripts?',
         answer:
-          'It supports 5 export formats: PDF for printing, image workflow for social media sharing, original JSON for the official script tool, full JSON in the current language to preserve custom character data, and official-ID-only JSON for multilingual switching. This covers all use cases from physical printing to online sharing.',
+          'No. The official tool confirmed on GitHub Issue #454 that "partial overrides of existing characters are not a thing — a character is either fully homebrew or fully official." Users resort to downloading the PDF, converting to Word, and manually adding images. Onion\'s Clocktower Tool lets you upload custom character icons directly and replace any character image with one click — no design software needed.',
       },
       {
-        question: 'Can this custom BOTC script maker use official JSON?',
+        question: 'Can I customize the night order in a BOTC script tool?',
         answer:
-          'Yes. Import JSON exported from the official BOTC script tool and the generator automatically parses the character list, jinx relationships and special rules. It supports freely switching between Chinese, English and Spanish interfaces, and exporting localized versions.',
+          'The official tool rejected custom night order support. GitHub Issue #409 states this "is simply not going to happen." Reddit users report the night order "doesn\'t say what you need to do for each character like the base scripts." Onion\'s Clocktower Tool supports full night order customization — drag and drop to reorder without editing JSON files.',
       },
       {
-        question: 'Is this BOTC script tool free? Do I need to create an account?',
+        question: 'Is this BOTC script tool free? Do I need an account?',
         answer:
           'Completely free, no account required, no software installation needed. The tool runs entirely in your browser with all data processing done locally on your device. Nothing is uploaded to any server. Just open the page and start creating scripts.',
       },
       {
-        question: 'How do I import a script into the tool?',
+        question: 'Can I customize jinx relationships in this BOTC script tool?',
         answer:
-          'Click the Import button and select a JSON file exported from the official BOTC script maker or any compatible JSON file. The tool automatically parses and displays all characters, jinx relationships and special rules. You can also browse the script repository to select popular community-shared scripts directly.',
+          'Yes. The official tool does not support modifying or removing jinxes — Reddit users said "I wish I could remove / modify Jinxes, custom jinxes would be cool." Onion\'s Clocktower Tool supports adding, editing, and removing jinx relationships between any two characters, perfect for community homebrew scripts.',
       },
       {
-        question: 'What is two-page layout mode and how do I use it?',
+        question: 'What export formats does this Blood on the Clocktower layout beautifier support?',
         answer:
-          'Two-page layout mode splits the script content across two pages: page one shows the character list and team information, page two displays jinx relationships and special rules. Ideal for printing on A3 or A4 double-sided paper. Toggle "Two-page mode" in settings to enable it, with custom background images and font styles.',
+          '5 export formats: PDF for printing, image workflow for social media sharing, original JSON for the official script tool, full JSON in the current language preserving custom character data, and official-ID-only JSON for multilingual switching. Covers all use cases from physical printing to online sharing.',
       },
     ],
     howToSteps: [
@@ -169,29 +169,34 @@ export const META = {
     ],
     faq: [
       {
-        question: 'Cómo personalizar interacciones jinx en una herramienta BOTC?',
+        question: 'Por qué el PDF de la herramienta oficial de BOTC se ve mal? Cómo hacer un guion bonito?',
         answer:
-          'Después de importar o generar un guion, abre "Añadir regla especial", elige "Añadir interacción personalizada", selecciona dos personajes y escribe la descripción. La herramienta renderiza automáticamente la interacción en la hoja del guion. Puedes definir interacciones personalizadas entre cualquier par de personajes para guiones homebrew de la comunidad.',
+          'La herramienta oficial (script.bloodontheclocktower.com) exporta PDFs como "texto negro en una página blanca" (Reddit r/BloodOnTheClocktower). Los usuarios dijeron "pagaría dinero real por añadir fondos y texturas" y "la fuente que usa TPI es bastante mala." Onion\'s Clocktower Tool ofrece diseño de dos páginas, fondos personalizados, fuentes y esquemas de color para exportar PDFs listos para imprimir sin aprender Canva ni Photoshop.',
+      },
+      {
+        question: 'Puede la herramienta oficial de BOTC usar iconos de personajes personalizados?',
+        answer:
+          'No. La herramienta oficial confirmó en GitHub Issue #454 que "las anulaciones parciales de personajes existentes no son posibles." Los usuarios recurren a descargar el PDF, convertirlo a Word y añadir imágenes manualmente. Onion\'s Clocktower Tool permite subir iconos de personajes personalizados directamente y reemplazar cualquier imagen con un clic.',
+      },
+      {
+        question: 'Puedo personalizar el orden nocturno en una herramienta BOTC?',
+        answer:
+          'La herramienta oficial rechazó el soporte de orden nocturno personalizado (GitHub Issue #409). Reddit: "el orden nocturno no dice qué hacer con cada personaje como los guiones base." Onion\'s Clocktower Tool permite personalizar completamente el orden nocturno arrastrando y soltando sin editar JSON.',
+      },
+      {
+        question: 'Esta herramienta BOTC es gratuita? Necesito una cuenta?',
+        answer:
+          'Completamente gratuita, sin cuenta ni instalación. Se ejecuta en el navegador, todos los datos se procesan localmente. Solo abre la página y empieza a crear guiones.',
+      },
+      {
+        question: 'Puedo personalizar las interacciones jinx en esta herramienta BOTC?',
+        answer:
+          'Sí. La herramienta oficial no permite modificar ni eliminar interacciones jinx — usuarios de Reddit dijeron "me gustaría poder eliminar o modificar las interacciones jinx." Onion\'s Clocktower Tool permite añadir, editar y eliminar interacciones entre cualquier par de personajes.',
       },
       {
         question: 'Qué formatos de exportación admite este maquetador de BOTC?',
         answer:
-          'Admite 5 formatos: PDF para imprimir, flujo de imagen para compartir en redes sociales, JSON original para la herramienta oficial, JSON completo en el idioma actual para conservar datos de personajes personalizados, y JSON solo con ID oficiales para cambiar de idioma.',
-      },
-      {
-        question: 'Este creador de guiones BOTC acepta JSON oficial?',
-        answer:
-          'Sí. Importa JSON del creador oficial de guiones BOTC y la herramienta analiza automáticamente la lista de personajes, interacciones jinx y reglas especiales. Admite cambiar libremente entre chino, inglés y español, y exportar versiones localizadas.',
-      },
-      {
-        question: 'Esta herramienta BOTC es gratuita? Necesito crear una cuenta?',
-        answer:
-          'Completamente gratuita, sin necesidad de cuenta ni instalación de software. La herramienta se ejecuta íntegramente en el navegador, procesando todos los datos localmente en tu dispositivo. Solo abre la página y empieza a crear guiones.',
-      },
-      {
-        question: 'Cómo importo un guion en la herramienta?',
-        answer:
-          'Haz clic en Importar y selecciona un archivo JSON exportado del creador oficial de guiones BOTC o cualquier JSON compatible. La herramienta analiza y muestra todos los personajes, interacciones y reglas. También puedes explorar el repositorio de guiones para seleccionar guiones populares de la comunidad.',
+          '5 formatos: PDF para imprimir, flujo de imagen para redes sociales, JSON original para la herramienta oficial, JSON completo en el idioma actual con datos personalizados, y JSON solo con ID oficiales para cambio de idioma.',
       },
     ],
     howToSteps: [
