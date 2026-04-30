@@ -40,7 +40,7 @@ export const META = {
       {
         question: '官方剧本工具能自定义自制角色图标吗？怎么上传自制角色图片？',
         answer:
-          '官方工具明确不支持覆盖已有角色图标，GitHub Issue #454 中开发者确认"角色要么是完全自制，要么是完全官方，不能部分覆盖"。有用户不得不"下载 PDF 转 Word 再手动添加文字和图片"（Reddit）。Onion的钟楼工具支持直接上传自定义角色图标，一键替换任意角色图片，无需任何设计软件。',
+          '官方工具的自制角色图标需要严格遵循 539x539 像素且底部留白 100 像素的格式要求，且外部图片托管（如 imgur）在部分地区无法加载（GitHub Issue #469）。有用户不得不"下载 PDF 转 Word 再手动添加文字和图片"（Reddit r/BloodOnTheClocktower）。Onion的钟楼工具支持直接上传任意尺寸的自定义角色图标，本地处理无需外部托管，一键替换。',
       },
       {
         question: '血染钟楼剧本工具能自定义夜间行动顺序吗？',
@@ -108,7 +108,7 @@ export const META = {
       {
         question: 'Can the official BOTC script tool use custom character icons for homebrew scripts?',
         answer:
-          'No. The official tool confirmed on GitHub Issue #454 that "partial overrides of existing characters are not a thing — a character is either fully homebrew or fully official." Users resort to downloading the PDF, converting to Word, and manually adding images. Onion\'s Clocktower Tool lets you upload custom character icons directly and replace any character image with one click — no design software needed.',
+          'The official tool requires homebrew icons to be exactly 539x539 pixels with 100px of blank space at the bottom, and external image hosting like imgur stopped working in some regions (GitHub Issue #469). Users resort to downloading the PDF, converting to Word, and manually adding images. Onion\'s Clocktower Tool lets you upload any custom character icon regardless of size — images are processed locally, no external hosting needed.',
       },
       {
         question: 'Can I customize the night order in a BOTC script tool?',
@@ -176,7 +176,7 @@ export const META = {
       {
         question: 'Puede la herramienta oficial de BOTC usar iconos de personajes personalizados?',
         answer:
-          'No. La herramienta oficial confirmó en GitHub Issue #454 que "las anulaciones parciales de personajes existentes no son posibles." Los usuarios recurren a descargar el PDF, convertirlo a Word y añadir imágenes manualmente. Onion\'s Clocktower Tool permite subir iconos de personajes personalizados directamente y reemplazar cualquier imagen con un clic.',
+          'La herramienta oficial requiere que los iconos homebrew sean de exactamente 539x539 píxeles con 100px de espacio vacío abajo, y el alojamiento externo como imgur dejó de funcionar en algunas regiones (GitHub Issue #469). Los usuarios recurren a descargar el PDF, convertirlo a Word y añadir imágenes manualmente. Onion\'s Clocktower Tool permite subir cualquier icono personalizado sin restricciones de tamaño.',
       },
       {
         question: 'Puedo personalizar el orden nocturno en una herramienta BOTC?',

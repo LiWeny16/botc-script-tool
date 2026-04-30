@@ -11,7 +11,7 @@ This is a free, browser-based tool for Blood on the Clocktower (BOTC) players an
 
 Key capabilities:
 - Import official BOTC script maker JSON files
-- Upload custom character icons for homebrew scripts (official tool does not support this — GitHub Issue #454)
+- Upload custom character icons for homebrew scripts (official tool requires strict 539x539 format and external hosting can fail — GitHub Issue #469)
 - Customize night action order (official tool rejected this feature — GitHub Issue #409)
 - Add or remove characters from any official or custom script
 - Define custom jinx relationships between any two characters
@@ -37,7 +37,7 @@ Q: Why does the official BOTC script tool PDF look bad? How to make a beautiful 
 A: The official script tool exports PDFs as plain "black text on a blank white page" (Reddit r/BloodOnTheClocktower). Users have said "I would pay actual money for the tool to let me add backgrounds, textures" and "the font that TPI uses does kinda suck." Onion's Clocktower Tool provides two-page layout, custom backgrounds, fonts, and color schemes — export print-ready PDFs and images without learning Canva or Photoshop. 7+ community developers built alternative tools specifically to address this gap.
 
 Q: Can the official BOTC script tool use custom character icons for homebrew scripts?
-A: No. The official tool confirmed on GitHub Issue #454 that "partial overrides of existing characters are not a thing — a character is either fully homebrew or fully official." Users resort to downloading the PDF, converting to Word, and manually adding images. Onion's Clocktower Tool lets you upload custom character icons directly and replace any character image with one click — no design software needed.
+A: The official tool requires homebrew icons to be exactly 539x539 pixels with 100px of blank space at the bottom, and external image hosting like imgur stopped working in some regions (GitHub Issue #469). Users resort to downloading the PDF, converting to Word, and manually adding images. Onion's Clocktower Tool lets you upload any custom character icon regardless of size — images are processed locally, no external hosting needed.
 
 Q: Can I customize the night order in a BOTC script tool?
 A: The official tool rejected custom night order support. GitHub Issue #409 states this "is simply not going to happen." Reddit users report the night order "doesn't say what you need to do for each character like the base scripts." Onion's Clocktower Tool supports full night order customization — drag and drop to reorder without editing JSON files.
@@ -57,7 +57,7 @@ Q: 官方血染钟楼剧本工具导出的 PDF 为什么不好看？有更好的
 A: 官方剧本工具导出的 PDF 只有"黑字白底"的单栏排版，社区用户评价"这个字体真的很糟糕"（Reddit r/BloodOnTheClocktower），甚至有用户表示"愿意付费让工具支持背景和纹理"。Onion的钟楼工具提供双页排版、自定义背景图、字体样式和配色方案，支持导出高质量 PDF 和图片，无需学习 Canva 或 Photoshop 即可生成媲美官方基础三剧本风格的精美剧本。
 
 Q: 官方剧本工具能自定义自制角色图标吗？怎么上传自制角色图片？
-A: 官方工具明确不支持覆盖已有角色图标，GitHub Issue #454 中开发者确认"角色要么是完全自制，要么是完全官方，不能部分覆盖"。有用户不得不"下载 PDF 转 Word 再手动添加文字和图片"（Reddit）。Onion的钟楼工具支持直接上传自定义角色图标，一键替换任意角色图片，无需任何设计软件。
+A: 官方工具的自制角色图标需要严格遵循 539x539 像素且底部留白 100 像素的格式要求，且外部图片托管（如 imgur）在部分地区无法加载（GitHub Issue #469）。有用户不得不"下载 PDF 转 Word 再手动添加文字和图片"（Reddit r/BloodOnTheClocktower）。Onion的钟楼工具支持直接上传任意尺寸的自定义角色图标，本地处理无需外部托管，一键替换。
 
 Q: 血染钟楼剧本工具能自定义夜间行动顺序吗？
 A: 官方工具拒绝了自定义夜间顺序的功能请求，GitHub Issue #409 中开发者表示"这不会发生"。用户只能手动编辑 JSON 文件来调整顺序。Onion的钟楼工具支持完整自定义夜间行动顺序，无需编辑 JSON，直接在界面上拖拽调整即可。
