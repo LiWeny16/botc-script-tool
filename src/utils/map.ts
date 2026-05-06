@@ -26,10 +26,10 @@ const baseTranslations = {
     'app.emptyState': '请在上方输入剧本 JSON 并点击"生成剧本"按钮',
 
     // SEO相关
-    'seo.title': 'Onion的钟楼工具 - 血染钟楼板子美化器与自定义剧本工具',
-    'seo.description': '免费血染钟楼板子美化器和自定义剧本工具，支持导入官方 JSON、编辑角色与相克关系、特殊规则、双页排版，并导出 PDF、图片和多语言 JSON。',
+    'seo.title': '免费血染钟楼剧本工具 — 板子美化器与自定义剧本生成器',
+    'seo.description': '免费血染钟楼剧本工具。导入官方 JSON、自定义角色和相克关系、选择双页排版，一键导出打印级 PDF 或图片。无需注册，打开即用。',
     'seo.keywords': '血染钟楼板子美化器,血染钟楼自定义剧本工具,血染钟楼剧本生成器,BOTC剧本工具,BOTC板子美化器,相克关系怎么定制,自定义相克关系,血染钟楼JSON,Blood on the Clocktower',
-    'seo.appTitle': 'Onion的钟楼工具',
+    'seo.appTitle': 'BOTC剧本工具',
 
     // 输入面板
     'input.jsonLabel': '剧本 JSON',
@@ -484,10 +484,10 @@ const baseTranslations = {
     'app.emptyState': 'Please enter script JSON above and click "Generate Script" button',
 
     // SEO Related
-    'seo.title': 'Onion\'s Clocktower Tool - BOTC Script Generator and Layout Beautifier',
+    'seo.title': 'Free BOTC Script Tool — Blood on the Clocktower Layout Beautifier & Script Generator',
     'seo.description': 'Free BOTC script generator and layout beautifier for Blood on the Clocktower. Import official JSON, edit characters, custom jinxes and special rules, then export PDF, image workflow and multilingual JSON.',
     'seo.keywords': 'Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,Clocktower script maker,custom BOTC script,custom jinx relationships,how to customize BOTC jinx,script JSON,board game tool',
-    'seo.appTitle': 'Onion\'s Clocktower Tool',
+    'seo.appTitle': 'BOTC Script Tool',
 
     // Input Panel
     'input.jsonLabel': 'Script JSON',
@@ -943,10 +943,10 @@ const spanishTranslations: Partial<Record<TranslationKey, string>> = {
   'app.emptyState': 'Introduce el JSON del guion y pulsa «Generar guion»',
 
   // SEO
-  'seo.title': 'Herramienta Clocktower de Onion - Generador y maquetador BOTC',
+  'seo.title': 'Herramienta BOTC gratuita — Generador y maquetador de guiones Blood on the Clocktower',
   'seo.description': 'Generador de guiones y maquetador gratuito para Blood on the Clocktower. Importa JSON oficial, edita personajes, interacciones jinx y reglas especiales, y exporta PDF, flujo de imagen y JSON multilingue.',
   'seo.keywords': 'generador de guiones Blood on the Clocktower,herramienta BOTC,maquetador BOTC,crear guion BOTC,guion personalizado BOTC,interacciones jinx personalizadas,cómo personalizar interacciones BOTC,JSON de guion,juego de mesa',
-  'seo.appTitle': 'Herramienta para Clocktower de Onion',
+  'seo.appTitle': 'BOTC Script Tool',
 
   // Input panel
   'input.jsonLabel': 'JSON del guion',
