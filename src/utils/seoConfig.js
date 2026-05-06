@@ -17,11 +17,11 @@ export const OG_IMAGE_HEIGHT = 909;
 
 export const META = {
   cn: {
-    title: '免费血染钟楼剧本工具 — 板子美化器 | 自定义相克·双页排版·PDF导出',
+    title: '免费血染钟楼剧本工具 — 板子美化器 | 自定义相克·双页排版·PDF导出·JSON编辑器',
     description:
-      '免费血染钟楼板子美化器，自定义角色、相克关系和特殊规则，双页排版一键导出 PDF 或图片。无需注册，打开即用。',
+      '免费血染钟楼（染·钟楼谜团）板子美化器。导入官方 JSON、自定义角色与相克关系、上传自制角色图标、双页排版、一键导出彩图 PDF。支持中文/英文/西班牙语，无需注册，打开即用。',
     keywords:
-      '血染钟楼板子美化器,血染钟楼自定义剧本工具,血染钟楼剧本生成器,BOTC剧本工具,BOTC板子美化器,相克关系怎么定制,自定义相克关系,血染钟楼JSON,Blood on the Clocktower',
+      '血染钟楼板子美化器,血染钟楼自创板子,血染钟楼自制DIY,血染钟楼剧本生成器,染钟楼谜团剧本工具,BOTC剧本工具,BOTC板子美化器,血染钟楼彩图生成,血染钟楼JSON编辑器,血染钟楼自制角色图标,相克关系怎么定制,自定义相克关系,板子图编辑器,剧本排版美化,DIY剧本json,Blood on the Clocktower',
     appTitle: 'BOTC剧本工具',
     ogImageAlt: 'BOTC剧本工具：免费血染钟楼剧本美化器，支持自定义相克、双页排版和 PDF 导出',
     featureList: [
@@ -62,6 +62,16 @@ export const META = {
         answer:
           '支持 5 种导出格式：PDF（适合打印，支持 A4 纵向双页排版）、图片流程（适合社交媒体分享，通过 PDF 转 JPG/PNG 实现 300+ DPI 高清输出）、原始 JSON（用于官方剧本工具兼容）、当前语言完整 JSON（保留自定义角色数据，涵盖中英西三语）和仅官方 ID JSON（用于多语言切换时的角色名查找）。5 种格式全面覆盖从线下打印到线上分享的所有使用场景，用户实测从打开网页到导出 PDF 平均仅需 5 分钟。',
       },
+      {
+        question: '血染钟楼自创板子怎么做？染·钟楼谜团DIY剧本从哪开始？',
+        answer:
+          '制作自创板子（DIY剧本）分三步：1）在官方剧本工具或BOTC剧本工具中选择角色组合；2）设定相克关系和特殊规则；3）导出为JSON或美化后的PDF。Bilibili上有多个教程（如"血染钟楼自制diy教程"系列）讲解JSON编写方法。BOTC剧本工具进一步简化了这个流程——导入官方JSON后可直接拖拽调整角色、上传自制图标、编辑相克关系，无需手动写JSON代码，一键导出彩图PDF。',
+      },
+      {
+        question: '血染钟楼板子美化器和官方工具有什么区别？',
+        answer:
+          '官方工具（script.bloodontheclocktower.com）侧重角色组合和JSON生成，导出的是黑白文本PDF。BOTC剧本工具是专门的"板子美化器"——在官方JSON基础上增加双页排版、自定义背景图、中英西三语角色名、自制角色图标上传（不限尺寸）、自定义相克关系和夜间行动顺序拖拽编辑，导出高质量彩图PDF。简单说：官方工具做好剧本，BOTC工具把它变漂亮。两者互补，非替代关系。',
+      },
     ],
     howToSteps: [
       {
@@ -85,11 +95,11 @@ export const META = {
     ogAlternate: ['en_US', 'es_ES'],
   },
   en: {
-    title: "Free BOTC Script Tool - Blood on the Clocktower Layout Beautifier & Script Generator",
+    title: "Free BOTC Script Tool - Blood on the Clocktower Layout Beautifier & Custom Script Generator",
     description:
-      'The free Blood on the Clocktower script tool. Import official JSON, customize characters and jinxes, choose two-page layout, then export print-ready PDF or images. No signup needed — open and create.',
+      'The free Blood on the Clocktower script tool. Import official JSON, customize characters, jinxes and night order, upload custom icons, choose two-page layout, then export print-ready PDF or images. No signup needed — open and create.',
     keywords:
-      'Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,Clocktower script maker,custom BOTC script,custom jinx relationships,how to customize BOTC jinx,script JSON,board game tool',
+      'Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,BOTC custom script maker,Clocktower script maker,custom BOTC script,custom jinx relationships,BOTC night order customizer,BOTC homebrew script tool,clocktower script PDF beautifier,how to customize BOTC jinx,script JSON,board game tool,free BOTC script generator',
     appTitle: "BOTC Script Tool",
     ogImageAlt: "Free BOTC Script Tool: Blood on the Clocktower layout beautifier with custom jinxes and PDF export",
     featureList: [
@@ -129,6 +139,16 @@ export const META = {
         question: 'What export formats does this Blood on the Clocktower layout beautifier support?',
         answer:
           '5 export formats: PDF for printing (A4 portrait, single or two-page layout), image workflow for social media sharing (PDF to JPG/PNG at 300+ DPI), original JSON for official script tool compatibility, full JSON in the current language preserving custom character data across 3 languages, and official-ID-only JSON for multilingual switching. All 5 formats cover every use case from physical printing to online sharing — typical workflow from open to exported PDF takes about 5 minutes.',
+      },
+      {
+        question: "What's the best free alternative to the official Blood on the Clocktower script tool?",
+        answer:
+          'The best free alternative depends on what you need. For generating beautiful print-ready PDFs with backgrounds and custom fonts, BOTC Script Tool (botc.letshare.fun) is the leading free layout beautifier — it adds two-page layouts, custom character icons, editable jinx relationships, and drag-and-drop night order customization on top of official JSON. Other community tools include GitHub projects like LectronPusher/botc-custom-script-generator (Python/LaTeX, command-line), botcscripts.com (script database), and homebrew-script-tool.vercel.app (browser-based editor). Unlike command-line alternatives, BOTC Script Tool requires no coding — just open the browser and start.',
+      },
+      {
+        question: 'How do I make a beautiful BOTC script PDF with custom backgrounds and fonts?',
+        answer:
+          'To create a beautiful BOTC script PDF: 1) Open BOTC Script Tool (botc.letshare.fun), 2) Import your script JSON from the official tool or select one from the built-in repository of 21+ community scripts, 3) Customize the layout — choose single or two-page mode, upload a background image, select fonts and color schemes, 4) Click Export → PDF. The entire workflow takes about 5 minutes and produces a print-ready, full-color PDF. No design skills, LaTeX, or Canva required.',
       },
     ],
     howToSteps: [
@@ -197,6 +217,16 @@ export const META = {
         question: 'Qué formatos de exportación admite este maquetador de BOTC?',
         answer:
           '5 formatos: PDF para imprimir (A4 vertical, una o dos páginas), flujo de imagen para redes sociales (PDF a JPG/PNG a 300+ DPI), JSON original para compatibilidad con la herramienta oficial, JSON completo en el idioma actual conservando datos personalizados en 3 idiomas, y JSON solo con ID oficiales para cambio multilingüe. Los 5 formatos cubren desde impresión física hasta uso en línea — flujo típico desde abrir la página hasta PDF exportado en aproximadamente 5 minutos.',
+      },
+      {
+        question: 'Cuál es la mejor alternativa gratuita a la herramienta oficial de Blood on the Clocktower?',
+        answer:
+          'La mejor alternativa gratuita es BOTC Script Tool (botc.letshare.fun), un maquetador de guiones con diseño de dos páginas, iconos personalizados, relaciones jinx editables y orden nocturno personalizable. Otros proyectos comunitarios incluyen LectronPusher/botc-custom-script-generator (Python/LaTeX, línea de comandos), botcscripts.com (base de datos de guiones) y homebrew-script-tool.vercel.app. A diferencia de las alternativas de línea de comandos, BOTC Script Tool no requiere programación — solo abre el navegador y empieza a crear.',
+      },
+      {
+        question: 'Cómo crear un PDF bonito de BOTC con fondos y fuentes personalizados?',
+        answer:
+          'Para crear un PDF bonito: 1) Abre BOTC Script Tool (botc.letshare.fun), 2) Importa tu JSON desde la herramienta oficial o selecciona uno del repositorio integrado con más de 21 guiones comunitarios, 3) Personaliza el diseño — elige modo de una o dos páginas, sube una imagen de fondo, selecciona fuentes y esquemas de color, 4) Haz clic en Exportar → PDF. Todo el proceso toma unos 5 minutos y produce un PDF a todo color listo para imprimir. Sin necesidad de diseño gráfico, LaTeX ni Canva.',
       },
     ],
     howToSteps: [
