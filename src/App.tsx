@@ -57,57 +57,57 @@ import { trackGenerateScript, trackExportJson, trackExportImage, trackExportPdf,
 import { AnimatePresence } from 'framer-motion';
 import AnimatedDialog from './components/AnimatedDialog';
 
-// 把它放在 App 组件上面，或者 theme 定义的下面
+// Place this above the App component, or below the theme definition
 const printStyles = {
   '@media print': {
-    // 1. 定义打印页面，去除浏览器默认边距
+    // 1. Define print page, remove browser default margins
     '@page': {
-      size: 'A4 portrait', // 推荐 A4 纵向
-      margin: 0,           // 页面边距设为0，我们在容器内部控制
+      size: 'A4 portrait', // Recommended: A4 portrait
+      margin: 0,           // Set page margin to 0, we control margins inside the container
     },
 
-    // 2. 隐藏页面上所有元素
+    // 2. Hide all elements on the page
     'body *': {
       visibility: 'hidden !important',
     },
 
-    // 3. 仅显示你要打印的剧本核心区，以及它的所有子元素
+    // 3. Only show the core script area to print, and all its children
     '#script-preview, #script-preview *, #main_script, #main_script *, #script-preview-2, #script-preview-2 *': {
       visibility: 'visible !important',
     },
 
-    // 3.5. 移除Container的padding和margin
+    // 3.5. Remove Container padding and margin
     '.MuiContainer-root': {
       padding: '0 !important',
       margin: '0 !important',
       maxWidth: '100% !important',
     },
 
-    // 4. ⭐ 核心：设置第一页容器高度和布局
+    // 4. ⭐ Core: Set first page container height and layout
     '#script-preview': {
-      // --- A. 定位和尺寸 ---
+      // --- A. Position and size ---
       position: 'relative !important',
       left: '0 !important',
       top: '0 !important',
-      width: '100vw !important',  // 100% 打印视口宽度
-      height: '100vh !important', // 100% 打印视口高度
+      width: '100vw !important',  // 100% print viewport width
+      height: '100vh !important', // 100% print viewport height
       margin: '0 !important',
       padding: '0 !important',
 
-      // --- B. 强制不溢出 ---
-      overflow: 'hidden !important', // 关键！裁剪任何超出一页的内容
+      // --- B. Force no overflow ---
+      overflow: 'hidden !important', // Critical! Clip any content exceeding one page
 
-      // --- C. 分页 ---
-      // 注意：只有当第二页存在时才强制分页
+      // --- C. Page break ---
+      // Note: Force page break only when second page exists
       pageBreakInside: 'avoid !important',
     },
 
-    // 4.1 当存在第二页时，第一页强制分页
+    // 4.1 When second page exists, force page break on first page
     '#script-preview:has(~ #script-preview-2)': {
       pageBreakAfter: 'always !important',
     },
 
-    // 5. ⭐ 第二页容器
+    // 5. ⭐ Second page container
     '#script-preview-2': {
       position: 'relative !important',
       left: '0 !important',
@@ -117,29 +117,29 @@ const printStyles = {
       margin: '0 !important',
       padding: '0 !important',
       overflow: 'hidden !important',
-      pageBreakBefore: 'always !important', // 第二页前强制分页
+      pageBreakBefore: 'always !important', // Force page break before second page
       pageBreakInside: 'avoid !important',
-      marginTop: '0 !important', // 确保打印时没有上边距
+      marginTop: '0 !important', // Ensure no top margin when printing
     },
 
-    // 6. 确保底部头像和文字框在打印时可见
+    // 6. Ensure bottom avatars and text boxes are visible when printing
     '#main_script .MuiBox-root': {
       visibility: 'visible !important',
     },
 
-    // 7. 隐藏标题悬浮时的编辑按钮
+    // 7. Hide edit button when hovering on title
     '.MuiIconButton-root': {
       display: 'none !important',
     },
 
-    // 8. 隐藏第二页添加组件按钮
+    // 8. Hide second page add component button
     '.second-page-add-component': {
       display: 'none !important',
     },
 
   },
 };
-// 创建主题
+// Create theme
 const theme = createTheme({
   palette: {
     primary: {
@@ -188,47 +188,47 @@ const App = observer(() => {
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [addCustomRuleDialogOpen, setAddCustomRuleDialogOpen] = useState<boolean>(false);
   const [aboutDialogOpen, setAboutDialogOpen] = useState<boolean>(false);
-  const [jsonParseError, setJsonParseError] = useState<string>(''); // 添加 JSON 解析错误状态
+  const [jsonParseError, setJsonParseError] = useState<string>(''); // JSON parse error state
   const [customJinxDialogOpen, setCustomJinxDialogOpen] = useState<boolean>(false);
-  const [printDialogOpen, setPrintDialogOpen] = useState<boolean>(false); // 添加打印对话框状态
-  const [exportJsonDialogOpen, setExportJsonDialogOpen] = useState<boolean>(false); // 导出JSON选项对话框
-  const [exportImageDialogOpen, setExportImageDialogOpen] = useState<boolean>(false); // 导出图片提示对话框
-  const [unlockModeDialogOpen, setUnlockModeDialogOpen] = useState<boolean>(false); // 解锁模式对话框
-  const [pendingEditCharacter, setPendingEditCharacter] = useState<Character | null>(null); // 待编辑的角色
+  const [printDialogOpen, setPrintDialogOpen] = useState<boolean>(false); // Print dialog state
+  const [exportJsonDialogOpen, setExportJsonDialogOpen] = useState<boolean>(false); // Export JSON options dialog
+  const [exportImageDialogOpen, setExportImageDialogOpen] = useState<boolean>(false); // Export image hint dialog
+  const [unlockModeDialogOpen, setUnlockModeDialogOpen] = useState<boolean>(false); // Unlock mode dialog
+  const [pendingEditCharacter, setPendingEditCharacter] = useState<Character | null>(null); // Pending character to edit
 
-  // 从 MobX store 获取状态
+  // Get state from MobX store
   const { script, originalJson, normalizedJson, customTitle, customAuthor } = scriptStore;
 
-  // 初始化加载数据
+  // Initialize and load data
   useEffect(() => {
 
     const initializeApp = async () => {
-      // 检测URL中的json参数，如果存在则跳转到preview页面
+      // Check for json param in URL, redirect to preview page if present
       const jsonParam = searchParams.get('json');
       if (jsonParam) {
         navigate(`/repo/preview?json=${encodeURIComponent(jsonParam)}`);
         return;
       }
 
-      // 如果没有存储的数据，加载默认示例
+      // If no stored data, load default example
       if (!scriptStore.hasStoredData) {
         try {
           const defaultJson = await scriptStore.loadDefaultExample();
           handleGenerate(defaultJson);
         } catch (error) {
-          console.error('加载默认示例失败:', error);
+          console.error('Failed to load default example:', error);
         }
       } else {
-        // 如果有存储的数据，重新生成剧本（适应语言变化）
+        // If stored data exists, regenerate script (to adapt to language changes)
         if (originalJson) {
           try {
             const generatedScript = generateScript(originalJson, language);
             if (customTitle) generatedScript.title = customTitle;
             if (customAuthor) generatedScript.author = customAuthor;
-            scriptStore.setScript(generatedScript); // setScript 会自动生成 normalizedJson
+            scriptStore.setScript(generatedScript); // setScript automatically generates normalizedJson
           } catch (error) {
-            console.error('重新生成剧本失败:', error);
-            // 如果存储的JSON有问题，清除它
+            console.error('Failed to regenerate script:', error);
+            // If stored JSON has issues, clear it
             scriptStore.clear();
           }
         }
@@ -240,53 +240,53 @@ const App = observer(() => {
     initializeApp();
   }, [searchParams, navigate]);
 
-  // 初始化全局快捷键（只初始化一次）
+  // Initialize global shortcuts (only once)
   useEffect(() => {
-    // 初始化快捷键监听
+    // Initialize shortcut listeners
     initGlobalShortcuts();
 
-    // 清理函数
+    // Cleanup function
     return () => {
       unregisterSaveCallback();
       cleanupGlobalShortcuts();
     };
-  }, []); // 空依赖数组，只在组件挂载时执行一次
+  }, []); // Empty dependency array, only runs once on component mount
 
-  // 注册保存回调（当语言变化时更新）
+  // Register save callback (update when language changes)
   useEffect(() => {
     const handleSave = () => {
-      // 直接保存 scriptStore 中的 originalJson
+      // Directly save originalJson from scriptStore
       const jsonToSave = scriptStore.originalJson;
 
       if (jsonToSave) {
         try {
-          // 验证JSON格式
+          // Validate JSON format
           JSON.parse(jsonToSave);
 
-          // scriptStore.setOriginalJson 已经在 handleJsonChange 中调用了
-          // 这里只需要显示保存成功的提示
+          // scriptStore.setOriginalJson has already been called in handleJsonChange
+          // Here we just need to show save success notification
           const stored = localStorage.getItem('botc-script-data');
           if (stored) {
             const message = language === 'cn'
-              ? `已保存到本地存储`
+              ? `Saved to local storage`
               : language === 'es'
                 ? `Guardado en almacenamiento local`
                 : `Saved to local storage`;
             showSaveAlert(message, 2500);
           }
         } catch (error) {
-          console.error('JSON格式错误:', error);
+          console.error('JSON format error:', error);
           const message = language === 'cn'
-            ? '✗ JSON格式错误，无法保存'
+            ? '✗ Invalid JSON format'
             : language === 'es'
               ? '✗ Formato JSON no válido'
               : '✗ Invalid JSON format';
           alertUseMui(message, 2500, { kind: 'error' });
         }
       } else {
-        console.log('没有可保存的JSON数据');
+        console.log('No JSON data to save');
         const message = language === 'cn'
-          ? '⚠ 没有可保存的JSON'
+          ? '⚠ No JSON to save'
           : language === 'es'
             ? '⚠ No hay JSON para guardar'
             : '⚠ No JSON to save';
@@ -296,18 +296,18 @@ const App = observer(() => {
 
     registerSaveCallback(handleSave);
 
-    // 当语言变化时，需要重新注册回调
+    // When language changes, need to re-register callback
     return () => {
       unregisterSaveCallback();
     };
-  }, [language]); // 只依赖 language
+  }, [language]); // Only depends on language
 
-  // 处理JSON输入变化 - 只保存到 store，不自动解析
+  // Handle JSON input change - only save to store, no auto-parse
   const handleJsonChange = (json: string) => {
-    // 只更新 originalJson，保存输入框内容，不触发自动生成
+    // Only update originalJson, save input content, don't trigger auto-generation
     scriptStore.setOriginalJson(json);
 
-    // 清除之前的错误提示（因为用户可能正在编辑中）
+    // Clear previous error (user may be editing)
     setJsonParseError('');
   };
 
@@ -315,11 +315,11 @@ const App = observer(() => {
     try {
       const generatedScript = generateScript(json, language);
 
-      // 覆写标题和作者
+      // Override title and author
       if (title) generatedScript.title = title;
       if (author) generatedScript.author = author;
 
-      // 更新 store
+      // Update store
       scriptStore.updateScript({
         script: generatedScript,
         originalJson: json,
@@ -327,7 +327,7 @@ const App = observer(() => {
         customAuthor: author || '',
       });
 
-      // 清除错误提示
+      // Clear error message
       setJsonParseError('');
 
       // Track analytics
@@ -336,47 +336,47 @@ const App = observer(() => {
       );
       trackGenerateScript({ characterCount, hasCustomTitle: !!title });
     } catch (error) {
-      // 生成失败时显示错误
+      // Show error on generation failure
       const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
       setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
     }
   };
 
-  // 监听语言变化，重新生成剧本
+  // Listen for language changes, regenerate script
   useEffect(() => {
     if (originalJson && isInitialized) {
       try {
         const generatedScript = generateScript(originalJson, language);
 
-        // 恢复自定义标题和作者
+        // Restore custom title and author
         if (customTitle) generatedScript.title = customTitle;
         if (customAuthor) generatedScript.author = customAuthor;
 
-        scriptStore.setScript(generatedScript); // setScript 会自动生成 normalizedJson
+        scriptStore.setScript(generatedScript); // setScript automatically generates normalizedJson
       } catch (error) {
-        console.error('语言切换时重新生成剧本失败:', error);
-        // 设置错误提示
+        console.error('Failed to regenerate script on language switch:', error);
+        // Set error message
         const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
         setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
       }
     }
   }, [language, originalJson, customTitle, customAuthor, isInitialized]);
 
-  // 更新角色顺序并同步到JSON
+  // Update character order and sync to JSON
   const handleReorderCharacters = (team: string, newOrder: string[]) => {
     scriptStore.reorderCharacters(team, newOrder);
   };
 
-  // 更新角色信息并同步到JSON
+  // Update character info and sync to JSON
   const handleUpdateCharacter = useCallback((characterId: string, updates: Partial<Character>) => {
     scriptStore.updateCharacter(characterId, updates);
   }, []);
 
-  // 处理编辑角色
+  // Handle editing character
   const handleEditCharacter = (character: Character) => {
-    // 检查是否处于只以id解析模式
+    // Check if in official ID parse mode
     if (configStore.config.officialIdParseMode) {
-      // 保存待编辑的角色，显示解锁提示对话框
+      // Save pending character to edit, show unlock dialog
       setPendingEditCharacter(character);
       setUnlockModeDialogOpen(true);
       return;
@@ -387,30 +387,30 @@ const App = observer(() => {
     trackEditCharacter({ characterId: character.id });
   };
 
-  // 处理解锁模式并继续编辑
+  // Handle unlock mode and continue editing
   const handleUnlockAndEdit = () => {
-    // 解锁只以id解析模式
+    // Unlock official ID parse mode
     configStore.setOfficialIdParseMode(false);
     setUnlockModeDialogOpen(false);
 
-    // 继续编辑操作
+    // Continue editing
     if (pendingEditCharacter) {
       setEditingCharacter(pendingEditCharacter);
       setEditDialogOpen(true);
       setPendingEditCharacter(null);
 
-      // 显示解锁成功提示
+      // Show unlock success message
       alertUseMui(`${t('dialog.unlockSuccess')}`, 2500, { kind: 'success' });
     }
   };
 
-  // 关闭编辑对话框
+  // Close edit dialog
   const handleCloseEditDialog = useCallback(() => {
     setEditDialogOpen(false);
     setEditingCharacter(null);
   }, []);
 
-  // 稳定的关闭回调（避免内联箭头函数导致 observer 组件重渲染）
+  // Stable close callbacks (avoid observer component re-renders from inline arrow functions)
   const handleCloseUISettings = useCallback(() => setUiSettingsOpen(false), []);
   const handleCloseShareDialog = useCallback(() => setShareDialogOpen(false), []);
   const handleCloseTitleEdit = useCallback(() => setTitleEditDialogOpen(false), []);
@@ -423,49 +423,49 @@ const App = observer(() => {
   const handleCloseCustomJinx = useCallback(() => setCustomJinxDialogOpen(false), []);
   const handleClosePrintDialog = useCallback(() => setPrintDialogOpen(false), []);
 
-  // 处理添加角色到剧本
+  // Handle adding character to script
   const handleAddCharacter = (character: Character) => {
-    // 如果是替换模式
+    // If in replace mode
     if (replacingCharacter) {
-      // 使用 replaceCharacter 方法替换，保持原位置
+      // Use replaceCharacter method, keep original position
       const success = scriptStore.replaceCharacter(replacingCharacter, character);
       if (success) {
-        // 清除替换状态并关闭角色库
+        // Clear replace state and close character library
         setReplacingCharacter(null);
         setLibraryCardOpen(false);
       }
     } else {
-      // 正常添加模式
+      // Normal add mode
       scriptStore.addCharacter(character);
       trackAddCharacter({ characterId: character.id, team: character.team });
-      // 不再自动关闭角色库
+      // No longer auto-close character library
     }
   };
 
-  // 处理从剧本中删除角色
+  // Handle removing character from script
   const handleRemoveCharacter = (character: Character) => {
     scriptStore.removeCharacter(character);
     trackRemoveCharacter({ characterId: character.id, team: character.team });
   };
 
-  // 处理更换角色
+  // Handle replacing character
   const handleReplaceCharacter = (character: Character, position: { x: number; y: number }) => {
     setReplacingCharacter(character);
     setLibraryPosition(position);
     setLibraryCardOpen(true);
   };
 
-  // 处理第一页标题编辑
+  // Handle first page title editing
   const handleTitleEdit = () => {
     setTitleEditDialogOpen(true);
   };
 
-  // 处理第二页标题编辑
+  // Handle second page title editing
   const handleSecondPageTitleEdit = () => {
     setSecondPageTitleEditDialogOpen(true);
   };
 
-  // 处理第一页标题保存
+  // Handle first page title save
   const handleTitleSave = (data: {
     title: string;
     titleImage?: string;
@@ -484,7 +484,7 @@ const App = observer(() => {
     });
   };
 
-  // 处理第二页标题保存
+  // Handle second page title save
   const handleSecondPageTitleSave = (data: {
     title: string;
     titleImage?: string;
@@ -501,27 +501,27 @@ const App = observer(() => {
     });
   };
 
-  // 处理特殊规则编辑
+  // Handle special rule editing
   const handleSpecialRuleEdit = (rule: any) => {
     setEditingSpecialRule(rule);
     setSpecialRuleEditDialogOpen(true);
   };
 
-  // 处理特殊规则保存
+  // Handle special rule save
   const handleSpecialRuleSave = (rule: any) => {
     scriptStore.updateSpecialRule(rule);
   };
 
-  // 处理添加自定义规则
+  // Handle adding custom rule
   const handleAddCustomRule = () => {
     setAddCustomRuleDialogOpen(true);
   };
 
-  // 处理夜晚行动顺序重排
+  // Handle night order reordering
   const handleNightOrderReorder = (nightType: 'first' | 'other', oldIndex: number, newIndex: number) => {
-    // 如果开启了官方ID解析模式，禁止重排
+    // If official ID parse mode is enabled, disable reordering
     if (configStore.config.officialIdParseMode) {
-      console.log('官方ID解析模式已开启，禁止修改夜间行动顺序');
+      console.log('Official ID parse mode is enabled, night order modification disabled');
       return;
     }
 
@@ -529,48 +529,48 @@ const App = observer(() => {
 
     const actions = nightType === 'first' ? [...script.firstnight] : [...script.othernight];
 
-    // 移除前三个固定图标（Dusk, Mi, Di 或 Dusk）
+    // Remove first fixed icons (Dusk, Mi, Di or Dusk)
     const fixedCount = nightType === 'first' ? 3 : 1;
     if (oldIndex < fixedCount || newIndex < fixedCount) return;
 
-    // 获取被拖动的角色
+    // Get the dragged character
     const draggedAction = actions[oldIndex];
 
-    // 获取固定图标中最大的 index 值，确保所有角色都在其之后
+    // Get max index value among fixed icons, ensure all characters follow them
     const minAllowedIndex = Math.max(...actions.slice(0, fixedCount).map(a => a.index));
 
-    // 计算新的顺序值
+    // Calculate new order value
     let newOrderValue: number;
 
     if (newIndex === fixedCount) {
-      // 拖到固定图标之后的第一个位置
+      // Drag to first position after fixed icons
       const nextAction = actions[fixedCount];
       if (nextAction) {
-        // 确保新值在固定图标之后，且在下一个角色之前
+        // Ensure new value is after fixed icons and before next character
         const baseValue = Math.max(minAllowedIndex + 0.1, nextAction.index - 0.5);
         newOrderValue = Math.max(minAllowedIndex + 0.1, baseValue);
       } else {
         newOrderValue = minAllowedIndex + 0.5;
       }
     } else if (newIndex === actions.length - 1) {
-      // 拖到最后面
+      // Drag to end
       const prevAction = actions[actions.length - 2];
       newOrderValue = prevAction ? Math.max(prevAction.index + 0.5, minAllowedIndex + 0.5) : minAllowedIndex + 0.5;
     } else {
-      // 拖到中间
+      // Drag to middle
       const prevAction = actions[newIndex - 1];
       const nextAction = actions[newIndex + (oldIndex < newIndex ? 1 : 0)];
 
       if (prevAction && nextAction) {
-        // 计算中间值
+        // Calculate middle value
         newOrderValue = (prevAction.index + nextAction.index) / 2;
 
-        // 如果两个值相同或太接近，使用 +0.5 的策略
+        // If two values are identical or too close, use +0.5 strategy
         if (Math.abs(newOrderValue - prevAction.index) < 0.01) {
           newOrderValue = prevAction.index + 0.5;
         }
 
-        // 确保不小于最小允许值
+        // Ensure not less than minimum allowed value
         newOrderValue = Math.max(newOrderValue, minAllowedIndex + 0.1);
       } else if (prevAction) {
         newOrderValue = Math.max(prevAction.index + 0.5, minAllowedIndex + 0.5);
@@ -581,10 +581,10 @@ const App = observer(() => {
       }
     }
 
-    // 最终确保新值不小于最小允许值
+    // Final check: ensure new value is not less than minimum allowed
     newOrderValue = Math.max(newOrderValue, minAllowedIndex + 0.1);
 
-    // 更新角色的夜晚顺序
+    // Update character's night order
     const characterImage = draggedAction.image;
     const character = script.all.find(c => c.image === characterImage);
 
@@ -596,15 +596,15 @@ const App = observer(() => {
         updates.otherNight = newOrderValue;
       }
 
-      // 更新角色并同步到 JSON
+      // Update character and sync to JSON
       handleUpdateCharacter(character.id, updates);
     }
   };
 
-  // 处理添加新规则
+  // Handle adding new rule
   const handleAddNewRule = (ruleType: 'special_rule' | 'custom_jinx', templateId?: string) => {
     if (ruleType === 'custom_jinx') {
-      // 打开自定义相克对话框
+      // Open custom jinx dialog
       setAddCustomRuleDialogOpen(false);
       setCustomJinxDialogOpen(true);
       return;
@@ -614,11 +614,11 @@ const App = observer(() => {
       let newRule: any;
 
       if (templateId) {
-        // 使用模板创建规则
+        // Use template to create rule
         const template = getSpecialRuleTemplate(templateId);
 
         if (!template) {
-          console.error('未找到特殊规则模板:', templateId);
+          console.error('Special rule template not found:', templateId);
           return;
         }
 
@@ -639,17 +639,17 @@ const App = observer(() => {
           sourceIndex: 0,
         };
       } else {
-        // 创建空白规则
+        // Create blank rule
         newRule = {
           id: `custom_rule_${Date.now()}`,
           title: {
-            'cn': '新规则',
+            'cn': 'New Rule',
             'en': 'New Rule',
             'es': 'Nueva regla',
           },
           team: "special_rule",
           content: {
-            'cn': '请输入规则内容...',
+            'cn': 'Enter rule content...',
             'en': 'Enter rule content...',
             'es': 'Introduce el contenido de la regla...',
           },
@@ -658,7 +658,7 @@ const App = observer(() => {
         };
       }
 
-      // 添加到 script
+      // Add to script
       if (script) {
         const updatedScript = { ...script };
         updatedScript.specialRules = [...updatedScript.specialRules, newRule];
@@ -667,7 +667,7 @@ const App = observer(() => {
         }
         scriptStore.setScript(updatedScript);
 
-        // 同步到 JSON
+        // Sync to JSON
         try {
           const parsedJson = JSON.parse(originalJson);
           const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
@@ -680,7 +680,7 @@ const App = observer(() => {
           const jsonString = JSON.stringify(jsonArray, null, 2);
           scriptStore.setOriginalJson(jsonString);
         } catch (error) {
-          console.error('同步新规则到JSON失败:', error);
+          console.error('Failed to sync new rule to JSON:', error);
         }
       }
     }
@@ -688,29 +688,29 @@ const App = observer(() => {
 
 
 
-  // 导出JSON文件 - 显示选项对话框
+  // Export JSON file - show options dialog
   const handleExportJson = () => {
     if (!originalJson) return;
     setExportJsonDialogOpen(true);
   };
 
-  // 导出选项1：当前语言的完整JSON（使用 normalizedJson）
+  // Export option 1: full JSON in current language (using normalizedJson)
   const handleExportCurrentLanguageJson = () => {
     if (!normalizedJson) return;
 
     try {
-      // 使用 normalizedJson 作为基础，它已经包含了所有补全后的字段
+      // Use normalizedJson as base, which already contains all supplemented fields
       const parsedJson = JSON.parse(normalizedJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 当前语言的角色字典
+      // Character dictionary for current language
       const currentDict = getCharacterDictionary(language);
 
-      // 辅助函数：根据name或id在角色库中查找
+      // Helper: find character in dictionary by name or id
       const findCharacterInDict = (item: any): Character | null => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
 
-        // 1. 通过name查找
+        // 1. Find by name
         if (itemObj.name && typeof itemObj.name === 'string') {
           for (const char of Object.values(currentDict)) {
             if ((char as Character).name === itemObj.name) {
@@ -730,15 +730,15 @@ const App = observer(() => {
       jsonArray.forEach((item: any) => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
 
-        // 保留 _meta、jinxed、special_rule
+        // Keep _meta, jinxed, special_rule
         if (itemObj.id === '_meta' || itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
           newJsonArray.push(item);
         } else {
-          // 尝试在当前语言的角色库中查找
+          // Try to find in current language dictionary
           const foundChar = findCharacterInDict(item);
 
           if (foundChar) {
-            // 找到了，使用当前语言的完整信息
+            // Found, use full info in current language
             const fullCharJson: any = {
               id: foundChar.id,
               name: foundChar.name,
@@ -747,7 +747,7 @@ const App = observer(() => {
               image: foundChar.image,
             };
 
-            // 添加可选字段
+            // Add optional fields
             if (foundChar.firstNight) fullCharJson.firstNight = foundChar.firstNight;
             if (foundChar.otherNight) fullCharJson.otherNight = foundChar.otherNight;
             if (foundChar.firstNightReminder) fullCharJson.firstNightReminder = foundChar.firstNightReminder;
@@ -757,11 +757,11 @@ const App = observer(() => {
             if (foundChar.setup) fullCharJson.setup = foundChar.setup;
 
             newJsonArray.push(fullCharJson);
-            console.log(`导出当前语言完整信息: ${foundChar.name}`);
+            console.log(`Exported full info in current language: ${foundChar.name}`);
           } else {
-            // 找不到，保留原始JSON
+            // Not found, keep original JSON
             newJsonArray.push(item);
-            console.warn(`无法在${language}库中找到，保留原始JSON:`, itemObj.id);
+            console.warn(`Unable to find in ${language} dictionary, keeping original JSON:`, itemObj.id);
           }
         }
       });
@@ -783,12 +783,12 @@ const App = observer(() => {
       setExportJsonDialogOpen(false);
       trackExportJson({ exportType: 'current_language' });
     } catch (error) {
-      console.error('导出当前语言JSON失败:', error);
+      console.error('Failed to export current language JSON:', error);
       alert(t('input.exportJsonFailed'));
     }
   };
 
-  // 导出选项2：原始JSON（不做任何处理）
+  // Export option 2: original JSON (no processing)
   const handleExportOriginalJson = () => {
     if (!originalJson) return;
 
@@ -804,27 +804,27 @@ const App = observer(() => {
       setExportJsonDialogOpen(false);
       trackExportJson({ exportType: 'original' });
     } catch (error) {
-      console.error('导出原始JSON失败:', error);
+      console.error('Failed to export original JSON:', error);
       alert(t('input.exportJsonFailed'));
     }
   };
 
-  // 导出选项3：仅官方ID（双语模式，找不到的保留完整JSON）（使用 normalizedJson）
+  // Export option 3: official ID only (bilingual mode, keep full JSON if not found) (using normalizedJson)
   const handleExportIdOnlyJson = () => {
     if (!normalizedJson) return;
 
     try {
-      // 使用 normalizedJson 作为基础，它已经包含了所有补全后的字段
+      // Use normalizedJson as base, which already contains all supplemented fields
       const parsedJson = JSON.parse(normalizedJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 辅助函数：在所有官方语言库中查找官方ID
+      // Helper: find official ID across all official language dictionaries
       const findOfficialIdByNameOrId = (item: any): { found: boolean; id?: string } => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
 
         const allDictionaries = getAllCharacterDictionaries();
 
-        // 1. 通过name在各语言库查找
+        // 1. Find by name across language dictionaries
         if (itemObj.name && typeof itemObj.name === 'string') {
           for (const [, dict] of allDictionaries) {
             for (const [id, char] of Object.entries(dict)) {
@@ -845,27 +845,27 @@ const App = observer(() => {
         return { found: false };
       };
 
-      // 转换为仅ID格式
+      // Convert to ID-only format
       const idOnlyArray: any[] = [];
 
       jsonArray.forEach((item: any) => {
         const itemObj = typeof item === 'string' ? { id: item } : item;
 
-        // 保留 _meta、jinxed、special_rule 的完整信息
+        // Keep full info for _meta, jinxed, special_rule
         if (itemObj.id === '_meta' || itemObj.team === 'a jinxed' || itemObj.team === 'special_rule') {
           idOnlyArray.push(item);
         } else {
-          // 尝试查找官方ID
+          // Try to find official ID
           const result = findOfficialIdByNameOrId(item);
 
           if (result.found && result.id) {
-            // 找到了官方ID，导出ID字符串
+            // Found official ID, export as ID string
             idOnlyArray.push(result.id);
-            console.log(`✓ 找到官方ID: ${result.id}${itemObj.name ? ` (${itemObj.name})` : ''}`);
+            console.log(`✓ Found official ID: ${result.id}${itemObj.name ? ` (${itemObj.name})` : ''}`);
           } else {
-            // 找不到官方ID，保留完整JSON
+            // Official ID not found, keep full JSON
             idOnlyArray.push(item);
-            console.warn(`⚠ 无法找到官方ID，保留完整JSON:`, itemObj.id, itemObj.name || '');
+            console.warn(`⚠ Official ID not found, keeping full JSON:`, itemObj.id, itemObj.name || '');
           }
         }
       });
@@ -882,34 +882,34 @@ const App = observer(() => {
       setExportJsonDialogOpen(false);
       trackExportJson({ exportType: 'id_only' });
     } catch (error) {
-      console.error('导出仅ID JSON失败:', error);
+      console.error('Failed to export ID-only JSON:', error);
       alert(t('input.exportJsonFailed'));
     }
   };
 
   const handleExportPDF = () => {
     trackExportPdf();
-    // 显示打印设置对话框
+    // Show print settings dialog
     setPrintDialogOpen(true);
   };
 
   const handleExportImage = () => {
     trackExportImage();
-    // 显示导出图片提示对话框
+    // Show export image hint dialog
     setExportImageDialogOpen(true);
   };
 
   const handleConfirmPrint = () => {
-    // 关闭对话框并触发打印
+    // Close dialog and trigger print
     setPrintDialogOpen(false);
-    // 触发浏览器打印功能，用户可以选择保存为PDF
+    // Trigger browser print, user can save as PDF
     window.print();
   };
 
-  // 清空所有数据，但保留默认JSON框架
+  // Clear all data, but keep default JSON framework
   const handleClear = () => {
     trackClearScript();
-    // 创建一个默认的JSON框架
+    // Create a default JSON framework
     const defaultJson = JSON.stringify([
       {
         "id": "_meta",
@@ -918,7 +918,7 @@ const App = observer(() => {
       }
     ], null, 2);
 
-    // 解析默认JSON，生成空剧本（这样加号按钮才能添加角色）
+    // Parse default JSON, generate empty script (so add buttons can add characters)
     try {
       const generatedScript = generateScript(defaultJson, language);
       scriptStore.updateScript({
@@ -928,8 +928,8 @@ const App = observer(() => {
         customAuthor: '',
       });
     } catch (error) {
-      console.error('生成默认空剧本失败:', error);
-      // 如果生成失败，至少保存JSON
+      console.error('Failed to generate default empty script:', error);
+      // If generation fails, at least save JSON
       scriptStore.setOriginalJson(defaultJson);
       scriptStore.setScript(null);
       scriptStore.setCustomTitle('');
@@ -939,7 +939,7 @@ const App = observer(() => {
 
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles styles={printStyles} /> {/* 👈 在这里添加 */}
+      <GlobalStyles styles={printStyles} /> {/* 👈 add here */}
       <SEOManager />
       <CssBaseline />
       <Box
@@ -953,7 +953,7 @@ const App = observer(() => {
         }}
       >
         <Container maxWidth="xl">
-          {/* 输入面板 */}
+          {/* Input panel */}
           <InputPanel
             onGenerate={handleGenerate}
             onExportPDF={handleExportPDF}
@@ -981,7 +981,7 @@ const App = observer(() => {
             />
           )}
 
-          {/* 剧本展示区域 - 使用 ScriptRenderer 组件 */}
+          {/* Script display area - using ScriptRenderer component */}
           {script && (
             <ScriptRenderer
               script={script}
@@ -1001,7 +1001,7 @@ const App = observer(() => {
           )
           }
 
-          {/* 空状态提示 */}
+          {/* Empty state prompt */}
           {!script && (
             <Paper
               sx={{
@@ -1063,10 +1063,10 @@ const App = observer(() => {
         />
       )}
 
-      {/* 悬浮添加按钮 */}
+      {/* Floating add button */}
       <FloatingAddButton
         onClick={() => setLibraryCardOpen(!libraryCardOpen)}
-        show={!!script || !!originalJson} // 有剧本或有JSON输入时显示
+        show={!!script || !!originalJson} // Show when script exists or JSON input is present
       />
 
       {uiSettingsOpen && (

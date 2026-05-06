@@ -1,23 +1,23 @@
 /**
- * 统一角色数据 Builder
+ * Unified Character Data Builder
  *
- * 设计思路：
- * - CanonicalCharacterBase  存放语言无关的结构字段（team、image、夜间顺序等）
- * - CharacterLocale         存放每种语言的文本字段（name、ability、reminders 等）
- * - resolveLocale()         按 es→en→zh-CN 的回退链合并文本
- * - buildCharacter()        由 base + language 生成最终 Character 对象
- * - buildDictionary()       批量生成 Record<id, Character>
+ * Design rationale:
+ * - CanonicalCharacterBase  stores language-independent structural fields (team, image, night order, etc.)
+ * - CharacterLocale         stores per-language text fields (name, ability, reminders, etc.)
+ * - resolveLocale()         merges text using the es→en→zh-CN fallback chain
+ * - buildCharacter()        produces the final Character object from base + language
+ * - buildDictionary()       bulk-generates Record<id, Character>
  *
- * 对外导出的 getCharacterDictionary() 接口不变，UI 层无需修改。
+ * The exported getCharacterDictionary() interface remains unchanged; the UI layer requires no modifications.
  */
 
 import type { Language } from '../utils/languages';
 import type { Character } from '../types';
 import { toZhCanonicalCharacterId } from './utils/characterIdMapping';
 
-// ── 类型定义 ───────────────────────────────────────────────
+// ── Type Definitions ───────────────────────────────────────
 
-/** 单种语言的文本字段 */
+/** Text fields for a single language */
 export interface CharacterLocale {
   name: string;
   ability: string;
@@ -27,9 +27,9 @@ export interface CharacterLocale {
   remindersGlobal?: string[];
 }
 
-/** 语言无关的角色基础信息 + 每语言文本覆盖 */
+/** Language-independent character base info + per-language text overrides */
 export interface CanonicalCharacterBase {
-  /** 统一使用英文/官方 id，避免中文 id 作为 key */
+  /** Use the English/official id uniformly; avoid Chinese ids as keys */
   id: string;
   team: string;
   image?: string;
@@ -39,15 +39,15 @@ export interface CanonicalCharacterBase {
   edition?: string;
   author?: string;
   teamColor?: string;
-  /** 各语言文本覆盖；字段可部分提供，由 resolveLocale 按语言回退补齐 */
+  /** Per-language text overrides; fields can be partial, filled in by resolveLocale via language fallback */
   locales: Partial<Record<Language, Partial<CharacterLocale>>>;
 }
 
-// ── 内部工具函数 ──────────────────────────────────────────
+// ── Internal Utility Functions ─────────────────────────────
 
 /**
- * 合并两个 locale：primary 的字段优先，缺失时从 fallback 补充。
- * undefined 视为"缺失"，空字符串视为"有值（空）"。
+ * Merge two locales: primary fields take precedence; missing fields are filled from fallback.
+ * undefined is treated as "missing"; an empty string is treated as "has a value (empty)".
  */
 function mergeLocale(
   primary: Partial<CharacterLocale> | undefined,
@@ -75,13 +75,13 @@ function mergeLocale(
   };
 }
 
-// ── 公共 API ──────────────────────────────────────────────
+// ── Public API ─────────────────────────────────────────────
 
 /**
- * 按回退链解析最终文本：
+ * Resolve the final text using the fallback chain:
  *   es  → en → zh-CN
  *   en  → zh-CN
- *   zh-CN → en（当 zh 未定义时）
+ *   zh-CN → en (when zh is undefined)
  */
 export function resolveLocale(
   locales: Partial<Record<Language, Partial<CharacterLocale>>>,
@@ -94,11 +94,11 @@ export function resolveLocale(
   if (language === 'en') {
     return mergeLocale(locales['en'], locales['cn']);
   }
-  // zh-CN：先用中文，缺失字段从英文补充
+  // zh-CN: use Chinese first, fill missing fields from English
   return mergeLocale(locales['cn'], locales['en']);
 }
 
-/** 将 CanonicalCharacterBase 按指定语言构建为运行时 Character */
+/** Build a runtime Character from a CanonicalCharacterBase for the specified language */
 export function buildCharacter(base: CanonicalCharacterBase, language: Language): Character {
   const locale = resolveLocale(base.locales, language);
   const imageId = toZhCanonicalCharacterId(base.id);
@@ -122,7 +122,7 @@ export function buildCharacter(base: CanonicalCharacterBase, language: Language)
   };
 }
 
-/** 批量构建角色字典 */
+/** Bulk-build a character dictionary */
 export function buildDictionary(
   bases: CanonicalCharacterBase[],
   language: Language,

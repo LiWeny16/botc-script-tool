@@ -157,7 +157,7 @@ const AddCustomRuleDialog = ({
             </Typography>
 
             <List>
-              {/* 空白规则选项 */}
+              {/* Blank rule option */}
               <ListItem disablePadding>
                 <ListItemButton
                   selected={selectedTemplate === null}
@@ -178,7 +178,7 @@ const AddCustomRuleDialog = ({
 
               <Divider sx={{ my: 2 }} />
 
-              {/* 模板选项 */}
+              {/* Template options */}
               {templates.map((template) => (
                 <ListItem key={template.id} disablePadding sx={{ mb: 1 }}>
                   <ListItemButton

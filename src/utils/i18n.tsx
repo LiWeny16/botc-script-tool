@@ -4,7 +4,7 @@ import { configStore } from '../stores/ConfigStore';
 import { translations, type TranslationKey } from './map';
 import type { Language } from './languages';
 
-// 创建 i18n 上下文
+// Create i18n context
 interface I18nContextType {
   t: (key: TranslationKey) => string;
   language: Language;
@@ -13,7 +13,7 @@ interface I18nContextType {
 
 const I18nContext = createContext<I18nContextType | null>(null);
 
-// i18n Provider 组件
+// i18n Provider component
 export const I18nProvider: React.FC<{ children: ReactNode }> = observer(({ children }) => {
   const t = (key: TranslationKey): string => {
     const lang = configStore.language;
@@ -33,7 +33,7 @@ export const I18nProvider: React.FC<{ children: ReactNode }> = observer(({ child
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 });
 
-// 自定义 hook 用于访问 i18n
+// Custom hook for accessing i18n
 export const useTranslation = () => {
   const context = useContext(I18nContext);
   if (!context) {

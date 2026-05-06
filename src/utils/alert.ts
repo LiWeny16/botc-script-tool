@@ -1,37 +1,37 @@
 /**
- * 全局提示工具模块
- * 
+ * Global alert utility module
+ *
  * @example
- * // 基本使用
+ * // Basic usage
  * import { alertUseMui } from '@/utils/alert';
- * 
- * // 成功提示
- * alertUseMui('操作成功！');
- * 
- * // 错误提示
- * alertUseMui('操作失败！', 3000, { kind: 'error' });
- * 
- * // 警告提示
- * alertUseMui('请注意！', 2500, { kind: 'warning' });
- * 
- * // 信息提示
- * alertUseMui('这是一条信息', 2000, { kind: 'info' });
- * 
- * // 不自动关闭的提示
- * const closeAlert = alertUseMui('需要手动关闭', 0, { kind: 'warning' });
- * // 稍后手动关闭
+ *
+ * // Success alert
+ * alertUseMui('Operation successful!');
+ *
+ * // Error alert
+ * alertUseMui('Operation failed!', 3000, { kind: 'error' });
+ *
+ * // Warning alert
+ * alertUseMui('Please note!', 2500, { kind: 'warning' });
+ *
+ * // Info alert
+ * alertUseMui('This is an info message', 2000, { kind: 'info' });
+ *
+ * // Non-auto-dismiss alert
+ * const closeAlert = alertUseMui('Requires manual dismiss', 0, { kind: 'warning' });
+ * // Manually dismiss later
  * closeAlert();
  */
 
-// 提示类型
+// Alert type
 type AlertKind = 'success' | 'error' | 'warning' | 'info';
 
-// 全局容器管理
+// Global container management
 let alertContainer: HTMLElement | null = null;
 let alertCount = 0;
 
 /**
- * 获取或创建提示容器
+ * Get or create alert container
  */
 const getAlertContainer = () => {
   if (!alertContainer) {
@@ -54,7 +54,7 @@ const getAlertContainer = () => {
 };
 
 /**
- * 创建图标
+ * Create icon
  */
 const createIcon = (kind: AlertKind) => {
   const iconElement = document.createElement('span');
@@ -104,7 +104,7 @@ const createIcon = (kind: AlertKind) => {
 };
 
 /**
- * 获取边框颜色
+ * Get border color
  */
 const getBorderColor = (kind: AlertKind): string => {
   const colors = {
@@ -117,11 +117,11 @@ const getBorderColor = (kind: AlertKind): string => {
 };
 
 /**
- * 通用提示函数
- * @param msg 提示消息
- * @param time 显示时长（毫秒），0 表示不自动关闭
- * @param objConfig 配置对象
- * @returns 返回关闭函数，可手动调用关闭提示
+ * Generic alert function
+ * @param msg Alert message
+ * @param time Display duration (ms), 0 means no auto-dismiss
+ * @param objConfig Configuration object
+ * @returns Returns a close function that can be called to dismiss the alert manually
  */
 export const alertUseMui = (
   msg: string,
@@ -136,11 +136,11 @@ export const alertUseMui = (
   const _zIndex = objConfig?.zIndex ?? 9999;
   const _duration = time;
 
-  // 获取容器
+  // Get container
   const container = getAlertContainer();
   container.style.zIndex = String(_zIndex);
 
-  // 创建 alert 元素
+  // Create alert element
   const alertElement = document.createElement('div');
   alertElement.className = 'mui-alert-item';
   alertElement.setAttribute('data-alert-id', String(++alertCount));
@@ -169,10 +169,10 @@ export const alertUseMui = (
     box-sizing: border-box;
   `;
 
-  // 添加图标
+  // Add icon
   const iconElement = createIcon(_kind);
 
-  // 添加消息文本
+  // Add message text
   const messageSpan = document.createElement('span');
   messageSpan.textContent = msg;
   messageSpan.style.cssText = `
@@ -187,16 +187,16 @@ export const alertUseMui = (
   alertElement.appendChild(iconElement);
   alertElement.appendChild(messageSpan);
 
-  // 添加到容器
+  // Append to container
   container.appendChild(alertElement);
 
-  // 入场动画
+  // Entrance animation
   requestAnimationFrame(() => {
     alertElement.style.opacity = '1';
     alertElement.style.transform = 'translateY(0) scale(1)';
   });
 
-  // 关闭函数
+  // Close handler
   const handleClose = () => {
     alertElement.style.opacity = '0';
     alertElement.style.transform = 'translateY(-20px) scale(0.9)';
@@ -205,7 +205,7 @@ export const alertUseMui = (
       if (alertElement.parentNode) {
         container.removeChild(alertElement);
 
-        // 如果容器为空，移除容器
+        // Remove container if empty
         if (container.children.length === 0) {
           document.body.removeChild(container);
           alertContainer = null;
@@ -214,10 +214,10 @@ export const alertUseMui = (
     }, 300);
   };
 
-  // 点击关闭
+  // Dismiss on click
   alertElement.addEventListener('click', handleClose);
 
-  // 自动关闭
+  // Auto dismiss
   if (_duration > 0) {
     setTimeout(handleClose, _duration);
   }
@@ -226,7 +226,7 @@ export const alertUseMui = (
 };
 
 /**
- * 清理所有提示
+ * Clean up all alerts
  */
 export const cleanupAlerts = () => {
   if (alertContainer && alertContainer.parentNode) {
@@ -236,7 +236,7 @@ export const cleanupAlerts = () => {
   alertCount = 0;
 };
 
-// 便捷方法
+// Convenience methods
 export const alertSuccess = (msg: string, time: number = 2500) => 
   alertUseMui(msg, time, { kind: 'success' });
 

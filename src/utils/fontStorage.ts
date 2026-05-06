@@ -1,5 +1,5 @@
 /**
- * 字体存储工具 - 使用 IndexedDB 存储自定义字体
+ * Font storage utility - Store custom fonts using IndexedDB
  */
 
 const DB_NAME = 'botc-fonts-db';
@@ -18,7 +18,7 @@ class FontStorage {
   private db: IDBDatabase | null = null;
 
   /**
-   * 初始化数据库
+   * Initialize database
    */
   async init(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -37,7 +37,7 @@ class FontStorage {
       request.onupgradeneeded = (event) => {
         const db = (event.target as IDBOpenDBRequest).result;
 
-        // 创建对象存储
+        // Create object store
         if (!db.objectStoreNames.contains(STORE_NAME)) {
           const objectStore = db.createObjectStore(STORE_NAME, { keyPath: 'id' });
           objectStore.createIndex('fontFamily', 'fontFamily', { unique: false });
@@ -48,7 +48,7 @@ class FontStorage {
   }
 
   /**
-   * 保存字体
+   * Save font
    */
   async saveFont(font: StoredFont): Promise<void> {
     if (!this.db) await this.init();
@@ -67,7 +67,7 @@ class FontStorage {
   }
 
   /**
-   * 获取所有字体
+   * Get all fonts
    */
   async getAllFonts(): Promise<StoredFont[]> {
     if (!this.db) await this.init();
@@ -86,7 +86,7 @@ class FontStorage {
   }
 
   /**
-   * 根据 ID 获取字体
+   * Get font by ID
    */
   async getFontById(id: string): Promise<StoredFont | null> {
     if (!this.db) await this.init();
@@ -105,7 +105,7 @@ class FontStorage {
   }
 
   /**
-   * 删除字体
+   * Delete font
    */
   async deleteFont(id: string): Promise<void> {
     if (!this.db) await this.init();
@@ -124,7 +124,7 @@ class FontStorage {
   }
 
   /**
-   * 清空所有字体
+   * Clear all fonts
    */
   async clearAllFonts(): Promise<void> {
     if (!this.db) await this.init();
@@ -143,16 +143,16 @@ class FontStorage {
   }
 
   /**
-   * 获取存储的总大小（估算）
+   * Get total storage size (estimated)
    */
   async getStorageSize(): Promise<number> {
     const fonts = await this.getAllFonts();
     return fonts.reduce((total, font) => {
-      // base64 字符串长度约等于实际文件大小
+      // base64 string length roughly equals actual file size
       return total + (font.dataUrl?.length || 0);
     }, 0);
   }
 }
 
-// 创建单例
+// Create singleton
 export const fontStorage = new FontStorage();

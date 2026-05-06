@@ -5,8 +5,8 @@ import { configStore } from './ConfigStore';
 
 class ScriptStore {
   script: Script | null = null;
-  originalJson: string = ''; // 用户输入的原始JSON
-  normalizedJson: string = ''; // 经过官方数据补全后的完整JSON（用于导出、分享等）
+  originalJson: string = ''; // Raw JSON input from user
+  normalizedJson: string = ''; // Complete JSON after official data completion (used for export, sharing, etc.)
   customTitle: string = '';
   customAuthor: string = '';
   
@@ -15,9 +15,9 @@ class ScriptStore {
     this.loadFromStorage();
   }
 
-  // 设置剧本数据
+  // Set script data
   setScript(script: Script | null) {
-    // 在设置前，尝试从 originalJson 解析 _meta.name_en 存入脚本（不影响默认标题）
+    // Before setting, try to parse _meta.name_en from originalJson and store in script (does not affect default title)
     if (script) {
       try {
         const parsed = JSON.parse(this.originalJson || '[]');
@@ -29,19 +29,19 @@ class ScriptStore {
       } catch {}
     }
     this.script = script;
-    // 同时生成规范化的JSON
+    // Also generate normalized JSON
     if (script) {
       this.generateNormalizedJson(script);
     }
     this.saveToStorage();
   }
 
-  // 从 Script 对象生成规范化的完整 JSON
+  // Generate complete normalized JSON from Script object
   private generateNormalizedJson(script: Script) {
     try {
       const jsonArray: any[] = [];
 
-      // 1. 添加 _meta
+      // 1. Add _meta
       const meta: any = {
         id: '_meta',
         name: script.title,
@@ -53,7 +53,7 @@ class ScriptStore {
       if (script.useTitleImage !== undefined) meta.use_title_image = script.useTitleImage;
       if (script.playerCount) meta.playerCount = script.playerCount;
       
-      // 第二页配置
+      // Second page configuration
       if (script.secondPageTitle !== undefined) meta.second_page_title = script.secondPageTitle;
       if (script.secondPageTitleText) meta.second_page_title_text = script.secondPageTitleText;
       if (script.secondPageTitleImage) meta.second_page_title_image = script.secondPageTitleImage;
@@ -66,7 +66,7 @@ class ScriptStore {
         meta.second_page_order = script.secondPageOrder.join(' ');
       }
 
-      // state 和 status（从 specialRules 中提取）
+      // state and status (extracted from specialRules)
       const stateRules: any[] = [];
       const statusRules: any[] = [];
       
@@ -86,7 +86,7 @@ class ScriptStore {
         });
       }
       
-      // 同时检查 secondPageRules
+      // Also check secondPageRules
       if (script.secondPageRules && script.secondPageRules.length > 0) {
         script.secondPageRules.forEach(rule => {
           if (rule.sourceType === 'state' && !stateRules.some(s => s.stateName === rule.title)) {
@@ -108,7 +108,7 @@ class ScriptStore {
 
       jsonArray.push(meta);
 
-      // 2. 添加所有角色（使用 script.all 保持顺序）
+      // 2. Add all characters (using script.all to maintain order)
       script.all.forEach(character => {
         const charJson: any = {
           id: character.id,
@@ -118,7 +118,7 @@ class ScriptStore {
           image: character.image,
         };
 
-        // 添加可选字段
+        // Add optional fields
         if (character.firstNight) charJson.firstNight = character.firstNight;
         if (character.otherNight) charJson.otherNight = character.otherNight;
         if (character.firstNightReminder) charJson.firstNightReminder = character.firstNightReminder;
@@ -130,24 +130,24 @@ class ScriptStore {
         jsonArray.push(charJson);
       });
 
-      // 3. 添加相克规则（从 originalJson 中提取）
+      // 3. Extract jinx rules (from originalJson)
       try {
         const originalParsed = JSON.parse(this.originalJson);
         const originalArray = Array.isArray(originalParsed) ? originalParsed : [];
-        
-        // 找出所有 team === 'a jinxed' 的项
+
+        // Find all items with team === 'a jinxed'
         const jinxItems = originalArray.filter((item: any) => {
           const itemObj = typeof item === 'string' ? { id: item } : item;
           return itemObj.team === 'a jinxed';
         });
-        
-        // 添加到规范化JSON中
+
+        // Add to normalized JSON
         jinxItems.forEach((item: any) => jsonArray.push(item));
       } catch (error) {
-        console.warn('提取相克规则失败:', error);
+        console.warn('Failed to extract jinx rules:', error);
       }
 
-      // 4. 添加特殊规则
+      // 4. Add special rules
       if (script.specialRules && script.specialRules.length > 0) {
         script.specialRules.forEach(rule => {
           if (rule.sourceType === 'special_rule') {
@@ -162,33 +162,33 @@ class ScriptStore {
       }
 
       this.normalizedJson = JSON.stringify(jsonArray, null, 2);
-      console.log('✅ 已生成规范化JSON');
+      console.log('Normalized JSON generated');
     } catch (error) {
-      console.error('生成规范化JSON失败:', error);
-      // 如果生成失败，使用原始JSON作为备份
+      console.error('Failed to generate normalized JSON:', error);
+      // If generation fails, use original JSON as backup
       this.normalizedJson = this.originalJson;
     }
   }
 
-  // 设置原始 JSON
+  // Set original JSON
   setOriginalJson(json: string) {
     this.originalJson = json;
     this.saveToStorage();
   }
 
-  // 设置自定义标题
+  // Set custom title
   setCustomTitle(title: string) {
     this.customTitle = title;
     this.saveToStorage();
   }
 
-  // 设置自定义作者
+  // Set custom author
   setCustomAuthor(author: string) {
     this.customAuthor = author;
     this.saveToStorage();
   }
 
-  // 批量更新数据
+  // Batch update data
   updateScript(data: {
     script?: Script | null;
     originalJson?: string;
@@ -202,57 +202,57 @@ class ScriptStore {
     this.saveToStorage();
   }
 
-  // 更新角色信息
+  // Update character info
   updateCharacter(characterId: string, updates: Partial<Character>) {
     if (!this.script) return;
-    
-    console.log('ScriptStore.updateCharacter 被调用:', { 
-      characterId, 
+
+    console.log('ScriptStore.updateCharacter called:', {
+      characterId,
       updates,
       hasReminders: 'reminders' in updates,
       remindersValue: updates.reminders,
     });
 
-    // 创建新的script对象，避免直接修改observable
+    // Create new script object to avoid directly modifying observable
     const updatedScript = { ...this.script };
     let updated = false;
     let targetCharacter: Character | null = null;
     let foundTeam: string | null = null;
 
-    // 找到要更新的角色（只应该在一个团队中）
+    // Find the character to update (should only exist in one team)
     for (const team of Object.keys(updatedScript.characters)) {
       const charIndex = updatedScript.characters[team].findIndex(c => isSameCharacter(c.id, characterId));
       if (charIndex !== -1) {
         if (targetCharacter) {
-          // 如果已经找到了一个角色，说明有重复ID，这是个问题
-          console.warn(`发现重复的角色ID: ${characterId}，在团队 ${foundTeam} 和 ${team} 中都存在`);
-          continue; // 跳过重复的角色
+          // If a character was already found, duplicate ID detected — this is a problem
+          console.warn(`Duplicate character ID found: ${characterId}, exists in both team ${foundTeam} and ${team}`);
+          continue; // Skip duplicate character
         }
-        
+
         targetCharacter = updatedScript.characters[team][charIndex];
         foundTeam = team;
-        
-        // 创建更新后的角色
+
+        // Create updated character
         const updatedCharacter = {
           ...targetCharacter,
           ...updates,
         };
 
-        // 检查是否需要移动到不同的团队
+        // Check if character needs to move to a different team
         if (updates.team && updates.team !== team) {
-          // 从原团队中删除
+          // Remove from original team
           updatedScript.characters = {
             ...updatedScript.characters,
             [team]: updatedScript.characters[team].filter(c => !isSameCharacter(c.id, characterId))
           };
-          
-          // 如果原团队为空，删除该团队
+
+          // If original team is empty, delete the team
           if (updatedScript.characters[team].length === 0) {
             const { [team]: removed, ...rest } = updatedScript.characters;
             updatedScript.characters = rest as typeof updatedScript.characters;
           }
-          
-          // 添加到新团队
+
+          // Add to new team
           if (!updatedScript.characters[updates.team]) {
             updatedScript.characters[updates.team] = [];
           }
@@ -261,21 +261,21 @@ class ScriptStore {
             [updates.team]: [...updatedScript.characters[updates.team], updatedCharacter]
           };
         } else {
-          // 在同一团队内更新
+          // Update within the same team
           updatedScript.characters = {
             ...updatedScript.characters,
-            [team]: updatedScript.characters[team].map(c => 
+            [team]: updatedScript.characters[team].map(c =>
               isSameCharacter(c.id, characterId) ? updatedCharacter : c
             )
           };
         }
-        
+
         updated = true;
-        break; // 找到角色后退出循环
+        break; // Exit loop after finding character
       }
     }
 
-    // 更新all数组中的角色
+    // Update character in all array
     if (targetCharacter && updated) {
       const allIndex = updatedScript.all.findIndex(c => isSameCharacter(c.id, characterId));
       if (allIndex !== -1) {
@@ -289,18 +289,18 @@ class ScriptStore {
 
     if (updated) {
       this.setScript(updatedScript);
-      console.log('ScriptStore - 角色更新成功，准备同步JSON:', {
+      console.log('ScriptStore - Character updated successfully, preparing JSON sync:', {
         characterId,
         updatedCharacter: updatedScript.all.find(c => isSameCharacter(c.id, characterId)),
       });
-      // 使用新的精准更新方法
+      // Use the new precise update method
       this.updateCharacterInJson(characterId, updates);
     } else {
-      console.log('没有找到要更新的角色:', characterId);
+      console.log('Character to update not found:', characterId);
     }
   }
 
-  // 重新排序角色
+  // Reorder characters
   reorderCharacters(team: string, newOrder: string[]) {
     if (!this.script) return;
 
@@ -312,7 +312,7 @@ class ScriptStore {
       },
     };
 
-    // 重新构建 all 数组以保持一致性
+    // Rebuild all array to maintain consistency
     const newAllArray: Character[] = [];
     Object.values(updatedScript.characters).forEach(teamCharacters => {
       newAllArray.push(...teamCharacters);
@@ -320,24 +320,24 @@ class ScriptStore {
     updatedScript.all = newAllArray;
 
     this.setScript(updatedScript);
-    // 使用新的重排序方法（保留原格式）
+    // Use the new reorder method (preserves original format)
     const allIds = updatedScript.all.map(c => c.id);
     this.reorderCharactersInJson(allIds);
   }
 
-  // 添加角色到剧本
+  // Add character to script
   addCharacter(character: Character) {
     if (!this.script) return false;
 
     const updatedScript = { ...this.script };
-    
-    // 检查角色是否已存在
+
+    // Check if character already exists
     const exists = updatedScript.all.some(c => isSameCharacter(c.id, character.id));
     if (exists) {
-      return false; // 返回false表示角色已存在
+      return false; // Return false to indicate character already exists
     }
 
-    // 添加到对应团队
+    // Add to corresponding team
     if (!updatedScript.characters[character.team]) {
       updatedScript.characters[character.team] = [];
     }
@@ -345,70 +345,70 @@ class ScriptStore {
       ...updatedScript.characters,
       [character.team]: [...updatedScript.characters[character.team], character]
     };
-    
-    // 添加到all数组
+
+    // Add to all array
     updatedScript.all = [...updatedScript.all, character];
 
     this.setScript(updatedScript);
-    // 使用新的精准添加方法
+    // Use the new precise add method
     this.addCharacterToJson(character);
-    return true; // 返回true表示添加成功
+    return true; // Return true to indicate add succeeded
   }
 
-  // 从剧本中删除角色
+  // Remove character from script
   removeCharacter(character: Character) {
     if (!this.script) return;
 
     const updatedScript = { ...this.script };
-    
-    // 从对应团队中删除
+
+    // Remove from corresponding team
     if (updatedScript.characters[character.team]) {
       updatedScript.characters = {
         ...updatedScript.characters,
         [character.team]: updatedScript.characters[character.team].filter(c => !isSameCharacter(c.id, character.id))
       };
-      
-      // 如果团队为空，删除该团队
+
+      // If team is empty, delete the team
       if (updatedScript.characters[character.team].length === 0) {
         const { [character.team]: removed, ...rest } = updatedScript.characters;
         updatedScript.characters = rest as typeof updatedScript.characters;
       }
     }
-    
-    // 从all数组中删除
+
+    // Remove from all array
     updatedScript.all = updatedScript.all.filter(c => !isSameCharacter(c.id, character.id));
 
     this.setScript(updatedScript);
-    // 使用新的精准删除方法
+    // Use the new precise delete method
     this.removeCharacterFromJson(character.id);
   }
 
-  // 替换角色（保持原位置）
+  // Replace character (preserving original position)
   replaceCharacter(oldCharacter: Character, newCharacter: Character) {
     if (!this.script) return false;
 
     const updatedScript = { ...this.script };
     
-    // 检查新角色是否已存在（除非它就是要被替换的角色）
+    // Check if new character already exists (unless it's the one being replaced)
     const exists = updatedScript.all.some(
       c => isSameCharacter(c.id, newCharacter.id) && !isSameCharacter(c.id, oldCharacter.id),
     );
     if (exists) {
-      return false; // 返回false表示新角色已存在
+      return false; // Return false to indicate new character already exists
     }
 
-    // 在all数组中找到旧角色的索引
+    // Find old character's index in all array
     const allIndex = updatedScript.all.findIndex(c => isSameCharacter(c.id, oldCharacter.id));
     if (allIndex === -1) {
-      return false; // 旧角色不存在
+      return false; // Old character does not exist
     }
 
-    // 在all数组中替换（保持位置）
+    // Replace in all array (preserving position)
     updatedScript.all = [...updatedScript.all];
     updatedScript.all[allIndex] = newCharacter;
 
-    // 处理团队数组
-    // 1. 从旧团队中删除旧角色
+    // Process team arrays
+    // 1. Remove old character from old team
     if (updatedScript.characters[oldCharacter.team]) {
       const oldTeamIndex = updatedScript.characters[oldCharacter.team].findIndex(c =>
         isSameCharacter(c.id, oldCharacter.id),
@@ -421,7 +421,7 @@ class ScriptStore {
           ),
         };
         
-        // 如果旧团队为空，删除该团队
+        // If old team is empty, delete the team
         if (updatedScript.characters[oldCharacter.team].length === 0) {
           const { [oldCharacter.team]: removed, ...rest } = updatedScript.characters;
           updatedScript.characters = rest as typeof updatedScript.characters;
@@ -429,7 +429,7 @@ class ScriptStore {
       }
     }
 
-    // 2. 添加到新团队
+    // 2. Add to new team
     if (!updatedScript.characters[newCharacter.team]) {
       updatedScript.characters[newCharacter.team] = [];
     }
@@ -439,12 +439,12 @@ class ScriptStore {
     };
 
     this.setScript(updatedScript);
-    // 使用新的精准替换方法
+    // Use the new precise replace method
     this.replaceCharacterInJson(oldCharacter.id, newCharacter);
-    return true; // 返回true表示替换成功
+    return true; // Return true to indicate replace succeeded
   }
 
-  // 更新标题信息
+  // Update title info
   updateTitleInfo(data: {
     title?: string;
     titleImage?: string;
@@ -464,7 +464,7 @@ class ScriptStore {
     
     if (data.title !== undefined) updatedScript.title = data.title;
     
-    // 处理 titleImage：如果是 undefined 或空字符串，删除该字段
+    // Handle titleImage: if undefined or empty string, delete the field
     if ('titleImage' in data) {
       if (data.titleImage) {
         updatedScript.titleImage = data.titleImage;
@@ -484,7 +484,7 @@ class ScriptStore {
     if (data.author !== undefined) updatedScript.author = data.author;
     if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
     
-    // 更新第二页标题配置
+    // Update second page title config
     if (data.secondPageTitleText !== undefined) {
       updatedScript.secondPageTitleText = data.secondPageTitleText;
     }
@@ -509,7 +509,7 @@ class ScriptStore {
     this.syncTitleInfoToJson(data);
   }
 
-  // 添加第二页组件
+  // Add second page component
   addSecondPageComponent(componentType: 'title' | 'ppl_table1' | 'ppl_table2') {
     if (!this.script) return;
 
@@ -531,7 +531,7 @@ class ScriptStore {
     this.syncSecondPageComponentToJson(componentType, true);
   }
 
-  // 删除第二页组件
+  // Remove second page component
   removeSecondPageComponent(componentType: 'title' | 'ppl_table1' | 'ppl_table2') {
     if (!this.script) return;
 
@@ -553,19 +553,19 @@ class ScriptStore {
     this.syncSecondPageComponentToJson(componentType, false);
   }
 
-  // 更新特殊规则
+  // Update special rule
   updateSpecialRule(rule: any) {
     if (!this.script) return;
 
     const updatedScript = { ...this.script };
-    
-    // 更新 specialRules 中的规则
+
+    // Update rule in specialRules
     const firstPageIndex = updatedScript.specialRules.findIndex(r => r.id === rule.id);
     if (firstPageIndex !== -1) {
       updatedScript.specialRules[firstPageIndex] = rule;
     }
-    
-    // 更新 secondPageRules 中的规则（如果存在）
+
+    // Update rule in secondPageRules (if exists)
     if (updatedScript.secondPageRules) {
       const secondPageIndex = updatedScript.secondPageRules.findIndex(r => r.id === rule.id);
       if (secondPageIndex !== -1) {
@@ -577,16 +577,16 @@ class ScriptStore {
     this.syncSpecialRuleUpdateToJson(rule);
   }
 
-  // 删除特殊规则
+  // Delete special rule
   removeSpecialRule(rule: any) {
     if (!this.script) return;
 
     const updatedScript = { ...this.script };
-    
-    // 从 specialRules 中删除
+
+    // Remove from specialRules
     updatedScript.specialRules = updatedScript.specialRules.filter(r => r.id !== rule.id);
-    
-    // 从 secondPageRules 中删除（如果存在）
+
+    // Remove from secondPageRules (if exists)
     if (updatedScript.secondPageRules) {
       updatedScript.secondPageRules = updatedScript.secondPageRules.filter(r => r.id !== rule.id);
     }
@@ -595,13 +595,13 @@ class ScriptStore {
     this.syncSpecialRuleToJson(rule);
   }
 
-  // 添加自定义相克关系
+  // Add custom jinx relationship
   addCustomJinx(characterA: Character, characterB: Character, description: string) {
     if (!this.script) return;
 
     const updatedScript = { ...this.script };
-    
-    // 更新相克关系（使用角色名称作为主键）
+
+    // Update jinx relationship (using character names as keys)
     if (description) {
       if (!updatedScript.jinx[characterA.name]) {
         updatedScript.jinx[characterA.name] = {};
@@ -617,7 +617,7 @@ class ScriptStore {
     this.syncCustomJinxToJson(characterA, characterB, description, 'add', true);
   }
 
-  // 更新官方相克规则（修改显示状态或自定义描述）
+  // Update official jinx rule (modify display state or custom description)
   updateOfficialJinx(
     characterA: Character,
     characterB: Character,
@@ -626,8 +626,8 @@ class ScriptStore {
     if (!this.script) return;
 
     const updatedScript = { ...this.script };
-    
-    // 更新双向关系
+
+    // Update bidirectional relationship
     if (updatedScript.jinx[characterA.name]?.[characterB.name]) {
       const currentJinx = updatedScript.jinx[characterA.name][characterB.name];
       updatedScript.jinx[characterA.name][characterB.name] = {
@@ -645,33 +645,33 @@ class ScriptStore {
     }
 
     this.setScript(updatedScript);
-    
-    // 同步到JSON
+
+    // Sync to JSON
     if (updates.reason !== undefined) {
       this.syncCustomJinxToJson(characterA, characterB, updates.reason, 'add', updates.display);
     } else if (updates.display !== undefined) {
-      // 只更新display状态
+      // Only update display state
       this.syncJinxDisplayToJson(characterA, characterB, updates.display);
     }
   }
 
-  // 删除自定义相克关系
+  // Delete custom jinx relationship
   removeCustomJinx(characterA: Character, characterB: Character) {
     if (!this.script) return;
 
     const updatedScript = { ...this.script };
-    
-    // 从中文相克关系中删除
+
+    // Remove from jinx relationships
     if (updatedScript.jinx[characterA.name]) {
       delete updatedScript.jinx[characterA.name][characterB.name];
       
-      // 如果该角色没有其他相克关系，删除该键
+      // If this character has no other jinx relationships, delete the key
       if (Object.keys(updatedScript.jinx[characterA.name]).length === 0) {
         delete updatedScript.jinx[characterA.name];
       }
     }
 
-    // 同时检查反向关系
+    // Also check reverse relationship
     if (updatedScript.jinx[characterB.name]) {
       delete updatedScript.jinx[characterB.name][characterA.name];
       
@@ -684,18 +684,18 @@ class ScriptStore {
     this.syncCustomJinxToJson(characterA, characterB, '', 'remove', undefined);
   }
 
-  // 仅更新相克规则的display状态到JSON
+  // Sync only the jinx rule display state to JSON
   private syncJinxDisplayToJson(
     characterA: Character,
     characterB: Character,
     display: boolean
   ) {
-    console.log('开始同步相克规则display状态到JSON', { characterA: characterA.name, characterB: characterB.name, display });
+    console.log('Starting to sync jinx rule display state to JSON', { characterA: characterA.name, characterB: characterB.name, display });
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 查找现有的相克关系
+      // Find existing jinx relationship
       const existingJinxIndex = jsonArray.findIndex((item: any) => {
         if (typeof item === 'string') return false;
         return item.team === 'a jinxed' && 
@@ -705,28 +705,28 @@ class ScriptStore {
       });
 
       if (existingJinxIndex >= 0) {
-        // 找到了现有的相克关系条目
+        // Found existing jinx relationship entry
         const jinxItem = jsonArray[existingJinxIndex];
         const jinxEntry = jinxItem.jinx.find((j: any) => isSameCharacter(j.id, characterB.id));
         
         if (jinxEntry) {
           if (display === true && !jinxEntry.reason) {
-            // 如果设置为显示，且没有自定义reason，说明是纯粹的官方相克
-            // 应该删除这个条目，让它回归官方默认显示
+            // If set to display and no custom reason, it's a pure official jinx
+            // Should delete this entry to let it fall back to official default display
             jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterB.id));
             
-            // 如果该角色没有其他相克关系，删除整个对象
+            // If this character has no other jinx relationships, delete entire object
             if (jinxItem.jinx.length === 0) {
               jsonArray.splice(existingJinxIndex, 1);
             }
           } else {
-            // 否则更新display状态
+            // Otherwise update display state
             jinxEntry.display = display;
           }
         }
       } else if (display === false) {
-        // 如果不存在，且要设置为隐藏，才创建条目
-        // 如果是设置为显示（true），则不需要创建条目，保持官方默认即可
+        // Only create entry when it doesn't exist and display is set to false
+        // If setting to true and entry doesn't exist, no need to create—keep official default
         const characterJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
           return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
@@ -734,14 +734,14 @@ class ScriptStore {
 
         const newJinxEntry: any = {
           id: characterB.id,
-          display: false,  // 只在隐藏时创建条目
+          display: false,  // Only create entry when hiding
         };
 
         if (characterJinxIndex >= 0) {
-          // 该角色已有jinx对象，添加到jinx数组中
+          // Character already has jinx object, add to jinx array
           jsonArray[characterJinxIndex].jinx.push(newJinxEntry);
         } else {
-          // 创建新的jinx对象
+          // Create new jinx object
           const newJinxObject: any = {
             id: characterA.id,
             team: 'a jinxed',
@@ -750,17 +750,17 @@ class ScriptStore {
           jsonArray.push(newJinxObject);
         }
       }
-      // 如果不存在且display为true，什么都不做，保持官方默认显示
+      // If not found and display is true, do nothing—keep official default display
 
       const jsonString = JSON.stringify(jsonArray, null, 2);
-      console.log('相克规则display状态同步完成');
+      console.log('Jinx rule display state sync completed');
       this.setOriginalJson(jsonString);
     } catch (error) {
-      console.error('同步相克规则display状态失败:', error);
+      console.error('Failed to sync jinx rule display state:', error);
     }
   }
 
-  // 将自定义相克关系同步到JSON
+  // Sync custom jinx relationship to JSON
   private syncCustomJinxToJson(
     characterA: Character,
     characterB: Character,
@@ -768,14 +768,14 @@ class ScriptStore {
     action: 'add' | 'remove',
     display?: boolean
   ) {
-    console.log('开始同步自定义相克关系到JSON', { characterA: characterA.name, characterB: characterB.name, action });
+    console.log('Starting to sync custom jinx to JSON', { characterA: characterA.name, characterB: characterB.name, action });
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
       if (action === 'add') {
-        // 添加相克关系
-        // 检查是否已存在相克关系
+        // Add jinx relationship
+        // Check if jinx relationship already exists
         const existingJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
           return item.team === 'a jinxed' && 
@@ -785,19 +785,19 @@ class ScriptStore {
         });
 
         if (existingJinxIndex >= 0) {
-          // 更新现有的相克关系
+          // Update existing jinx relationship
           const jinxItem = jsonArray[existingJinxIndex];
           const jinxEntry = jinxItem.jinx.find((j: any) => isSameCharacter(j.id, characterB.id));
           if (jinxEntry && description) {
-            // 更新描述
+            // Update description
             jinxEntry.reason = description;
             if (display !== undefined) {
               jinxEntry.display = display;
             }
           }
         } else {
-          // 添加新的相克关系
-          // 查找是否已有该角色的jinx对象
+          // Add new jinx relationship
+          // Check if character already has a jinx object
           const characterJinxIndex = jsonArray.findIndex((item: any) => {
             if (typeof item === 'string') return false;
             return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
@@ -812,10 +812,10 @@ class ScriptStore {
           }
 
           if (characterJinxIndex >= 0) {
-            // 该角色已有jinx对象，添加到jinx数组中
+            // Character already has jinx object, add to jinx array
             jsonArray[characterJinxIndex].jinx.push(newJinxEntry);
           } else {
-            // 创建新的jinx对象
+            // Create new jinx object
             const newJinxObject: any = {
               id: characterA.id,
               team: 'a jinxed',
@@ -825,7 +825,7 @@ class ScriptStore {
           }
         }
       } else if (action === 'remove') {
-        // 删除相克关系
+        // Delete jinx relationship
         const characterJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
           return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
@@ -835,13 +835,13 @@ class ScriptStore {
           const jinxItem = jsonArray[characterJinxIndex];
           jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterB.id));
           
-          // 如果该角色没有其他相克关系，删除整个对象
+          // If this character has no other jinx relationships, delete entire object
           if (jinxItem.jinx.length === 0) {
             jsonArray.splice(characterJinxIndex, 1);
           }
         }
 
-        // 同时检查反向关系
+        // Also check reverse relationship
         const reverseJinxIndex = jsonArray.findIndex((item: any) => {
           if (typeof item === 'string') return false;
           return item.team === 'a jinxed' && isSameCharacter(item.id, characterB.id);
@@ -858,14 +858,14 @@ class ScriptStore {
       }
 
       const jsonString = JSON.stringify(jsonArray, null, 2);
-      console.log('自定义相克关系同步完成');
+      console.log('Custom jinx sync completed');
       this.setOriginalJson(jsonString);
     } catch (error) {
-      console.error('同步自定义相克关系失败:', error);
+      console.error('Failed to sync custom jinx:', error);
     }
   }
 
-  // 将标题信息同步到JSON
+  // Sync title info to JSON
   private syncTitleInfoToJson(data: {
     title?: string;
     titleImage?: string;
@@ -879,12 +879,12 @@ class ScriptStore {
     secondPageTitleImageSize?: number;
     useSecondPageTitleImage?: boolean;
   }) {
-    console.log('开始同步标题信息到JSON', data);
+    console.log('Starting to sync title info to JSON', data);
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 检查是否存在 _meta 项
+      // Check if _meta item exists
       let hasMetaItem = false;
       const newJsonArray = jsonArray.map((item: any) => {
         if (item.id === '_meta') {
@@ -893,16 +893,16 @@ class ScriptStore {
           
           if (data.title !== undefined) updatedMeta.name = data.title;
           
-          // 处理图片标题：只要 titleImage 字段存在（即使是 undefined），就处理它
+          // Handle image title: process titleImage field whenever it exists (even undefined)
           if ('titleImage' in data) {
-            console.log('处理 titleImage 字段:', data.titleImage);
+            console.log('Processing titleImage field:', data.titleImage);
             if (data.titleImage) {
               updatedMeta.titleImage = data.titleImage;
-              console.log('✅ 设置 titleImage:', data.titleImage);
+              console.log('Set titleImage:', data.titleImage);
             } else {
               delete updatedMeta.titleImage;
               delete updatedMeta.logo;
-              console.log('✅ 删除 titleImage 和 logo 字段');
+              console.log('Deleted titleImage and logo fields');
             }
           }
           
@@ -921,7 +921,7 @@ class ScriptStore {
             }
           }
           
-          // 同步第二页标题配置
+          // Sync second page title config
           if (data.secondPageTitleText !== undefined) {
             updatedMeta.second_page_title_text = data.secondPageTitleText;
           }
@@ -942,15 +942,15 @@ class ScriptStore {
             updatedMeta.use_second_page_title_image = data.useSecondPageTitleImage;
           }
           
-          console.log('更新后的 _meta:', updatedMeta);
+          console.log('Updated _meta:', updatedMeta);
           return updatedMeta;
         }
         return item;
       });
 
-      // 如果没有 _meta 项，则创建一个新的并插入到数组开头
+      // If no _meta item, create a new one and insert at the beginning
       if (!hasMetaItem) {
-        console.log('未找到 _meta 项，创建新的 _meta');
+        console.log('_meta item not found, creating new _meta');
         const newMeta: any = {
           id: '_meta',
           name: data.title || 'Custom Your Script!',
@@ -980,18 +980,18 @@ class ScriptStore {
         }
         
         newJsonArray.unshift(newMeta);
-        console.log('新创建的 _meta:', newMeta);
+        console.log('Newly created _meta:', newMeta);
       }
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
-      console.log('标题信息同步完成');
+      console.log('Title info sync completed');
       this.setOriginalJson(jsonString);
     } catch (error) {
-      console.error('同步标题信息失败:', error);
+      console.error('Failed to sync title info:', error);
     }
   }
 
-  // 更新第二页组件顺序
+  // Update second page component order
   updateSecondPageOrder(order: string[]) {
     if (!this.script) return;
 
@@ -1002,14 +1002,14 @@ class ScriptStore {
     this.syncSecondPageOrderToJson(order);
   }
 
-  // 同步第二页组件顺序到JSON
+  // Sync second page component order to JSON
   private syncSecondPageOrderToJson(order: string[]) {
-    console.log('开始同步第二页组件顺序到JSON', order);
+    console.log('Starting to sync second page component order to JSON', order);
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 检查是否存在 _meta 项
+      // Check if _meta item exists
       let hasMetaItem = false;
       const newJsonArray = jsonArray.map((item: any) => {
         if (item.id === '_meta') {
@@ -1021,7 +1021,7 @@ class ScriptStore {
         return item;
       });
 
-      // 如果没有 _meta 项，则创建一个新的并插入到数组开头
+      // If no _meta item, create a new one and insert at the beginning
       if (!hasMetaItem) {
         const newMeta: any = {
           id: '_meta',
@@ -1033,31 +1033,31 @@ class ScriptStore {
       }
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
-      console.log('第二页组件顺序同步完成');
+      console.log('Second page component order sync completed');
       this.setOriginalJson(jsonString);
     } catch (error) {
-      console.error('同步第二页组件顺序失败:', error);
+      console.error('Failed to sync second page component order:', error);
     }
   }
 
-  // 将第二页组件配置同步到JSON
+  // Sync second page component config to JSON
   private syncSecondPageComponentToJson(
     componentType: 'title' | 'ppl_table1' | 'ppl_table2',
     enabled: boolean
   ) {
-    console.log('开始同步第二页组件配置到JSON', { componentType, enabled });
+    console.log('Starting to sync second page component config to JSON', { componentType, enabled });
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
 
-      // 检查是否存在 _meta 项
+      // Check if _meta item exists
       let hasMetaItem = false;
       const newJsonArray = jsonArray.map((item: any) => {
         if (item.id === '_meta') {
           hasMetaItem = true;
           const updatedMeta = { ...item };
           
-          // 更新对应的配置项
+          // Update the corresponding config item
           switch (componentType) {
             case 'title':
               updatedMeta.second_page_title = enabled;
@@ -1075,15 +1075,15 @@ class ScriptStore {
         return item;
       });
 
-      // 如果没有 _meta 项，则创建一个新的并插入到数组开头
+      // If no _meta item, create a new one and insert at the beginning
       if (!hasMetaItem) {
         const newMeta: any = {
           id: '_meta',
           name: 'Custom Your Script!',
           author: '',
         };
-        
-        // 设置对应的配置项
+
+        // Set the corresponding config item
         switch (componentType) {
           case 'title':
             newMeta.second_page_title = enabled;
@@ -1100,16 +1100,16 @@ class ScriptStore {
       }
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
-      console.log('第二页组件配置同步完成');
+      console.log('Second page component config sync completed');
       this.setOriginalJson(jsonString);
     } catch (error) {
-      console.error('同步第二页组件配置失败:', error);
+      console.error('Failed to sync second page component config:', error);
     }
   }
 
-  // 将特殊规则的更新同步到JSON
+  // Sync special rule update to JSON
   private syncSpecialRuleUpdateToJson(updatedRule: any) {
-    console.log('开始同步更新特殊规则到JSON', updatedRule);
+    console.log('Starting to sync special rule update to JSON', updatedRule);
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
@@ -1117,7 +1117,7 @@ class ScriptStore {
       let newJsonArray: any[] = [];
 
       if (updatedRule.sourceType === 'state' || updatedRule.sourceType === 'status') {
-        // 处理 state/status 类型
+        // Handle state/status type
         newJsonArray = jsonArray.map((item: any) => {
           if (item.id === '_meta') {
             const updatedMeta = { ...item };
@@ -1153,7 +1153,7 @@ class ScriptStore {
           return item;
         });
       } else if (updatedRule.sourceType === 'special_rule') {
-        // 处理 special_rule 类型
+        // Handle special_rule type
         newJsonArray = jsonArray.map((item: any) => {
           if (item.id === updatedRule.id) {
             return {
@@ -1165,21 +1165,21 @@ class ScriptStore {
           return item;
         });
       } else {
-        // 未知类型，保持原样
+        // Unknown type, keep as-is
         newJsonArray = jsonArray;
       }
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
-      console.log('特殊规则更新同步完成');
+      console.log('Special rule update sync completed');
       this.setOriginalJson(jsonString);
     } catch (error) {
-      console.error('同步特殊规则更新失败:', error);
+      console.error('Failed to sync special rule update:', error);
     }
   }
 
-  // 将特殊规则的删除同步到JSON
+  // Sync special rule deletion to JSON
   private syncSpecialRuleToJson(deletedRule: any) {
-    console.log('开始同步删除特殊规则到JSON', deletedRule);
+    console.log('Starting to sync special rule deletion to JSON', deletedRule);
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
@@ -1187,28 +1187,28 @@ class ScriptStore {
       let newJsonArray: any[] = [];
 
       if (deletedRule.sourceType === 'state' || deletedRule.sourceType === 'status') {
-        // 处理 state/status 类型
+        // Handle state/status type
         newJsonArray = jsonArray.map((item: any) => {
           if (item.id === '_meta') {
             const updatedMeta = { ...item };
-            
+
             if (deletedRule.sourceType === 'state' && updatedMeta.state) {
-              // 删除对应索引的 state
+              // Delete state at the corresponding index
               updatedMeta.state = updatedMeta.state.filter(
                 (_: any, index: number) => index !== deletedRule.sourceIndex
               );
-              // 如果 state 数组为空，删除该字段
+              // If state array is empty, delete the field
               if (updatedMeta.state.length === 0) {
                 delete updatedMeta.state;
               }
             }
             
             if (deletedRule.sourceType === 'status' && updatedMeta.status) {
-              // 删除对应索引的 status
+              // Delete status at the corresponding index
               updatedMeta.status = updatedMeta.status.filter(
                 (_: any, index: number) => index !== deletedRule.sourceIndex
               );
-              // 如果 status 数组为空，删除该字段
+              // If status array is empty, delete the field
               if (updatedMeta.status.length === 0) {
                 delete updatedMeta.status;
               }
@@ -1219,24 +1219,24 @@ class ScriptStore {
           return item;
         });
       } else if (deletedRule.sourceType === 'special_rule') {
-        // 处理 special_rule 类型 - 删除整个对象
+        // Handle special_rule type - delete the entire object
         newJsonArray = jsonArray.filter((item: any) => item.id !== deletedRule.id);
       } else {
-        // 未知类型，保持原样
+        // Unknown type, keep as-is
         newJsonArray = jsonArray;
       }
 
       const jsonString = JSON.stringify(newJsonArray, null, 2);
-      console.log('特殊规则删除同步完成，更新originalJson');
+      console.log('Special rule deletion sync completed, updating originalJson');
       this.setOriginalJson(jsonString);
     } catch (error) {
-      console.error('同步特殊规则删除失败:', error);
+      console.error('Failed to sync special rule deletion:', error);
     }
   }
 
-  // ===== 新的精准JSON更新方法 =====
-  
-  // 更新单个角色的JSON（只修改该角色，保留原格式）
+  // ===== New precise JSON update methods =====
+
+  // Update a single character's JSON (only modify that character, preserving original format)
   private updateCharacterInJson(characterId: string, updates: Partial<Character>) {
     console.log('updateCharacterInJson:', { characterId, updates });
     try {
@@ -1255,16 +1255,16 @@ class ScriptStore {
         ) {
           updated = true;
           
-          // 如果是简化格式（只有ID字符串）
+          // If simple format (only ID string)
           if (typeof item === 'string') {
-            // 在官方ID模式下，保持简化格式（不保存自定义信息到JSON）
+            // In official ID mode, keep simple format (don't save custom info to JSON)
             if (configStore.config.officialIdParseMode) {
-              // 官方ID模式：保持简化格式，不修改JSON
-              console.log('官方ID模式：保持简化格式，不保存自定义到JSON');
+              // Official ID mode: keep simple format, don't modify JSON
+              console.log('Official ID mode: keeping simple format, not saving custom data to JSON');
               return item;
             } else {
-              // 普通模式：升级为完整格式，保留角色所有字段（避免丢失 name/ability/team）
-              console.log('普通模式：升级为完整格式，添加自定义字段');
+              // Normal mode: upgrade to full format, preserving all character fields (avoid losing name/ability/team)
+              console.log('Normal mode: upgrading to full format, adding custom fields');
               const fullCharacter = this.script?.all.find(c => isSameCharacter(c.id, characterId));
               const base = fullCharacter
                 ? { id: characterId, name: fullCharacter.name, ability: fullCharacter.ability, team: fullCharacter.team, image: fullCharacter.image }
@@ -1275,17 +1275,17 @@ class ScriptStore {
               };
             }
           } else {
-            // 完整格式：只更新修改的字段
-            // 在官方ID模式下，删除夜间顺序的自定义（使用官方数据）
+            // Full format: only update modified fields
+            // In official ID mode, remove night order customizations (use official data)
             if (configStore.config.officialIdParseMode) {
               const updatedItem = { ...item };
-              // 移除夜间顺序字段，让它们从官方库获取
+              // Remove night order fields, let them be fetched from official library
               if ('firstNight' in updates || 'otherNight' in updates) {
                 delete updatedItem.firstNight;
                 delete updatedItem.otherNight;
-                console.log('官方ID模式：移除夜间顺序自定义，使用官方数据');
+                console.log('Official ID mode: removing night order customization, using official data');
               }
-              // 应用其他非夜间顺序的更新
+              // Apply other non-night-order updates
               const nonNightUpdates = Object.keys(updates)
                 .filter(key => key !== 'firstNight' && key !== 'otherNight')
                 .reduce((acc, key) => ({ ...acc, [key]: (updates as any)[key] }), {} as Partial<Character>);
@@ -1294,7 +1294,7 @@ class ScriptStore {
                 ...nonNightUpdates,
               };
             } else {
-              // 普通模式：正常更新
+              // Normal mode: update normally
               return {
                 ...item,
                 ...updates,
@@ -1307,34 +1307,34 @@ class ScriptStore {
       
       if (updated) {
         this.setOriginalJson(JSON.stringify(newJsonArray, null, 2));
-        console.log('✅ 角色JSON已更新');
+        console.log('Character JSON updated');
       } else {
-        console.warn('⚠️ 未找到要更新的角色:', characterId);
+        console.warn('Character to update not found:', characterId);
       }
     } catch (error) {
-      console.error('❌ 更新角色JSON失败:', error);
+      console.error('Failed to update character JSON:', error);
     }
   }
   
-  // 添加角色到JSON
+  // Add character to JSON
   private addCharacterToJson(character: Character) {
     console.log('addCharacterToJson:', character.id);
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
-      
-      // 检查是否已存在
+
+      // Check if already exists
       const exists = jsonArray.some((item: any) => {
         const id = typeof item === 'string' ? item : item.id;
         return id === character.id;
       });
-      
+
       if (exists) {
-        console.warn('⚠️ 角色已存在，跳过添加:', character.id);
+        console.warn('Character already exists, skipping add:', character.id);
         return;
       }
-      
-      // 找到插入位置（在jinxed和special_rule之前）
+
+      // Find insertion position (before jinxed and special_rule)
       let insertIndex = jsonArray.length;
       for (let i = jsonArray.length - 1; i >= 0; i--) {
         const item = jsonArray[i];
@@ -1346,11 +1346,11 @@ class ScriptStore {
         }
       }
       
-      // 官方ID模式：只添加ID
+      // Official ID mode: only add ID
       if (configStore.config.officialIdParseMode) {
         jsonArray.splice(insertIndex, 0, character.id);
       } else {
-        // 普通模式：添加完整信息
+        // Normal mode: add full info
         const newItem: any = {
           id: character.id,
           name: character.name,
@@ -1359,7 +1359,7 @@ class ScriptStore {
           image: character.image,
         };
         
-        // 可选字段
+        // Optional fields
         if (character.firstNight) newItem.firstNight = character.firstNight;
         if (character.otherNight) newItem.otherNight = character.otherNight;
         if (character.firstNightReminder) newItem.firstNightReminder = character.firstNightReminder;
@@ -1372,13 +1372,13 @@ class ScriptStore {
       }
       
       this.setOriginalJson(JSON.stringify(jsonArray, null, 2));
-      console.log('✅ 角色已添加到JSON');
+      console.log('Character added to JSON');
     } catch (error) {
-      console.error('❌ 添加角色到JSON失败:', error);
+      console.error('Failed to add character to JSON:', error);
     }
   }
-  
-  // 从JSON中删除角色
+
+  // Remove character from JSON
   private removeCharacterFromJson(characterId: string) {
     console.log('removeCharacterFromJson:', characterId);
     try {
@@ -1391,37 +1391,37 @@ class ScriptStore {
       });
       
       this.setOriginalJson(JSON.stringify(newJsonArray, null, 2));
-      console.log('✅ 角色已从JSON删除');
+      console.log('Character removed from JSON');
     } catch (error) {
-      console.error('❌ 从JSON删除角色失败:', error);
+      console.error('Failed to remove character from JSON:', error);
     }
   }
   
-  // 替换角色在JSON中的位置（保持格式和位置）
+  // Replace character in JSON (preserving format and position)
   private replaceCharacterInJson(oldId: string, newCharacter: Character) {
     console.log('replaceCharacterInJson:', { oldId, newId: newCharacter.id });
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
-      
+
       const index = jsonArray.findIndex((item: any) => {
         const id = typeof item === 'string' ? item : item.id;
         return id === oldId;
       });
-      
+
       if (index === -1) {
-        console.warn('⚠️ 未找到要替换的角色:', oldId);
+        console.warn('Character to replace not found:', oldId);
         return;
       }
       
       const oldItem = jsonArray[index];
       const wasSimple = typeof oldItem === 'string';
       
-      // 官方ID模式且原来是简化格式：保持简化格式
+      // Official ID mode and original was simple format: keep simple format
       if (wasSimple && configStore.config.officialIdParseMode) {
         jsonArray[index] = newCharacter.id;
       } else {
-        // 否则使用完整格式
+        // Otherwise use full format
         const newItem: any = {
           id: newCharacter.id,
           name: newCharacter.name,
@@ -1430,7 +1430,7 @@ class ScriptStore {
           image: newCharacter.image,
         };
         
-        // 可选字段
+        // Optional fields
         if (newCharacter.firstNight) newItem.firstNight = newCharacter.firstNight;
         if (newCharacter.otherNight) newItem.otherNight = newCharacter.otherNight;
         if (newCharacter.firstNightReminder) newItem.firstNightReminder = newCharacter.firstNightReminder;
@@ -1443,20 +1443,20 @@ class ScriptStore {
       }
       
       this.setOriginalJson(JSON.stringify(jsonArray, null, 2));
-      console.log('✅ 角色已替换');
+      console.log('Character replaced');
     } catch (error) {
-      console.error('❌ 替换角色失败:', error);
+      console.error('Failed to replace character:', error);
     }
   }
-  
-  // 重排序角色（保持原格式，只改变顺序）
+
+  // Reorder characters (preserving original format, only changing order)
   private reorderCharactersInJson(newOrder: string[]) {
     console.log('reorderCharactersInJson:', newOrder);
     try {
       const parsedJson = JSON.parse(this.originalJson);
       const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
       
-      // 分类：meta、角色、jinxed、special_rule
+      // Categorize: meta, characters, jinxed, special_rule
       let metaItem: any = null;
       const characterItems = new Map<string, any>();
       const jinxedItems: any[] = [];
@@ -1472,11 +1472,11 @@ class ScriptStore {
         } else if (itemObj.team === 'special_rule') {
           specialRuleItems.push(item);
         } else {
-          characterItems.set(itemObj.id, item); // 保留原格式
+          characterItems.set(itemObj.id, item); // Preserve original format
         }
       });
       
-      // 重建数组：meta -> 角色（按新顺序） -> jinxed -> special_rule
+      // Rebuild array: meta -> characters (in new order) -> jinxed -> special_rule
       const newJsonArray: any[] = [];
       
       if (metaItem) newJsonArray.push(metaItem);
@@ -1491,35 +1491,35 @@ class ScriptStore {
       newJsonArray.push(...specialRuleItems);
       
       this.setOriginalJson(JSON.stringify(newJsonArray, null, 2));
-      console.log('✅ 角色顺序已更新');
+      console.log('Character order updated');
     } catch (error) {
-      console.error('❌ 重排序失败:', error);
+      console.error('Failed to reorder:', error);
     }
   }
-  
-  // 旧的全局同步方法（保留作为备用，但不再主动使用）
+
+  // Old global sync method (kept as backup, no longer actively used)
   private syncScriptToJson_DEPRECATED(updatedScript: Script) {
-    console.warn('⚠️ 使用了已废弃的 syncScriptToJson 方法');
-    // 保留原代码作为备份...
+    console.warn('Using deprecated syncScriptToJson method');
+    // Keep original code as backup...
   }
 
-  // 清空所有数据
+  // Clear all data
   clear() {
     this.script = null;
     this.originalJson = '';
     this.normalizedJson = '';
     this.customTitle = '';
     this.customAuthor = '';
-    // 删除 localStorage 中的剧本数据
+    // Remove script data from localStorage
     try {
       localStorage.removeItem('botc-script-data');
-      console.log('已删除 localStorage 键: botc-script-data');
+      console.log('Deleted localStorage key: botc-script-data');
     } catch (error) {
-      console.warn('删除剧本数据失败:', error);
+      console.warn('Failed to delete script data:', error);
     }
   }
 
-  // 保存到 localStorage
+  // Save to localStorage
   private saveToStorage() {
     try {
       const data = {
@@ -1532,10 +1532,10 @@ class ScriptStore {
       };
       localStorage.setItem('botc-script-data', JSON.stringify(data));
     } catch (error: any) {
-      // 捕获 QuotaExceededError（base64 图片可能导致数据量过大）
+      // Catch QuotaExceededError (base64 images may cause data to be too large)
       if (error?.name === 'QuotaExceededError' || error?.code === 22) {
-        console.error('localStorage 空间不足（可能因为 base64 图片数据过大）');
-        // 尝试只保存核心数据（去掉 normalizedJson 缩减体积）
+        console.error('localStorage quota exceeded (possibly due to large base64 image data)');
+        // Try saving only core data (remove normalizedJson to reduce size)
         try {
           const minimalData = {
             script: this.script,
@@ -1546,15 +1546,15 @@ class ScriptStore {
           };
           localStorage.setItem('botc-script-data', JSON.stringify(minimalData));
         } catch {
-          console.error('即使精简后仍然无法保存到 localStorage');
+          console.error('Still unable to save to localStorage even after trimming');
         }
       } else {
-        console.warn('保存到 localStorage 失败:', error);
+        console.warn('Failed to save to localStorage:', error);
       }
     }
   }
 
-  // 从 localStorage 加载
+  // Load from localStorage
   private loadFromStorage() {
     try {
       const stored = localStorage.getItem('botc-script-data');
@@ -1567,16 +1567,16 @@ class ScriptStore {
         this.customAuthor = data.customAuthor || '';
       }
     } catch (error) {
-      console.warn('从 localStorage 加载失败:', error);
+      console.warn('Failed to load from localStorage:', error);
     }
   }
 
-  // 检查是否有存储的数据
+  // Check if there is stored data
   get hasStoredData(): boolean {
     return !!this.originalJson;
   }
 
-  // 获取默认 example.json 数据
+  // Get default example.json data
   async loadDefaultExample(): Promise<string> {
     try {
       const response = await fetch('/scripts/自定义剧本/example.json');
@@ -1585,10 +1585,10 @@ class ScriptStore {
         return JSON.stringify(data, null, 2);
       }
     } catch (error) {
-      console.warn('加载默认示例失败:', error);
+      console.warn('Failed to load default example:', error);
     }
-    
-    // 如果加载失败，返回一个基本的示例
+
+    // If loading fails, return a basic example
     return JSON.stringify([
       {"id":"_meta","author":"Onion","name":"Custom Your Script!"},
       "noble","shugenja","pixie","highpriestess","villageidiot",

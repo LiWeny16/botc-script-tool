@@ -52,12 +52,12 @@ const ScriptPreview = observer(() => {
   const [loading, setLoading] = useState<boolean>(true);
   const [originalJson, setOriginalJson] = useState<string>('');
 
-  // 在 ScriptPreview 页面，临时启用官方ID解析模式
+  // Temporarily enable official ID parse mode on ScriptPreview page
   useEffect(() => {
     const originalMode = configStore.config.officialIdParseMode;
     configStore.setOfficialIdParseMode(true);
 
-    // 组件卸载时恢复原始设置
+    // Restore original setting on unmount
     return () => {
       configStore.setOfficialIdParseMode(originalMode);
     };
@@ -65,28 +65,28 @@ const ScriptPreview = observer(() => {
 
   useEffect(() => {
     const loadScript = async () => {
-      // 优先检查URL参数中的json源
+      // Check URL parameter for json source first
       const jsonParam = searchParams.get('json');
 
       if (jsonParam) {
-        // 从URL参数加载JSON
+        // Load JSON from URL parameter
         try {
           let jsonString = '';
 
-          // 检查是否是HTTP/HTTPS链接
+          // Check if it's an HTTP/HTTPS link
           if (
             jsonParam.startsWith('http://') ||
             jsonParam.startsWith('https://') ||
-            jsonParam.startsWith('/') // 同源绝对路径，例如 /scripts/json/official/tb.json
+            jsonParam.startsWith('/') // Same-origin absolute path, e.g. /scripts/json/official/tb.json
           ) {
-            // 从URL下载JSON
+            // Download JSON from URL
             const response = await fetch(jsonParam);
             if (!response.ok) {
               throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             jsonString = await response.text();
           } else {
-            // 直接解码JSON字符串
+            // Decode JSON string directly
             jsonString = decodeURIComponent(jsonParam);
           }
 
@@ -102,7 +102,7 @@ const ScriptPreview = observer(() => {
         return;
       }
 
-      // 从剧本库加载
+      // Load from script library
       if (!scriptName) {
         setError(t('error.noScriptName'));
         setLoading(false);
@@ -111,7 +111,7 @@ const ScriptPreview = observer(() => {
 
       const decodedName = decodeURIComponent(scriptName);
 
-      // 从映射表中获取JSON URL
+      // Get JSON URL from mapping table
       const jsonUrl = getScriptJsonUrl(decodedName);
 
       if (!jsonUrl) {
@@ -121,7 +121,7 @@ const ScriptPreview = observer(() => {
       }
 
       try {
-        // 从URL加载JSON
+        // Load JSON from URL
         const jsonString = await loadScriptJson(jsonUrl);
         setOriginalJson(jsonString);
         const generatedScript = generateScript(jsonString, language);
@@ -137,7 +137,7 @@ const ScriptPreview = observer(() => {
     loadScript();
   }, [scriptName, searchParams, t]);
 
-  // 监听语言变化，重新生成剧本
+  // Listen for language changes and regenerate script
   useEffect(() => {
     if (originalJson) {
       try {
@@ -153,7 +153,7 @@ const ScriptPreview = observer(() => {
     if (!originalJson) return;
 
     try {
-      // 直接下载原始JSON文件
+      // Download the original JSON file directly
       const blob = new Blob([originalJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -162,7 +162,7 @@ const ScriptPreview = observer(() => {
       link.click();
       URL.revokeObjectURL(url);
     } catch (error) {
-      console.error('导出JSON失败:', error);
+      console.error('Failed to export JSON:', error);
       alert(t('input.exportJsonFailed'));
     }
   };
@@ -247,54 +247,54 @@ const ScriptPreview = observer(() => {
         styles={{
 
           '@media print': {
-            // 1. 定义打印页面，去除浏览器默认边距
+            // 1. Define print page, remove browser default margins
             '@page': {
-              size: 'A4 portrait', // 推荐 A4 纵向
-              margin: 0,           // 页面边距设为0，我们在容器内部控制
+              size: 'A4 portrait', // Recommended: A4 portrait
+              margin: 0,           // Set page margin to 0, we control it within the container
             },
 
-            // 2. 隐藏页面上所有元素
+            // 2. Hide all elements on the page
             'body *': {
               visibility: 'hidden !important',
             },
 
-            // 3. 仅显示你要打印的剧本核心区，以及它的所有子元素
+            // 3. Only show the script core area to print, and all its descendants
             '#script-preview, #script-preview *, #main_script, #main_script *, #script-preview-2, #script-preview-2 *': {
               visibility: 'visible !important',
             },
 
-            // 3.5. 移除Container的padding和margin
+            // 3.5. Remove Container padding and margin
             '.MuiContainer-root': {
               padding: '0 !important',
               margin: '0 !important',
               maxWidth: '100% !important',
             },
 
-            // 4. ⭐ 核心：设置第一页容器高度和布局
+            // 4. CORE: Set first page container height and layout
             '#script-preview': {
-              // --- A. 定位和尺寸 ---
+              // --- A. Position and size ---
               position: 'relative !important',
               left: '0 !important',
               top: '0 !important',
-              width: '100vw !important',  // 100% 打印视口宽度
-              height: '100vh !important', // 100% 打印视口高度
+              width: '100vw !important',  // 100% print viewport width
+              height: '100vh !important', // 100% print viewport height
               margin: '0 !important',
               padding: '0 !important',
 
-              // --- B. 强制不溢出 ---
-              overflow: 'hidden !important', // 关键！裁剪任何超出一页的内容
+              // --- B. Force no overflow ---
+              overflow: 'hidden !important', // Critical! Clip any content beyond one page
 
-              // --- C. 分页 ---
-              // 注意：只有当第二页存在时才强制分页
+              // --- C. Page break ---
+              // Note: force page break only when a second page exists
               pageBreakInside: 'avoid !important',
             },
 
-            // 4.1 当存在第二页时，第一页强制分页
+            // 4.1 When a second page exists, force page break after the first page
             '#script-preview:has(~ #script-preview-2)': {
               pageBreakAfter: 'always !important',
             },
 
-            // 5. ⭐ 第二页容器
+            // 5. Second page container
             '#script-preview-2': {
               position: 'relative !important',
               left: '0 !important',
@@ -304,22 +304,22 @@ const ScriptPreview = observer(() => {
               margin: '0 !important',
               padding: '0 !important',
               overflow: 'hidden !important',
-              pageBreakBefore: 'always !important', // 第二页前强制分页
+              pageBreakBefore: 'always !important', // Force page break before second page
               pageBreakInside: 'avoid !important',
-              marginTop: '0 !important', // 确保打印时没有上边距
+              marginTop: '0 !important', // Ensure no top margin when printing
             },
 
-            // 6. 确保底部头像和文字框在打印时可见
+            // 6. Ensure bottom avatar and text box are visible when printing
             '#main_script .MuiBox-root': {
               visibility: 'visible !important',
             },
 
-            // 7. 隐藏标题悬浮时的编辑按钮
+            // 7. Hide edit button on title hover
             '.MuiIconButton-root': {
               display: 'none !important',
             },
 
-            // 8. 隐藏顶部控制栏（返回、下载、打印按钮等）
+            // 8. Hide top control bar (back, download, print buttons, etc.)
             '#preview-control-box': {
               display: 'none !important',
             },
@@ -354,7 +354,7 @@ const ScriptPreview = observer(() => {
             >
               <IconButton
                 onClick={() => {
-                  // 返回时保持category参数
+                  // Keep category parameter when navigating back
                   const category = searchParams.get('category');
                   navigate(category ? `/repo?category=${category}` : '/repo');
                 }}

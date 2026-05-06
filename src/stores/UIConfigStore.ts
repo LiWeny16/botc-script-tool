@@ -1,108 +1,108 @@
 import { makeAutoObservable } from 'mobx';
 import { fontStorage } from '../utils/fontStorage';
 
-// 自定义字体接口
+// Custom font interface
 export interface CustomFont {
   id: string;
   name: string;
-  fontFamily: string;  // CSS font-family 名称
-  dataUrl: string;     // base64 编码的字体文件
+  fontFamily: string;  // CSS font-family name
+  dataUrl: string;     // base64-encoded font file
 }
 
 export interface UIConfig {
-  // Night Order 背景
+  // Night Order background
   nightOrderBackground: 'purple' | 'yellow' | 'green';
   nightOrderBackgroundMode: 'official' | 'custom';
   customNightOrderBackground: string; // base64
 
-  // Main 背景
+  // Main background
   mainBackgroundMode: 'official' | 'custom';
   customMainBackground: string; // base64
 
-  // 双页面模式
+  // Two-page mode
   enableTwoPageMode: boolean;
 
-  // 标题区域高度
+  // Title area height
   titleHeightMd: number;
 
-  // 标题字体大小
+  // Title font size
   titleFontSize: {
     xs: string;
     sm: string;
     md: string;
   };
 
-  // 字体设置
+  // Font settings
   fonts: {
-    // 剧本标题字体
+    // Script title font
     scriptTitle: string;
-    // 阵营分割文字字体
+    // Team divider font
     teamDivider: string;
-    // 角色卡片标题（角色名称）字体
+    // Character card title (character name) font
     characterName: string;
-    // 角色技能描述字体
+    // Character ability font
     characterAbility: string;
-    // Jinx相克规则字体
+    // Jinx text font
     jinxText: string;
-    // 第一页特殊规则标题字体
+    // Page 1 special rule title font
     stateRuleTitle: string;
-    // 第一页特殊规则内容字体
+    // Page 1 special rule content font
     stateRuleContent: string;
-    // 第二页特殊规则标题字体
+    // Page 2 special rule title font
     specialRuleTitle: string;
-    // 第二页特殊规则内容字体
+    // Page 2 special rule content font
     specialRuleContent: string;
   };
 
-  // 第一页特殊规则字体大小
+  // Page 1 special rule font size
   specialRuleTitleFontSize: string;
   specialRuleContentFontSize: string;
 
-  // 自定义字体列表
+  // Custom font list
   customFonts: CustomFont[];
 
-  // CharacterCard 配置
+  // Character card configuration
   characterCard: {
-    // 卡片配置
-    cardPaddingX: number; // 水平内边距
-    cardPaddingY: number; // 竖直内边距
+    // Card configuration
+    cardPaddingX: number; // Horizontal padding
+    cardPaddingY: number; // Vertical padding
     cardBorderRadius: number;
     cardGap: number;
 
-    // 角色头像配置
+    // Character avatar configuration
     avatarWidthMd: number;
     avatarHeightMd: number;
     avatarBorderRadius: number;
 
-    // 传奇角色图标配置
+    // Fabled character icon configuration
     fabledIconWidthMd: number;
     fabledIconHeightMd: number;
     fabledIconBorderRadius: number;
 
-    // 文本区域配置
+    // Text area configuration
     textAreaGap: number;
 
-    // 角色名字配置
+    // Character name configuration
     nameFontSizeMd: string;
     nameFontWeight: string;
     nameLineHeight: number;
 
-    // 角色描述配置
+    // Character description configuration
     descriptionFontSizeMd: string;
     descriptionLineHeight: number;
 
-    // 相克规则配置
+    // Jinx rule configuration
     jinxGap: number;
     jinxPadding: number;
     jinxBorderRadius: number;
     jinxIconGap: number;
 
-    // 相克规则图标
+    // Jinx rule icon
     jinxIconWidthMd: number;
     jinxIconHeightMd: number;
     jinxIconBorderRadius: number;
 
-    // 相克规则文字
+    // Jinx text
     jinxTextFontSizeMd: string;
     jinxTextLineHeight: number;
   };
@@ -126,7 +126,7 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     md: '4.5rem',
   },
 
-  // 字体设置 - 默认使用现有字体
+  // Font settings - default to existing fonts
   fonts: {
     scriptTitle: 'jicao, Dumbledor, serif',
     teamDivider: 'jicao, Dumbledor, serif',
@@ -139,11 +139,11 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     specialRuleContent: 'jicao, Dumbledor, serif',
   },
 
-  // 第一页特殊规则字体大小
+  // Page 1 special rule font size
   specialRuleTitleFontSize: '1rem',
   specialRuleContentFontSize: '0.85rem',
 
-  // 自定义字体列表
+  // Custom font list
   customFonts: [],
 
   characterCard: {
@@ -191,20 +191,20 @@ class UIConfigStore {
   constructor() {
     makeAutoObservable(this);
     this.loadConfig();
-    this.loadCustomFontsFromIndexedDB(); // 从 IndexedDB 加载自定义字体
+    this.loadCustomFontsFromIndexedDB(); // Load custom fonts from IndexedDB
   }
 
-  // 从 localStorage 加载配置
+  // Load config from localStorage
   loadConfig() {
     try {
       const savedConfig = localStorage.getItem(STORAGE_KEY);
       if (savedConfig) {
         const parsed = JSON.parse(savedConfig);
-        // 不从 localStorage 加载 customFonts，改用 IndexedDB
+        // Do not load customFonts from localStorage, use IndexedDB instead
         const { customFonts, ...restConfig } = parsed;
         this.config = { ...DEFAULT_UI_CONFIG, ...restConfig };
 
-        // 如果 localStorage 中有旧的字体数据，迁移到 IndexedDB
+        // If localStorage has old font data, migrate to IndexedDB
         if (customFonts && Array.isArray(customFonts) && customFonts.length > 0) {
           this.migrateFontsToIndexedDB(customFonts);
         }
@@ -214,7 +214,7 @@ class UIConfigStore {
     }
   }
 
-  // 迁移旧的字体数据到 IndexedDB
+  // Migrate old font data to IndexedDB
   private async migrateFontsToIndexedDB(fonts: CustomFont[]) {
     console.log(`Migrating ${fonts.length} fonts from localStorage to IndexedDB...`);
     try {
@@ -225,10 +225,10 @@ class UIConfigStore {
         });
       }
 
-      // 更新内存中的配置
+      // Update in-memory config
       this.config.customFonts = fonts;
 
-      // 重新保存配置（不包含 customFonts）
+      // Re-save config (excluding customFonts)
       this.saveConfig();
 
       console.log('Font migration completed successfully');
@@ -237,10 +237,10 @@ class UIConfigStore {
     }
   }
 
-  // 保存配置到 localStorage
+  // Save config to localStorage
   saveConfig() {
     try {
-      // 保存配置时不包含 customFonts（它们存在 IndexedDB 中）
+      // Save config without customFonts (they are stored in IndexedDB)
       const { customFonts, ...configToSave } = this.config;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(configToSave));
     } catch (error) {
@@ -248,19 +248,19 @@ class UIConfigStore {
     }
   }
 
-  // 更新配置
+  // Update config
   updateConfig(updates: Partial<UIConfig>) {
     this.config = { ...this.config, ...updates };
     this.saveConfig();
   }
 
-  // 更新角色卡片配置
+  // Update character card config
   updateCharacterCardConfig(updates: Partial<UIConfig['characterCard']>) {
     this.config.characterCard = { ...this.config.characterCard, ...updates };
     this.saveConfig();
   }
 
-  // 更新字体配置
+  // Update font config
   updateFontConfig(updates: Partial<UIConfig['fonts']>) {
     this.config.fonts = { ...this.config.fonts, ...updates };
     this.saveConfig();
@@ -284,19 +284,19 @@ class UIConfigStore {
     }
   }
 
-  // 添加自定义字体
+  // Add custom font
   async addCustomFont(font: CustomFont) {
-    // 保存到 IndexedDB
+    // Save to IndexedDB
     try {
       await fontStorage.saveFont({
         ...font,
         createdAt: Date.now(),
       });
 
-      // 更新内存中的配置
+      // Update in-memory config
       this.config.customFonts = [...this.config.customFonts, font];
 
-      // 加载字体到页面
+      // Load font to page
       this.loadSingleFont(font);
 
       console.log('Font saved to IndexedDB successfully:', font.name);
@@ -306,16 +306,16 @@ class UIConfigStore {
     }
   }
 
-  // 删除自定义字体
+  // Remove custom font
   async removeCustomFont(fontId: string) {
-    // 从 IndexedDB 删除
+    // Delete from IndexedDB
     try {
       await fontStorage.deleteFont(fontId);
 
-      // 更新内存中的配置
+      // Update in-memory config
       this.config.customFonts = this.config.customFonts.filter(f => f.id !== fontId);
 
-      // 移除已加载的字体样式
+      // Remove loaded font style
       const styleId = `custom-font-${fontId}`;
       const existingStyle = document.getElementById(styleId);
       if (existingStyle) {
@@ -329,12 +329,12 @@ class UIConfigStore {
     }
   }
 
-  // 从 IndexedDB 加载所有自定义字体
+  // Load all custom fonts from IndexedDB
   async loadCustomFontsFromIndexedDB() {
     try {
       const fonts = await fontStorage.getAllFonts();
 
-      // 转换为 CustomFont 格式
+      // Convert to CustomFont format
       this.config.customFonts = fonts.map(font => ({
         id: font.id,
         name: font.name,
@@ -342,21 +342,21 @@ class UIConfigStore {
         dataUrl: font.dataUrl,
       }));
 
-      // 加载所有字体到页面
+      // Load all fonts to page
       this.loadCustomFonts();
 
       console.log(`Loaded ${fonts.length} custom fonts from IndexedDB`);
     } catch (error) {
       console.error('Failed to load fonts from IndexedDB:', error);
-      // 如果 IndexedDB 加载失败，继续使用空数组
+      // If IndexedDB loading fails, continue with empty array
       this.config.customFonts = [];
     }
   }
 
-  // 加载单个字体到页面
+  // Load single font to page
   loadSingleFont(font: CustomFont) {
     const styleId = `custom-font-${font.id}`;
-    // 如果已经加载则跳过
+    // Skip if already loaded
     if (document.getElementById(styleId)) {
       return;
     }
@@ -372,56 +372,56 @@ class UIConfigStore {
     document.head.appendChild(style);
   }
 
-  // 加载所有自定义字体到页面
+  // Load all custom fonts to page
   loadCustomFonts() {
     this.config.customFonts.forEach(font => {
       this.loadSingleFont(font);
     });
   }
 
-  // 恢复默认设置
+  // Reset to defaults
   async resetToDefault() {
-    // 1. 重置配置
+    // 1. Reset config
     this.config = { ...DEFAULT_UI_CONFIG };
 
-    // 2. 清理所有自定义字体（从 IndexedDB）
+    // 2. Clean up all custom fonts (from IndexedDB)
     try {
       const fontIds = this.config.customFonts.map(f => f.id);
       for (const fontId of fontIds) {
         await fontStorage.deleteFont(fontId);
 
-        // 移除已加载的字体样式
+        // Remove loaded font style
         const styleId = `custom-font-${fontId}`;
         const existingStyle = document.getElementById(styleId);
         if (existingStyle) {
           existingStyle.remove();
         }
       }
-      console.log('所有自定义字体已从 IndexedDB 清理');
+      console.log('All custom fonts cleaned from IndexedDB');
     } catch (error) {
-      console.error('清理自定义字体失败:', error);
+      console.error('Failed to clean up custom fonts:', error);
     }
 
-    // 3. 清空自定义字体列表
+    // 3. Clear custom font list
     this.config.customFonts = [];
 
-    // 4. 删除 localStorage 中的配置，而不是保存默认值
+    // 4. Delete localStorage config instead of saving defaults
     try {
       localStorage.removeItem(STORAGE_KEY);
-      console.log('已删除 localStorage 键:', STORAGE_KEY);
+      console.log('Deleted localStorage key:', STORAGE_KEY);
     } catch (error) {
-      console.error('删除 UI 配置失败:', error);
+      console.error('Failed to delete UI config:', error);
     }
   }
 
   // Getters
   get nightOrderBackgroundUrl() {
-    // 如果是自定义模式且有自定义背景，使用自定义背景
+    // If custom mode with custom background, use custom background
     if (this.config.nightOrderBackgroundMode === 'custom' && this.config.customNightOrderBackground) {
       return this.config.customNightOrderBackground;
     }
     
-    // 否则使用官方背景
+    // Otherwise use official background
     switch (this.config.nightOrderBackground) {
       case 'purple':
         return '/imgs/images/night_order/order_back_purple.png';
@@ -435,12 +435,12 @@ class UIConfigStore {
   }
 
   get mainBackgroundUrl() {
-    // 如果是自定义模式且有自定义背景，使用自定义背景
+    // If custom mode with custom background, use custom background
     if (this.config.mainBackgroundMode === 'custom' && this.config.customMainBackground) {
       return this.config.customMainBackground;
     }
     
-    // 否则使用官方背景
+    // Otherwise use official background
     return '/imgs/images/sources/main_back.jpg';
   }
 
@@ -460,7 +460,7 @@ class UIConfigStore {
     return this.config.titleFontSize.md;
   }
 
-  // 字体配置 getters
+  // Font config getters
   get scriptTitleFont() {
     return this.config.fonts.scriptTitle;
   }
@@ -505,24 +505,24 @@ class UIConfigStore {
     return this.config.specialRuleContentFontSize;
   }
 
-  // 获取所有可用字体列表（内置 + 自定义）
+  // Get all available fonts (built-in + custom)
   get availableFonts() {
     const builtInFonts = [
-      { value: 'jicao, Dumbledor, serif', label: 'Jicao + Dumbledor (默认)' },
+      { value: 'jicao, Dumbledor, serif', label: 'Jicao + Dumbledor (Default)' },
       { value: '"Source Han Serif", "Source Han Serif SC", "Noto Serif CJK SC", "思源宋体", "Microsoft YaHei", "PingFang SC", serif', label: '思源宋体 (Source Han Serif)' },
-      { value: '"Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif', label: '系统默认 (System Default)' },
-      { value: 'sans-serif', label: '无衬线字体 (Sans-serif)' },
-      { value: 'monospace', label: '等宽字体 (Monospace)' },
+      { value: '"Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif', label: 'System Default' },
+      { value: 'sans-serif', label: 'Sans-serif' },
+      { value: 'monospace', label: 'Monospace' },
     ];
 
     const customFontOptions = this.config.customFonts.map(font => ({
       value: font.fontFamily,
-      label: `${font.name} (自定义)`,
+      label: `${font.name} (Custom)`,
     }));
 
     return [...builtInFonts, ...customFontOptions];
   }
 }
 
-// 创建单例
+// Create singleton
 export const uiConfigStore = new UIConfigStore();

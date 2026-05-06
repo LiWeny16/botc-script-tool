@@ -35,22 +35,22 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
 
   const isReadOnly = readOnly;
 
-  // 从 uiConfigStore 获取配置
+  // Get config from uiConfigStore
   const config = uiConfigStore.config.characterCard;
 
-  // 判断是否是传奇角色或 Loric 角色
+  // Check if character is Fabled or Loric
   const isFabled = character.team === 'fabled' || character.team === 'loric';
 
-  // 统一配置
+  // Unified config
   const CONFIG = {
-    // 卡片配置 - 移动端使用更小的内边距
+    // Card config - smaller padding on mobile
     card: {
       paddingX: isMobile ? config.cardPaddingX * 0.5 : config.cardPaddingX,
       paddingY: isMobile ? config.cardPaddingY * 0.5 : config.cardPaddingY,
       borderRadius: config.cardBorderRadius,
       gap: isMobile ? config.cardGap * 0.6 : config.cardGap,
     },
-    // 角色头像配置 - 移动端使用更小的图标
+    // Character avatar config - smaller icons on mobile
     avatar: isFabled ? {
       width: isMobile ? config.fabledIconWidthMd * 0.65 : config.fabledIconWidthMd,
       height: isMobile ? config.fabledIconHeightMd * 0.65 : config.fabledIconHeightMd,
@@ -60,35 +60,35 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
       height: isMobile ? config.avatarHeightMd * 0.65 : config.avatarHeightMd,
       borderRadius: config.avatarBorderRadius,
     },
-    // 文本区域配置 - 移动端间距更紧凑
+    // Text area config - tighter spacing on mobile
     textArea: {
       gap: isMobile ? config.textAreaGap * 0.6 : config.textAreaGap,
     },
-    // 角色名字配置 - 移动端字体更小
+    // Character name config - smaller font on mobile
     name: {
       fontSize: isMobile ? '0.95rem' : config.nameFontSizeMd,
       fontWeight: config.nameFontWeight,
       lineHeight: config.nameLineHeight,
     },
-    // 角色描述配置 - 移动端字体更小
+    // Character description config - smaller font on mobile
     description: {
       fontSize: isMobile ? '0.8rem' : config.descriptionFontSizeMd,
       lineHeight: config.descriptionLineHeight,
     },
-    // 相克规则配置 - 移动端更紧凑
+    // Jinx rule config - more compact on mobile
     jinx: {
       gap: isMobile ? config.jinxGap * 0.6 : config.jinxGap,
       padding: isMobile ? config.jinxPadding * 0.6 : config.jinxPadding,
       backgroundColor: '#EDE4D5',
       borderRadius: config.jinxBorderRadius,
       iconGap: isMobile ? config.jinxIconGap * 0.6 : config.jinxIconGap,
-      // 相克规则中的角色图标 - 移动端更小
+      // Jinx rule character icons - smaller on mobile
       icon: {
         width: isMobile ? config.jinxIconWidthMd * 0.65 : config.jinxIconWidthMd,
         height: isMobile ? config.jinxIconHeightMd * 0.65 : config.jinxIconHeightMd,
         borderRadius: config.jinxIconBorderRadius,
       },
-      // 相克规则文字 - 移动端字体更小
+      // Jinx rule text - smaller font on mobile
       text: {
         fontSize: isMobile ? '0.75rem' : config.jinxTextFontSizeMd,
         lineHeight: config.jinxTextLineHeight,
@@ -97,7 +97,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     },
   };
 
-  // 根据团队类型确定名字颜色
+  // Determine name color based on team type
   const getNameColor = () => {
     switch (character.team) {
       case 'townsfolk':
@@ -111,7 +111,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
       case 'traveler':
         return THEME_COLORS.purple;
       default:
-        // 未知团队使用getTeamColor，支持自定义颜色
+        // Unknown team uses getTeamColor, supports custom colors
         return getTeamColor(character.team, character.teamColor);
     }
   };
@@ -133,21 +133,21 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     opacity: isDragging ? 0.5 : 1,
   };
 
-  // 处理双击事件
+  // Handle double-click event
   const handleDoubleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isReadOnly) return;
-    // 无论是否在官方ID解析模式，都调用onEdit，由App.tsx统一处理提示
+    // Always call onEdit regardless of official ID parse mode; App.tsx handles the prompt
     if (onEdit) {
       onEdit(character);
     }
   };
 
-  // 处理右键菜单
+  // Handle context menu
   const handleContextMenu = (event: React.MouseEvent) => {
     event.preventDefault();
     event.stopPropagation();
-    // 无论是否在官方ID解析模式，都显示右键菜单，由各个菜单项处理
+    // Always show context menu regardless of official ID parse mode; each menu item handles its own logic
     setContextMenu(
       contextMenu === null
         ? {
@@ -158,12 +158,12 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     );
   };
 
-  // 关闭右键菜单
+  // Close context menu
   const handleClose = () => {
     setContextMenu(null);
   };
 
-  // 处理编辑
+  // Handle edit
   const handleEditClick = () => {
     handleClose();
     if (isReadOnly) return;
@@ -172,7 +172,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     }
   };
 
-  // 处理删除
+  // Handle delete
   const handleDeleteClick = () => {
     handleClose();
     if (isReadOnly) return;
@@ -181,7 +181,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     }
   };
 
-  // 处理复制JSON
+  // Handle copy JSON
   const handleCopyJson = async () => {
     handleClose();
     try {
@@ -194,7 +194,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
     }
   };
 
-  // 处理更换角色
+  // Handle replace character
   const handleReplaceClick = () => {
     if (isReadOnly) {
       handleClose();
@@ -212,7 +212,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
         sx={{
           position: 'relative',
           width: '100%',
-          // 使用 CSS 控制按钮显示，避免 React 状态更新
+          // Use CSS to control button visibility, avoiding React state updates
           ...(isReadOnly
             ? {}
             : {
@@ -223,7 +223,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             }),
         }}
       >
-        {/* 悬浮时显示的编辑和删除按钮 - 使用 CSS 控制显示 */}
+        {/* Edit and delete buttons shown on hover - CSS controlled */}
         {!isReadOnly && (
           <Box
             className="action-buttons"
@@ -316,7 +316,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             alignItems: 'center',
             zIndex: 10,
           }}>
-            {/* 角色头像 */}
+            {/* Character avatar */}
             <CharacterImage
               src={character.image}
               alt={character.name}
@@ -332,7 +332,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
               }}
             />
 
-            {/* 角色信息：名字 + 描述 + 相克规则 */}
+            {/* Character info: name + description + jinx rules */}
             <Box sx={{
               flex: 1,
               minWidth: 0,
@@ -366,12 +366,12 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                 }}
               />
 
-              {/* 相克规则 - 放在描述文本下方,与描述文本左对齐 */}
+              {/* Jinx rules - below description text, left-aligned */}
               {jinxInfo && (() => {
-                // 过滤掉 display 为 false 的相克规则
+                // Filter out jinx rules with display set to false
                 const visibleJinxEntries = Object.entries(jinxInfo).filter(([_, jinxData]) => jinxData.display !== false);
                 return visibleJinxEntries.length > 0 && (
-                  // 双页面模式：只显示灯神图标和相克角色图标的横排
+                  // Two-page mode: show only djinn icon and jinx character icons in a row
                   uiConfigStore.config.enableTwoPageMode ? (
                     <Box sx={{
                       display: 'flex',
@@ -379,7 +379,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                       gap: CONFIG.jinx.iconGap,
                       flexWrap: 'wrap',
                     }}>
-                      {/* 灯神图标 */}
+                      {/* Djinn icon */}
                       <CharacterImage
                         src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
                         alt="Jinx Icon"
@@ -393,7 +393,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                           pointerEvents: 'none',
                         }}
                       />
-                      {/* 所有相克的角色图标 */}
+                      {/* All jinx character icons */}
                       {visibleJinxEntries.map(([targetName, _]) => {
                         const targetChar = allCharacters?.find((c) => c.name === targetName);
                         return targetChar ? (
@@ -415,7 +415,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                       })}
                     </Box>
                   ) : (
-                    // 单页面模式：保持原有的详细展示
+                    // Single-page mode: keep original detailed display
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
                       {visibleJinxEntries.map(([targetName, jinxData]) => {
                         const targetChar = allCharacters?.find((c) => c.name === targetName);
@@ -471,7 +471,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
         </Paper>
       </Box>
 
-      {/* 右键菜单 */}
+      {/* Context menu */}
       <Menu
         open={contextMenu !== null}
         onClose={handleClose}

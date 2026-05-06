@@ -1,6 +1,7 @@
 /**
- * 从 roles.json + 中文内核 + rolesEs.json 构建 CanonicalCharacterBase，
- * 再经 characterBuilder 生成各语言 Character 字典；扩展包仍按语言直接取 Character，与旧逻辑一致。
+ * Build CanonicalCharacterBase from roles.json + Chinese core + rolesEs.json,
+ * then generate per-language Character dictionaries via characterBuilder;
+ * expansion packs still retrieve Characters directly by language, consistent with the old logic.
  */
 
 import type { Character } from '../types';
@@ -44,7 +45,7 @@ export function buildCoreCanonicalBases(): CanonicalCharacterBase[] {
   return (rolesData as Record<string, unknown>[]).map((role) => {
     const id = role.id as string;
     const cnId = normalizeCharacterId(id, 'cn');
-    // ZH_CORE 为历史大包，条目不保证满足 Character 完整类型
+    // ZH_CORE is a legacy bundle; entries are not guaranteed to satisfy the full Character type
     const zhChar = (ZH_CORE_CHARACTERS as unknown as Record<string, Character | undefined>)[cnId];
     const esRow = spanishOverrides.get(id);
 
@@ -79,7 +80,7 @@ function getCoreBases(): CanonicalCharacterBase[] {
   return coreBasesCache;
 }
 
-/** 扩展角色：西语界面仍用英文文案（与旧 charactersEs 一致） */
+/** Expansion characters: Spanish UI still uses English text (consistent with old charactersEs) */
 function extrasCharacterRecord(language: Language): Record<string, Character> {
   const extraLang: string = language === 'es' ? 'en' : language;
   const toDict = (chars: Character[]) =>
@@ -116,7 +117,7 @@ const CHARACTER_DICTIONARIES: Record<Language, Record<string, Character>> = {
   es: CHARACTERS_ES,
 };
 
-/** 按界面语言取完整角色表（含扩展），与 {@link getMergedCharacterDictionary} 等价 */
+/** Get the full character table (including expansions) by UI language; equivalent to {@link getMergedCharacterDictionary} */
 export function getCharacterDictionary(language: Language): Record<string, Character> {
   return CHARACTER_DICTIONARIES[language] ?? CHARACTER_DICTIONARIES['cn'];
 }
@@ -126,8 +127,10 @@ export function getAllCharacterDictionaries(): Array<[Language, Record<string, C
 }
 
 /**
- * 用任意写法（官方紧凑英文 / 中文规范 id）从角色字典取条目。
- * 字典键与 `roles.json` 的 id 一致，内部优先按 {@link toOfficialEnCharacterId} 解析。
+ * Look up an entry from a character dictionary using any id format
+ * (official compact English / canonical Chinese id).
+ * Dictionary keys match the ids in `roles.json`; internally resolves
+ * via {@link toOfficialEnCharacterId} first.
  */
 export function getCharacterInDictionary(
   dict: Record<string, Character>,

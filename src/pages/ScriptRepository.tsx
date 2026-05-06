@@ -30,14 +30,14 @@ const ScriptRepository = observer(() => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
   
-  // 从URL读取category参数，如果没有则默认为official
+  // Read category from URL, default to 'official' if absent
   const categoryFromUrl = (searchParams.get('category') || 'official') as 'official' | 'official_mix' | 'custom';
   const [category, setCategory] = useState<'official' | 'official_mix' | 'custom'>(categoryFromUrl);
   
   const [allScripts, setAllScripts] = useState<RepoScript[]>(searchScripts('').map(s => ({ ...s })));
   const [scripts, setScripts] = useState<RepoScript[]>([]);
   const [page, setPage] = useState(1);
-  const itemsPerPage = 12; // 3列 * 4行
+  const itemsPerPage = 12; // 3 columns * 4 rows
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -50,7 +50,7 @@ const ScriptRepository = observer(() => {
 
   const getDisplayName = (s: RepoScript) => (language === 'en' && s.nameEn ? s.nameEn : s.name);
 
-  // 同步URL参数的变化到state
+  // Sync URL parameter changes to state
   useEffect(() => {
     const urlCategory = (searchParams.get('category') || 'official') as 'official' | 'official_mix' | 'custom';
     if (urlCategory !== category) {
@@ -73,7 +73,7 @@ const ScriptRepository = observer(() => {
     setScripts(filtered);
   }, [category, searchQuery, allScripts, language]);
 
-  // 加载 manifest.json（若存在）
+  // Load manifest.json (if exists)
   useEffect(() => {
     const loadManifest = async () => {
       try {
@@ -84,7 +84,7 @@ const ScriptRepository = observer(() => {
           id: s.id,
           name: s.name,
           nameEn: s.nameEn,
-          author: s.author || '未知',
+          author: s.author || 'Unknown',
           description: s.description || '',
           category: (s.category || 'custom'),
           logo: s.logo || undefined,
@@ -92,7 +92,7 @@ const ScriptRepository = observer(() => {
         }));
         setAllScripts(list);
       } catch {
-        // 回退到内置的数据（仅官方三剧本）
+        // Fallback to built-in data (official scripts only)
         setAllScripts(searchScripts('').map(s => ({ ...s })));
       }
     };
@@ -106,7 +106,7 @@ const ScriptRepository = observer(() => {
   }, [page, scripts]);
 
   const handleScriptClick = (script: RepoScript) => {
-    // 直接通过 json 参数跳到预览，避免依赖静态映射，同时带上当前分类参数
+    // Navigate to preview via json param, avoid relying on static mapping, and carry current category
     navigate(`/repo/preview?json=${encodeURIComponent(script.jsonUrl)}&category=${category}`);
   };
 
@@ -119,7 +119,7 @@ const ScriptRepository = observer(() => {
       }}
     >
       <Container maxWidth="lg">
-        {/* 返回按钮和语言切换 */}
+        {/* Back button and language switcher */}
         <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button
             startIcon={<ArrowBackIcon />}
@@ -133,7 +133,7 @@ const ScriptRepository = observer(() => {
           <LanguageSwitcher />
         </Box>
 
-        {/* 标题 */}
+        {/* Title */}
         <Typography
           variant="h3"
           sx={{
@@ -158,7 +158,7 @@ const ScriptRepository = observer(() => {
           {t('repo.subtitle')}
         </Typography>
 
-        {/* 分类与搜索 */}
+        {/* Category and search */}
         <Box sx={{ mb: 2, display: 'flex', justifyContent: 'center', gap: 2 }}>
           <Button
             variant={category === 'official' ? 'contained' : 'outlined'}
@@ -242,7 +242,7 @@ const ScriptRepository = observer(() => {
           />
         </Box>
 
-        {/* 剧本列表 */}
+        {/* Script list */}
         <Box
           sx={{
             display: 'grid',
@@ -320,7 +320,7 @@ const ScriptRepository = observer(() => {
           ))}
         </Box>
 
-        {/* 无结果提示 */}
+        {/* No results message */}
         {scripts.length === 0 && (
           <Box
             sx={{
@@ -339,7 +339,7 @@ const ScriptRepository = observer(() => {
           </Box>
         )}
 
-        {/* 分页 */}
+        {/* Pagination */}
         {scripts.length > 0 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
             <Pagination

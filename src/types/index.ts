@@ -1,9 +1,9 @@
 import type { Language } from '../utils/languages';
 
-// 角色类型定义 - 标准团队类型
+// Character type definitions - standard team types
 export type StandardTeam = 'townsfolk' | 'outsider' | 'minion' | 'demon' | 'traveler' | 'fabled' | 'loric';
 
-// 扩展团队类型 - 包括任意字符串以支持自定义团队
+// Extended team type - includes any string to support custom teams
 export type Team = StandardTeam | string;
 
 export interface Character {
@@ -11,16 +11,16 @@ export interface Character {
   name: string;
   ability: string;
   team: Team;
-  teamColor?: string;  // 自定义团队颜色（可选）
+  teamColor?: string;  // custom team color (optional)
   image: string;
   firstNight: number;
   otherNight: number;
   firstNightReminder?: string;
   otherNightReminder?: string;
   reminders?: string[];
-  remindersGlobal?: string[];  // 全局提示标记（可选）
+  remindersGlobal?: string[];  // global reminder markers (optional)
   setup?: boolean;
-  author?: string;  // 角色作者（可选）
+  author?: string;  // character author (optional)
 }
 
 export interface NightAction {
@@ -28,83 +28,83 @@ export interface NightAction {
   index: number;
 }
 
-// 相克规则详细信息
+// Jinx rule details
 export interface JinxInfo {
-  reason: string;  // 相克规则文本
-  display?: boolean;  // 是否显示，默认为true
-  isOfficial?: boolean;  // 是否为官方相克规则
+  reason: string;  // jinx rule text
+  display?: boolean;  // whether to display, defaults to true
+  isOfficial?: boolean;  // whether this is an official jinx rule
 }
 
 export interface ScriptMeta {
   name: string;
   author: string;
-  use_title_image?: boolean;  // 第一页是否使用图片标题
-  // 第二页配置
-  second_page_title?: boolean;  // 是否显示第二页标题
-  second_page_title_text?: string;  // 第二页标题文本
-  second_page_title_image?: string;  // 第二页标题图片
-  second_page_title_font_size?: number;  // 第二页标题字体大小
-  second_page_title_image_size?: number;  // 第二页标题图片大小
-  use_second_page_title_image?: boolean;  // 第二页是否使用图片标题
-  second_page_ppl_table1?: boolean;  // 是否显示第一种人数配置表
-  second_page_ppl_table2?: boolean;  // 是否显示第二种人数配置表（6-9人）
-  second_page_order?: string;  // 第二页组件顺序（空格分隔的字符串）
+  use_title_image?: boolean;  // whether to use an image title on the first page
+  // second page configuration
+  second_page_title?: boolean;  // whether to show the second page title
+  second_page_title_text?: string;  // second page title text
+  second_page_title_image?: string;  // second page title image
+  second_page_title_font_size?: number;  // second page title font size
+  second_page_title_image_size?: number;  // second page title image size
+  use_second_page_title_image?: boolean;  // whether to use an image title on the second page
+  second_page_ppl_table1?: boolean;  // whether to show the first player count table
+  second_page_ppl_table2?: boolean;  // whether to show the second player count table (6-9 players)
+  second_page_order?: string;  // second page component order (space-separated string)
 }
 
-// 特殊说明卡片项
+// Special rule card item
 export interface SpecialRuleItem {
   title: string;
   content: string;
 }
 
-// state 状态项
+// State status item
 export interface StateItem {
   stateName: string;
   stateDescription: string;
 }
 
-// 国际化文本内容
+// Internationalized text content
 export type I18nText = Partial<Record<Language, string>>;
 
-// 特殊说明卡片（可包含多个规则项）
+// Special rule card (can contain multiple rule items)
 export interface SpecialRule {
   id: string;
-  title?: string | I18nText;  // 卡片标题（支持国际化）
-  rules?: SpecialRuleItem[];  // 多个规则项
-  content?: string | I18nText;  // 单个规则内容（支持国际化）
-  isState?: boolean;  // 是否是 state 类型的规则
-  sourceType?: 'state' | 'status' | 'special_rule';  // 来源类型
-  sourceIndex?: number;  // 在来源数组中的索引
+  title?: string | I18nText;  // card title (supports i18n)
+  rules?: SpecialRuleItem[];  // multiple rule items
+  content?: string | I18nText;  // single rule content (supports i18n)
+  isState?: boolean;  // whether this is a state-type rule
+  sourceType?: 'state' | 'status' | 'special_rule';  // source type
+  sourceIndex?: number;  // index in the source array
 }
 
 export interface Script {
   title: string;
-  titleEn?: string;  // 英文标题（来自 _meta.name_en）
-  titleImage?: string;  // 可选的标题图片链接
-  titleImageSize?: number;  // 第一页标题图片大小
-  useTitleImage?: boolean;  // 第一页是否使用图片标题
+  titleEn?: string;  // English title (from _meta.name_en)
+  titleImage?: string;  // optional title image URL
+  titleImageSize?: number;  // first page title image size
+  useTitleImage?: boolean;  // whether to use an image title on the first page
   author: string;
-  playerCount?: string;  // 玩家人数范围，如 "7-15"
+  playerCount?: string;  // player count range, e.g. "7-15"
   characters: {
-    [key: string]: Character[];  // 支持动态团队类型，包括标准团队
+    [key: string]: Character[];  // supports dynamic team types, including standard teams
   };
   firstnight: NightAction[];
   othernight: NightAction[];
   jinx: Record<string, Record<string, JinxInfo>>;
   all: Character[];
   specialRules: SpecialRule[];
-  secondPageRules?: SpecialRule[];  // 第二页的特殊规则
-  // 第二页配置（来自 _meta）
-  secondPageTitle?: boolean;  // 是否显示第二页标题
-  secondPageTitleText?: string;  // 第二页标题文本（独立配置）
-  secondPageTitleImage?: string;  // 第二页标题图片（独立配置）
-  secondPageTitleFontSize?: number;  // 第二页标题字体大小
-  secondPageTitleImageSize?: number;  // 第二页标题图片大小
-  useSecondPageTitleImage?: boolean;  // 第二页是否使用图片标题
-  secondPagePplTable1?: boolean;  // 是否显示第一种人数配置表
-  secondPagePplTable2?: boolean;  // 是否显示第二种人数配置表（6-9人）
-  secondPageOrder?: string[];  // 第二页组件顺序数组
+  secondPageRules?: SpecialRule[];  // special rules for the second page
+  // second page configuration (from _meta)
+  secondPageTitle?: boolean;  // whether to show the second page title
+  secondPageTitleText?: string;  // second page title text (standalone config)
+  secondPageTitleImage?: string;  // second page title image (standalone config)
+  secondPageTitleFontSize?: number;  // second page title font size
+  secondPageTitleImageSize?: number;  // second page title image size
+  useSecondPageTitleImage?: boolean;  // whether to use an image title on the second page
+  secondPagePplTable1?: boolean;  // whether to show the first player count table
+  secondPagePplTable2?: boolean;  // whether to show the second player count table (6-9 players)
+  secondPageOrder?: string[];  // second page component order array
 }
 
-// 第二页组件类型
+// Second page component type
 export type SecondPageComponentType = 'title' | 'ppl_table1' | 'ppl_table2' | 'fabled' | 'traveler' | 'secondPageRules' | string;

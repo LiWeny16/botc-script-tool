@@ -202,7 +202,7 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
       </DialogTitle>
 
       <DialogContent sx={{ pt: 2 }}>
-        {/* 关于项目 */}
+        {/* About the project */}
         <Box sx={{ mb: 4 }}>
           <Typography
             variant="h6"
@@ -259,7 +259,7 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
 
         <Divider sx={{ my: 3 }} />
 
-        {/* 致谢 */}
+        {/* Acknowledgments */}
         <Box>
           <Typography
             variant="h6"
@@ -273,19 +273,19 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
             {t('about.acknowledgments')}
           </Typography>
 
-          {/* Valen 致谢卡片 */}
+          {/* Valen acknowledgment card */}
           <TkxBox title={t('about.artAdviceTest')} content={''} theme="gold" />
 
-          {/* 角色翻译与校对卡片 */}
+          {/* Character translation and proofreading card */}
           <TkxBox title={`${t('about.translationProofreading')}: ${t('about.weedinAllen')} `} content={``} theme="green" />
 
 
-          {/* 美工设计参考卡片 */}
+          {/* Art/design reference card */}
           <TkxBox title={t('about.designReference')} content={t('about.museum')} theme="pink" />
-          {/* 特别鸣谢卡片 */}
+          {/* Special thanks card */}
           <TkxBox title={t('about.specialThanks')} content={t('about.nusClub')} theme="blue" />
 
-          {/* 落款 */}
+          {/* Closing signature */}
           <Typography
             sx={{
               color: THEME_COLORS.paper.secondary,

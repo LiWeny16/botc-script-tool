@@ -93,7 +93,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
     // 只在模式真正变化时触发，且当前有JSON内容时才重新生成
     if (currentMode !== previousMode && currentJson && currentJson.trim()) {
-      console.log('官方ID解析模式变化，重新生成剧本', {
+      console.log('Official ID parse mode changed, regenerating script', {
         from: previousMode,
         to: currentMode
       });
@@ -102,7 +102,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
       try {
         onGenerate(currentJson);
       } catch (error) {
-        console.error('重新生成剧本失败:', error);
+        console.error('Failed to regenerate script:', error);
       }
     }
 
@@ -148,9 +148,9 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
       await writable.write(jsonInput);
       await writable.close();
       alertSuccess(t('fileSync.saved'), 1500);
-      console.log('已保存到本地文件:', syncFileName);
+      console.log('Saved to local file:', syncFileName);
     } catch (error) {
-      console.error('保存到本地文件失败:', error);
+      console.error('Failed to save to local file:', error);
       alertWarning('保存到本地文件失败', 2000);
     }
   }, [syncFileHandle, fileSyncEnabled, jsonInput, syncFileName, t]);
@@ -180,7 +180,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
           }
 
           alertInfo(t('fileSync.fileChanged'), 1500);
-          console.log('检测到文件变化，已同步');
+          console.log('File change detected, synced');
 
           setTimeout(() => {
             isUpdatingFromPropRef.current = false;
@@ -190,7 +190,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
       lastModifiedRef.current = currentModified;
     } catch (error) {
-      console.error('检测文件变化失败:', error);
+      console.error('Failed to detect file changes:', error);
     }
   }, [syncFileHandle, fileSyncEnabled, jsonInput, onJsonChange, t]);
 
@@ -344,9 +344,9 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
       keysToRemove.forEach(key => {
         try {
           localStorage.removeItem(key);
-          console.log(`✓ 已删除 localStorage 键: ${key}`);
+          console.log(`✓ Deleted localStorage key: ${key}`);
         } catch (error) {
-          console.error(`删除 ${key} 失败:`, error);
+          console.error(`Failed to delete ${key}:`, error);
         }
       });
 
@@ -358,14 +358,14 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
       setResetDialogOpen(false);
 
-      console.log('🎉 所有设置和数据已重置！');
+      console.log('🎉 All settings and data have been reset!');
 
       // 5. 刷新页面，让应用重新初始化（作为新用户）
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } catch (error) {
-      console.error('重置过程中出现错误:', error);
+      console.error('Error during reset:', error);
       alert('重置失败，请刷新页面后重试');
       setResetDialogOpen(false);
     }
@@ -398,10 +398,10 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
       // 提示用户
       alertSuccess(t('fileSync.started'), 2000);
-      console.log('文件同步已启动:', fileHandle.name);
+      console.log('File sync started:', fileHandle.name);
     } catch (error) {
-      console.error('启动文件同步失败:', error);
-      alertWarning('启动文件同步失败', 2000);
+      console.error('Failed to start file sync:', error);
+      alertWarning('Failed to start file sync', 2000);
     }
   };
 
@@ -424,7 +424,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
     // 提示用户
     alertInfo(t('fileSync.stopped'), 2000);
-    console.log('文件同步已关闭');
+    console.log('File sync stopped');
   };
 
   const handleClearClick = () => {

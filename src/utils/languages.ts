@@ -5,18 +5,18 @@ export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 export const DEFAULT_LANGUAGE: Language = 'en';
 
 export const LANGUAGE_LABELS: Record<Language, string> = {
-  cn: '简体中文',
+  cn: 'Simplified Chinese',
   en: 'English',
   es: 'Español',
 };
 
 export const LANGUAGE_SHORT_LABELS: Record<Language, string> = {
-  cn: '中文',
+  cn: 'Chinese',
   en: 'English',
   es: 'Español',
 };
 
-// 内部语言码 → BCP 47 标准码（用于 HTML lang 属性）
+// Internal language code → BCP 47 standard code (for HTML lang attribute)
 export const LANG_TO_BCP47: Record<Language, string> = {
   cn: 'zh-CN',
   en: 'en',

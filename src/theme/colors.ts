@@ -1,96 +1,96 @@
-// 血染钟楼剧本生成器 - 统一颜色配置
+// Blood on the Clocktower Script Generator - Unified color configuration
 
-// 主题颜色
+// Theme colors
 export const THEME_COLORS = {
-  // 善良阵营 - 蓝色系
+  // Good team - Blue series
   good: '#0078ba',
 
-  // 邪恶阵营 - 红色系
+  // Evil team - Red series
   evil: '#a32222ff',
 
-  // 传奇角色 - 金色系
+  // Fabled - Gold
   fabled: '#d4af37',
 
-  // 奇遇角色 - 翡翠绿色
+  // Loric - Emerald green
   loric: '#359026',
 
-  // 未知团队 - 翠墨绿色
+  // Unknown team - Dark green
   unknown: '#2d5c4f',
 
-  // 其他颜色
-  purple: '#b463aaff',  // 旅行者等特殊标记
-  gray: '#999',       // 分割线等
+  // Other colors
+  purple: '#b463aaff',  // Traveler and other special markers
+  gray: '#999',       // Dividers, etc.
 
-  // 背景色
+  // Background colors
   paper: {
     primary: '#2c2416',
     secondary: '#3d3226',
   },
 
-  // 夜晚顺序栏背景
+  // Night order bar background
   nightOrder: {
     background: '#1a1d20',
   },
 
-  // 文字颜色
+  // Text colors
   text: {
-    primary: '#000000',     // 主要文字 - 黑色
-    secondary: '#000000',   // 次要文字 - 深灰
-    tertiary: '#000000',    // 三级文字 - 灰色
+    primary: '#000000',     // Primary text - Black
+    secondary: '#000000',   // Secondary text - Dark gray
+    tertiary: '#000000',    // Tertiary text - Gray
   },
 } as const;
 
-// 全局字体样式配置
+// Global font style configuration
 export const THEME_FONTS = {
-  // 主要字体系列
+  // Primary font family
   fontFamily: '"Source Han Serif", "Source Han Serif SC", "Noto Serif CJK SC", "思源宋体", "Microsoft YaHei", "PingFang SC", serif',
   // fontFamily: `'Noto Serif SC', serif`,
-// 备用字体系列（用于特殊场景）
+// Fallback font family (for special scenarios)
 fallbackFontFamily: '"Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif',
 } as const ;
 
-// 团队颜色映射
+// Team color mapping
 export const TEAM_COLORS: Record<string, string> = {
-  townsfolk: THEME_COLORS.good,    // 镇民 - 蓝色
-  outsider: THEME_COLORS.good,     // 外来者 - 蓝色
-  minion: THEME_COLORS.evil,       // 爪牙 - 红色
-  demon: THEME_COLORS.evil,        // 恶魔 - 红色
-  traveler: THEME_COLORS.purple,   // 旅行者 - 紫色
-  fabled: THEME_COLORS.fabled,     // 传奇角色 - 金色
-  loric: THEME_COLORS.loric,       // 奇遇角色 - 翡翠绿色
+  townsfolk: THEME_COLORS.good,    // Townsfolk - Blue
+  outsider: THEME_COLORS.good,     // Outsider - Blue
+  minion: THEME_COLORS.evil,       // Minion - Red
+  demon: THEME_COLORS.evil,        // Demon - Red
+  traveler: THEME_COLORS.purple,   // Traveler - Purple
+  fabled: THEME_COLORS.fabled,     // Fabled - Gold
+  loric: THEME_COLORS.loric,       // Loric - Emerald green
 };
 
-// 团队名称映射
+// Team name mapping
 export const TEAM_NAMES: Record<string, string> = {
-  townsfolk: '镇民',
-  outsider: '外来者',
-  minion: '爪牙',
-  demon: '恶魔',
-  traveler: '旅行者',
-  fabled: '传奇角色',
-  loric: '奇遇角色',
+  townsfolk: 'Townsfolk',
+  outsider: 'Outsider',
+  minion: 'Minion',
+  demon: 'Demon',
+  traveler: 'Traveler',
+  fabled: 'Fabled',
+  loric: 'Loric',
 };
 
-// 获取团队颜色（如果未定义则返回翠墨绿色）
+// Get team color (returns dark green if undefined)
 export function getTeamColor(team: string, customColor?: string): string {
-  // 优先使用自定义颜色
+  // Prefer custom color
   if (customColor) {
     return customColor;
   }
-  // 其次使用预定义颜色
+  // Fall back to predefined color
   if (TEAM_COLORS[team]) {
     return TEAM_COLORS[team];
   }
-  // 未知团队使用翠墨绿色
+  // Unknown team uses dark green
   return THEME_COLORS.unknown;
 }
 
-// 获取团队名称（如果未定义则返回格式化的team名称）
+// Get team name (returns formatted team name if undefined)
 export function getTeamName(team: string): string {
   if (TEAM_NAMES[team]) {
     return TEAM_NAMES[team];
   }
-  // 自动格式化团队名称
+  // Auto-format team name
   return team.split('_').map(word =>
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');

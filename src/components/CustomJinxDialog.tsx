@@ -40,18 +40,18 @@ const CustomJinxDialog = ({
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
 
-  // 当对话框打开或编辑数据变化时,初始化表单
+  // Initialize form when dialog opens or editing data changes
   useEffect(() => {
     if (open) {
       if (editingJinx) {
         setCharacterA(editingJinx.characterA);
         setCharacterB(editingJinx.characterB);
         
-        // 处理描述文本
+        // Handle description text
         if (typeof editingJinx.description === 'string') {
           setDescription(editingJinx.description);
         } else {
-          // 根据当前语言选择对应的描述
+          // Select description based on current language
           setDescription(
             editingJinx.description[language] ||
             editingJinx.description.en ||
@@ -69,7 +69,7 @@ const CustomJinxDialog = ({
   }, [open, editingJinx, language]);
 
   const handleSave = () => {
-    // 验证输入
+    // Validate input
     if (!characterA || !characterB) {
       setError(t('customJinx.selectCharactersError'));
       return;
@@ -85,7 +85,7 @@ const CustomJinxDialog = ({
       return;
     }
 
-    // 保存
+    // Save
     onSave(characterA, characterB, description.trim());
     handleClose();
   };
@@ -116,14 +116,14 @@ const CustomJinxDialog = ({
 
       <DialogContent>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, pt: 1 }}>
-          {/* 错误提示 */}
+          {/* Error message */}
           {error && (
             <Alert severity="error" onClose={() => setError('')}>
               {error}
             </Alert>
           )}
 
-          {/* 角色A选择 */}
+          {/* Character A selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom>
               {t('customJinx.characterA')}
@@ -164,7 +164,7 @@ const CustomJinxDialog = ({
             />
           </Box>
 
-          {/* 角色B选择 */}
+          {/* Character B selection */}
           <Box>
             <Typography variant="subtitle2" gutterBottom>
               {t('customJinx.characterB')}
@@ -205,7 +205,7 @@ const CustomJinxDialog = ({
             />
           </Box>
 
-          {/* 相克描述 */}
+          {/* Jinx description */}
           <Box>
             <Typography variant="subtitle2" gutterBottom>
               {t('customJinx.description')}
