@@ -1,4 +1,4 @@
-<!-- BOTC Script Tool — github.com/LiWeny16/botc-script-tool-modern — botc.letshare.fun -->
+<!-- BOTC Script Tool — github.com/LiWeny16/botc-script-tool — botc.letshare.fun -->
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/imgs/images/sources/logo1.png">
@@ -15,7 +15,7 @@
 
 <p align="center">
   <a href="https://botc.letshare.fun"><img src="https://img.shields.io/badge/🚀_在线使用-botc.letshare.fun-4c1?style=for-the-badge&logo=vercel" alt="在线使用"></a>
-  <a href="https://github.com/LiWeny16/botc-script-tool-modern/stargazers"><img src="https://img.shields.io/github/stars/LiWeny16/botc-script-tool-modern?style=for-the-badge&logo=github" alt="GitHub 星标"></a>
+  <a href="https://github.com/LiWeny16/botc-script-tool/stargazers"><img src="https://img.shields.io/github/stars/LiWeny16/botc-script-tool?style=for-the-badge&logo=github" alt="GitHub 星标"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/开源协议-AGPL--3.0-blue?style=for-the-badge&logo=gnu" alt="AGPL-3.0"></a>
   <a href="https://botc.letshare.fun"><img src="https://img.shields.io/badge/价格-永久免费-success?style=for-the-badge&logo=handshake" alt="100% 免费"></a>
 </p>

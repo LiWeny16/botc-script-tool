@@ -1,4 +1,4 @@
-# BOTC Script Tool — github.com/LiWeny16/botc-script-tool-modern | botc.letshare.fun
+# BOTC Script Tool — github.com/LiWeny16/botc-script-tool | botc.letshare.fun
 User-agent: *
 Allow: /
 
