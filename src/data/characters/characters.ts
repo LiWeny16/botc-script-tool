@@ -1,3 +1,10 @@
+/**
+ * Character role data and team color definitions.
+ *
+ * @attribution English role JSON data (roles.json) sourced from:
+ *   https://github.com/bra1n/townsquare — bra1n's Blood on the Clocktower Town Square
+ *   Used under the project's open-source license.
+ */
 import { TEAM_COLORS, TEAM_NAMES } from '../../theme/colors';
 
 // 导出团队颜色和名称（从统一配置导入）

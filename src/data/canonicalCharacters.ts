@@ -2,6 +2,11 @@
  * Build CanonicalCharacterBase from roles.json + Chinese core + rolesEs.json,
  * then generate per-language Character dictionaries via characterBuilder;
  * expansion packs still retrieve Characters directly by language, consistent with the old logic.
+ *
+ * @attribution
+ *   English roles (roles.json): https://github.com/bra1n/townsquare
+ *   Spanish roles (rolesEs.json): https://github.com/bra1n/townsquare
+ *   Chinese role text (ZH_CORE_CHARACTERS): https://clocktower.gstonegames.com/
  */
 
 import type { Character } from '../types';

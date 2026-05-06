@@ -1,5 +1,14 @@
 /**
- * 角色相克：三语言统一从 JSON 加载，字典 key 均为 {@link toZhCanonicalCharacterId}。
+ * Character jinx relationships — loaded from trilingual JSON sources.
+ * Dictionary keys are normalized via {@link toZhCanonicalCharacterId}.
+ *
+ * @attribution
+ *   English jinx data (jinxEn.json):
+ *     https://wiki.bloodontheclocktower.com/Main_Page — Official BOTC Wiki
+ *   Chinese jinx data (jinxZh.json):
+ *     https://clocktower.gstonegames.com/ — 集石 (Gstone) Blood on the Clocktower
+ *   Spanish jinx data (jinxEs.json):
+ *     https://wiki.bloodontheclocktower.com/Main_Page — Official BOTC Wiki
  */
 import type { Language } from '../utils/languages';
 import { toZhCanonicalCharacterId } from './utils/characterIdMapping';
