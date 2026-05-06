@@ -45,7 +45,7 @@ export const SEOManager = observer(() => {
     // 更新Open Graph标签
     setMeta('property', 'og:title', m.title);
     setMeta('property', 'og:description', m.description);
-    setMeta('property', 'og:url', SITE_URL);
+    setMeta('property', 'og:url', getPageUrl());
     setMeta('property', 'og:image', OG_IMAGE);
     setMeta('property', 'og:image:width', String(OG_IMAGE_WIDTH));
     setMeta('property', 'og:image:height', String(OG_IMAGE_HEIGHT));
@@ -71,33 +71,41 @@ export const SEOManager = observer(() => {
   return null; // 这是一个工具组件，不渲染任何内容
 });
 
+function getPageUrl() {
+  const hash = window.location.hash;
+  return hash ? `${SITE_URL}${hash}` : `${SITE_URL}/`;
+}
+
 function updateHreflangLinks(currentLang: string) {
   // Remove existing hreflang links
   document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+
+  const pageUrl = getPageUrl();
 
   for (const lang of LANGUAGES) {
     const link = document.createElement('link');
     link.rel = 'alternate';
     link.setAttribute('hreflang', LANG_TO_BCP47[lang as keyof typeof LANG_TO_BCP47] || lang);
-    link.href = SITE_URL;
+    link.href = pageUrl;
     document.head.appendChild(link);
   }
 
   const xDefault = document.createElement('link');
   xDefault.rel = 'alternate';
   xDefault.setAttribute('hreflang', 'x-default');
-  xDefault.href = SITE_URL;
+  xDefault.href = pageUrl;
   document.head.appendChild(xDefault);
 }
 
 function updateCanonical(_lang: string) {
+  const pageUrl = getPageUrl();
   let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
   if (!canonical) {
     canonical = document.createElement('link');
     canonical.rel = 'canonical';
     document.head.appendChild(canonical);
   }
-  canonical.href = SITE_URL;
+  canonical.href = pageUrl;
 }
 
 function updateJsonLd(lang: string) {

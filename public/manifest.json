@@ -1,0 +1,16 @@
+{
+  "name": "BOTC Script Tool — Blood on the Clocktower Layout Beautifier",
+  "short_name": "BOTC Script Tool",
+  "description": "Free Blood on the Clocktower script tool. Import official JSON, customize characters, jinxes and night order, upload custom icons, then export print-ready PDF or images.",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#1976d2",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/32x32.ico",
+      "sizes": "32x32",
+      "type": "image/x-icon"
+    }
+  ]
+}

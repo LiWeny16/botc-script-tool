@@ -330,23 +330,6 @@ function buildStructuredData(lang) {
         inLanguage: lang,
       },
       {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: m.appTitle,
-            item: `${SITE_URL}/`,
-          },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: lang === 'cn' ? '剧本仓库' : lang === 'es' ? 'Repositorio' : 'Script Repository',
-            item: `${SITE_URL}/#/repo`,
-          },
-        ],
-      },
-      {
         '@type': 'Organization',
         name: 'BOTC Script Tool',
         alternateName: lang === 'cn' ? 'BOTC剧本工具' : lang === 'es' ? 'Herramienta BOTC' : 'BOTC Script Tool',
@@ -355,6 +338,10 @@ function buildStructuredData(lang) {
         description: m.description,
         foundingDate: '2024',
         author: { '@type': 'Person', name: 'Onion' },
+        sameAs: [
+          'https://github.com/LiWeny16/botc-script-tool',
+          'https://ko-fi.com/bigonion',
+        ],
       },
     ],
   };
@@ -365,4 +352,5 @@ export const STRUCTURED_DATA = Object.fromEntries(LANGUAGES.map((lang) => [lang,
 export const PAGES = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/repo', priority: '0.8', changefreq: 'weekly' },
+  { path: '/changelog', priority: '0.7', changefreq: 'monthly' },
 ];

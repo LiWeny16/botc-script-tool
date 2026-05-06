@@ -14,6 +14,8 @@ import {
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import GitHubIcon from '@mui/icons-material/GitHub';
+import HistoryIcon from '@mui/icons-material/History';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useState, useCallback, type ReactNode } from 'react';
@@ -225,13 +227,34 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
           >
             {t('about.projectDescription')}
           </Typography>
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              my: 3,
-            }}
+          <Stack
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            justifyContent="center"
+            sx={{ my: 3 }}
           >
+            <Button
+              variant="contained"
+              startIcon={<GitHubIcon />}
+              href="https://github.com/LiWeny16/botc-script-tool"
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                backgroundColor: '#24292e',
+                color: 'white',
+                px: 3,
+                py: 1.5,
+                borderRadius: 2,
+                textTransform: 'none',
+                fontSize: '1rem',
+                fontWeight: 'bold',
+                '&:hover': {
+                  backgroundColor: '#1a1f23',
+                },
+              }}
+            >
+              {t('about.github')}
+            </Button>
             <Button
               variant="contained"
               startIcon={<FavoriteIcon />}
@@ -254,7 +277,7 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
             >
               {t('about.donate')}
             </Button>
-          </Box>
+          </Stack>
         </Box>
 
         <Divider sx={{ my: 3 }} />
@@ -299,6 +322,27 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
           >
             {t('about.letterClosing')}
           </Typography>
+
+          <Divider sx={{ my: 3 }} />
+
+          {/* Changelog link */}
+          <Box sx={{ textAlign: 'center' }}>
+            <Button
+              startIcon={<HistoryIcon />}
+              href="#/changelog"
+              variant="text"
+              size="small"
+              sx={{
+                color: '#4f46e5',
+                textTransform: 'none',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.06)' },
+              }}
+            >
+              {t('changelog.title')}
+            </Button>
+          </Box>
 
           <Divider sx={{ my: 3 }} />
 

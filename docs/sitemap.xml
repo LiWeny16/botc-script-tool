@@ -20,6 +20,15 @@
     <changefreq>weekly</changefreq>
   </url>
   <url>
+    <loc>https://botc.letshare.fun/changelog</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/changelog"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/changelog"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/changelog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/changelog"/>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://botc.letshare.fun/scripts/custom-lgbt-s-party-v3-add11000.html</loc>
     <priority>0.6</priority>
     <changefreq>monthly</changefreq>
