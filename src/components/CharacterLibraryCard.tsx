@@ -605,7 +605,7 @@ const CharacterLibraryCard = observer(({
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                             <CharacterImage
                                 src="/imgs/images/sources/logo2.png"
-                                alt="BOTC"
+                                alt="BOTC Script Tool"
                                 sx={{
                                     height: 24,
                                     objectFit: 'contain',

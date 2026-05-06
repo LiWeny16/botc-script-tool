@@ -748,7 +748,7 @@ export default observer(function CharacterEditDialog({
                     <Box
                       component="img"
                       src={displayImage}
-                      alt=""
+                      alt={displayName}
                       sx={{ width: '100%', height: '100%', minHeight: 96, objectFit: 'contain', p: 1 }}
                     />
                   ) : (

@@ -78,7 +78,7 @@ function SortableActionItem({
     >
       <CharacterImage
         src={action.image}
-        alt={`Action ${index}`}
+        alt={action.image.split('/').pop()?.replace(/\.[^.]*$/, '') || `Night order character`}
         sx={{
           width: { xs: 35, sm: 38, md: 52 },
           height: { xs: 35, sm: 38, md: 52 },
