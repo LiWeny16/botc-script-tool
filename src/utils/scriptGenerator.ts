@@ -127,7 +127,7 @@ function getCharacterDictKey(
   // Non-Chinese mode: prefer id, fall back to name (supports cross-language lookup)
   if (language !== 'cn') {
     // 1. Look up by id field (exact match preferred)
-    let dictKey = item.id;
+    const dictKey = item.id;
 
     const byId = getCharacterInDictionary(charactersDict, dictKey);
     if (byId) {
@@ -165,7 +165,7 @@ function getCharacterDictKey(
 
   // Chinese mode: prefer id, fall back to name
   // 1. Look up by id field (exact match preferred)
-  let dictKey = item.id;
+  const dictKey = item.id;
 
   const byIdZh = getCharacterInDictionary(charactersDict, dictKey);
   if (byIdZh) {

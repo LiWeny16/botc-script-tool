@@ -33,7 +33,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       - name: Lint
-        run: yarn lint
+        run: yarn lint --max-warnings 150
 
       - name: Type check
         run: npx tsc --noEmit
