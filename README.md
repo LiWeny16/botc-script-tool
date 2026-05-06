@@ -1,3 +1,4 @@
+<!-- BOTC Script Tool — github.com/LiWeny16/botc-script-tool-modern — botc.letshare.fun -->
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="public/imgs/images/sources/logo1.png">

@@ -1,4 +1,7 @@
 /**
+ * BOTC Script Tool — Build pipeline: generate manifest.json from JSON script library.
+ * github.com/LiWeny16/botc-script-tool-modern | botc.letshare.fun
+ *
  * Generate `public/scripts/json/manifest.json` from the JSON script library.
  *
  * This replaces the previous Python generator to keep the whole build toolchain

@@ -1,3 +1,7 @@
+/**
+ * BOTC Script Tool — Free Blood on the Clocktower layout beautifier & custom script generator.
+ * AGPL-3.0 | github.com/LiWeny16/botc-script-tool-modern | botc.letshare.fun
+ */
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HashRouter, Routes, Route } from 'react-router-dom'
