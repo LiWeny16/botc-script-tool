@@ -167,6 +167,11 @@ function ContactCallout({
 const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
   const { t } = useTranslation();
 
+  const handleOpenChangelog = () => {
+    onClose();
+    window.location.hash = '#/changelog';
+  };
+
   return (
     <Dialog
       open={open}
@@ -198,9 +203,14 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
         >
           {t('about.title')}
         </Typography>
-        <IconButton onClick={onClose} size="small">
-          <CloseIcon />
-        </IconButton>
+        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+          <IconButton onClick={handleOpenChangelog} size="small" title={t('changelog.title')}>
+            <HistoryIcon fontSize="small" />
+          </IconButton>
+          <IconButton onClick={onClose} size="small">
+            <CloseIcon />
+          </IconButton>
+        </Box>
       </DialogTitle>
 
       <DialogContent sx={{ pt: 2 }}>
@@ -322,27 +332,6 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
           >
             {t('about.letterClosing')}
           </Typography>
-
-          <Divider sx={{ my: 3 }} />
-
-          {/* Changelog link */}
-          <Box sx={{ textAlign: 'center' }}>
-            <Button
-              startIcon={<HistoryIcon />}
-              href="#/changelog"
-              variant="text"
-              size="small"
-              sx={{
-                color: '#4f46e5',
-                textTransform: 'none',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-                '&:hover': { bgcolor: 'rgba(99, 102, 241, 0.06)' },
-              }}
-            >
-              {t('changelog.title')}
-            </Button>
-          </Box>
 
           <Divider sx={{ my: 3 }} />
 
