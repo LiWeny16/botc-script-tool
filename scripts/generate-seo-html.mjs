@@ -230,6 +230,7 @@ function generateScriptPage(entry) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="index, follow">
+  <meta name="msvalidate.01" content="411D1135BD0F14F46E1AE89FE6D56B0B" />
   <meta name="description" content="${escapeHtml(description)}">
   <meta name="keywords" content="BOTC,${displayName},Blood on the Clocktower ${categoryLabel} script,${author},BOTC script tool,layout beautifier">
   <title>${escapeHtml(title)}</title>
