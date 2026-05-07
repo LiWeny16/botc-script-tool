@@ -21,7 +21,7 @@ export const META = {
     description:
       '免费血染钟楼（染·钟楼谜团）板子美化器。导入官方 JSON、自定义角色与相克关系、上传自制角色图标、双页排版、一键导出彩图 PDF。支持中文/英文/西班牙语，无需注册，打开即用。',
     keywords:
-      '血染钟楼板子美化器,血染钟楼自创板子,血染钟楼自制DIY,血染钟楼剧本生成器,染钟楼谜团剧本工具,BOTC剧本工具,BOTC板子美化器,血染钟楼彩图生成,血染钟楼JSON编辑器,血染钟楼自制角色图标,相克关系怎么定制,自定义相克关系,板子图编辑器,剧本排版美化,DIY剧本json,Blood on the Clocktower',
+      '血染钟楼板子美化器,血染钟楼自创板子,血染钟楼自制DIY,血染钟楼剧本生成器,染钟楼谜团剧本工具,BOTC剧本工具,BOTC板子美化器,血染钟楼彩图生成,血染钟楼JSON编辑器,血染钟楼自制角色图标,相克关系怎么定制,自定义相克关系,板子图编辑器,剧本排版美化,DIY剧本json,Blood on the Clocktower,botc script builder,botc script maker',
     appTitle: 'BOTC剧本工具',
     ogImageAlt: 'BOTC剧本工具：免费血染钟楼剧本美化器，支持自定义相克、双页排版和 PDF 导出',
     featureList: [
@@ -99,7 +99,7 @@ export const META = {
     description:
       'The free Blood on the Clocktower script tool. Import official JSON, customize characters, jinxes and night order, upload custom icons, choose two-page layout, then export print-ready PDF or images. No signup needed — open and create.',
     keywords:
-      'Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,BOTC custom script maker,Clocktower script maker,custom BOTC script,custom jinx relationships,BOTC night order customizer,BOTC homebrew script tool,clocktower script PDF beautifier,how to customize BOTC jinx,script JSON,board game tool,free BOTC script generator',
+      'Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,BOTC custom script maker,botc script builder,botc script maker,Clocktower script maker,custom BOTC script,custom jinx relationships,BOTC night order customizer,BOTC homebrew script tool,clocktower script PDF beautifier,how to customize BOTC jinx,script JSON,board game tool,free BOTC script generator',
     appTitle: "BOTC Script Tool",
     ogImageAlt: "Free BOTC Script Tool: Blood on the Clocktower layout beautifier with custom jinxes and PDF export",
     featureList: [
@@ -177,7 +177,7 @@ export const META = {
     description:
       'La herramienta gratuita para guiones de Blood on the Clocktower. Importa JSON oficial, personaliza personajes e interacciones jinx, y exporta PDF listo para imprimir. Sin registro, abre y crea.',
     keywords:
-      'generador de guiones Blood on the Clocktower,herramienta BOTC,maquetador BOTC,crear guion BOTC,guion personalizado BOTC,interacciones jinx personalizadas,cómo personalizar interacciones BOTC,JSON de guion,juego de mesa',
+      'generador de guiones Blood on the Clocktower,herramienta BOTC,maquetador BOTC,crear guion BOTC,guion personalizado BOTC,interacciones jinx personalizadas,cómo personalizar interacciones BOTC,JSON de guion,juego de mesa,botc script builder,botc script maker',
     appTitle: 'BOTC Script Tool',
     ogImageAlt: 'Herramienta BOTC gratuita: maquetador de guiones Blood on the Clocktower con jinxes personalizados y exportación PDF',
     featureList: [
