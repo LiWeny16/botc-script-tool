@@ -327,6 +327,6 @@ To create a beautiful BOTC script PDF: 1) Open BOTC Script Tool (botc.letshare.f
 
 ## Keywords
 
-Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,BOTC custom script maker,Clocktower script maker,custom BOTC script,custom jinx relationships,BOTC night order customizer,BOTC homebrew script tool,clocktower script PDF beautifier,how to customize BOTC jinx,script JSON,board game tool,free BOTC script generator
-血染钟楼板子美化器,血染钟楼自创板子,血染钟楼自制DIY,血染钟楼剧本生成器,染钟楼谜团剧本工具,BOTC剧本工具,BOTC板子美化器,血染钟楼彩图生成,血染钟楼JSON编辑器,血染钟楼自制角色图标,相克关系怎么定制,自定义相克关系,板子图编辑器,剧本排版美化,DIY剧本json,Blood on the Clocktower
-generador de guiones Blood on the Clocktower,herramienta BOTC,maquetador BOTC,crear guion BOTC,guion personalizado BOTC,interacciones jinx personalizadas,cómo personalizar interacciones BOTC,JSON de guion,juego de mesa
+Blood on the Clocktower script generator,BOTC script tool,BOTC layout beautifier,BOTC custom script maker,botc script builder,botc script maker,Clocktower script maker,custom BOTC script,custom jinx relationships,BOTC night order customizer,BOTC homebrew script tool,clocktower script PDF beautifier,how to customize BOTC jinx,script JSON,board game tool,free BOTC script generator
+血染钟楼板子美化器,血染钟楼自创板子,血染钟楼自制DIY,血染钟楼剧本生成器,染钟楼谜团剧本工具,BOTC剧本工具,BOTC板子美化器,血染钟楼彩图生成,血染钟楼JSON编辑器,血染钟楼自制角色图标,相克关系怎么定制,自定义相克关系,板子图编辑器,剧本排版美化,DIY剧本json,Blood on the Clocktower,botc script builder,botc script maker
+generador de guiones Blood on the Clocktower,herramienta BOTC,maquetador BOTC,crear guion BOTC,guion personalizado BOTC,interacciones jinx personalizadas,cómo personalizar interacciones BOTC,JSON de guion,juego de mesa,botc script builder,botc script maker
