@@ -868,17 +868,18 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
         </Box>
 
         {/* 提示信息和开关设置 */}
-        <Alert severity="info" sx={{ mt: 2 }}>
+        <Alert severity="info" sx={{ mt: 2, '& .MuiAlert-icon': { mt: 0.5 } }}>
           <Box sx={{
             display: 'flex',
             flexDirection: { xs: 'column', md: 'row' },
-            gap: { xs: 2.5, md: 40 },
-            alignItems: { xs: 'stretch', md: 'center' }
+            gap: { xs: 2.5, md: 3 },
+            alignItems: 'flex-start'
           }}>
             {/* 左侧文字说明 */}
             <Box sx={{
               flex: { xs: '1 1 auto', md: '0 0 auto' },
-              maxWidth: { xs: '100%', md: '1000px' }
+              maxWidth: { xs: '100%', md: '460px' },
+              flexShrink: 0,
             }}>
               <Typography variant="body2" sx={{
                 fontSize: { xs: '0.8rem', sm: '0.85rem' },
@@ -893,15 +894,15 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
             {/* 右侧开关区域 */}
             <Box sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+              gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
               gap: 2,
               flex: { xs: '1 1 auto', md: '1 1 0' },
-              minWidth: { xs: '100%', md: '300px' }
+              minWidth: { xs: '100%', md: '280px' }
             }}>
               {/* 官方ID解析模式 */}
               <Box sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 gap: 2,
                 justifyContent: 'space-between'
               }}>
@@ -930,7 +931,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
               {/* 单边隐藏相克规则 */}
               <Box sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 gap: 2,
                 justifyContent: 'space-between'
               }}>
@@ -959,7 +960,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
               {/* 双页模式 */}
               <Box sx={{
                 display: 'flex',
-                alignItems: 'center',
+                alignItems: 'flex-start',
                 gap: 2,
                 justifyContent: 'space-between',
                 gridColumn: { xs: 'auto', md: '2' },
