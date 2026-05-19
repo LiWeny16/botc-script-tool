@@ -894,7 +894,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
             {/* 右侧开关区域 */}
             <Box sx={{
               display: 'grid',
-              gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1fr) auto' },
+              gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
               gap: 2,
               flex: { xs: '1 1 auto', md: '1 1 0' },
               minWidth: { xs: '100%', md: '280px' }
@@ -962,9 +962,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
                 display: 'flex',
                 alignItems: 'flex-start',
                 gap: 2,
-                justifyContent: 'space-between',
-                gridColumn: { xs: 'auto', md: '2' },
-                gridRow: { xs: 'auto', md: '1' },
+                justifyContent: 'space-between'
               }}>
                 <Box sx={{ flex: 1, minWidth: 0 }}>
                   <Typography variant="body2" sx={{
