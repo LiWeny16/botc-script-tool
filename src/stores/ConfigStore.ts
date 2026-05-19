@@ -4,11 +4,13 @@ import { DEFAULT_LANGUAGE, isSupportedLanguage, normalizeLanguage, SUPPORTED_LAN
 export interface AppConfig {
   language: Language;
   officialIdParseMode: boolean; // Whether official ID parse mode is enabled
+  hideDuplicateJinx: boolean; // Whether to show jinx on only one character card
 }
 
 const DEFAULT_CONFIG: AppConfig = {
   language: DEFAULT_LANGUAGE,
   officialIdParseMode: false, // Official ID parse mode is disabled by default
+  hideDuplicateJinx: false, // Show jinx on both cards by default
 };
 
 const STORAGE_KEY = 'botc-app-config';
@@ -140,6 +142,12 @@ class ConfigStore {
   // Set official ID parse mode
   setOfficialIdParseMode(enabled: boolean) {
     this.config.officialIdParseMode = enabled;
+    this.saveConfig();
+  }
+
+  // Set hide duplicate jinx mode
+  setHideDuplicateJinx(enabled: boolean) {
+    this.config.hideDuplicateJinx = enabled;
     this.saveConfig();
   }
 

@@ -368,8 +368,15 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
 
               {/* Jinx rules - below description text, left-aligned */}
               {jinxInfo && (() => {
-                // Filter out jinx rules with display set to false
-                const visibleJinxEntries = Object.entries(jinxInfo).filter(([_, jinxData]) => jinxData.display !== false);
+                // Filter out jinx rules with display set to false, and apply single-side hiding
+                const visibleJinxEntries = Object.entries(jinxInfo).filter(([targetName, jinxData]) => {
+                  if (jinxData.display === false) return false;
+                  if (configStore.config.hideDuplicateJinx) {
+                    const targetChar = allCharacters?.find(c => c.name === targetName);
+                    if (targetChar && character.id > targetChar.id) return false;
+                  }
+                  return true;
+                });
                 return visibleJinxEntries.length > 0 && (
                   // Two-page mode: show only djinn icon and jinx character icons in a row
                   uiConfigStore.config.enableTwoPageMode ? (

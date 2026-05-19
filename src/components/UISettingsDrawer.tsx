@@ -784,12 +784,38 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     onChange={(value) => uiConfigStore.updateFontConfig({ characterName: value })}
                   />
 
+                  {/* 角色名称字号 */}
+                  <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+                    <FormLabel sx={{ fontSize: '0.875rem', mb: 0.5 }}>{t('ui.font.characterNameFontSize')}</FormLabel>
+                    <Select
+                      value={uiConfigStore.config.characterCard.nameFontSizeMd}
+                      onChange={(e) => uiConfigStore.updateCharacterCardConfig({ nameFontSizeMd: e.target.value })}
+                    >
+                      {['0.8rem', '0.9rem', '1.0rem', '1.1rem', '1.2rem', '1.3rem', '1.4rem', '1.5rem', '1.6rem', '1.8rem', '2.0rem'].map(size => (
+                        <MenuItem key={size} value={size}>{size}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+
                   {/* 角色技能描述字体 */}
                   <FontSelector
                     label={t('ui.font.characterAbility')}
                     value={uiConfigStore.config.fonts.characterAbility}
                     onChange={(value) => uiConfigStore.updateFontConfig({ characterAbility: value })}
                   />
+
+                  {/* 角色技能描述字号 */}
+                  <FormControl fullWidth size="small" sx={{ mt: 1 }}>
+                    <FormLabel sx={{ fontSize: '0.875rem', mb: 0.5 }}>{t('ui.font.characterAbilityFontSize')}</FormLabel>
+                    <Select
+                      value={uiConfigStore.config.characterCard.descriptionFontSizeMd}
+                      onChange={(e) => uiConfigStore.updateCharacterCardConfig({ descriptionFontSizeMd: e.target.value })}
+                    >
+                      {['0.7rem', '0.75rem', '0.8rem', '0.85rem', '0.9rem', '0.95rem', '1.0rem', '1.1rem', '1.2rem'].map(size => (
+                        <MenuItem key={size} value={size}>{size}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
 
                   {/* Jinx相克规则字体 */}
                   <FontSelector
