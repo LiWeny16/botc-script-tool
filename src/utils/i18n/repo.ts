@@ -1,0 +1,47 @@
+export const cn = {
+  'repo.title': '剧本仓库',
+  'repo.subtitle': '浏览和预览血染钟楼剧本',
+  'repo.searchPlaceholder': '搜索剧本名称、作者...',
+  'repo.noResults': '未找到匹配的剧本',
+  'repo.backToGenerator': '返回剧本生成器',
+  'repo.backToRepository': '返回剧本仓库',
+  'repo.exportJson': '导出JSON',
+  'repo.author': '作者',
+  'repo.unknownAuthor': '未知',
+  'repo.aboutAndThanks': '关于 & 致谢',
+  'repo.categoryOfficial': '官方剧本',
+  'repo.categoryOfficialMix': '官混剧本',
+  'repo.categoryCustom': '自定义剧本',
+} as const;
+
+export const en = {
+  'repo.title': 'Script Repository',
+  'repo.subtitle': 'Browse and preview Blood on the Clocktower scripts',
+  'repo.searchPlaceholder': 'Search script name, author...',
+  'repo.noResults': 'No matching scripts found',
+  'repo.backToGenerator': 'Back to Generator',
+  'repo.backToRepository': 'Back to Repository',
+  'repo.exportJson': 'Export JSON',
+  'repo.author': 'Author',
+  'repo.unknownAuthor': 'Unknown',
+  'repo.aboutAndThanks': 'About & Thanks',
+  'repo.categoryOfficial': 'Official Scripts',
+  'repo.categoryOfficialMix': 'Official Mix',
+  'repo.categoryCustom': 'Custom Scripts',
+} as const;
+
+export const es: Partial<Record<keyof typeof cn, string>> = {
+  'repo.title': 'Repositorio de guiones',
+  'repo.subtitle': 'Explora y previsualiza guiones de Blood on the Clocktower',
+  'repo.searchPlaceholder': 'Buscar por nombre de guion, autor...',
+  'repo.noResults': 'No se encontraron guiones coincidentes',
+  'repo.backToGenerator': 'Volver al generador',
+  'repo.backToRepository': 'Volver al repositorio',
+  'repo.exportJson': 'Exportar JSON',
+  'repo.author': 'Autor',
+  'repo.unknownAuthor': 'Desconocido',
+  'repo.aboutAndThanks': 'Acerca de y agradecimientos',
+  'repo.categoryOfficial': 'Guiones oficiales',
+  'repo.categoryOfficialMix': 'Mezcla oficial',
+  'repo.categoryCustom': 'Guiones personalizados',
+};

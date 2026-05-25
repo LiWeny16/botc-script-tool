@@ -1,7 +1,7 @@
 import React, { createContext, useContext, type ReactNode } from 'react';
 import { observer } from 'mobx-react-lite';
 import { configStore } from '../stores/ConfigStore';
-import { translations, type TranslationKey } from './map';
+import { translations, type TranslationKey } from './i18n/index';
 import type { Language } from './languages';
 
 // Create i18n context
