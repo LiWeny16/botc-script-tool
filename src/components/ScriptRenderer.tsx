@@ -42,6 +42,7 @@ export interface ScriptRendererProps {
 
     // 编辑模式配置
     readOnly?: boolean; // 是否只读模式
+    compact?: boolean;  // 超紧凑模式（全角色一览）
 
     // 事件回调（编辑模式下使用）
     onReorderCharacters?: (team: string, newOrder: string[]) => void;
@@ -64,6 +65,7 @@ const ScriptRenderer = observer(({
     script,
     theme,
     readOnly = false,
+    compact = false,
     onReorderCharacters = () => { },
     onUpdateCharacter = () => { },
     onEditCharacter = () => { },
@@ -75,6 +77,7 @@ const ScriptRenderer = observer(({
     onSpecialRuleDelete = () => { },
     onNightOrderReorder = () => { },
 }: ScriptRendererProps) => {
+    const COMPACT_SCALE = compact ? 0.47 : 1;
     const { t, language } = useTranslation();
     const scriptRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -322,7 +325,6 @@ const ScriptRenderer = observer(({
                         height: '100vh !important',
                         minHeight: '100vh !important',
                     },
-                    // boxShadow: '0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12)',
                     display: "flex",
                     userSelect: "none",
                     width: "100%",
@@ -337,7 +339,8 @@ const ScriptRenderer = observer(({
                         position: 'relative',
                     }}
                 >
-                    {/* 装饰花纹 */}
+                    {/* 装饰花纹（紧凑模式隐藏） */}
+                    {!compact && <>
                     <CharacterImage
                         src="/imgs/images/sources/flower3_2.png"
                         alt="左下角装饰花纹"
@@ -399,6 +402,7 @@ const ScriptRenderer = observer(({
                             WebkitUserDrag: 'none',
                         }}
                     />
+                    </>}
 
                     {/* 美术设计盒子 - 仅在非只读模式下显示 */}
                     {!readOnly && (
@@ -450,15 +454,15 @@ const ScriptRenderer = observer(({
 
                     {/* 左侧 - 首个夜晚 */}
                     {!isMobile && (
-                        <Box sx={{
-                            padding: 1.5,
+                        <Box id="night-order-left" sx={{
+                            padding: compact ? 0.3 : 1.5,
                             flexShrink: 0,
                             position: 'relative',
                             backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
                             display: 'flex',
                             alignItems: 'flex-start',
                             justifyContent: "center",
-                            pt: '30%',
+                            pt: compact ? '2%' : '30%',
                             boxShadow: 'none',
                             '& > *': {
                                 position: 'relative',
@@ -470,6 +474,7 @@ const ScriptRenderer = observer(({
                                 actions={script.firstnight}
                                 disabled={readOnly || configStore.config.officialIdParseMode}
                                 onReorder={(oldIndex, newIndex) => onNightOrderReorder('first', oldIndex, newIndex)}
+                                compact={compact}
                             />
                         </Box>
                     )}
@@ -479,11 +484,12 @@ const ScriptRenderer = observer(({
                         id="main_script"
                         elevation={0}
                         sx={{
-                            pt: 2,
+                            pt: compact ? 0 : 2,
                             flex: 1,
-                            backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
+                            backgroundImage: compact ? 'none' : `url(${uiConfigStore.mainBackgroundUrl})`,
+                            backgroundColor: compact ? '#EDE4D5' : 'transparent',
                             backgroundSize: '100% 100%',
-                            backgroundPosition: 'center',
+                            backgroundPosition: 'top center',
                             backgroundRepeat: 'no-repeat',
                             borderRadius: 0,
                             zIndex: 1,
@@ -495,7 +501,7 @@ const ScriptRenderer = observer(({
                         <Box sx={{
                             textAlign: 'center',
                             mb: 0,
-                            mt:8,
+                            mt: compact ? 0.3 : 8,
                             position: 'relative',
                             zIndex: 1,
                             px: { xs: 2, sm: 3, md: 4 },
@@ -503,15 +509,15 @@ const ScriptRenderer = observer(({
                             <Box
                                 sx={{
                                     position: 'relative',
-                                    height: { xs: 'auto', md: uiConfigStore.titleHeight },
+                                    height: { xs: 'auto', md: compact ? 90 : uiConfigStore.titleHeight },
                                     width: '100%',
                                     minWidth: { xs: '300px', md: '500px' },
                                     display: { xs: 'flex', md: 'block' },
                                     flexDirection: { xs: 'column', md: 'row' },
                                     alignItems: { xs: 'center', md: 'unset' },
                                     gap: { xs: 2, md: 0 },
-                                    py: { xs: 2, md: 0 },
-                                    '&::before': {
+                                    py: { xs: compact ? 0.5 : 2, md: 0 },
+                                    '&::before': compact ? { display: 'none' } : {
                                         content: '""',
                                         position: 'absolute',
                                         top: '50%',
@@ -570,9 +576,9 @@ const ScriptRenderer = observer(({
                                                 sx={{
                                                     maxWidth: '100%',
                                                     maxHeight: {
-                                                        xs: `${(script.titleImageSize || 160) * 0.75}px`,
-                                                        sm: `${(script.titleImageSize || 160) * 0.875}px`,
-                                                        md: `${script.titleImageSize || 160}px`
+                                                        xs: `${(script.titleImageSize || 160) * 0.75 * COMPACT_SCALE}px`,
+                                                        sm: `${(script.titleImageSize || 160) * 0.875 * COMPACT_SCALE}px`,
+                                                        md: `${(script.titleImageSize || 160) * COMPACT_SCALE}px`
                                                     },
                                                     width: 'auto',
                                                     height: 'auto',
@@ -614,11 +620,13 @@ const ScriptRenderer = observer(({
                                                 sx={{
                                                     fontFamily: uiConfigStore.scriptTitleFont,
                                                     fontWeight: 'bold',
-                                                    fontSize: {
-                                                        xs: '2.3rem',
-                                                        sm: '3.4rem',
-                                                        md: uiConfigStore.titleFontSizeMd
-                                                    },
+                                                    fontSize: compact
+                                                        ? { xs: '1.1rem', sm: '1.4rem', md: '1.6rem' }
+                                                        : {
+                                                            xs: `${2.3 * COMPACT_SCALE}rem`,
+                                                            sm: `${3.4 * COMPACT_SCALE}rem`,
+                                                            md: `calc(${uiConfigStore.titleFontSizeMd} * ${COMPACT_SCALE})`
+                                                          },
                                                     lineHeight: 1.38,
                                                     m: 0,
                                                     whiteSpace: 'pre-wrap',
@@ -671,6 +679,85 @@ const ScriptRenderer = observer(({
                                         />
                                     </Box>
                                 )}
+
+                                {/* Description + Author credit in compact mode */}
+                                {compact && (
+                                  <>
+                                    {/* Left: special mode description */}
+                                    <Box sx={{
+                                      position: 'absolute',
+                                      left: { xs: '1%', md: '2%' },
+                                      top: '50%',
+                                      transform: 'translateY(-50%)',
+                                      zIndex: 1,
+                                      maxWidth: { xs: '42%', md: '30%' },
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: { xs: 0.5, md: 0.8 },
+                                      px: { xs: 0.8, md: 1.2 },
+                                      py: { xs: 0.4, md: 0.6 },
+                                      backgroundColor: 'rgba(255,255,255,0.55)',
+                                      borderLeft: '3px solid #d4af37',
+                                      borderRadius: '0 6px 6px 0',
+                                    }}>
+                                      <Box
+                                        component="img"
+                                        src="/imgs/icons/fabled/bootlegger2.png"
+                                        alt="Bootlegger"
+                                        sx={{
+                                          width: { xs: 20, sm: 22, md: 26 },
+                                          height: { xs: 20, sm: 22, md: 26 },
+                                          flexShrink: 0,
+                                          objectFit: 'contain',
+                                        }}
+                                      />
+                                      <Typography sx={{
+                                        fontFamily: uiConfigStore.scriptTitleFont,
+                                        fontWeight: 600,
+                                        color: '#3a3a3a',
+                                        fontSize: { xs: '0.42rem', sm: '0.48rem', md: '0.55rem' },
+                                        lineHeight: 1.5,
+                                      }}>
+                                        {t('allChars.description')}
+                                      </Typography>
+                                    </Box>
+
+                                    {/* Right: author + icon */}
+                                    <Box sx={{
+                                      position: 'absolute',
+                                      right: '3%',
+                                      top: '50%',
+                                      transform: 'translateY(-50%)',
+                                      zIndex: 1,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 0.8,
+                                    }}>
+                                      <Box
+                                        component="img"
+                                        src="/imgs/icons/fabled/onion.webp"
+                                        alt="Onion"
+                                        sx={{
+                                          width: { xs: 24, sm: 28, md: 32 },
+                                          height: { xs: 24, sm: 28, md: 32 },
+                                          borderRadius: '50%',
+                                          border: '2px solid #d4af37',
+                                          objectFit: 'cover',
+                                          flexShrink: 0,
+                                        }}
+                                      />
+                                      <Typography sx={{
+                                        fontFamily: uiConfigStore.scriptTitleFont,
+                                        fontWeight: 700,
+                                        color: '#000',
+                                        fontSize: { xs: '0.55rem', sm: '0.6rem', md: '0.65rem' },
+                                        whiteSpace: 'nowrap',
+                                      }}>
+                                        Author &amp; Design: Onion
+                                      </Typography>
+                                    </Box>
+                                  </>
+                                )}
                             </Box>
 
                             {/* 标题下方作者与支持人数 */}
@@ -691,7 +778,7 @@ const ScriptRenderer = observer(({
 
                         {/* 角色区域 */}
                         <Box sx={{ width: "100%" }}>
-                            <Box sx={{ px: 3 }}>
+                            <Box sx={{ px: compact ? 0.5 : 3 }}>
                                 {/* 按固定顺序显示标准团队 */}
                                 {['townsfolk', 'outsider', 'minion', 'demon'].map(team => (
                                     script.characters[team] && script.characters[team].length > 0 && (
@@ -707,12 +794,13 @@ const ScriptRenderer = observer(({
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                                             disableDrag={readOnly}
                                             readOnly={readOnly}
+                                            compact={compact}
                                         />
                                     )
                                 ))}
 
                                 {/* 在非双页面模式下显示传奇和旅行者 */}
-                                {!uiConfigStore.config.enableTwoPageMode && ['fabled', 'traveler'].map(team => (
+                                {!uiConfigStore.config.enableTwoPageMode && !compact && ['fabled', 'traveler'].map(team => (
                                     script.characters[team] && script.characters[team].length > 0 && (
                                         <CharacterSection
                                             key={team}
@@ -726,12 +814,13 @@ const ScriptRenderer = observer(({
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                                             disableDrag={readOnly}
                                             readOnly={readOnly}
+                                            compact={compact}
                                         />
                                     )
                                 ))}
 
                                 {/* 显示所有未知团队（非双页面模式） */}
-                                {!uiConfigStore.config.enableTwoPageMode && Object.keys(script.characters)
+                                {!uiConfigStore.config.enableTwoPageMode && !compact && Object.keys(script.characters)
                                     .filter(team => !['townsfolk', 'outsider', 'minion', 'demon', 'fabled', 'traveler'].includes(team))
                                     .map(team => (
                                         <CharacterSection
@@ -746,6 +835,7 @@ const ScriptRenderer = observer(({
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
                                             disableDrag={readOnly}
                                             readOnly={readOnly}
+                                            compact={compact}
                                         />
                                     ))
                                 }
@@ -762,6 +852,7 @@ const ScriptRenderer = observer(({
                                         isMobile={true}
                                         disabled={readOnly || configStore.config.officialIdParseMode}
                                         onReorder={(oldIndex, newIndex) => onNightOrderReorder('first', oldIndex, newIndex)}
+                                        compact={compact}
                                     />
                                 </Box>
                                 <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -771,12 +862,42 @@ const ScriptRenderer = observer(({
                                         isMobile={true}
                                         disabled={readOnly || configStore.config.officialIdParseMode}
                                         onReorder={(oldIndex, newIndex) => onNightOrderReorder('other', oldIndex, newIndex)}
+                                        compact={compact}
                                     />
                                 </Box>
                             </Box>
                         )}
 
-                        {/* 背景装饰 */}
+                        {/* 超紧凑模式：旅行者 + 相克规则（换页） */}
+                        {compact && (
+                            <Paper id="script-preview-2" elevation={0} sx={{
+                                mt: 2,
+                                p: 1,
+                                backgroundColor: 'transparent',
+                                width: '100%',
+                                '@media print': {
+                                    pageBreakBefore: 'always',
+                                    printColorAdjust: 'exact',
+                                    WebkitPrintColorAdjust: 'exact',
+                                },
+                            }}>
+                                {script.characters.traveler && script.characters.traveler.length > 0 && (
+                                    <CharacterSection
+                                        team="traveler"
+                                        characters={script.characters.traveler}
+                                        script={script}
+                                        onReorder={() => {}}
+                                        disableDrag={true}
+                                        readOnly={true}
+                                        compact={compact}
+                                    />
+                                )}
+                                <JinxSection script={script} compact={true} />
+                            </Paper>
+                        )}
+
+                        {/* 背景装饰（紧凑模式隐藏） */}
+                        {!compact && <>
                         <CharacterImage
                             component="img"
                             src={"/imgs/images/sources/back_tower.png"}
@@ -809,22 +930,23 @@ const ScriptRenderer = observer(({
                                 WebkitUserDrag: 'none',
                             }}
                         />
+                        </>}
 
-                        <Box sx={{ height: "20vh" }}></Box>
+                        <Box sx={{ height: compact ? "5vh" : "20vh" }}></Box>
                     </Paper>
 
                     {/* 右侧 - 其他夜晚 */}
                     {!isMobile && (
-                        <Box sx={{
-                            padding: 1.5,
+                        <Box id="night-order-right" sx={{
+                            padding: compact ? 0.3 : 1.5,
                             flexShrink: 0,
                             position: 'relative',
                             backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
                             display: 'flex',
                             alignItems: 'flex-start',
                             justifyContent: "center",
-                            pt: '30%',
-                            zIndex: 1,          // <--- 添加 zIndex
+                            pt: compact ? '2%' : '30%',
+                            zIndex: 1,
                             boxShadow: 'none',
                             '& > *': {
                                 position: 'relative',
@@ -836,6 +958,7 @@ const ScriptRenderer = observer(({
                                 actions={script?.othernight || []}
                                 disabled={readOnly || configStore.config.officialIdParseMode}
                                 onReorder={(oldIndex, newIndex) => onNightOrderReorder('other', oldIndex, newIndex)}
+                                compact={compact}
                             />
                         </Box>
                     )}
@@ -843,7 +966,7 @@ const ScriptRenderer = observer(({
             </Paper>
 
             {/* 第二页 - 双页面模式下显示相克规则、传奇、旅行者 */}
-            {script && uiConfigStore.config.enableTwoPageMode && (
+            {script && uiConfigStore.config.enableTwoPageMode && !compact && (
                 <Paper
                     elevation={16}
                     id="script-preview-2"

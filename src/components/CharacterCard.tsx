@@ -22,9 +22,11 @@ interface CharacterCardProps {
   onDelete?: (character: Character) => void;
   onReplace?: (character: Character, position: { x: number; y: number }) => void;
   readOnly?: boolean;
+  compact?: boolean;
 }
 
-const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete, onReplace, readOnly = false }: CharacterCardProps) => {
+const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete, onReplace, readOnly = false, compact = false }: CharacterCardProps) => {
+  const COMPACT_SCALE = compact ? 0.47 : 1;
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
@@ -43,54 +45,54 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
 
   // Unified config
   const CONFIG = {
-    // Card config - smaller padding on mobile
+    // Card config - smaller padding on mobile, compact scales further
     card: {
-      paddingX: isMobile ? config.cardPaddingX * 0.5 : config.cardPaddingX,
-      paddingY: isMobile ? config.cardPaddingY * 0.5 : config.cardPaddingY,
+      paddingX: (isMobile ? config.cardPaddingX * 0.5 : config.cardPaddingX) * COMPACT_SCALE,
+      paddingY: (isMobile ? config.cardPaddingY * 0.5 : config.cardPaddingY) * COMPACT_SCALE,
       borderRadius: config.cardBorderRadius,
-      gap: isMobile ? config.cardGap * 0.6 : config.cardGap,
+      gap: (isMobile ? config.cardGap * 0.6 : config.cardGap) * COMPACT_SCALE,
     },
-    // Character avatar config - smaller icons on mobile
+    // Character avatar config - smaller icons on mobile, compact scales further
     avatar: isFabled ? {
-      width: isMobile ? config.fabledIconWidthMd * 0.65 : config.fabledIconWidthMd,
-      height: isMobile ? config.fabledIconHeightMd * 0.65 : config.fabledIconHeightMd,
+      width: (isMobile ? config.fabledIconWidthMd * 0.65 : config.fabledIconWidthMd) * COMPACT_SCALE,
+      height: (isMobile ? config.fabledIconHeightMd * 0.65 : config.fabledIconHeightMd) * COMPACT_SCALE,
       borderRadius: config.fabledIconBorderRadius,
     } : {
-      width: isMobile ? config.avatarWidthMd * 0.65 : config.avatarWidthMd,
-      height: isMobile ? config.avatarHeightMd * 0.65 : config.avatarHeightMd,
+      width: (isMobile ? config.avatarWidthMd * 0.65 : config.avatarWidthMd) * COMPACT_SCALE,
+      height: (isMobile ? config.avatarHeightMd * 0.65 : config.avatarHeightMd) * COMPACT_SCALE,
       borderRadius: config.avatarBorderRadius,
     },
     // Text area config - tighter spacing on mobile
     textArea: {
-      gap: isMobile ? config.textAreaGap * 0.6 : config.textAreaGap,
+      gap: (isMobile ? config.textAreaGap * 0.6 : config.textAreaGap) * COMPACT_SCALE,
     },
     // Character name config - smaller font on mobile
     name: {
-      fontSize: isMobile ? '0.95rem' : config.nameFontSizeMd,
+      fontSize: isMobile ? '0.95rem' : `calc(${config.nameFontSizeMd} * ${COMPACT_SCALE})`,
       fontWeight: config.nameFontWeight,
       lineHeight: config.nameLineHeight,
     },
     // Character description config - smaller font on mobile
     description: {
-      fontSize: isMobile ? '0.8rem' : config.descriptionFontSizeMd,
+      fontSize: isMobile ? '0.8rem' : `calc(${config.descriptionFontSizeMd} * ${COMPACT_SCALE})`,
       lineHeight: config.descriptionLineHeight,
     },
     // Jinx rule config - more compact on mobile
     jinx: {
-      gap: isMobile ? config.jinxGap * 0.6 : config.jinxGap,
-      padding: isMobile ? config.jinxPadding * 0.6 : config.jinxPadding,
+      gap: (isMobile ? config.jinxGap * 0.6 : config.jinxGap) * COMPACT_SCALE,
+      padding: (isMobile ? config.jinxPadding * 0.6 : config.jinxPadding) * COMPACT_SCALE,
       backgroundColor: '#EDE4D5',
       borderRadius: config.jinxBorderRadius,
-      iconGap: isMobile ? config.jinxIconGap * 0.6 : config.jinxIconGap,
+      iconGap: (isMobile ? config.jinxIconGap * 0.6 : config.jinxIconGap) * COMPACT_SCALE,
       // Jinx rule character icons - smaller on mobile
       icon: {
-        width: isMobile ? config.jinxIconWidthMd * 0.65 : config.jinxIconWidthMd,
-        height: isMobile ? config.jinxIconHeightMd * 0.65 : config.jinxIconHeightMd,
+        width: (isMobile ? config.jinxIconWidthMd * 0.65 : config.jinxIconWidthMd) * COMPACT_SCALE,
+        height: (isMobile ? config.jinxIconHeightMd * 0.65 : config.jinxIconHeightMd) * COMPACT_SCALE,
         borderRadius: config.jinxIconBorderRadius,
       },
       // Jinx rule text - smaller font on mobile
       text: {
-        fontSize: isMobile ? '0.75rem' : config.jinxTextFontSizeMd,
+        fontSize: isMobile ? '0.75rem' : `calc(${config.jinxTextFontSizeMd} * ${COMPACT_SCALE})`,
         lineHeight: config.jinxTextLineHeight,
         fontStyle: 'italic',
       },
@@ -333,41 +335,103 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
             />
 
             {/* Character info: name + description + jinx rules */}
-            <Box sx={{
-              flex: 1,
-              minWidth: 0,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: CONFIG.textArea.gap,
-            }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: CONFIG.name.fontWeight,
-                  fontSize: CONFIG.name.fontSize,
-                  color: nameColor,
-                  lineHeight: CONFIG.name.lineHeight,
-                  fontFamily: uiConfigStore.characterNameFont,
-                }}
-              >
-                {character.name}
-              </Typography>
+            {compact ? (
+              /* 紧凑模式：名字和相克图标同行，能力在下一行 */
+              <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 0.1 * COMPACT_SCALE }}>
+                {/* 第一行：名字 + 相克图标 */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: CONFIG.jinx.iconGap, flexWrap: 'wrap' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: CONFIG.name.fontWeight,
+                      fontSize: CONFIG.name.fontSize,
+                      color: nameColor,
+                      lineHeight: CONFIG.name.lineHeight,
+                      fontFamily: uiConfigStore.characterNameFont,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {character.name}
+                  </Typography>
+                  {jinxInfo && (() => {
+                    const visibleJinx = Object.entries(jinxInfo).filter(([_, jinxData]) => jinxData.display !== false);
+                    return visibleJinx.length > 0 && (
+                      <>
+                        <CharacterImage
+                          src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
+                          alt="Jinx Icon"
+                          sx={{
+                            width: CONFIG.jinx.icon.width,
+                            height: CONFIG.jinx.icon.height,
+                            borderRadius: CONFIG.jinx.icon.borderRadius,
+                            flexShrink: 0,
+                            userDrag: 'none',
+                            WebkitUserDrag: 'none',
+                            pointerEvents: 'none',
+                          }}
+                        />
+                        <Typography sx={{ fontSize: `${0.55 * COMPACT_SCALE}rem`, color: '#8B7355', fontWeight: 700, whiteSpace: 'nowrap' }}>
+                          ×{visibleJinx.length}
+                        </Typography>
+                      </>
+                    );
+                  })()}
+                </Box>
+                {/* 第二行：能力描述（紧凑模式限制2行） */}
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: CONFIG.description.fontSize,
+                    lineHeight: CONFIG.description.lineHeight,
+                    color: THEME_COLORS.text.tertiary,
+                    fontFamily: uiConfigStore.characterAbilityFont,
+                    overflow: 'hidden',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: highlightAbilityText(character.ability, configStore.language),
+                  }}
+                />
+              </Box>
+            ) : (
+              /* 普通模式：原布局 */
+              <Box sx={{
+                flex: 1,
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: CONFIG.textArea.gap,
+              }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: CONFIG.name.fontWeight,
+                    fontSize: CONFIG.name.fontSize,
+                    color: nameColor,
+                    lineHeight: CONFIG.name.lineHeight,
+                    fontFamily: uiConfigStore.characterNameFont,
+                  }}
+                >
+                  {character.name}
+                </Typography>
 
-              <Typography
-                variant="body2"
-                sx={{
-                  fontSize: CONFIG.description.fontSize,
-                  lineHeight: CONFIG.description.lineHeight,
-                  color: THEME_COLORS.text.tertiary,
-                  fontFamily: uiConfigStore.characterAbilityFont,
-                }}
-                dangerouslySetInnerHTML={{
-                  __html: highlightAbilityText(character.ability, configStore.language),
-                }}
-              />
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontSize: CONFIG.description.fontSize,
+                    lineHeight: CONFIG.description.lineHeight,
+                    color: THEME_COLORS.text.tertiary,
+                    fontFamily: uiConfigStore.characterAbilityFont,
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: highlightAbilityText(character.ability, configStore.language),
+                  }}
+                />
 
-              {/* Jinx rules - below description text, left-aligned */}
-              {jinxInfo && (() => {
+                {/* Jinx rules - below description text, left-aligned */}
+                {jinxInfo && (() => {
                 // Filter out jinx rules with display set to false, and apply single-side hiding
                 const visibleJinxEntries = Object.entries(jinxInfo).filter(([targetName, jinxData]) => {
                   if (jinxData.display === false) return false;
@@ -378,8 +442,8 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                   return true;
                 });
                 return visibleJinxEntries.length > 0 && (
-                  // Two-page mode: show only djinn icon and jinx character icons in a row
-                  uiConfigStore.config.enableTwoPageMode ? (
+                  // Two-page mode or compact: show only djinn icon and jinx character icons in a row
+                  (uiConfigStore.config.enableTwoPageMode || compact) ? (
                     <Box sx={{
                       display: 'flex',
                       alignItems: 'center',
@@ -474,6 +538,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                 );
               })()}
             </Box>
+            )}
           </Box>
         </Paper>
       </Box>

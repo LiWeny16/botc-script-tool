@@ -34,9 +34,11 @@ interface CharacterSectionProps {
   onReplaceCharacter?: (character: Character, position: { x: number; y: number }) => void;  // 更换角色
   disableDrag?: boolean;  // 是否禁用拖拽功能
   readOnly?: boolean;
+  compact?: boolean;
 }
 
-const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, disableDrag = false, readOnly = false }: CharacterSectionProps) => {
+const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, disableDrag = false, readOnly = false, compact = false }: CharacterSectionProps) => {
+  const COMPACT_SCALE = compact ? 0.47 : 1;
   const { t } = useTranslation();
   const isChinese = configStore.language === 'cn';
 
@@ -135,8 +137,8 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
             fontFamily: uiConfigStore.teamDividerFont,
             fontWeight: 'bold',
             fontSize: isChinese
-              ? { xs: '1rem', sm: '1.1rem', md: '1.4rem' }
-              : { xs: '1.1rem', sm: '1.2rem', md: '1.6rem' },
+              ? { xs: `${1 * COMPACT_SCALE}rem`, sm: `${1.1 * COMPACT_SCALE}rem`, md: `${1.4 * COMPACT_SCALE}rem` }
+              : { xs: `${1.1 * COMPACT_SCALE}rem`, sm: `${1.2 * COMPACT_SCALE}rem`, md: `${1.6 * COMPACT_SCALE}rem` },
           }}
         >
           {!isStandardTeam || team === 'fabled' || team === 'loric' || team === 'traveler' ? (
@@ -162,7 +164,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
       </Box>
 
       {/* 角色卡片 - 两列布局 + 拖拽排序 */}
-      <Box sx={{ px: 2 }}>
+      <Box sx={{ px: compact ? 0.2 : 2 }}>
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -184,7 +186,7 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                 >
                   <Box
                     sx={{
-                      width: { xs: '100%', sm: '50%' },
+                      width: { xs: '100%', sm: compact ? '100%' : '50%' },
                       display: 'flex',
                     }}
                   >
@@ -197,11 +199,38 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                       onDelete={onDeleteCharacter}
                       onReplace={onReplaceCharacter}
                       readOnly={readOnly}
+                      compact={compact}
                     />
                   </Box>
                 </Box>
+              ) : compact ? (
+                /* 紧凑模式：CSS Grid 5列，同阵营按能力长度排序让相近高度卡片同行 */
+                <Box
+                  sx={{
+                    display: 'grid',
+                    gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(5, 1fr)' },
+                    gap: 0.15,
+                    alignItems: 'start',
+                  }}
+                >
+                  {characters.map((character) => (
+                    <Box key={character.id} sx={{ display: 'flex', minWidth: 0 }}>
+                      <CharacterCard
+                        character={character}
+                        jinxInfo={script.jinx[character.name]}
+                        allCharacters={script.all}
+                        onUpdate={onUpdateCharacter}
+                        onEdit={onEditCharacter}
+                        onDelete={onDeleteCharacter}
+                        onReplace={onReplaceCharacter}
+                        readOnly={readOnly}
+                        compact={compact}
+                      />
+                    </Box>
+                  ))}
+                </Box>
               ) : (
-                /* 多个角色时使用两列布局 */
+                /* 普通模式：两列布局 */
                 <Box
                   sx={{
                     display: 'flex',
@@ -209,7 +238,6 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                     flexDirection: { xs: 'column', sm: 'row' },
                   }}
                 >
-                  {/* 左列 - 前半部分角色 */}
                   <Box
                     sx={{
                       flex: 1,
@@ -242,8 +270,6 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                         </Box>
                       ))}
                   </Box>
-
-                  {/* 右列 - 后半部分角色 */}
                   <Box
                     sx={{
                       flex: 1,

@@ -3,10 +3,13 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/', // Absolute paths so assets load from language subdirectories
+  base: '/',
   plugins: [
     react(),
   ],
+  server: {
+    port: 5173,
+  },
   build: {
     outDir: 'docs', // 打包输出目录改为 docs（适合 GitHub Pages）
     // 其他优化选项

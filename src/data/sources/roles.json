@@ -1393,7 +1393,7 @@
       "Seen Traveller"
     ],
     "setup": true,
-    "ability": "Each night, you learn 1 player of each character type, until there are no more types to learn. [+1 Outsider]"
+    "ability": "Each night, you learn a player of a different character type than last night. [+0 or +1 Outsider]"
   },
   {
     "id": "cultleader",
@@ -1505,7 +1505,7 @@
     "edition": "",
     "team": "townsfolk",
     "firstNight": 3,
-    "firstNightReminder": "Show the Alchemist a not-in-play Minion token",
+    "firstNightReminder": "Show the Alchemist a Minion token",
     "otherNight": 0,
     "otherNightReminder": "",
     "reminders": [],
@@ -1513,7 +1513,7 @@
       "Is the Alchemist"
     ],
     "setup": false,
-    "ability": "You have a not-in-play Minion ability."
+    "ability": "You have a Minion ability."
   },
   {
     "id": "farmer",
@@ -1847,7 +1847,7 @@
     "firstNight": 0,
     "firstNightReminder": "",
     "otherNight": 33,
-    "otherNightReminder": "The Al-Hadikhia chooses 3 players. Announce the first player, wake them to nod yes to live or shake head no to die, kill or resurrect accordingly, then put to sleep and announce the next player. If all 3 are alive after this, all 3 die.",
+    "otherNightReminder": "The Al-Hadikhia may chooses 3 players. Announce the first player, wake them to nod yes to live or shake head no to die, kill or resurrect accordingly, then put to sleep and announce the next player. If all 3 are alive after this, all 3 die.",
     "reminders": [
       "1",
       "2",

@@ -22,22 +22,26 @@ interface NightOrderProps {
   title: string;
   actions: NightAction[];
   isMobile?: boolean;
-  disabled?: boolean; // 是否禁用拖拽
+  disabled?: boolean;
   onReorder?: (oldIndex: number, newIndex: number) => void;
+  compact?: boolean;
 }
 
-// 可拖拽的行动项组件
-function SortableActionItem({ 
-  action, 
-  index, 
+function SortableActionItem({
+  action,
+  index,
   isMobile,
   disabled = false,
-}: { 
-  action: NightAction; 
-  index: number; 
+  compact = false,
+}: {
+  action: NightAction;
+  index: number;
   isMobile: boolean;
   disabled?: boolean;
+  compact?: boolean;
 }) {
+  const COMPACT_SCALE = compact ? 0.65 : 1;
+
   const {
     attributes,
     listeners,
@@ -47,10 +51,9 @@ function SortableActionItem({
     isDragging,
   } = useSortable({ id: action.image + index, disabled });
 
-  // 根据 isMobile 决定是否允许横向移动
   const restrictedTransform = transform ? {
     ...transform,
-    x: isMobile ? transform.x : 0, // 移动端允许横向移动，桌面端禁用
+    x: isMobile ? transform.x : 0,
   } : null;
 
   const style = {
@@ -64,13 +67,13 @@ function SortableActionItem({
       ref={setNodeRef}
       style={style}
       {...attributes}
-      {...(!disabled ? listeners : {})} // 禁用时不传递 listeners
+      {...(!disabled ? listeners : {})}
       sx={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        cursor: disabled ? 'default' : 'grab', // 禁用时使用默认鼠标样式
-        touchAction: disabled ? 'auto' : 'pan-y', // 禁用时恢复正常触摸行为
+        cursor: disabled ? 'default' : 'grab',
+        touchAction: disabled ? 'auto' : 'pan-y',
         '&:active': {
           cursor: disabled ? 'default' : 'grabbing',
         },
@@ -80,8 +83,8 @@ function SortableActionItem({
         src={action.image}
         alt={action.image.split('/').pop()?.replace(/\.[^.]*$/, '') || `Night order character`}
         sx={{
-          width: { xs: 35, sm: 38, md: 52 },
-          height: { xs: 35, sm: 38, md: 52 },
+          width: { xs: 35 * COMPACT_SCALE, sm: 38 * COMPACT_SCALE, md: 52 * COMPACT_SCALE },
+          height: { xs: 35 * COMPACT_SCALE, sm: 38 * COMPACT_SCALE, md: 52 * COMPACT_SCALE },
           transition: 'all 0.2s',
           '&:hover': {
             backgroundColor: 'rgba(255, 255, 255, 0.15)',
@@ -93,7 +96,8 @@ function SortableActionItem({
   );
 }
 
-export default function NightOrder({ title, actions, isMobile = false, disabled = false, onReorder }: NightOrderProps) {
+export default function NightOrder({ title, actions, isMobile = false, disabled = false, onReorder, compact = false }: NightOrderProps) {
+  const COMPACT_SCALE = compact ? 0.65 : 1;
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -115,11 +119,13 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
     }
   };
 
+  const compactTitleChar = title.charAt(0);
+
   return (
     <Paper
       elevation={0}
       sx={{
-        p: { xs: 1.5, sm: 0, md: 0 },
+        p: { xs: 1.5, sm: compact ? 0 : 0, md: 0 },
         backgroundColor: isMobile ? THEME_COLORS.nightOrder.background : 'transparent',
         color: isMobile ? '#fefefe' : '#fefefe',
         borderRadius: 1.5,
@@ -130,40 +136,58 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
       }}
     >
       {/* 标题 */}
-      <Typography
-        variant="h4"
-        sx={{
-          textAlign: 'center',
-          fontWeight: 'bold',
-          fontFamily: 'jicao, Dumbledor, serif',
-          fontSize: { xs: '1rem', sm: '1.1rem', md: '1.5rem' },
-          mb: isMobile ? 1 : 1.5,
-          mt: 0.5,
-          color: isMobile ? '#fefefe' : 'inherit',
-        }}
-      >
-        {isMobile ? (
-          // 移动端横向显示
-          title
-        ) : (
-          // 桌面端竖向显示
-          title.split('').map((char, index) => (
-            <Box
-              key={index}
-              component="span"
-              sx={{
-                display: 'block',
-                lineHeight: char === '晚' ? 1.3 : 1,
-                mt: char === '晚' ? 0.3 : 0,
-                // 保留空格的高度,让空格在竖向排列时也能显示
-                minHeight: char === ' ' ? '0.5em' : 'auto',
-              }}
-            >
-              {char === ' ' ? '\u00A0' : char}
-            </Box>
-          ))
-        )}
-      </Typography>
+      {compact && !isMobile ? (
+        <Box sx={{ textAlign: 'center', mt: 0.5, mb: 0.3 }}>
+          <Box sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 28 * COMPACT_SCALE,
+            height: 28 * COMPACT_SCALE,
+            borderRadius: '50%',
+            border: '1.5px solid',
+            borderColor: '#fefefe',
+            color: '#fefefe',
+            fontSize: `${0.85 * COMPACT_SCALE}rem`,
+            fontWeight: 'bold',
+            fontFamily: 'jicao, Dumbledor, serif',
+          }}>
+            {compactTitleChar}
+          </Box>
+        </Box>
+      ) : (
+        <Typography
+          variant="h4"
+          sx={{
+            textAlign: 'center',
+            fontWeight: 'bold',
+            fontFamily: 'jicao, Dumbledor, serif',
+            fontSize: { xs: `${1 * COMPACT_SCALE}rem`, sm: `${1.1 * COMPACT_SCALE}rem`, md: `${1.5 * COMPACT_SCALE}rem` },
+            mb: isMobile ? 1 : 1.5,
+            mt: 0.5,
+            color: isMobile ? '#fefefe' : 'inherit',
+          }}
+        >
+          {isMobile ? (
+            title
+          ) : (
+            title.split('').map((char, index) => (
+              <Box
+                key={index}
+                component="span"
+                sx={{
+                  display: 'block',
+                  lineHeight: char === '晚' ? 1.3 : 1,
+                  mt: char === '晚' ? 0.3 : 0,
+                  minHeight: char === ' ' ? '0.5em' : 'auto',
+                }}
+              >
+                {char === ' ' ? ' ' : char}
+              </Box>
+            ))
+          )}
+        </Typography>
+      )}
 
       {/* 行动图标列表 */}
       <DndContext
@@ -177,13 +201,14 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
         >
           <Box
             sx={{
-              flex: 1,
+              flex: compact ? '0 0 auto' : 1,
               display: 'flex',
               flexDirection: isMobile ? 'row' : 'column',
               flexWrap: isMobile ? 'wrap' : 'nowrap',
               overflowY: 'auto',
               overscrollBehavior: 'contain',
-              justifyContent: isMobile ? 'center' : 'flex-start',
+              justifyContent: (isMobile || compact) ? 'center' : 'flex-start',
+              alignItems: compact ? 'center' : 'stretch',
               alignContent: isMobile ? 'flex-start' : 'stretch',
               gap: isMobile ? 0.5 : 0,
               '&::-webkit-scrollbar': {
@@ -202,6 +227,7 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
                 index={index}
                 isMobile={isMobile}
                 disabled={disabled}
+                compact={compact}
               />
             ))}
           </Box>

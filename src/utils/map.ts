@@ -23,7 +23,12 @@ const baseTranslations = {
     // 主页面
     'app.title': '血染钟楼剧本生成器',
     'app.scriptRepository': '剧本仓库',
+    'app.allCharacters': '全员谜语人 · Oops! All Amnesiacs',
     'app.emptyState': '请在上方输入剧本 JSON 并点击"生成剧本"按钮',
+    'allChars.title': '全员谜语人 · Oops! All Amnesiacs',
+    'allChars.subtitle': '213个血染钟楼官方角色总览',
+    'allChars.description': '特殊玩法：全员谜语人。说书人从此参考池中挑选角色构成实际剧本，玩家在游戏中逐步推理自身能力。',
+    'allChars.totalCount': '个角色',
 
     // SEO相关
     'seo.title': '免费血染钟楼剧本工具 — 板子美化器与自定义剧本生成器',
@@ -510,7 +515,12 @@ const baseTranslations = {
     // Main Page
     'app.title': 'Blood on the Clocktower Script Generator',
     'app.scriptRepository': 'Script Repo',
+    'app.allCharacters': 'Oops! All Amnesiacs',
     'app.emptyState': 'Please enter script JSON above and click "Generate Script" button',
+    'allChars.title': 'Oops! All Amnesiacs',
+    'allChars.subtitle': '213 official Blood on the Clocktower characters',
+    'allChars.description': 'Everyone is an Amnesiac. The Storyteller picks characters from this reference pool to build the real script, and players deduce their own abilities during play.',
+    'allChars.totalCount': 'characters',
 
     // SEO Related
     'seo.title': 'Free BOTC Script Tool — Blood on the Clocktower Layout Beautifier & Script Generator',
@@ -997,7 +1007,11 @@ const spanishTranslations: Partial<Record<TranslationKey, string>> = {
   // Main page
   'app.title': 'Generador de guiones de Blood on the Clocktower',
   'app.scriptRepository': 'Repositorio de guiones',
+  'app.allCharacters': 'Todos los Personajes',
   'app.emptyState': 'Introduce el JSON del guion y pulsa «Generar guion»',
+  'allChars.title': 'Todos los Personajes Oficiales',
+  'allChars.subtitle': '213 personajes oficiales de Blood on the Clocktower',
+  'allChars.totalCount': 'personajes',
 
   // SEO
   'seo.title': 'Herramienta BOTC gratuita — Generador y maquetador de guiones Blood on the Clocktower',

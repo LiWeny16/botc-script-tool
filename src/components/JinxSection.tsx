@@ -10,6 +10,7 @@ import { useTranslation } from '../utils/i18n';
 import { scriptStore } from '../stores/ScriptStore';
 interface JinxSectionProps {
     script: Script;
+    compact?: boolean;
 }
 
 // 用于去重的相克规则接口
@@ -19,7 +20,8 @@ interface UniqueJinx {
     jinxInfo: JinxInfo;  // 相克信息对象
 }
 
-const JinxSection = observer(({ script }: JinxSectionProps) => {
+const JinxSection = observer(({ script, compact = false }: JinxSectionProps) => {
+    const COMPACT_SCALE = compact ? 0.47 : 1;
     const { t, language } = useTranslation();
     const config = uiConfigStore.config.characterCard;
     const [hoveredJinxKey, setHoveredJinxKey] = useState<string | null>(null);
@@ -63,7 +65,12 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
         return jinxes;
     };
 
-    const uniqueJinxes = getUniqueJinxes();
+    const uniqueJinxes = getUniqueJinxes().sort((a, b) => {
+        // 同一角色的相克排在一起
+        const nameCmp = a.characterA.name.localeCompare(b.characterA.name);
+        if (nameCmp !== 0) return nameCmp;
+        return a.characterB.name.localeCompare(b.characterB.name);
+    });
 
     const handleDeleteJinx = (jinx: UniqueJinx) => {
         // 只有自定义相克才可以删除
@@ -91,9 +98,9 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                     src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
                     alt="Jinx Icon"
                     sx={{
-                        width: { xs: 30, sm: 35, md: 75 },
-                        height: { xs: 30, sm: 35, md: 75 },
-                        mr: 2,
+                        width: { xs: 30 * COMPACT_SCALE, sm: 35 * COMPACT_SCALE, md: 75 * COMPACT_SCALE },
+                        height: { xs: 30 * COMPACT_SCALE, sm: 35 * COMPACT_SCALE, md: 75 * COMPACT_SCALE },
+                        mr: 2 * COMPACT_SCALE,
                         flexShrink: 0,
                         userDrag: 'none',
                         WebkitUserDrag: 'none',
@@ -107,7 +114,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                         fontWeight: 'bold',
                         color: THEME_COLORS.paper.primary,
                         textAlign: 'center',
-                        fontSize: { xs: '1.2rem', sm: '1.4rem', md: '1.6rem' },
+                        fontSize: { xs: `${1.2 * COMPACT_SCALE}rem`, sm: `${1.4 * COMPACT_SCALE}rem`, md: `${1.6 * COMPACT_SCALE}rem` },
                     }}
                 >
                     {t('jinx.title')}
@@ -122,11 +129,20 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                 />
             </Box>
 
-            {/* 相克规则列表 */}
+            {/* 相克规则列表：紧凑模式竖排3列（CSS columns 报纸式竖排） */}
             <Box sx={{
                 display: 'flex',
                 flexDirection: 'column',
-                gap: 2,
+                gap: 2 * COMPACT_SCALE,
+                ...(compact ? {
+                    display: 'block',
+                    columnCount: { xs: 2, sm: 4 },
+                    columnGap: '0.3rem',
+                    '& > *': {
+                        breakInside: 'avoid',
+                        marginBottom: '0.3rem',
+                    },
+                } : {}),
             }}>
                 {uniqueJinxes.map((jinx, index) => {
                     const jinxKey = `${jinx.characterA.id}-${jinx.characterB.id}-${index}`;
@@ -140,7 +156,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                                 position: 'relative',
                                 display: 'flex',
                                 alignItems: 'center',
-                                p: 0.3,
+                                p: 0.3 * COMPACT_SCALE,
                                 backgroundColor: 'rgba(237, 228, 213, 0.6)',
                                 borderRadius: 2,
                                 border: '1px solid rgba(0, 0, 0, 0.1)',
@@ -174,8 +190,8 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                                 src={jinx.characterA.image}
                                 alt={jinx.characterA.name}
                                 sx={{
-                                    width: { xs: 40, sm: 45, md: 60 },
-                                    height: { xs: 40, sm: 45, md: 60 },
+                                    width: { xs: 40 * COMPACT_SCALE, sm: 45 * COMPACT_SCALE, md: 60 * COMPACT_SCALE },
+                                    height: { xs: 40 * COMPACT_SCALE, sm: 45 * COMPACT_SCALE, md: 60 * COMPACT_SCALE },
                                     borderRadius: 1,
                                     flexShrink: 0,
                                     userDrag: 'none',
@@ -189,8 +205,8 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                                 src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
                                 alt="Jinx Icon"
                                 sx={{
-                                    width: { xs: 30, sm: 35, md: 45 },
-                                    height: { xs: 30, sm: 35, md: 45 },
+                                    width: { xs: 30 * COMPACT_SCALE, sm: 35 * COMPACT_SCALE, md: 45 * COMPACT_SCALE },
+                                    height: { xs: 30 * COMPACT_SCALE, sm: 35 * COMPACT_SCALE, md: 45 * COMPACT_SCALE },
                                     borderRadius: 0.5,
                                     flexShrink: 0,
                                     userDrag: 'none',
@@ -204,8 +220,8 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                                 src={jinx.characterB.image}
                                 alt={jinx.characterB.name}
                                 sx={{
-                                    width: { xs: 40, sm: 45, md: 60 },
-                                    height: { xs: 40, sm: 45, md: 60 },
+                                    width: { xs: 40 * COMPACT_SCALE, sm: 45 * COMPACT_SCALE, md: 60 * COMPACT_SCALE },
+                                    height: { xs: 40 * COMPACT_SCALE, sm: 45 * COMPACT_SCALE, md: 60 * COMPACT_SCALE },
                                     borderRadius: 1,
                                     flexShrink: 0,
                                     userDrag: 'none',
@@ -220,7 +236,7 @@ const JinxSection = observer(({ script }: JinxSectionProps) => {
                                     variant="body2"
                                     sx={{
                                         fontFamily: uiConfigStore.jinxTextFont,
-                                        fontSize: { xs: '0.85rem', sm: '0.9rem', md: '1.14rem' },
+                                        fontSize: { xs: `${0.85 * COMPACT_SCALE}rem`, sm: `${0.9 * COMPACT_SCALE}rem`, md: `${1.14 * COMPACT_SCALE}rem` },
                                         lineHeight: 1.6,
                                         color: THEME_COLORS.text.primary,
                                         fontStyle: 'italic',

@@ -620,6 +620,8 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
           >
             {t('app.scriptRepository')}
           </Button>
+
+
         </Stack>
       </Box>
 
