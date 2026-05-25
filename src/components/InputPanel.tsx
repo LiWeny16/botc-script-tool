@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import {
   Upload,
   Download,
@@ -601,6 +602,24 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
             }}
           >
             {t('repo.aboutAndThanks')}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<AutoAwesomeIcon />}
+            onClick={() => navigate('/image-gen')}
+            sx={{
+              width: { xs: '100%', sm: 'auto' },
+              boxSizing: 'border-box',
+              whiteSpace: { xs: 'normal', sm: 'nowrap' },
+              borderColor: '#9c27b0',
+              color: '#9c27b0',
+              '&:hover': {
+                borderColor: '#7b1fa2',
+                backgroundColor: 'rgba(156, 39, 176, 0.08)',
+              },
+            }}
+          >
+            {t('imageGen.nav.imageGen')}
           </Button>
           <Button
             variant="outlined"

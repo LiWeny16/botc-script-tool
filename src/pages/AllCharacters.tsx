@@ -4,6 +4,7 @@ import {
   Box,
   Typography,
   IconButton,
+  Button,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -15,6 +16,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import PrintIcon from '@mui/icons-material/Print';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { observer } from 'mobx-react-lite';
 import { buildAllCharactersScript } from '../utils/allCharactersScript';
 import ScriptRenderer from '../components/ScriptRenderer';
@@ -153,6 +155,22 @@ const AllCharacters = observer(() => {
             <PrintIcon />
           </IconButton>
           <LanguageSwitcher />
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<AutoAwesomeIcon />}
+            onClick={() => navigate('/image-gen')}
+            sx={{
+              borderColor: '#9c27b0',
+              color: '#9c27b0',
+              '&:hover': {
+                borderColor: '#7b1fa2',
+                backgroundColor: 'rgba(156, 39, 176, 0.08)',
+              },
+            }}
+          >
+            {t('imageGen.nav.imageGen')}
+          </Button>
         </Box>
 
         {/* Summary list */}

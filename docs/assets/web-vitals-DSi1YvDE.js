@@ -1,0 +1,1 @@
+import{a as e,c as t,i as n,l as r,n as i,o as a,r as o,s,t as c,u as l}from"./vendor-B6B5UtVQ.js";export{o as CLSThresholds,l as FCPThresholds,i as INPThresholds,e as LCPThresholds,n as TTFBThresholds,t as onCLS,s as onFCP,a as onINP,r as onLCP,c as onTTFB};

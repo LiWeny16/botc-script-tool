@@ -1,0 +1,58 @@
+/* React Flow 必须占满父容器，否则画布高度为 0、点阵与节点均不可见 */
+.image-gen-flow-root {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+.image-gen-flow-root .react-flow {
+  width: 100%;
+  height: 100%;
+}
+
+.image-gen-flow-root .react-flow__background {
+  z-index: 0;
+}
+
+.image-gen-flow-root .react-flow__viewport {
+  z-index: 1;
+}
+
+/* 去掉 React Flow 默认节点外框，避免与自定义卡片双层错位 */
+.image-gen-flow-root .react-flow__node {
+  border: none !important;
+  background: transparent !important;
+  padding: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.image-gen-flow-root .react-flow__node.selected {
+  box-shadow: none !important;
+}
+
+/* 连接点：更大视觉 + 扩大点击热区 */
+.image-gen-flow-root .image-gen-flow-handle {
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  z-index: 10;
+}
+
+.image-gen-flow-root .image-gen-flow-handle::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: all;
+}
+
+.image-gen-flow-root .react-flow__selection {
+  background: rgba(156, 39, 176, 0.08);
+  border: 1px dashed #9c27b0;
+}

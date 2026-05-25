@@ -10,6 +10,12 @@ export default defineConfig({
   server: {
     port: 5173,
   },
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
+  optimizeDeps: {
+    include: ['@xyflow/react'],
+  },
   build: {
     outDir: 'docs', // 打包输出目录改为 docs（适合 GitHub Pages）
     // 其他优化选项

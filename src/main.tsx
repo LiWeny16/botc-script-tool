@@ -12,6 +12,7 @@ import ScriptRepository from './pages/ScriptRepository.tsx'
 import ScriptPreview from './pages/ScriptPreview.tsx'
 import Changelog from './pages/Changelog.tsx'
 import AllCharacters from './pages/AllCharacters.tsx'
+import ImageGen from './pages/ImageGen.tsx'
 // import NewPreview from './pages/NewPreview.tsx'
 import { I18nProvider } from './utils/i18n.tsx'
 import { initAnalytics, initWebVitals } from './utils/analytics'
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/repo/:scriptName" element={<ScriptPreview />} />
           <Route path="/changelog" element={<Changelog />} />
           <Route path="/all-characters" element={<AllCharacters />} />
+          <Route path="/image-gen" element={<ImageGen />} />
           {/* <Route path="/new-preview" element={<NewPreview />} /> */}
           {/* <Route path="/new-preview/:scriptName" element={<NewPreview />} /> */}
         </Routes>

@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { observer } from 'mobx-react-lite';
 import { searchScripts, type ScriptData } from '../data/utils/scriptRepository';
 import { THEME_COLORS } from '../theme/colors';
@@ -130,7 +131,25 @@ const ScriptRepository = observer(() => {
           >
             {t('repo.backToGenerator')}
           </Button>
-          <LanguageSwitcher />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<AutoAwesomeIcon />}
+              onClick={() => navigate('/image-gen')}
+              sx={{
+                borderColor: '#9c27b0',
+                color: '#9c27b0',
+                '&:hover': {
+                  borderColor: '#7b1fa2',
+                  backgroundColor: 'rgba(156, 39, 176, 0.08)',
+                },
+              }}
+            >
+              {t('imageGen.nav.imageGen')}
+            </Button>
+            <LanguageSwitcher />
+          </Box>
         </Box>
 
         {/* Title */}
