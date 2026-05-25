@@ -11,13 +11,20 @@ export interface CustomFont {
 
 export interface UIConfig {
   // Night Order background
-  nightOrderBackground: 'purple' | 'yellow' | 'green';
+  nightOrderBackground: 'purple' | 'yellow' | 'green' | 'pink';
   nightOrderBackgroundMode: 'official' | 'custom';
   customNightOrderBackground: string; // base64
 
   // Main background
+  mainBackground: 'classic' | 'v2' | 'pink';
   mainBackgroundMode: 'official' | 'custom';
   customMainBackground: string; // base64
+
+  // Theme (overrides individual settings)
+  theme: 'none' | 'sakura';
+
+  // Corner flower decoration
+  cornerFlower: 'default' | 'cherry-blossom';
 
   // Two-page mode
   enableTwoPageMode: boolean;
@@ -113,12 +120,15 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   nightOrderBackgroundMode: 'official',
   customNightOrderBackground: '',
 
+  mainBackground: 'classic',
   mainBackgroundMode: 'official',
   customMainBackground: '',
 
+  theme: 'none',
+  cornerFlower: 'default',
   enableTwoPageMode: false,
 
-  titleHeightMd: 180,
+  titleHeightMd: 100,
 
   titleFontSize: {
     xs: '1.2rem',
@@ -416,6 +426,10 @@ class UIConfigStore {
 
   // Getters
   get nightOrderBackgroundUrl() {
+    // Theme override
+    if (this.config.theme === 'sakura') {
+      return '/imgs/images/night_order/order_back_pink.jpg';
+    }
     // If custom mode with custom background, use custom background
     if (this.config.nightOrderBackgroundMode === 'custom' && this.config.customNightOrderBackground) {
       return this.config.customNightOrderBackground;
@@ -424,24 +438,62 @@ class UIConfigStore {
     // Otherwise use official background
     switch (this.config.nightOrderBackground) {
       case 'purple':
-        return '/imgs/images/night_order/order_back_purple.png';
+        return '/imgs/images/night_order/order_back_purple.jpg';
       case 'yellow':
         return '/imgs/images/night_order/order_back_yellow2.jpg';
       case 'green':
         return '/imgs/images/night_order/order_back_green.jpg';
+      case 'pink':
+        return '/imgs/images/night_order/order_back_pink.jpg';
       default:
         return '/imgs/images/night_order/order_back_green.jpg';
     }
   }
 
   get mainBackgroundUrl() {
+    // Theme override
+    if (this.config.theme === 'sakura') {
+      return '/imgs/images/background/back_pink.jpg';
+    }
     // If custom mode with custom background, use custom background
     if (this.config.mainBackgroundMode === 'custom' && this.config.customMainBackground) {
       return this.config.customMainBackground;
     }
-    
+
     // Otherwise use official background
-    return '/imgs/images/sources/main_back.jpg';
+    switch (this.config.mainBackground) {
+      case 'v2':
+        return '/imgs/images/background/back_v2.jpg';
+      case 'pink':
+        return '/imgs/images/background/back_pink.jpg';
+      case 'classic':
+      default:
+        return '/imgs/images/background/back_classic.jpg';
+    }
+  }
+
+  get cornerFlowers(): { bl: string; br: string; tr: string; tl: string } | null {
+    // Theme override
+    if (this.config.theme === 'sakura') {
+      return {
+        bl: '/imgs/images/sources/flowers/cherry-blossom3.png',
+        br: '/imgs/images/sources/flowers/cherry-blossom3.png',
+        tr: '/imgs/images/sources/flowers/cherry-blossom2.png',
+        tl: '/imgs/images/sources/flowers/cherry-blossom3.png',
+      };
+    }
+    switch (this.config.cornerFlower) {
+      case 'cherry-blossom':
+        return {
+          bl: '/imgs/images/sources/flowers/cherry-blossom3.png',
+          br: '/imgs/images/sources/flowers/cherry-blossom3.png',
+          tr: '/imgs/images/sources/flowers/cherry-blossom2.png',
+          tl: '/imgs/images/sources/flowers/cherry-blossom3.png',
+        };
+      case 'default':
+      default:
+        return null;
+    }
   }
 
   get titleHeight() {

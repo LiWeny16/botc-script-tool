@@ -157,7 +157,7 @@ const JinxSection = observer(({ script, compact = false }: JinxSectionProps) => 
                                 display: 'flex',
                                 alignItems: 'center',
                                 p: 0.3 * COMPACT_SCALE,
-                                backgroundColor: 'rgba(237, 228, 213, 0.6)',
+                                backgroundColor: uiConfigStore.config.theme === 'sakura' ? 'rgba(255, 218, 224, 0.5)' : 'rgba(237, 228, 213, 0.6)',
                                 borderRadius: 2,
                                 border: '1px solid rgba(0, 0, 0, 0.1)',
                             }}

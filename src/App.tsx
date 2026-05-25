@@ -471,6 +471,7 @@ const App = observer(() => {
     titleImage?: string;
     titleImageSize?: number;
     useTitleImage: boolean;
+    showTitleFlourish?: boolean;
     author: string;
     playerCount?: string;
   }) => {
@@ -479,6 +480,7 @@ const App = observer(() => {
       titleImage: data.titleImage,
       titleImageSize: data.titleImageSize,
       useTitleImage: data.useTitleImage,
+      showTitleFlourish: data.showTitleFlourish,
       author: data.author,
       playerCount: data.playerCount,
     });
@@ -1085,6 +1087,7 @@ const App = observer(() => {
           titleImage={script?.titleImage}
           titleImageSize={script?.titleImageSize}
           useTitleImage={script?.useTitleImage}
+          showTitleFlourish={script?.showTitleFlourish}
           author={script?.author || ''}
           playerCount={script?.playerCount || ''}
           onClose={handleCloseTitleEdit}

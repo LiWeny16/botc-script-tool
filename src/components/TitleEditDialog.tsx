@@ -24,6 +24,7 @@ interface TitleEditDialogProps {
   titleImage?: string;
   titleImageSize?: number;  // 第一页标题图片大小
   useTitleImage?: boolean;  // 是否使用图片标题
+  showTitleFlourish?: boolean;  // 是否显示标题印花
   author: string;
   playerCount?: string;
   onClose: () => void;
@@ -32,6 +33,7 @@ interface TitleEditDialogProps {
     titleImage?: string;
     titleImageSize?: number;
     useTitleImage: boolean;
+    showTitleFlourish?: boolean;
     author: string;
     playerCount?: string;
   }) => void;
@@ -43,6 +45,7 @@ const TitleEditDialog = ({
   titleImage,
   titleImageSize,
   useTitleImage,
+  showTitleFlourish,
   author,
   playerCount,
   onClose,
@@ -50,6 +53,7 @@ const TitleEditDialog = ({
 }: TitleEditDialogProps) => {
   const { t, language } = useTranslation();
   const [useImage, setUseImage] = useState(useTitleImage !== undefined ? useTitleImage : !!titleImage);
+  const [showFlourish, setShowFlourish] = useState(showTitleFlourish !== undefined ? showTitleFlourish : true);
   const [formData, setFormData] = useState({
     title: title || '',
     titleImage: titleImage || '',
@@ -78,13 +82,14 @@ const TitleEditDialog = ({
       author: author || '',
       playerCount: playerCount || '',
     });
+    setShowFlourish(showTitleFlourish !== undefined ? showTitleFlourish : true);
     setFirstPageImageSize(titleImageSize || 160);
     setFontSizes({
       xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
       sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
       md: parseFloat(uiConfigStore.config.titleFontSize.md),
     });
-  }, [open, title, titleImage, titleImageSize, useTitleImage, author, playerCount]);
+  }, [open, title, titleImage, titleImageSize, useTitleImage, showTitleFlourish, author, playerCount]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -138,6 +143,7 @@ const TitleEditDialog = ({
       titleImage: useImage ? formData.titleImage : (isBase64 ? undefined : formData.titleImage),
       titleImageSize: firstPageImageSize,
       useTitleImage: useImage,  // 保存使用图片的标志
+      showTitleFlourish: showFlourish,
     };
     
     // 保存字体大小到 UIConfigStore
@@ -176,6 +182,19 @@ const TitleEditDialog = ({
             }
             label={t('title.useImage')}
           />
+
+          {/* 标题印花开关 */}
+          {!useImage && (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showFlourish}
+                  onChange={(e) => setShowFlourish(e.target.checked)}
+                />
+              }
+              label={t('title.showFlourish')}
+            />
+          )}
 
           {useImage ? (
             /* 图片上传区域 */
@@ -246,12 +265,21 @@ const TitleEditDialog = ({
             /* 文本标题输入 */
             <TextField
               fullWidth
+              multiline
+              minRows={1}
+              maxRows={6}
               label={t('title.title')}
               value={formData.title}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder={t('input.titlePlaceholder')}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }
+              }}
             />
           )}
 

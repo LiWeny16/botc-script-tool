@@ -340,14 +340,23 @@ const ScriptRenderer = observer(({
                     }}
                 >
                     {/* 装饰花纹（紧凑模式隐藏） */}
-                    {!compact && <>
+                    {!compact && (() => {
+                      const cf = uiConfigStore.cornerFlowers;
+                      const blSrc = cf?.bl || '/imgs/images/sources/flowers/flower3_2.png';
+                      const brSrc = cf?.br || '/imgs/images/sources/flowers/flower4.png';
+                      const trSrc = cf?.tr || '/imgs/images/sources/flowers/flower7.png';
+                      const tlSrc = cf?.tl || '/imgs/images/sources/flowers/flower4_2.png';
+                      const blTransform = cf ? 'scaleX(-1)' : 'none';
+                      const tlTransform = cf ? 'scaleX(-1) scaleY(-1)' : 'rotate(180deg)';
+                      return <>
                     <CharacterImage
-                        src="/imgs/images/sources/flower3_2.png"
+                        src={blSrc}
                         alt="左下角装饰花纹"
                         sx={{
                             position: 'absolute',
                             bottom: 0,
                             left: 0,
+                            transform: blTransform,
                             maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                             opacity: 1,
                             pointerEvents: 'none',
@@ -357,7 +366,7 @@ const ScriptRenderer = observer(({
                         }}
                     />
                     <CharacterImage
-                        src="/imgs/images/sources/flower4.png"
+                        src={brSrc}
                         alt="右下角装饰花纹"
                         sx={{
                             position: 'absolute',
@@ -372,7 +381,7 @@ const ScriptRenderer = observer(({
                         }}
                     />
                     <CharacterImage
-                        src="/imgs/images/sources/flower7.png"
+                        src={trSrc}
                         alt="右上角装饰花纹"
                         sx={{
                             position: 'absolute',
@@ -387,13 +396,13 @@ const ScriptRenderer = observer(({
                         }}
                     />
                     <CharacterImage
-                        src="/imgs/images/sources/flower4_2.png"
+                        src={tlSrc}
                         alt="左上角装饰花纹"
                         sx={{
                             position: 'absolute',
                             top: 0,
                             left: 0,
-                            transform: "rotate(180deg)",
+                            transform: tlTransform,
                             maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                             opacity: 1,
                             pointerEvents: 'none',
@@ -402,7 +411,7 @@ const ScriptRenderer = observer(({
                             WebkitUserDrag: 'none',
                         }}
                     />
-                    </>}
+                    </>})()}
 
                     {/* 美术设计盒子 - 仅在非只读模式下显示 */}
                     {!readOnly && (
@@ -517,11 +526,11 @@ const ScriptRenderer = observer(({
                                     alignItems: { xs: 'center', md: 'unset' },
                                     gap: { xs: 2, md: 0 },
                                     py: { xs: compact ? 0.5 : 2, md: 0 },
-                                    '&::before': compact ? { display: 'none' } : {
+                                    '&::before': (compact || scriptStore.script?.showTitleFlourish === false) ? { display: 'none' } : {
                                         content: '""',
                                         position: 'absolute',
                                         top: '50%',
-                                        left: '50%',
+                                        left: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%',
                                         transform: 'translate(-50%, -50%)',
                                         width: { xs: "80%", md: "48%" },
                                         height: '100%',
@@ -898,9 +907,27 @@ const ScriptRenderer = observer(({
 
                         {/* 背景装饰（紧凑模式隐藏） */}
                         {!compact && <>
+                        {uiConfigStore.config.theme === 'sakura' ? (
+                          <CharacterImage
+                            component="img"
+                            src="/imgs/images/background/back_cherry.jpg"
+                            alt="back_cherry"
+                            sx={{
+                              position: "absolute",
+                              left: "0%",
+                              bottom: "0",
+                              width: "100%",
+                              zIndex: backgroundIndex,
+                              opacity: 0.5,
+                              userSelect: 'none',
+                              WebkitUserDrag: 'none',
+                            }}
+                          />
+                        ) : (
+                          <>
                         <CharacterImage
                             component="img"
-                            src={"/imgs/images/sources/back_tower.png"}
+                            src={"/imgs/images/background/back_tower.png"}
                             alt={"back_tower"}
                             sx={{
                                 position: "absolute",
@@ -916,7 +943,7 @@ const ScriptRenderer = observer(({
                         />
                         <CharacterImage
                             component="img"
-                            src={"/imgs/images/sources/back_tower2.png"}
+                            src={"/imgs/images/background/back_tower2.png"}
                             alt={"back_tower2"}
                             sx={{
                                 position: "absolute",
@@ -930,6 +957,8 @@ const ScriptRenderer = observer(({
                                 WebkitUserDrag: 'none',
                             }}
                         />
+                          </>
+                        )}
                         </>}
 
                         <Box sx={{ height: compact ? "5vh" : "20vh" }}></Box>
@@ -999,13 +1028,23 @@ const ScriptRenderer = observer(({
                         }}
                     >
                         {/* 装饰花纹 */}
+                        {(() => {
+                          const cf = uiConfigStore.cornerFlowers;
+                          const blSrc = cf?.bl || '/imgs/images/sources/flowers/flower3_2.png';
+                          const brSrc = cf?.br || '/imgs/images/sources/flowers/flower4.png';
+                          const trSrc = cf?.tr || '/imgs/images/sources/flowers/flower7.png';
+                          const tlSrc = cf?.tl || '/imgs/images/sources/flowers/flower4_2.png';
+                          const blTransform = cf ? 'scaleX(-1)' : 'none';
+                          const tlTransform = cf ? 'scaleX(-1) scaleY(-1)' : 'rotate(180deg)';
+                          return <>
                         <CharacterImage
-                            src="/imgs/images/sources/flower3_2.png"
+                            src={blSrc}
                             alt="左下角装饰花纹"
                             sx={{
                                 position: 'absolute',
                                 bottom: 0,
                                 left: 0,
+                                transform: blTransform,
                                 maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                 opacity: 1,
                                 pointerEvents: 'none',
@@ -1015,7 +1054,7 @@ const ScriptRenderer = observer(({
                             }}
                         />
                         <CharacterImage
-                            src="/imgs/images/sources/flower4.png"
+                            src={brSrc}
                             alt="右下角装饰花纹"
                             sx={{
                                 position: 'absolute',
@@ -1030,7 +1069,7 @@ const ScriptRenderer = observer(({
                             }}
                         />
                         <CharacterImage
-                            src="/imgs/images/sources/flower7.png"
+                            src={trSrc}
                             alt="右上角装饰花纹"
                             sx={{
                                 position: 'absolute',
@@ -1045,13 +1084,13 @@ const ScriptRenderer = observer(({
                             }}
                         />
                         <CharacterImage
-                            src="/imgs/images/sources/flower4_2.png"
+                            src={tlSrc}
                             alt="左上角装饰花纹"
                             sx={{
                                 position: 'absolute',
                                 top: 0,
                                 left: 0,
-                                transform: "rotate(180deg)",
+                                transform: tlTransform,
                                 maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                 opacity: 1,
                                 pointerEvents: 'none',
@@ -1060,6 +1099,7 @@ const ScriptRenderer = observer(({
                                 WebkitUserDrag: 'none',
                             }}
                         />
+                        </>})()}
 
                         {/* 左侧占位 */}
                         {!isMobile && (
@@ -1139,9 +1179,28 @@ const ScriptRenderer = observer(({
                             </DndContext>
 
                             {/* 背景装饰 - 放在 Paper 容器内，DndContext 外 */}
+                            {uiConfigStore.config.theme === 'sakura' ? (
+                              <CharacterImage
+                                component="img"
+                                src="/imgs/images/background/back_cherry.jpg"
+                                alt="back_cherry"
+                                sx={{
+                                  position: "absolute",
+                                  left: "0%",
+                                  bottom: "0",
+                                  width: "100%",
+                                  zIndex: backgroundIndex,
+                                  opacity: 0.5,
+                                  userSelect: 'none',
+                                  WebkitUserDrag: 'none',
+                                  pointerEvents: 'none',
+                                }}
+                              />
+                            ) : (
+                              <>
                             <CharacterImage
                                 component="img"
-                                src={"/imgs/images/sources/back_tower.png"}
+                                src={"/imgs/images/background/back_tower.png"}
                                 alt={"back_tower"}
                                 sx={{
                                     position: "absolute",
@@ -1158,7 +1217,7 @@ const ScriptRenderer = observer(({
                             />
                             <CharacterImage
                                 component="img"
-                                src={"/imgs/images/sources/back_tower2.png"}
+                                src={"/imgs/images/background/back_tower2.png"}
                                 alt={"back_tower2"}
                                 sx={{
                                     position: "absolute",
@@ -1173,6 +1232,8 @@ const ScriptRenderer = observer(({
                                     pointerEvents: 'none',
                                 }}
                             />
+                              </>
+                            )}
                         </Paper>
 
                         {/* 右侧占位 */}

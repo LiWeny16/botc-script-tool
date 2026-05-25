@@ -270,6 +270,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       script.titleImage = item.titleImage || item.logo;  // Support titleImage or logo field
       script.titleImageSize = item.titleImageSize;  // Parse first page title image size
       script.useTitleImage = item.use_title_image !== false ? !!script.titleImage : false;  // Default based on whether image exists
+      script.showTitleFlourish = item.show_title_flourish;  // Parse flourish visibility
       script.author = item.author || '';
       script.playerCount = item.playerCount;  // Parse player count
 

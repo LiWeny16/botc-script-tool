@@ -51,6 +51,7 @@ class ScriptStore {
       if (script.titleImage) meta.titleImage = script.titleImage;
       if (script.titleImageSize) meta.titleImageSize = script.titleImageSize;
       if (script.useTitleImage !== undefined) meta.use_title_image = script.useTitleImage;
+      if (script.showTitleFlourish !== undefined) meta.show_title_flourish = script.showTitleFlourish;
       if (script.playerCount) meta.playerCount = script.playerCount;
       
       // Second page configuration
@@ -450,6 +451,7 @@ class ScriptStore {
     titleImage?: string;
     titleImageSize?: number;
     useTitleImage?: boolean;
+    showTitleFlourish?: boolean;
     author?: string;
     playerCount?: string;
     secondPageTitleText?: string;
@@ -480,7 +482,11 @@ class ScriptStore {
     if (data.useTitleImage !== undefined) {
       updatedScript.useTitleImage = data.useTitleImage;
     }
-    
+
+    if (data.showTitleFlourish !== undefined) {
+      updatedScript.showTitleFlourish = data.showTitleFlourish;
+    }
+
     if (data.author !== undefined) updatedScript.author = data.author;
     if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
     
@@ -871,6 +877,7 @@ class ScriptStore {
     titleImage?: string;
     titleImageSize?: number;
     useTitleImage?: boolean;
+    showTitleFlourish?: boolean;
     author?: string;
     playerCount?: string;
     secondPageTitleText?: string;
@@ -911,6 +918,9 @@ class ScriptStore {
           }
           if (data.useTitleImage !== undefined) {
             updatedMeta.use_title_image = data.useTitleImage;
+          }
+          if (data.showTitleFlourish !== undefined) {
+            updatedMeta.show_title_flourish = data.showTitleFlourish;
           }
           if (data.author !== undefined) updatedMeta.author = data.author;
           if (data.playerCount !== undefined) {

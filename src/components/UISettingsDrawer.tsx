@@ -254,6 +254,19 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
               </AccordionSummary>
               <AccordionDetails>
                 <Stack spacing={3}>
+                  {/* 主题一键切换 */}
+                  <FormControl component="fieldset" fullWidth>
+                    <FormLabel component="legend">{t('ui.theme')}</FormLabel>
+                    <RadioGroup
+                      row
+                      value={uiConfigStore.config.theme}
+                      onChange={(e) => uiConfigStore.updateConfig({ theme: e.target.value as 'none' | 'sakura' })}
+                    >
+                      <FormControlLabel value="none" control={<Radio size="small" />} label={t('ui.themeNone')} />
+                      <FormControlLabel value="sakura" control={<Radio size="small" />} label={t('ui.themeSakura')} />
+                    </RadioGroup>
+                  </FormControl>
+
                   {/* 提示信息 */}
                   <Box sx={{ 
                     p: 1.5, 
@@ -292,18 +305,19 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                         label={t('ui.backgroundMode.official')} 
                       />
                       
-                      {/* 官方背景的子选项（三种颜色） */}
+                      {/* 官方背景的子选项（四种颜色） */}
                       {uiConfigStore.config.nightOrderBackgroundMode === 'official' && (
                         <Box sx={{ ml: 4, mt: 0.5, mb: 1 }}>
                           <RadioGroup
                             value={uiConfigStore.config.nightOrderBackground}
-                            onChange={(e) => uiConfigStore.updateConfig({ 
-                              nightOrderBackground: e.target.value as 'purple' | 'yellow' | 'green' 
+                            onChange={(e) => uiConfigStore.updateConfig({
+                              nightOrderBackground: e.target.value as 'purple' | 'yellow' | 'green' | 'pink'
                             })}
                           >
                             <FormControlLabel value="purple" control={<Radio size="small" />} label={t('ui.purpleBackground')} />
                             <FormControlLabel value="yellow" control={<Radio size="small" />} label={t('ui.yellowBackground')} />
                             <FormControlLabel value="green" control={<Radio size="small" />} label={t('ui.greenBackground')} />
+                            <FormControlLabel value="pink" control={<Radio size="small" />} label={t('ui.pinkBackground')} />
                           </RadioGroup>
                         </Box>
                       )}
@@ -418,6 +432,22 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                       />
                     </RadioGroup>
 
+                    {/* 官方背景的子选项 */}
+                    {uiConfigStore.config.mainBackgroundMode === 'official' && (
+                      <Box sx={{ ml: 4, mt: 0.5, mb: 1 }}>
+                        <RadioGroup
+                          value={uiConfigStore.config.mainBackground}
+                          onChange={(e) => uiConfigStore.updateConfig({
+                            mainBackground: e.target.value as 'classic' | 'v2' | 'pink'
+                          })}
+                        >
+                          <FormControlLabel value="classic" control={<Radio size="small" />} label={t('ui.mainBackgroundClassic')} />
+                          <FormControlLabel value="v2" control={<Radio size="small" />} label={t('ui.mainBackgroundV2')} />
+                          <FormControlLabel value="pink" control={<Radio size="small" />} label={t('ui.mainBackgroundPink')} />
+                        </RadioGroup>
+                      </Box>
+                    )}
+
                     {/* 自定义背景上传界面 */}
                     {uiConfigStore.config.mainBackgroundMode === 'custom' && (
                       <Box sx={{ mt: 1, ml: 4 }}>
@@ -487,6 +517,18 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                       </Box>
                     )}
                   </Box>
+
+                  {/* 角落装饰花 */}
+                  <FormControl component="fieldset">
+                    <FormLabel component="legend">{t('ui.cornerFlower')}</FormLabel>
+                    <RadioGroup
+                      value={uiConfigStore.config.cornerFlower}
+                      onChange={(e) => uiConfigStore.updateConfig({ cornerFlower: e.target.value as 'default' | 'cherry-blossom' })}
+                    >
+                      <FormControlLabel value="default" control={<Radio size="small" />} label={t('ui.cornerFlowerDefault')} />
+                      <FormControlLabel value="cherry-blossom" control={<Radio size="small" />} label={t('ui.cornerFlowerCherryBlossom')} />
+                    </RadioGroup>
+                  </FormControl>
                 </Stack>
               </AccordionDetails>
             </Accordion>
@@ -528,24 +570,12 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     <Slider
                       value={uiConfigStore.config.titleHeightMd}
                       onChange={(_, value) => uiConfigStore.updateConfig({ titleHeightMd: value as number })}
-                      min={100}
-                      max={300}
+                      min={30}
+                      max={250}
                       valueLabelDisplay="auto"
                     />
                   </Box>
 
-                  {/* Night Order 背景 */}
-                  <FormControl component="fieldset">
-                    <FormLabel component="legend">{t('ui.nightOrderBackground')}</FormLabel>
-                    <RadioGroup
-                      value={uiConfigStore.config.nightOrderBackground}
-                      onChange={(e) => uiConfigStore.updateConfig({ nightOrderBackground: e.target.value as 'purple' | 'yellow' | 'green' })}
-                    >
-                      <FormControlLabel value="purple" control={<Radio size="small" />} label={t('ui.purpleBackground')} />
-                      <FormControlLabel value="yellow" control={<Radio size="small" />} label={t('ui.yellowBackground')} />
-                      <FormControlLabel value="green" control={<Radio size="small" />} label={t('ui.greenBackground')} />
-                    </RadioGroup>
-                  </FormControl>
                 </Stack>
               </AccordionDetails>
             </Accordion>

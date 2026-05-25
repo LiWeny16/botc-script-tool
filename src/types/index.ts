@@ -83,6 +83,7 @@ export interface Script {
   titleImage?: string;  // optional title image URL
   titleImageSize?: number;  // first page title image size
   useTitleImage?: boolean;  // whether to use an image title on the first page
+  showTitleFlourish?: boolean;  // whether to show the decorative pattern behind the title
   author: string;
   playerCount?: string;  // player count range, e.g. "7-15"
   characters: {

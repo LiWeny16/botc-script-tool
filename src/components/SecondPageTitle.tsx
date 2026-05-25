@@ -2,6 +2,7 @@ import { Box, Typography, IconButton } from '@mui/material';
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { useState } from 'react';
 import { uiConfigStore } from '../stores/UIConfigStore';
+import { scriptStore } from '../stores/ScriptStore';
 import CharacterImage from './CharacterImage';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
@@ -64,7 +65,7 @@ export const SecondPageTitle = ({
           gap: { xs: 2, md: 0 },
           py: { xs: 2, md: 0 },
           cursor: readOnly ? 'default' : 'pointer',
-          '&::before': {
+          '&::before': scriptStore.script?.showTitleFlourish === false ? { display: 'none' } : {
             content: '""',
             position: 'absolute',
             top: '50%',
