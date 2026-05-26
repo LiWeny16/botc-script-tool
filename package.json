@@ -27,6 +27,7 @@
     "@supabase/supabase-js": "^2.106.2",
     "@xyflow/react": "^12.10.2",
     "framer-motion": "^12.38.0",
+    "lucide-react": "^1.16.0",
     "mobx": "^6.15.0",
     "mobx-react-lite": "^4.1.1",
     "overlayscrollbars": "^2.12.0",

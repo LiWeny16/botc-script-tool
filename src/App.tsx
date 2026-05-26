@@ -49,6 +49,8 @@ import {
   GlobalStyles,
 } from '@mui/material';
 import { initGlobalShortcuts, cleanupGlobalShortcuts, registerSaveCallback, unregisterSaveCallback, showSaveAlert, alertUseMui } from './utils/event';
+import { saveScript } from './lib/cloudScripts';
+import { authStore } from './stores/AuthStore';
 import { OverlayScrollbars } from 'overlayscrollbars';
 import PrintDialog from './components/AppSub/PrintDialog';
 import UnlockModeDialog from './components/AppSub/UnlockModeDialog';
@@ -263,8 +265,7 @@ const App = observer(() => {
           // Validate JSON format
           JSON.parse(jsonToSave);
 
-          // scriptStore.setOriginalJson has already been called in handleJsonChange
-          // Here we just need to show save success notification
+          // Save to localStorage
           const stored = localStorage.getItem('botc-script-data');
           if (stored) {
             const message = language === 'cn'
@@ -273,6 +274,17 @@ const App = observer(() => {
                 ? `Guardado en almacenamiento local`
                 : `Saved to local storage`;
             showSaveAlert(message, 2500);
+          }
+
+          // Cloud auto-save (if logged in)
+          if (authStore.isLoggedIn) {
+            const title = scriptStore.script?.title || 'Untitled';
+            saveScript(title, jsonToSave).then(result => {
+              if (result.ok) {
+                const msg = language === 'cn' ? '☁ Saved to cloud' : '☁ Saved to cloud';
+                showSaveAlert(msg, 1500);
+              }
+            });
           }
         } catch (error) {
           console.error('JSON format error:', error);

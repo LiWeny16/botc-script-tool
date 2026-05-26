@@ -14,6 +14,7 @@ import {
   DialogContentText,
   DialogActions,
 } from '@mui/material';
+import { Cloud } from 'lucide-react';
 import SettingsIcon from '@mui/icons-material/Settings';
 import InfoIcon from '@mui/icons-material/Info';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
@@ -34,12 +35,15 @@ import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import { useTranslation } from '../utils/i18n';
-import { alertSuccess, alertInfo, alertWarning } from '../utils/alert';
+import { alertSuccess, alertError, alertInfo, alertWarning } from '../utils/alert';
 import { registerFileSyncSaveCallback, unregisterFileSyncSaveCallback } from '../utils/event';
 import { trackUploadJson } from '../utils/analytics';
 import LanguageSwitcher from './LanguageSwitcher';
 import UserMenu from './Auth/UserMenu';
 import LoginDialog from './Auth/LoginDialog';
+import CloudScriptDialog from './CloudScriptDialog';
+import { saveScript } from '../lib/cloudScripts';
+import { authStore } from '../stores/AuthStore';
 import IOSSwitch from './IOSSwitch';
 import UploadJsonDialog from './UploadJsonDialog';
 import FileSyncBanner from './FileSyncBanner';
@@ -69,6 +73,8 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
   const [error, setError] = useState('');
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [cloudDialogOpen, setCloudDialogOpen] = useState(false);
+  const [cloudSaving, setCloudSaving] = useState(false);
   const [textareaHeight, setTextareaHeight] = useState(200); // JSON编辑框高度
   const [isResizing, setIsResizing] = useState(false);
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -457,6 +463,27 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
     setClearDialogOpen(false);
   };
 
+  const handleCloudSave = async () => {
+    if (!authStore.isLoggedIn) {
+      authStore.loginDialogOpen = true;
+      return;
+    }
+    if (!currentJson || !hasScript) return;
+    setCloudSaving(true);
+    const title = titleInput || scriptStore.script?.title || 'Untitled';
+    const result = await saveScript(title, currentJson);
+    setCloudSaving(false);
+    if (result.ok) {
+      alertSuccess(result.id ? 'Saved to cloud' : 'Already saved (no changes)');
+    } else {
+      alertError(result.error || 'Save failed');
+    }
+  };
+
+  const handleCloudLoad = (json: string, _name: string) => {
+    onJsonChange?.(json);
+  };
+
   // 拖动调整大小的处理函数
   const handleResizeStart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -837,6 +864,21 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
           </Button>
 
           <Button
+            variant="outlined"
+            size="large"
+            color="primary"
+            startIcon={<Cloud size={20} strokeWidth={1.8} />}
+            onClick={() => authStore.isLoggedIn ? setCloudDialogOpen(true) : handleCloudSave()}
+            disabled={cloudSaving}
+            sx={{
+              flex: { xs: '1 1 100%', sm: '1 1 auto' },
+              minHeight: 48,
+            }}
+          >
+            {cloudSaving ? 'Saving...' : 'Cloud'}
+          </Button>
+
+          <Button
             variant="contained"
             color="success"
             size="large"
@@ -1076,6 +1118,11 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
         onClose={() => setUploadDialogOpen(false)}
         onSimpleUpload={handleSimpleUpload}
         onFileSyncStart={handleFileSyncStart}
+      />
+      <CloudScriptDialog
+        open={cloudDialogOpen}
+        onClose={() => setCloudDialogOpen(false)}
+        onLoad={handleCloudLoad}
       />
       <LoginDialog />
     </Paper>
