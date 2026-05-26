@@ -28,5 +28,13 @@ dist-ssr
 # Claude Code local config
 .claude/
 
+# Agent skills + MCP
+.agents/
+.mcp.json
+skills-lock.json
+
 # Serverless backend (not open source)
 server/
+
+# Lock files (using pnpm)
+package-lock.json
