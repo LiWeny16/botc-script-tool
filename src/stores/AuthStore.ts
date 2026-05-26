@@ -13,6 +13,31 @@ class AuthStore {
   }
 
   private async init() {
+    // Handle OAuth callback: #access_token hash breaks HashRouter.
+    // Save tokens → reload clean → restore from sessionStorage.
+    const hash = window.location.hash;
+    if (hash?.includes('access_token')) {
+      const p = new URLSearchParams(hash.slice(1));
+      const at = p.get('access_token');
+      const rt = p.get('refresh_token');
+      if (at && rt) {
+        sessionStorage.setItem('sb-oauth-at', at);
+        sessionStorage.setItem('sb-oauth-rt', rt);
+      }
+      window.location.replace(window.location.pathname + '#/');
+      return; // Page reloads
+    }
+
+    // Restore session from OAuth callback tokens
+    const savedAt = sessionStorage.getItem('sb-oauth-at');
+    const savedRt = sessionStorage.getItem('sb-oauth-rt');
+    if (savedAt && savedRt) {
+      sessionStorage.removeItem('sb-oauth-at');
+      sessionStorage.removeItem('sb-oauth-rt');
+      await supabase.auth.setSession({ access_token: savedAt, refresh_token: savedRt });
+    }
+
+    // Normal session check
     const { data: { session } } = await supabase.auth.getSession();
     runInAction(() => {
       this.user = session?.user ?? null;

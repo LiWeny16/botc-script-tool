@@ -16,22 +16,8 @@ import ImageGen from './pages/ImageGen.tsx'
 // import NewPreview from './pages/NewPreview.tsx'
 import { I18nProvider } from './utils/i18n.tsx'
 import { initAnalytics, initWebVitals } from './utils/analytics'
-import { supabase } from './lib/supabase'
-
-// Supabase OAuth lands with #access_token=... — HashRouter can't route it.
-// Manually parse the token params and call setSession before swapping hash.
-(async () => {
-  const hash = window.location.hash;
-  if (hash?.includes('access_token')) {
-    const params = new URLSearchParams(hash.slice(1));
-    const access_token = params.get('access_token');
-    const refresh_token = params.get('refresh_token');
-    if (access_token && refresh_token) {
-      await supabase.auth.setSession({ access_token, refresh_token });
-    }
-    window.location.hash = '#/image-gen';
-  }
-})();
+// Supabase OAuth hash handling is in AuthStore.init()
+// The import of '../lib/supabase' happens via AuthStore, not directly here.
 
 // Register service worker for long-term image caching (icons + background)
 if ('serviceWorker' in navigator) {
