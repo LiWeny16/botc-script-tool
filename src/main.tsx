@@ -16,6 +16,14 @@ import ImageGen from './pages/ImageGen.tsx'
 // import NewPreview from './pages/NewPreview.tsx'
 import { I18nProvider } from './utils/i18n.tsx'
 import { initAnalytics, initWebVitals } from './utils/analytics'
+import { supabase } from './lib/supabase'
+
+// Handle Supabase OAuth callback — HashRouter would eat the #access_token hash
+if (window.location.hash?.includes('access_token')) {
+  supabase.auth.getSession().then(() => {
+    window.location.hash = '#/';
+  });
+}
 
 // Initialize GA4 page view tracking and web vitals
 initAnalytics();
