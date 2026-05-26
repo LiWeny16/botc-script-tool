@@ -4,6 +4,7 @@ import type { User } from '@supabase/supabase-js';
 
 class AuthStore {
   user: User | null = null;
+  token = '';
   loading = true;
   loginDialogOpen = false;
 
@@ -17,6 +18,7 @@ class AuthStore {
     supabase.auth.onAuthStateChange((_event, session) => {
       runInAction(() => {
         this.user = session?.user ?? null;
+        this.token = session?.access_token || '';
         if (!this.user) this.loading = false;
       });
     });

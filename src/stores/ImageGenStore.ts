@@ -9,6 +9,7 @@ import {
   urlToBase64,
   type ImageGenParams,
 } from '../utils/imageGenApi';
+import { authStore } from './AuthStore';
 import type {
   FlowNode,
   FlowEdge,
@@ -33,7 +34,7 @@ import { WORKFLOW_TEMPLATES } from '../data/imageGenWorkflows';
 
 const API_KEY_STORAGE = 'botc-imagegen-api-key';
 const PROXY_URL_STORAGE = 'botc-imagegen-proxy-url';
-const DEFAULT_PROXY_URL = 'https://1321514649-gfzeuwriah.ap-guangzhou.tencentscf.com';
+const DEFAULT_PROXY_URL = 'https://1321514649-6zb88n6mc9.ap-guangzhou.tencentscf.com';
 const PANEL_COLLAPSED_STORAGE = 'botc-imagegen-panel-collapsed';
 const PROJECT_ID_STORAGE = 'botc-imagegen-current-project';
 
@@ -674,7 +675,11 @@ class ImageGenStore {
         }
       }
 
-      const response = await generateImage(this.apiKey, params, signal, this.proxyUrl || undefined);
+      // Send Supabase JWT when logged in (free tier), API key when set, ARK key otherwise
+      const effectiveKey = authStore.isLoggedIn
+        ? (authStore.token || this.apiKey)
+        : this.apiKey;
+      const response = await generateImage(effectiveKey, params, signal, this.proxyUrl || undefined);
       const item = response.data[0];
       const dataUrl = item?.b64_json
         ? `data:image/png;base64,${item.b64_json}`
