@@ -30,10 +30,12 @@ const ShareDialog = ({ open, onClose, script, originalJson, normalizedJson }: Sh
     setCloudSharing(true);
     const json = normalizedJson || originalJson;
     const name = script?.title || 'Untitled Script';
-    const id = await shareScript(name, json);
+    const result = await shareScript(name, json);
     setCloudSharing(false);
-    if (id) {
-      setCloudShareUrl(`${window.location.origin}/#/shared/${id}`);
+    if (result.ok && result.id) {
+      setCloudShareUrl(`${window.location.origin}/#/shared/${result.id}`);
+    } else if (result.error) {
+      import('../utils/alert').then(m => m.alertError(result.error!));
     }
   };
 
