@@ -340,7 +340,13 @@ class ImageGenStore {
   private loadProxyUrl() {
     try {
       const stored = localStorage.getItem(PROXY_URL_STORAGE);
-      this.proxyUrl = stored !== null ? stored : DEFAULT_PROXY_URL;
+      // Always use latest deployed proxy URL (old deployments are deleted)
+      if (stored !== null && stored !== DEFAULT_PROXY_URL) {
+        this.proxyUrl = DEFAULT_PROXY_URL;
+        localStorage.setItem(PROXY_URL_STORAGE, DEFAULT_PROXY_URL);
+      } else {
+        this.proxyUrl = stored !== null ? stored : DEFAULT_PROXY_URL;
+      }
     } catch {
       this.proxyUrl = DEFAULT_PROXY_URL;
     }

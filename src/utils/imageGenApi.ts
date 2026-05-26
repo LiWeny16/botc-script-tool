@@ -44,10 +44,10 @@ export async function generateImage(
 ): Promise<ImageGenResponse> {
   const baseUrl = proxyBaseUrl || 'https://ark.cn-beijing.volces.com/api/v3';
 
-  // Issued key → use /generate endpoint (quota-validated by proxy)
-  const endpoint = (proxyBaseUrl && apiKey.startsWith(ISSUED_KEY_PREFIX))
-    ? `${baseUrl}/generate`
-    : `${baseUrl}/images/generations`;
+  // JWT (ey...) or issued key (sk-...) → use /generate (three-mode proxy)
+  // Otherwise → legacy passthrough
+  const useAuthEndpoint = proxyBaseUrl && (apiKey.startsWith(ISSUED_KEY_PREFIX) || apiKey.startsWith('ey'));
+  const endpoint = useAuthEndpoint ? `${baseUrl}/generate` : `${baseUrl}/images/generations`;
 
   const response = await fetch(endpoint, {
     method: 'POST',
