@@ -1,14 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Box, IconButton, Typography, Tooltip, alpha, Avatar, Button } from '@mui/material';
+import React, { useEffect } from 'react';
+import { Box, IconButton, Typography, Tooltip, alpha } from '@mui/material';
 import { ArrowBack as ArrowBackIcon, Undo as UndoIcon, Redo as RedoIcon } from '@mui/icons-material';
-import { GitHub as GitHubIcon } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import UserMenu from '../components/Auth/UserMenu';
+import LoginDialog from '../components/Auth/LoginDialog';
 import { imageGenStore } from '../stores/ImageGenStore';
-import { supabase, isConfigured } from '../lib/supabase';
-import type { User } from '@supabase/supabase-js';
 import ImageGenSidebar from '../components/ImageGen/ImageGenSidebar';
 import ImageGenCanvas from '../components/ImageGen/ImageGenCanvas';
 import ImageGenInput from '../components/ImageGen/ImageGenInput';
@@ -16,41 +15,6 @@ import ImageGenInput from '../components/ImageGen/ImageGenInput';
 export default observer(function ImageGen() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const location = useLocation();
-  const [user, setUser] = useState<User | null>(null);
-
-  // Restore session on mount
-  useEffect(() => {
-    if (!isConfigured) return;
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  // Handle OAuth callback (Supabase redirects back with hash)
-  useEffect(() => {
-    if (location.hash?.includes('access_token')) {
-      supabase.auth.getSession().then(({ data: { session } }) => {
-        setUser(session?.user ?? null);
-      });
-    }
-  }, [location.hash]);
-
-  const handleGitHubLogin = () => {
-    supabase.auth.signInWithOAuth({
-      provider: 'github',
-      options: { redirectTo: window.location.origin + '/#/image-gen' },
-    });
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
-  };
 
   useEffect(() => {
     void (async () => {
@@ -109,31 +73,7 @@ export default observer(function ImageGen() {
         </Tooltip>
 
         <LanguageSwitcher />
-
-        {isConfigured && (
-          user ? (
-            <Tooltip title={`Sign out — ${user.user_metadata?.user_name || user.email}`} arrow>
-              <IconButton size="small" onClick={handleSignOut}>
-                <Avatar
-                  src={user.user_metadata?.avatar_url}
-                  sx={{ width: 26, height: 26, ml: 1, cursor: 'pointer' }}
-                >
-                  {(user.user_metadata?.user_name || user.email)?.[0]?.toUpperCase()}
-                </Avatar>
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Button
-              size="small"
-              variant="outlined"
-              startIcon={<GitHubIcon sx={{ fontSize: 16 }} />}
-              onClick={handleGitHubLogin}
-              sx={{ borderRadius: 2, textTransform: 'none', ml: 1, fontSize: '0.75rem', py: 0.25 }}
-            >
-              Sign in
-            </Button>
-          )
-        )}
+        <UserMenu />
       </Box>
 
       <Box sx={{ flex: 1, display: 'flex', overflow: 'hidden', minHeight: 0 }}>
@@ -152,6 +92,7 @@ export default observer(function ImageGen() {
           <ImageGenInput />
         </Box>
       </Box>
+      <LoginDialog />
     </Box>
   );
 });

@@ -38,6 +38,8 @@ import { alertSuccess, alertInfo, alertWarning } from '../utils/alert';
 import { registerFileSyncSaveCallback, unregisterFileSyncSaveCallback } from '../utils/event';
 import { trackUploadJson } from '../utils/analytics';
 import LanguageSwitcher from './LanguageSwitcher';
+import UserMenu from './Auth/UserMenu';
+import LoginDialog from './Auth/LoginDialog';
 import IOSSwitch from './IOSSwitch';
 import UploadJsonDialog from './UploadJsonDialog';
 import FileSyncBanner from './FileSyncBanner';
@@ -578,13 +580,16 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
             flexShrink: { sm: 0 },
           }}
         >
-          <LanguageSwitcher
-            buttonSx={{
-              width: { xs: '100%', sm: 'auto' },
-              justifyContent: { xs: 'flex-start', sm: 'center' },
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <LanguageSwitcher
+              buttonSx={{
+                width: { xs: '100%', sm: 'auto' },
+                justifyContent: { xs: 'flex-start', sm: 'center' },
               boxSizing: 'border-box',
             }}
           />
+          <UserMenu />
+        </Box>
           <Button
             variant="outlined"
             startIcon={<InfoIcon />}
@@ -1072,6 +1077,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
         onSimpleUpload={handleSimpleUpload}
         onFileSyncStart={handleFileSyncStart}
       />
+      <LoginDialog />
     </Paper>
   );
 });
