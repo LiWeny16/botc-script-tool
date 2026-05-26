@@ -19,13 +19,19 @@ import { initAnalytics, initWebVitals } from './utils/analytics'
 import { supabase } from './lib/supabase'
 
 // Supabase OAuth lands with #access_token=... — HashRouter can't route it.
-// Supabase SDK already saved the session to localStorage during createClient (import).
-// We just need to clean the hash before React mounts.
-if (window.location.hash?.includes('access_token')) {
-  // SDK's createClient auto-processed the hash. Session is in localStorage now.
-  // Replace hash with a clean route so HashRouter doesn't break.
-  window.history.replaceState(null, '', window.location.pathname + '#/');
-}
+// Manually parse the token params and call setSession before swapping hash.
+(async () => {
+  const hash = window.location.hash;
+  if (hash?.includes('access_token')) {
+    const params = new URLSearchParams(hash.slice(1));
+    const access_token = params.get('access_token');
+    const refresh_token = params.get('refresh_token');
+    if (access_token && refresh_token) {
+      await supabase.auth.setSession({ access_token, refresh_token });
+    }
+    window.location.hash = '#/image-gen';
+  }
+})();
 
 // Register service worker for long-term image caching (icons + background)
 if ('serviceWorker' in navigator) {
