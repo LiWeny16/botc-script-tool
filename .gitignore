@@ -26,3 +26,6 @@ dist-ssr
 
 # Claude Code local config
 .claude/
+
+# Serverless backend (not open source)
+server/

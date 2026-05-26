@@ -32,6 +32,8 @@ import { imageGenHistory } from './imageGenHistory';
 import { WORKFLOW_TEMPLATES } from '../data/imageGenWorkflows';
 
 const API_KEY_STORAGE = 'botc-imagegen-api-key';
+const PROXY_URL_STORAGE = 'botc-imagegen-proxy-url';
+const DEFAULT_PROXY_URL = 'https://1321514649-9ct8fwv4qb.ap-guangzhou.tencentscf.com';
 const PANEL_COLLAPSED_STORAGE = 'botc-imagegen-panel-collapsed';
 const PROJECT_ID_STORAGE = 'botc-imagegen-current-project';
 
@@ -53,6 +55,7 @@ class ImageGenStore {
   generationMode: GenerationMode = 'text-to-image';
   selectedSize = '2K';
   apiKey = '';
+  proxyUrl = '';
   isGenerating = false;
   generatingOutputId: string | null = null;
   error: string | null = null;
@@ -77,6 +80,7 @@ class ImageGenStore {
   constructor() {
     makeAutoObservable(this);
     this.loadApiKey();
+    this.loadProxyUrl();
     this.loadPanelState();
     this.loadCurrentProjectId();
     void this.refreshGallery();
@@ -327,6 +331,20 @@ class ImageGenStore {
     try { this.apiKey = localStorage.getItem(API_KEY_STORAGE) || ''; } catch { this.apiKey = ''; }
   }
 
+  setProxyUrl(url: string) {
+    this.proxyUrl = url;
+    try { localStorage.setItem(PROXY_URL_STORAGE, url); } catch { /* quota */ }
+  }
+
+  private loadProxyUrl() {
+    try {
+      const stored = localStorage.getItem(PROXY_URL_STORAGE);
+      this.proxyUrl = stored !== null ? stored : DEFAULT_PROXY_URL;
+    } catch {
+      this.proxyUrl = DEFAULT_PROXY_URL;
+    }
+  }
+
   private loadPanelState() {
     try {
       const stored = localStorage.getItem(PANEL_COLLAPSED_STORAGE);
@@ -388,6 +406,7 @@ class ImageGenStore {
   }
 
   get hasApiKey() { return this.apiKey.trim().length > 0; }
+  get hasProxyUrl() { return this.proxyUrl.trim().length > 0; }
   get canGenerate() { return this.hasApiKey && !this.isGenerating; }
 
   isOutputGenerating(outputId: string) {
@@ -655,7 +674,7 @@ class ImageGenStore {
         }
       }
 
-      const response = await generateImage(this.apiKey, params, signal);
+      const response = await generateImage(this.apiKey, params, signal, this.proxyUrl || undefined);
       const item = response.data[0];
       const dataUrl = item?.b64_json
         ? `data:image/png;base64,${item.b64_json}`

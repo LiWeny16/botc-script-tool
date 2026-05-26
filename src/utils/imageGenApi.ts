@@ -38,9 +38,11 @@ export async function generateImage(
   apiKey: string,
   params: ImageGenParams,
   signal?: AbortSignal,
+  proxyBaseUrl?: string,
 ): Promise<ImageGenResponse> {
+  const baseUrl = proxyBaseUrl || 'https://ark.cn-beijing.volces.com/api/v3';
   const response = await fetch(
-    'https://ark.cn-beijing.volces.com/api/v3/images/generations',
+    `${baseUrl}/images/generations`,
     {
       method: 'POST',
       headers: {

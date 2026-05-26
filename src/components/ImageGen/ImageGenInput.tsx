@@ -72,6 +72,7 @@ export default observer(function ImageGenInput() {
   const [settingsAnchor, setSettingsAnchor] = useState<HTMLElement | null>(null);
   const [paramsAnchor, setParamsAnchor] = useState<HTMLElement | null>(null);
   const [apiKeyInput, setApiKeyInput] = useState(imageGenStore.apiKey);
+  const [proxyUrlInput, setProxyUrlInput] = useState(imageGenStore.proxyUrl);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const focused = imageGenStore.inputFocused;
@@ -94,6 +95,7 @@ export default observer(function ImageGenInput() {
 
   const handleSaveApiKey = () => {
     imageGenStore.setApiKey(apiKeyInput);
+    imageGenStore.setProxyUrl(proxyUrlInput);
     setSettingsAnchor(null);
   };
 
@@ -194,6 +196,7 @@ export default observer(function ImageGenInput() {
                 size="small"
                 onClick={(e) => {
                   setApiKeyInput(imageGenStore.apiKey);
+                  setProxyUrlInput(imageGenStore.proxyUrl);
                   setSettingsAnchor(e.currentTarget);
                 }}
               >
@@ -341,6 +344,7 @@ export default observer(function ImageGenInput() {
                 size="small"
                 onClick={(e) => {
                   setApiKeyInput(imageGenStore.apiKey);
+                  setProxyUrlInput(imageGenStore.proxyUrl);
                   setSettingsAnchor(e.currentTarget);
                 }}
                 sx={{
@@ -482,6 +486,15 @@ export default observer(function ImageGenInput() {
                 </InputAdornment>
               ),
             }}
+          />
+          <TextField
+            label={t('imageGen.proxyUrl')}
+            value={proxyUrlInput}
+            onChange={(e) => setProxyUrlInput(e.target.value)}
+            size="small"
+            fullWidth
+            placeholder={t('imageGen.proxyUrlPlaceholder')}
+            InputProps={{ sx: { borderRadius: 2 } }}
           />
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
             <Button size="small" onClick={() => setSettingsAnchor(null)} sx={{ borderRadius: 2 }}>
