@@ -112,12 +112,28 @@ export async function shareScript(name: string, json: string): Promise<string | 
   const user = (await supabase.auth.getUser()).data.user;
   if (!user) return null;
 
+  const contentHash = hash(json);
+
+  // Dedup: same user + same content → return existing share_id
+  const { data: existing } = await supabase
+    .from('shared_scripts')
+    .select('share_id, expires_at')
+    .eq('user_id', user.id)
+    .eq('content_hash', contentHash)
+    .gte('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing) return existing.share_id;
+
   const shareId = crypto.randomUUID().slice(0, 8);
   const { error } = await supabase.from('shared_scripts').insert({
     share_id: shareId,
     user_id: user.id,
     name,
     script: JSON.parse(json),
+    content_hash: contentHash,
   });
 
   if (error) return null;
@@ -127,11 +143,19 @@ export async function shareScript(name: string, json: string): Promise<string | 
 export async function loadSharedScript(shareId: string): Promise<{ name: string; json: string } | null> {
   const { data } = await supabase
     .from('shared_scripts')
-    .select('name, script')
+    .select('name, script, expires_at')
     .eq('share_id', shareId)
     .single();
 
   if (!data) return null;
+
+  // Check expiry
+  if (new Date(data.expires_at) < new Date()) {
+    // Clean up expired record
+    await supabase.from('shared_scripts').delete().eq('share_id', shareId);
+    return null;
+  }
+
   return {
     name: data.name,
     json: JSON.stringify(data.script, null, 2),
