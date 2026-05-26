@@ -18,16 +18,14 @@ import { I18nProvider } from './utils/i18n.tsx'
 import { initAnalytics, initWebVitals } from './utils/analytics'
 import { supabase } from './lib/supabase'
 
-// Handle Supabase OAuth callback — HashRouter would eat the #access_token hash
+// Supabase OAuth lands with #access_token=... — HashRouter can't route it.
+// Supabase SDK already saved the session to localStorage during createClient (import).
+// We just need to clean the hash before React mounts.
 if (window.location.hash?.includes('access_token')) {
-  supabase.auth.getSession().then(() => {
-    window.location.hash = '#/';
-  });
+  // SDK's createClient auto-processed the hash. Session is in localStorage now.
+  // Replace hash with a clean route so HashRouter doesn't break.
+  window.history.replaceState(null, '', window.location.pathname + '#/');
 }
-
-// Initialize GA4 page view tracking and web vitals
-initAnalytics();
-initWebVitals();
 
 // Register service worker for long-term image caching (icons + background)
 if ('serviceWorker' in navigator) {
