@@ -107,3 +107,33 @@ export async function getStorageUsage(): Promise<{ used: number; max: number }> 
   const { data } = await supabase.rpc('get_storage_usage', { p_user_id: user.id }) as { data: number };
   return { used: typeof data === 'number' ? data : 0, max: MAX_BYTES };
 }
+
+export async function shareScript(name: string, json: string): Promise<string | null> {
+  const user = (await supabase.auth.getUser()).data.user;
+  if (!user) return null;
+
+  const shareId = crypto.randomUUID().slice(0, 8);
+  const { error } = await supabase.from('shared_scripts').insert({
+    share_id: shareId,
+    user_id: user.id,
+    name,
+    script: JSON.parse(json),
+  });
+
+  if (error) return null;
+  return shareId;
+}
+
+export async function loadSharedScript(shareId: string): Promise<{ name: string; json: string } | null> {
+  const { data } = await supabase
+    .from('shared_scripts')
+    .select('name, script')
+    .eq('share_id', shareId)
+    .single();
+
+  if (!data) return null;
+  return {
+    name: data.name,
+    json: JSON.stringify(data.script, null, 2),
+  };
+}
