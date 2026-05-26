@@ -12,6 +12,8 @@ import {
   Button,
   CardMedia,
   Pagination,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -30,51 +32,34 @@ const ScriptRepository = observer(() => {
   const { t, language } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Read category from URL, default to 'official' if absent
-  const categoryFromUrl = (searchParams.get('category') || 'official') as 'official' | 'official_mix' | 'custom';
-  const [category, setCategory] = useState<'official' | 'official_mix' | 'custom'>(categoryFromUrl);
-  
-  const [allScripts, setAllScripts] = useState<RepoScript[]>(searchScripts('').map(s => ({ ...s })));
-  const [scripts, setScripts] = useState<RepoScript[]>([]);
+  const theme = useTheme();
+
+  // Category from URL as single source of truth — no duplicated React state
+  const category = (searchParams.get('category') || 'official') as 'official' | 'official_mix' | 'custom';
+
+  const [allScripts, setAllScripts] = useState<RepoScript[]>([]);
+  const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
-  const itemsPerPage = 12; // 3 columns * 4 rows
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-  };
+  // Responsive: 5 rows × N columns
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isTablet = useMediaQuery(theme.breakpoints.down('md'));
+  const columns = isMobile ? 1 : isTablet ? 2 : 3;
+  const itemsPerPage = columns * 5;
 
-  const handleCategoryChange = (newCategory: 'official' | 'official_mix' | 'custom') => {
-    setCategory(newCategory);
+  const handleCategoryChange = (newCategory: typeof category) => {
+    if (newCategory === category) return;
     setSearchParams({ category: newCategory });
+    setPage(1);
   };
 
   const getDisplayName = (s: RepoScript) => (language === 'en' && s.nameEn ? s.nameEn : s.name);
-
-  // Sync URL parameter changes to state
-  useEffect(() => {
-    const urlCategory = (searchParams.get('category') || 'official') as 'official' | 'official_mix' | 'custom';
-    if (urlCategory !== category) {
-      setCategory(urlCategory);
-    }
-  }, [searchParams]);
 
   useEffect(() => {
     trackOpenRepo();
   }, []);
 
-  useEffect(() => {
-    const q = searchQuery.toLowerCase();
-    const filtered = (searchQuery ? allScripts.filter(s =>
-      getDisplayName(s).toLowerCase().includes(q) ||
-      s.author.toLowerCase().includes(q) ||
-      (s.description || '').toLowerCase().includes(q)
-    ) : allScripts).filter(s => s.category === category);
-    setPage(1);
-    setScripts(filtered);
-  }, [category, searchQuery, allScripts, language]);
-
-  // Load manifest.json (if exists)
+  // Load manifest
   useEffect(() => {
     const loadManifest = async () => {
       try {
@@ -93,21 +78,40 @@ const ScriptRepository = observer(() => {
         }));
         setAllScripts(list);
       } catch {
-        // Fallback to built-in data (official scripts only)
         setAllScripts(searchScripts('').map(s => ({ ...s })));
+      } finally {
+        setLoading(false);
       }
     };
     loadManifest();
   }, []);
 
-  const totalPages = useMemo(() => Math.max(1, Math.ceil(scripts.length / itemsPerPage)), [scripts.length]);
+  // Derived filtered list — no intermediate useState that can get stale
+  const filteredScripts = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    let result = allScripts;
+    if (q) {
+      result = result.filter(s =>
+        getDisplayName(s).toLowerCase().includes(q) ||
+        s.author.toLowerCase().includes(q) ||
+        (s.description || '').toLowerCase().includes(q)
+      );
+    }
+    return result.filter(s => s.category === category);
+  }, [category, searchQuery, allScripts, language]);
+
+  // Reset page when filtered results change
+  useEffect(() => {
+    setPage(1);
+  }, [category, searchQuery]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredScripts.length / itemsPerPage));
   const pagedScripts = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
-    return scripts.slice(start, start + itemsPerPage);
-  }, [page, scripts]);
+    return filteredScripts.slice(start, start + itemsPerPage);
+  }, [page, filteredScripts, itemsPerPage]);
 
   const handleScriptClick = (script: RepoScript) => {
-    // Navigate to preview via json param, avoid relying on static mapping, and carry current category
     navigate(`/repo/preview?json=${encodeURIComponent(script.jsonUrl)}&category=${category}`);
   };
 
@@ -235,7 +239,7 @@ const ScriptRepository = observer(() => {
             variant="outlined"
             placeholder={t('repo.searchPlaceholder')}
             value={searchQuery}
-            onChange={(e) => handleSearch(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -262,85 +266,87 @@ const ScriptRepository = observer(() => {
         </Box>
 
         {/* Script list */}
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: {
-              xs: '1fr',
-              sm: 'repeat(2, 1fr)',
-              md: 'repeat(3, 1fr)',
-            },
-            gap: 3,
-          }}
-        >
-          {pagedScripts.map((script) => (
-            <Card
-              key={script.id}
-              sx={{
-                height: '100%',
-                transition: 'all 0.3s',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: 6,
-                },
-              }}
-            >
-              <CardActionArea
-                onClick={() => handleScriptClick(script)}
-                sx={{ height: '100%', p: 2 }}
+        {!loading && (
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: {
+                xs: '1fr',
+                sm: 'repeat(2, 1fr)',
+                md: 'repeat(3, 1fr)',
+              },
+              gap: 3,
+            }}
+          >
+            {pagedScripts.map((script) => (
+              <Card
+                key={script.jsonUrl}
+                sx={{
+                  height: '100%',
+                  transition: 'all 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: 6,
+                  },
+                }}
               >
-                <CardContent>
-                  {script.logo && (
-                    <CardMedia
-                      component="img"
-                      image={script.logo}
-                      alt={getDisplayName(script)}
+                <CardActionArea
+                  onClick={() => handleScriptClick(script)}
+                  sx={{ height: '100%', p: 2 }}
+                >
+                  <CardContent>
+                    {script.logo && (
+                      <CardMedia
+                        component="img"
+                        image={script.logo}
+                        alt={getDisplayName(script)}
+                        sx={{
+                          height: 120,
+                          objectFit: 'contain',
+                          mb: 1,
+                          borderRadius: 1,
+                          backgroundColor: '#fff',
+                        }}
+                      />
+                    )}
+                    <Typography
+                      variant="h5"
                       sx={{
-                        height: 120,
-                        objectFit: 'contain',
+                        fontWeight: 'bold',
                         mb: 1,
-                        borderRadius: 1,
-                        backgroundColor: '#fff',
+                        color: THEME_COLORS.paper.primary,
+                        fontSize: { xs: '1.2rem', sm: '1.4rem' },
                       }}
-                    />
-                  )}
-                  <Typography
-                    variant="h5"
-                    sx={{
-                      fontWeight: 'bold',
-                      mb: 1,
-                      color: THEME_COLORS.paper.primary,
-                      fontSize: { xs: '1.2rem', sm: '1.4rem' },
-                    }}
-                  >
-                    {getDisplayName(script)}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: THEME_COLORS.good,
-                      mb: 1.5,
-                      fontSize: '0.9rem',
-                    }}
-                  >
-                    {t('repo.author')}：{script.author}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: THEME_COLORS.paper.secondary,
-                      fontSize: '0.85rem',
-                      lineHeight: 1.6,
-                    }}
-                  >
-                    {script.description}
-                  </Typography>
-                </CardContent>
-              </CardActionArea>
-            </Card>
-          ))}
-        </Box>
+                    >
+                      {getDisplayName(script)}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: THEME_COLORS.good,
+                        mb: 1.5,
+                        fontSize: '0.9rem',
+                      }}
+                    >
+                      {t('repo.author')}：{script.author}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        color: THEME_COLORS.paper.secondary,
+                        fontSize: '0.85rem',
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {script.description}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+              </Card>
+            ))}
+          </Box>
+        )}
 
         {/* No results message */}
-        {scripts.length === 0 && (
+        {!loading && filteredScripts.length === 0 && (
           <Box
             sx={{
               textAlign: 'center',
@@ -359,7 +365,7 @@ const ScriptRepository = observer(() => {
         )}
 
         {/* Pagination */}
-        {scripts.length > 0 && (
+        {!loading && filteredScripts.length > 0 && (
           <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
             <Pagination
               count={totalPages}
@@ -375,4 +381,3 @@ const ScriptRepository = observer(() => {
 });
 
 export default ScriptRepository;
-

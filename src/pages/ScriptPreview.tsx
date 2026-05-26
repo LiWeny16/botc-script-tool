@@ -5,25 +5,24 @@ import {
   Typography,
   Button,
   Paper,
-  useMediaQuery,
   createTheme,
   CircularProgress,
   ThemeProvider,
   CssBaseline,
   GlobalStyles,
   Switch,
-  FormControlLabel,
   IconButton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DownloadIcon from '@mui/icons-material/Download';
 import PrintIcon from '@mui/icons-material/Print';
-import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import { Cloud } from 'lucide-react';
 import { observer } from 'mobx-react-lite';
 import { getScriptJsonUrl, loadScriptJson } from '../data/utils/scriptRepository';
+import { loadSharedScript } from '../lib/cloudScripts';
 import { generateScript } from '../utils/scriptGenerator';
 import ScriptRenderer from '../components/ScriptRenderer';
-import { THEME_COLORS, THEME_FONTS } from '../theme/colors';
+import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
 import { trackPreviewScript } from '../utils/analytics';
@@ -44,7 +43,7 @@ const theme = createTheme({
 });
 
 const ScriptPreview = observer(() => {
-  const { scriptName } = useParams<{ scriptName: string }>();
+  const { scriptName, shareId } = useParams<{ scriptName?: string; shareId?: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { t, language } = useTranslation();
@@ -52,13 +51,14 @@ const ScriptPreview = observer(() => {
   const [error, setError] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(true);
   const [originalJson, setOriginalJson] = useState<string>('');
+  const [sharedName, setSharedName] = useState<string>('');
 
-  // Temporarily enable official ID parse mode on ScriptPreview page
+  const isShared = Boolean(shareId);
+
+  // Temporarily enable official ID parse mode on preview pages
   useEffect(() => {
     const originalMode = configStore.config.officialIdParseMode;
     configStore.setOfficialIdParseMode(true);
-
-    // Restore original setting on unmount
     return () => {
       configStore.setOfficialIdParseMode(originalMode);
     };
@@ -66,34 +66,47 @@ const ScriptPreview = observer(() => {
 
   useEffect(() => {
     const loadScript = async () => {
-      // Check URL parameter for json source first
-      const jsonParam = searchParams.get('json');
+      // 1) Shared via Supabase
+      if (shareId) {
+        try {
+          const result = await loadSharedScript(shareId);
+          if (!result) {
+            setError('Shared script not found or link expired.');
+            setLoading(false);
+            return;
+          }
+          setSharedName(result.name);
+          setOriginalJson(result.json);
+          setScript(generateScript(result.json, language));
+          trackPreviewScript({ scriptName: result.name });
+        } catch (err) {
+          setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
 
+      // 2) JSON from ?json= query param
+      const jsonParam = searchParams.get('json');
       if (jsonParam) {
-        // Load JSON from URL parameter
         try {
           let jsonString = '';
-
-          // Check if it's an HTTP/HTTPS link
           if (
             jsonParam.startsWith('http://') ||
             jsonParam.startsWith('https://') ||
-            jsonParam.startsWith('/') // Same-origin absolute path, e.g. /scripts/json/official/tb.json
+            jsonParam.startsWith('/')
           ) {
-            // Download JSON from URL
             const response = await fetch(jsonParam);
             if (!response.ok) {
               throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
             jsonString = await response.text();
           } else {
-            // Decode JSON string directly
             jsonString = decodeURIComponent(jsonParam);
           }
-
           setOriginalJson(jsonString);
-          const generatedScript = generateScript(jsonString, language);
-          setScript(generatedScript);
+          setScript(generateScript(jsonString, language));
           trackPreviewScript({ scriptName: scriptName || 'shared' });
         } catch (err) {
           setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
@@ -103,7 +116,7 @@ const ScriptPreview = observer(() => {
         return;
       }
 
-      // Load from script library
+      // 3) Legacy: script name lookup
       if (!scriptName) {
         setError(t('error.noScriptName'));
         setLoading(false);
@@ -111,10 +124,7 @@ const ScriptPreview = observer(() => {
       }
 
       const decodedName = decodeURIComponent(scriptName);
-
-      // Get JSON URL from mapping table
       const jsonUrl = getScriptJsonUrl(decodedName);
-
       if (!jsonUrl) {
         setError(`${t('error.scriptNotFound')}：${decodedName}`);
         setLoading(false);
@@ -122,11 +132,9 @@ const ScriptPreview = observer(() => {
       }
 
       try {
-        // Load JSON from URL
         const jsonString = await loadScriptJson(jsonUrl);
         setOriginalJson(jsonString);
-        const generatedScript = generateScript(jsonString, language);
-        setScript(generatedScript);
+        setScript(generateScript(jsonString, language));
         trackPreviewScript({ scriptName: decodedName });
       } catch (err) {
         setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
@@ -136,14 +144,13 @@ const ScriptPreview = observer(() => {
     };
 
     loadScript();
-  }, [scriptName, searchParams, t]);
+  }, [scriptName, shareId, searchParams, language, t]);
 
-  // Listen for language changes and regenerate script
+  // Regenerate on language change
   useEffect(() => {
     if (originalJson) {
       try {
-        const generatedScript = generateScript(originalJson, language);
-        setScript(generatedScript);
+        setScript(generateScript(originalJson, language));
       } catch (err) {
         console.error('Failed to regenerate script:', err);
       }
@@ -152,9 +159,7 @@ const ScriptPreview = observer(() => {
 
   const handleExportJson = () => {
     if (!originalJson) return;
-
     try {
-      // Download the original JSON file directly
       const blob = new Blob([originalJson], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -168,13 +173,21 @@ const ScriptPreview = observer(() => {
     }
   };
 
+  const handleBack = () => {
+    if (isShared) {
+      navigate('/');
+    } else {
+      const category = searchParams.get('category');
+      navigate(category ? `/repo?category=${category}` : '/repo');
+    }
+  };
+
   if (loading) {
     return (
       <Box
         sx={{
           minHeight: '100vh',
           backgroundColor: '#f5f5f5',
-          py: 4,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -194,7 +207,6 @@ const ScriptPreview = observer(() => {
         sx={{
           minHeight: '100vh',
           backgroundColor: '#f5f5f5',
-          py: 4,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -205,17 +217,7 @@ const ScriptPreview = observer(() => {
             <Typography variant="h5" color="error" sx={{ mb: 2 }}>
               {error}
             </Typography>
-            <Button
-              startIcon={<ArrowBackIcon />}
-              onClick={() => {
-                const category = searchParams.get('category');
-                const destination = searchParams.get('json') 
-                  ? '/' 
-                  : (category ? `/repo?category=${category}` : '/repo');
-                navigate(destination);
-              }}
-              variant="contained"
-            >
+            <Button startIcon={<ArrowBackIcon />} onClick={handleBack} variant="contained">
               {t('common.back')}
             </Button>
           </Paper>
@@ -230,7 +232,6 @@ const ScriptPreview = observer(() => {
         sx={{
           minHeight: '100vh',
           backgroundColor: '#f5f5f5',
-          py: 4,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -246,56 +247,36 @@ const ScriptPreview = observer(() => {
       <CssBaseline />
       <GlobalStyles
         styles={{
-
           '@media print': {
-            // 1. Define print page, remove browser default margins
             '@page': {
-              size: 'A4 portrait', // Recommended: A4 portrait
-              margin: 0,           // Set page margin to 0, we control it within the container
+              size: 'A4 portrait',
+              margin: 0,
             },
-
-            // 2. Hide all elements on the page
             'body *': {
               visibility: 'hidden !important',
             },
-
-            // 3. Only show the script core area to print, and all its descendants
             '#script-preview, #script-preview *, #main_script, #main_script *, #script-preview-2, #script-preview-2 *': {
               visibility: 'visible !important',
             },
-
-            // 3.5. Remove Container padding and margin
             '.MuiContainer-root': {
               padding: '0 !important',
               margin: '0 !important',
               maxWidth: '100% !important',
             },
-
-            // 4. CORE: Set first page container height and layout
             '#script-preview': {
-              // --- A. Position and size ---
               position: 'relative !important',
               left: '0 !important',
               top: '0 !important',
-              width: '100vw !important',  // 100% print viewport width
-              height: '100vh !important', // 100% print viewport height
+              width: '100vw !important',
+              height: '100vh !important',
               margin: '0 !important',
               padding: '0 !important',
-
-              // --- B. Force no overflow ---
-              overflow: 'hidden !important', // Critical! Clip any content beyond one page
-
-              // --- C. Page break ---
-              // Note: force page break only when a second page exists
+              overflow: 'hidden !important',
               pageBreakInside: 'avoid !important',
             },
-
-            // 4.1 When a second page exists, force page break after the first page
             '#script-preview:has(~ #script-preview-2)': {
               pageBreakAfter: 'always !important',
             },
-
-            // 5. Second page container
             '#script-preview-2': {
               position: 'relative !important',
               left: '0 !important',
@@ -305,29 +286,23 @@ const ScriptPreview = observer(() => {
               margin: '0 !important',
               padding: '0 !important',
               overflow: 'hidden !important',
-              pageBreakBefore: 'always !important', // Force page break before second page
+              pageBreakBefore: 'always !important',
               pageBreakInside: 'avoid !important',
-              marginTop: '0 !important', // Ensure no top margin when printing
+              marginTop: '0 !important',
             },
-
-            // 6. Ensure bottom avatar and text box are visible when printing
             '#main_script .MuiBox-root': {
               visibility: 'visible !important',
             },
-
-            // 7. Hide edit button on title hover
             '.MuiIconButton-root': {
               display: 'none !important',
             },
-
-            // 8. Hide top control bar (back, download, print buttons, etc.)
             '#preview-control-box': {
               display: 'none !important',
             },
           },
         }}
       />
-      <Box sx={{ display: "flex", flexDirection: "column" }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
         <Box
           id="preview-control-box"
           sx={{
@@ -340,7 +315,7 @@ const ScriptPreview = observer(() => {
             '@media print': {
               display: 'none !important',
               visibility: 'hidden !important',
-            }
+            },
           }}
         >
           <Box sx={{ width: '100%' }}>
@@ -354,25 +329,27 @@ const ScriptPreview = observer(() => {
               }}
             >
               <IconButton
-                onClick={() => {
-                  // Keep category parameter when navigating back
-                  const category = searchParams.get('category');
-                  navigate(category ? `/repo?category=${category}` : '/repo');
-                }}
+                onClick={handleBack}
                 size="small"
-                sx={{
-                  color: THEME_COLORS.paper.secondary,
-                }}
+                sx={{ color: THEME_COLORS.paper.secondary }}
                 aria-label="back"
               >
                 <ArrowBackIcon />
               </IconButton>
+
+              {isShared && (
+                <>
+                  <Cloud size={18} strokeWidth={1.8} style={{ color: '#6366f1', flexShrink: 0 }} />
+                  <Typography variant="subtitle2" fontWeight={600} noWrap sx={{ maxWidth: 200 }}>
+                    {sharedName || 'Shared Script'}
+                  </Typography>
+                </>
+              )}
+
               <IconButton
                 onClick={handleExportJson}
                 size="small"
-                sx={{
-                  color: THEME_COLORS.good,
-                }}
+                sx={{ color: THEME_COLORS.good }}
                 aria-label="export-json"
               >
                 <DownloadIcon />
@@ -380,9 +357,7 @@ const ScriptPreview = observer(() => {
               <IconButton
                 onClick={() => window.print()}
                 size="small"
-                sx={{
-                  color: THEME_COLORS.paper.primary,
-                }}
+                sx={{ color: THEME_COLORS.paper.primary }}
                 aria-label="print"
               >
                 <PrintIcon />
@@ -401,22 +376,6 @@ const ScriptPreview = observer(() => {
                 inputProps={{ 'aria-label': 'toggle-two-page' }}
               />
               <LanguageSwitcher />
-              <Button
-                variant="outlined"
-                size="small"
-                startIcon={<AutoAwesomeIcon />}
-                onClick={() => navigate('/image-gen')}
-                sx={{
-                  borderColor: '#9c27b0',
-                  color: '#9c27b0',
-                  '&:hover': {
-                    borderColor: '#7b1fa2',
-                    backgroundColor: 'rgba(156, 39, 176, 0.08)',
-                  },
-                }}
-              >
-                {t('imageGen.nav.imageGen')}
-              </Button>
             </Box>
           </Box>
         </Box>
@@ -428,25 +387,18 @@ const ScriptPreview = observer(() => {
             backgroundColor: 'background.default',
             '@media print': {
               minHeight: 'auto',
-            }
+            },
           }}
         >
           <Box
             sx={{
               width: '100%',
-              // maxWidth: '1600px',
               '@media print': {
                 maxWidth: '100% !important',
-              }
+              },
             }}
           >
-            {script && (
-              <ScriptRenderer
-                script={script}
-                theme={theme}
-                readOnly={true}
-              />
-            )}
+            <ScriptRenderer script={script} theme={theme} readOnly />
           </Box>
         </Box>
       </Box>
@@ -455,4 +407,3 @@ const ScriptPreview = observer(() => {
 });
 
 export default ScriptPreview;
-

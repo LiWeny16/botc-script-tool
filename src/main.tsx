@@ -8,7 +8,6 @@ import { HashRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
 import './print.css'
 import App from './App.tsx'
-import SharedScriptView from './pages/SharedScriptView'
 import ScriptRepository from './pages/ScriptRepository.tsx'
 import ScriptPreview from './pages/ScriptPreview.tsx'
 import Changelog from './pages/Changelog.tsx'
@@ -39,7 +38,7 @@ createRoot(document.getElementById('root')!).render(
           <Route path="/changelog" element={<Changelog />} />
           <Route path="/all-characters" element={<AllCharacters />} />
           <Route path="/image-gen" element={<ImageGen />} />
-          <Route path="/shared/:shareId" element={<SharedScriptView />} />
+          <Route path="/shared/:shareId" element={<ScriptPreview />} />
           {/* <Route path="/new-preview" element={<NewPreview />} /> */}
           {/* <Route path="/new-preview/:scriptName" element={<NewPreview />} /> */}
         </Routes>
