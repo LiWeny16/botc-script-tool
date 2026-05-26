@@ -24,6 +24,7 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.4",
     "@mui/material": "^7.3.4",
+    "@supabase/supabase-js": "^2.106.2",
     "@xyflow/react": "^12.10.2",
     "framer-motion": "^12.38.0",
     "mobx": "^6.15.0",

@@ -33,7 +33,7 @@ import { WORKFLOW_TEMPLATES } from '../data/imageGenWorkflows';
 
 const API_KEY_STORAGE = 'botc-imagegen-api-key';
 const PROXY_URL_STORAGE = 'botc-imagegen-proxy-url';
-const DEFAULT_PROXY_URL = 'https://1321514649-9ct8fwv4qb.ap-guangzhou.tencentscf.com';
+const DEFAULT_PROXY_URL = 'https://1321514649-gfzeuwriah.ap-guangzhou.tencentscf.com';
 const PANEL_COLLAPSED_STORAGE = 'botc-imagegen-panel-collapsed';
 const PROJECT_ID_STORAGE = 'botc-imagegen-current-project';
 

@@ -34,6 +34,8 @@ export interface ImageGenResponse {
   data: Array<{ url?: string; b64_json?: string; size?: string }>;
 }
 
+const ISSUED_KEY_PREFIX = 'sk-';
+
 export async function generateImage(
   apiKey: string,
   params: ImageGenParams,
@@ -41,18 +43,21 @@ export async function generateImage(
   proxyBaseUrl?: string,
 ): Promise<ImageGenResponse> {
   const baseUrl = proxyBaseUrl || 'https://ark.cn-beijing.volces.com/api/v3';
-  const response = await fetch(
-    `${baseUrl}/images/generations`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(params),
-      signal,
+
+  // Issued key → use /generate endpoint (quota-validated by proxy)
+  const endpoint = (proxyBaseUrl && apiKey.startsWith(ISSUED_KEY_PREFIX))
+    ? `${baseUrl}/generate`
+    : `${baseUrl}/images/generations`;
+
+  const response = await fetch(endpoint, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
     },
-  );
+    body: JSON.stringify(params),
+    signal,
+  });
 
   if (!response.ok) {
     const errorBody = await response.text().catch(() => 'Unknown error');
