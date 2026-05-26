@@ -13,28 +13,28 @@ class AuthStore {
   }
 
   private async init() {
-    // Handle OAuth callback: #access_token hash breaks HashRouter.
-    // Save tokens → reload clean → restore from sessionStorage.
+    // Set up auth listener FIRST (must exist before any session changes)
+    supabase.auth.onAuthStateChange((_event, session) => {
+      runInAction(() => {
+        this.user = session?.user ?? null;
+        if (!this.user) this.loading = false;
+      });
+    });
+
+    // Handle OAuth callback: Supabase redirects here with #access_token=...
     const hash = window.location.hash;
     if (hash?.includes('access_token')) {
       const p = new URLSearchParams(hash.slice(1));
       const at = p.get('access_token');
       const rt = p.get('refresh_token');
       if (at && rt) {
-        sessionStorage.setItem('sb-oauth-at', at);
-        sessionStorage.setItem('sb-oauth-rt', rt);
+        // Fire setSession (async). onAuthStateChange will update user when it completes.
+        supabase.auth.setSession({ access_token: at, refresh_token: rt });
+        // Immediately swap hash so HashRouter renders the correct page.
+        window.location.hash = '#/';
+        this.loading = false;
       }
-      window.location.replace(window.location.pathname + '#/');
-      return; // Page reloads
-    }
-
-    // Restore session from OAuth callback tokens
-    const savedAt = sessionStorage.getItem('sb-oauth-at');
-    const savedRt = sessionStorage.getItem('sb-oauth-rt');
-    if (savedAt && savedRt) {
-      sessionStorage.removeItem('sb-oauth-at');
-      sessionStorage.removeItem('sb-oauth-rt');
-      await supabase.auth.setSession({ access_token: savedAt, refresh_token: savedRt });
+      return;
     }
 
     // Normal session check
@@ -42,12 +42,6 @@ class AuthStore {
     runInAction(() => {
       this.user = session?.user ?? null;
       this.loading = false;
-    });
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      runInAction(() => {
-        this.user = session?.user ?? null;
-      });
     });
   }
 
