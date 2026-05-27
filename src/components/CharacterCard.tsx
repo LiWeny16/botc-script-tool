@@ -3,7 +3,7 @@ import { Edit as EditIcon, Delete as DeleteIcon, ContentCopy as CopyIcon, SwapHo
 import { useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import type { Character, JinxInfo } from '../types';
-import { highlightAbilityText } from '../utils/scriptGenerator';
+import MarkdownRenderer from './MarkdownRenderer';
 import { THEME_COLORS, getTeamColor } from '../theme/colors';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -378,8 +378,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                   })()}
                 </Box>
                 {/* 第二行：能力描述（紧凑模式限制2行） */}
-                <Typography
-                  variant="body2"
+                <Box
                   sx={{
                     fontSize: CONFIG.description.fontSize,
                     lineHeight: CONFIG.description.lineHeight,
@@ -389,11 +388,12 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
+                    '& p': { m: 0, display: 'inline' },
+                    '& ul, & ol': { m: 0, pl: 2, display: 'inline-block' },
                   }}
-                  dangerouslySetInnerHTML={{
-                    __html: highlightAbilityText(character.ability, configStore.language),
-                  }}
-                />
+                >
+                  <MarkdownRenderer content={character.ability} />
+                </Box>
               </Box>
             ) : (
               /* 普通模式：原布局 */
@@ -417,18 +417,19 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                   {character.name}
                 </Typography>
 
-                <Typography
-                  variant="body2"
+                <Box
                   sx={{
                     fontSize: CONFIG.description.fontSize,
                     lineHeight: CONFIG.description.lineHeight,
                     color: THEME_COLORS.text.tertiary,
                     fontFamily: uiConfigStore.characterAbilityFont,
+                    '& p': { m: 0, '&:not(:last-child)': { mb: 0.25 } },
+                    '& ul, & ol': { m: 0, pl: 2.5 },
+                    '& li': { '&:not(:last-child)': { mb: 0.25 } },
                   }}
-                  dangerouslySetInnerHTML={{
-                    __html: highlightAbilityText(character.ability, configStore.language),
-                  }}
-                />
+                >
+                  <MarkdownRenderer content={character.ability} />
+                </Box>
 
                 {/* Jinx rules - below description text, left-aligned */}
                 {jinxInfo && (() => {

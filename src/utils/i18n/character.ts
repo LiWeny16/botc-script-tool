@@ -106,6 +106,9 @@ export const cn = {
   'specialRules.titlePlaceholder': '请输入规则标题',
   'specialRules.contentLabel': '内容',
   'specialRules.contentPlaceholder': '请输入规则内容',
+  'jsonEditor': 'JSON 编辑',
+  'jsonApply': '应用 JSON',
+  'jsonInvalidObject': 'JSON 必须是对象',
 } as const;
 
 export const en = {
@@ -216,6 +219,9 @@ export const en = {
   'specialRules.titlePlaceholder': 'Enter rule title',
   'specialRules.contentLabel': 'Content',
   'specialRules.contentPlaceholder': 'Enter rule content',
+  'jsonEditor': 'JSON Editor',
+  'jsonApply': 'Apply JSON',
+  'jsonInvalidObject': 'JSON must be an object',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
@@ -326,4 +332,7 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'specialRules.titlePlaceholder': 'Introduce el título de la regla',
   'specialRules.contentLabel': 'Contenido',
   'specialRules.contentPlaceholder': 'Introduce el contenido de la regla',
+  'jsonEditor': 'Editor JSON',
+  'jsonApply': 'Aplicar JSON',
+  'jsonInvalidObject': 'JSON debe ser un objeto',
 };

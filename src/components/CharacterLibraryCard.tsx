@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import MarkdownRenderer from './MarkdownRenderer';
 import {
     Card,
     CardContent,
@@ -167,20 +168,21 @@ const CharacterItem = React.memo(({
                         </Box>
                     }
                     secondary={
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
+                        <Box
                             sx={{
                                 fontSize: '0.75rem',
                                 lineHeight: 1.3,
+                                color: 'text.secondary',
                                 display: '-webkit-box',
                                 WebkitLineClamp: 2,
                                 WebkitBoxOrient: 'vertical',
                                 overflow: 'hidden',
+                                '& p': { m: 0, display: 'inline' },
+                                '& ul, & ol': { m: 0, pl: 2 },
                             }}
                         >
-                            {character.ability}
-                        </Typography>
+                            <MarkdownRenderer content={character.ability} />
+                        </Box>
                     }
                 />
             </ListItem>

@@ -42,6 +42,8 @@ import type { Character } from '../types';
 import { getCharacterDictionary, getCharacterInDictionary } from '../data';
 import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
+import MarkdownEditor from './MarkdownEditor';
+import MarkdownRenderer from './MarkdownRenderer';
 import { configStore } from '../stores/ConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
@@ -87,6 +89,11 @@ export default observer(function CharacterEditDialog({
   const [sliderAvatarH, setSliderAvatarH] = useState(cc.avatarHeightMd);
   const [sliderPadX, setSliderPadX] = useState(cc.cardPaddingX);
   const [sliderGap, setSliderGap] = useState(cc.cardGap);
+
+  // JSON editor state
+  const [jsonText, setJsonText] = useState('');
+  const [jsonError, setJsonError] = useState<string | null>(null);
+  const [isJsonDirty, setIsJsonDirty] = useState(false);
 
   const handleChange = (field: keyof Character, value: any) => {
     setEditData(prev => ({
@@ -169,6 +176,54 @@ export default observer(function CharacterEditDialog({
       setJinxItems(jinxes);
     }
   }, [character, scriptStore.script, language]);
+
+  // Sync editData → jsonText (one-way, when not actively editing JSON)
+  useEffect(() => {
+    if (!isJsonDirty && character) {
+      const defaultData =
+        getCharacterInDictionary(getCharacterDictionary(language), character.id) ?? {};
+      const merged = { ...defaultData, ...character, ...editData };
+      const characterFields = [
+        'id', 'name', 'ability', 'team', 'teamColor', 'image',
+        'firstNight', 'otherNight', 'firstNightReminder', 'otherNightReminder',
+        'reminders', 'remindersGlobal', 'setup', 'author',
+      ];
+      const obj: Record<string, unknown> = {};
+      for (const field of characterFields) {
+        if (field in merged) {
+          obj[field] = (merged as Record<string, unknown>)[field];
+        }
+      }
+      setJsonText(JSON.stringify(obj, null, 2));
+      setJsonError(null);
+    }
+  }, [editData, character, language, isJsonDirty]);
+
+  const handleJsonApply = () => {
+    try {
+      const parsed = JSON.parse(jsonText);
+      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+        setJsonError(t('jsonInvalidObject'));
+        return;
+      }
+      const editableFields: (keyof Character)[] = [
+        'name', 'ability', 'team', 'teamColor', 'image',
+        'firstNight', 'otherNight', 'firstNightReminder', 'otherNightReminder',
+        'reminders', 'remindersGlobal', 'setup', 'author',
+      ];
+      const updates: Partial<Character> = {};
+      for (const field of editableFields) {
+        if (field in parsed) {
+          (updates as Record<string, unknown>)[field] = (parsed as Record<string, unknown>)[field];
+        }
+      }
+      setEditData(prev => ({ ...prev, ...updates }));
+      setIsJsonDirty(false);
+      setJsonError(null);
+    } catch (e) {
+      setJsonError((e as Error).message);
+    }
+  };
 
   const handleAddJinx = () => {
     if (newJinxTarget && newJinxDescription.trim() && character) {
@@ -327,7 +382,6 @@ export default observer(function CharacterEditDialog({
   ];
 
   const displayName = editData.name || character.name;
-  const displayAbility = editData.ability || character.ability || '';
   const displayImage = editData.image || character.image || '';
   const activeTeam = String(editData.team || character.team || 'townsfolk');
   const rawTeamColor = getTeamColor(activeTeam, editData.teamColor);
@@ -457,12 +511,6 @@ export default observer(function CharacterEditDialog({
   const previewPanel = (
     <Box
       sx={{
-        width: { xs: '100%', md: '32%' },
-        minWidth: { md: 300 },
-        flexShrink: 0,
-        position: { md: 'sticky' },
-        top: { md: 20 },
-        alignSelf: 'flex-start',
         p: 2,
         borderRadius: 3,
         background: `linear-gradient(180deg, ${alpha(teamColor, 0.08)}, #f2f4f5 46%)`,
@@ -522,17 +570,9 @@ export default observer(function CharacterEditDialog({
             />
           </Box>
         </Box>
-        <Typography
-          variant="body2"
-          sx={{
-            color: '#344054',
-            lineHeight: 1.7,
-            fontSize: 14,
-            overflowWrap: 'anywhere',
-          }}
-        >
-          {displayAbility}
-        </Typography>
+        <Box sx={{ color: '#344054', lineHeight: 1.7, fontSize: 14, overflowWrap: 'anywhere' }}>
+          <MarkdownRenderer content={editData.ability || character.ability || ''} />
+        </Box>
       </Paper>
     </Box>
   );
@@ -695,17 +735,15 @@ export default observer(function CharacterEditDialog({
                   </Box>
                 </Box>
                 <Box>
-                  <Typography sx={formLabelSx}>{t('ability')}</Typography>
-                  <TextField
-                    fullWidth
-                    multiline
+                  <MarkdownEditor
+                    value={editData.ability || ''}
+                    onChange={(v) => handleChange('ability', v)}
+                    disabled={isEditDisabled}
+                    textFieldSx={fieldSx}
+                    teamColor={teamColor}
+                    label={t('ability')}
                     minRows={4}
                     maxRows={7}
-                    value={editData.ability || ''}
-                    onChange={(e) => handleChange('ability', e.target.value)}
-                    disabled={isEditDisabled}
-                    sx={fieldSx}
-                    slotProps={{ htmlInput: { 'aria-label': t('ability') } }}
                   />
                 </Box>
               <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '104px 1fr' }, gap: 1.5, alignItems: 'stretch' }}>
@@ -1217,7 +1255,70 @@ export default observer(function CharacterEditDialog({
               </Box>
             </AnimatePresence>
           </Box>
-          {previewPanel}
+          <Box sx={{
+            width: { xs: '100%', md: '32%' },
+            minWidth: { md: 300 },
+            flexShrink: 0,
+            position: { md: 'sticky' },
+            top: { md: 20 },
+            alignSelf: 'flex-start',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 2,
+          }}>
+            {previewPanel}
+            <Box
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                background: `linear-gradient(180deg, ${alpha('#101828', 0.02)}, #f2f4f5 46%)`,
+                boxShadow: `inset 0 0 0 1px ${alpha('#101828', 0.06)}, 0 18px 48px ${alpha('#101828', 0.06)}`,
+              }}
+            >
+              <Typography sx={{ ...sectionTitleSx, mb: 1.5 }}>{t('jsonEditor')}</Typography>
+              <TextField
+                fullWidth
+                multiline
+                minRows={8}
+                maxRows={16}
+                value={jsonText}
+                onChange={(e) => {
+                  setJsonText(e.target.value);
+                  setIsJsonDirty(true);
+                  setJsonError(null);
+                }}
+                error={!!jsonError}
+                helperText={jsonError}
+                disabled={isEditDisabled}
+                sx={{
+                  ...fieldSx,
+                  '& .MuiInputBase-input': {
+                    fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", "SF Mono", Menlo, monospace',
+                    fontSize: 12,
+                    lineHeight: 1.65,
+                  },
+                }}
+              />
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleJsonApply}
+                disabled={!isJsonDirty || isEditDisabled}
+                sx={{
+                  mt: 1.5,
+                  borderRadius: 1.5,
+                  textTransform: 'none',
+                  fontWeight: 750,
+                  backgroundColor: teamColor,
+                  boxShadow: `0 6px 16px ${alpha(teamColor, 0.2)}`,
+                  '&:hover': { backgroundColor: teamColor, filter: 'brightness(0.92)' },
+                  '&.Mui-disabled': { backgroundColor: alpha('#101828', 0.08), color: alpha('#101828', 0.3) },
+                }}
+              >
+                {t('jsonApply')}
+              </Button>
+            </Box>
+          </Box>
         </Box>
       </DialogContent>
 
