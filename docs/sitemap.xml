@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://botc.letshare.fun/</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/"/>
+    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/repo</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/repo"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/repo"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/repo"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/repo"/>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/changelog</loc>
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/changelog"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://botc.letshare.fun/changelog"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://botc.letshare.fun/changelog"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/changelog"/>
+    <priority>0.7</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/custom-lgbt-s-party-v3-add11000.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/custom-script-781d9d6f.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/custom-crazy-house-2-171b97fa.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/custom-v3-0-d2482f19.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/custom-script-ce2d3b8f.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/custom-script-c8d7cb91.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-script-6b271d57.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-script-a901197e.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-script-ecee3976.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-script-98785aa2.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-script-23744796.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-seamstress-vs-riot-ef7c4c71.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-b342cfde.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-72fd768e.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-62985d50.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-5c89ac22.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-79974c01.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-ba38d221.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-psychological-game-x-d6b592a4.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-4d491d82.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>https://botc.letshare.fun/scripts/official-mix-script-8268319a.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+</urlset>

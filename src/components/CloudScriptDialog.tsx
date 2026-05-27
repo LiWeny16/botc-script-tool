@@ -11,6 +11,7 @@ import { observer } from 'mobx-react-lite';
 import { authStore } from '../stores/AuthStore';
 import { listScripts, loadScript, deleteScript, getStorageUsage, type CloudScript } from '../lib/cloudScripts';
 import { alertSuccess } from '../utils/alert';
+import { useTranslation } from '../utils/i18n';
 
 const PAGE_SIZE = 10;
 const MotionPaper = motion(Paper);
@@ -44,6 +45,7 @@ export default observer(function CloudScriptDialog({
 }: {
   open: boolean; onClose: () => void; onLoad: (json: string, name: string) => void;
 }) {
+  const { t } = useTranslation();
   const [scripts, setScripts] = useState<CloudScript[]>([]);
   const [usage, setUsage] = useState({ used: 0, max: 2 * 1024 * 1024 });
   const [search, setSearch] = useState('');
@@ -75,7 +77,7 @@ export default observer(function CloudScriptDialog({
     if (json) {
       onLoad(json, name);
       onClose();
-      alertSuccess(`Loaded "${name}"`);
+      alertSuccess(`${t('cloudScripts.loaded')} "${name}"`);
     }
   };
 
@@ -92,11 +94,11 @@ export default observer(function CloudScriptDialog({
         <Cloud size={48} strokeWidth={1} color="#bbb" />
       </motion.div>
       <Typography color="text.secondary" sx={{ mt: 2 }}>
-        {search ? 'No scripts match your search.' : 'No saved scripts yet.'}
+        {search ? t('cloudScripts.emptySearch') : t('cloudScripts.empty')}
       </Typography>
       {!search && (
         <Typography variant="caption" color="text.disabled">
-          Press Ctrl+S or click Save to upload.
+          {t('cloudScripts.uploadHint')}
         </Typography>
       )}
     </Box>
@@ -108,11 +110,11 @@ export default observer(function CloudScriptDialog({
         <Cloud size={48} strokeWidth={1} color="#bbb" />
       </motion.div>
       <Typography color="text.secondary" sx={{ mt: 2 }}>
-        Sign in with GitHub to sync scripts.
+        {t('cloudScripts.loginPrompt')}
       </Typography>
       <Button variant="outlined" sx={{ mt: 2, borderRadius: 2 }}
         onClick={() => authStore.loginDialogOpen = true}>
-        Sign in
+        {t('auth.signIn')}
       </Button>
     </Box>
   );
@@ -135,7 +137,7 @@ export default observer(function CloudScriptDialog({
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1.5, pb: 1, flexShrink: 0 }}>
         <Cloud size={22} strokeWidth={1.8} />
         <Typography variant="h6" fontWeight={700} sx={{ flex: 1, fontSize: '1.05rem' }}>
-          Cloud Scripts
+          {t('cloudScripts.title')}
         </Typography>
         <Chip
           label={`${fmtSize(usage.used)} / ${fmtSize(usage.max)}`}
@@ -152,7 +154,7 @@ export default observer(function CloudScriptDialog({
           <TextField
             size="small"
             fullWidth
-            placeholder="Search scripts..."
+            placeholder={t('cloudScripts.search')}
             value={search}
             onChange={e => setSearch(e.target.value)}
             InputProps={{

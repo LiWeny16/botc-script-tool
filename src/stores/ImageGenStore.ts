@@ -693,6 +693,7 @@ class ImageGenStore {
 
       if (!dataUrl) throw new Error('No images in API response');
 
+      authStore.invalidateApiQuota(); // free tier quota may have been consumed
       runInAction(() => {
         this.setOutputStatus(outputId, 'done', { dataUrl });
         void this.addToGallery(dataUrl, {

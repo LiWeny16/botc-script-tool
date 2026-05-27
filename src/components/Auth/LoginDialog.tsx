@@ -7,6 +7,7 @@ import { GitHub } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { motion, AnimatePresence } from 'framer-motion';
 import { authStore } from '../../stores/AuthStore';
+import { useTranslation } from '../../utils/i18n';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -21,6 +22,7 @@ const MotionBox = motion(Box);
 const MotionButton = motion(Button);
 
 export default observer(function LoginDialog() {
+  const { t } = useTranslation();
   return (
     <Dialog
       open={authStore.loginDialogOpen}
@@ -79,13 +81,13 @@ export default observer(function LoginDialog() {
 
               <MotionBox custom={1} initial="hidden" animate="visible" variants={fadeUp}>
                 <Typography variant="h6" fontWeight={700} color="#1a1a1a" sx={{ mb: 0.5 }}>
-                  Welcome to BotC Script
+                  {t('auth.welcome')}
                 </Typography>
               </MotionBox>
 
               <MotionBox custom={2} initial="hidden" animate="visible" variants={fadeUp}>
                 <Typography variant="body2" color="text.secondary" sx={{ mb: 4, textAlign: 'center' }}>
-                  Sign in to manage your API keys and generation quota.
+                  {t('auth.description')}
                 </Typography>
               </MotionBox>
 
@@ -108,13 +110,13 @@ export default observer(function LoginDialog() {
                     boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
                   }}
                 >
-                  Continue with GitHub
+                  {t('auth.continueWithGithub')}
                 </MotionButton>
               </MotionBox>
 
               <MotionBox custom={4} initial="hidden" animate="visible" variants={fadeUp}>
                 <Typography variant="caption" color="text.disabled" sx={{ mt: 2 }}>
-                  We only access your public profile.
+                  {t('auth.privacy')}
                 </Typography>
               </MotionBox>
             </Box>

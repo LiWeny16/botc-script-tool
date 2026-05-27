@@ -7,6 +7,7 @@ import { Logout, Image, Storage } from '@mui/icons-material';
 import { GitHub } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import { authStore } from '../../stores/AuthStore';
+import { useTranslation } from '../../utils/i18n';
 
 function fmtSize(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -15,11 +16,13 @@ function fmtSize(bytes: number) {
 }
 
 export default observer(function UserMenu() {
+  const { t } = useTranslation();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
 
   useEffect(() => {
     if (anchor && authStore.isLoggedIn) {
       authStore.refreshStats();
+      authStore.refreshApiQuota();
     }
   }, [anchor]);
 
@@ -27,7 +30,7 @@ export default observer(function UserMenu() {
 
   if (!authStore.isLoggedIn) {
     return (
-      <Tooltip title="Sign in with GitHub" arrow>
+      <Tooltip title={t('auth.signInWithGithub')} arrow>
         <IconButton
           size="small"
           onClick={() => authStore.loginDialogOpen = true}
@@ -75,7 +78,7 @@ export default observer(function UserMenu() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
             <Image sx={{ fontSize: 14, color: apiPct >= 100 ? 'error.main' : '#6366f1' }} />
             <Typography variant="caption" fontWeight={600}>
-              API Generations
+              {t('auth.apiGenerations')}
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
               {authStore.apiUsed}/{authStore.apiMax} today
@@ -100,7 +103,7 @@ export default observer(function UserMenu() {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.5 }}>
             <Storage sx={{ fontSize: 14, color: storagePct >= 100 ? 'error.main' : '#6366f1' }} />
             <Typography variant="caption" fontWeight={600}>
-              Cloud Storage
+              {t('auth.cloudStorage')}
             </Typography>
             <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto' }}>
               {fmtSize(authStore.storageUsed)} / {fmtSize(authStore.storageMax)}
@@ -122,7 +125,7 @@ export default observer(function UserMenu() {
 
         <MenuItem onClick={() => { setAnchor(null); authStore.signOut(); }}>
           <ListItemIcon><Logout fontSize="small" /></ListItemIcon>
-          <ListItemText>Sign out</ListItemText>
+          <ListItemText>{t('auth.signOut')}</ListItemText>
         </MenuItem>
       </Menu>
     </Box>

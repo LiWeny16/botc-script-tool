@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 
 const MAX_BYTES = 2 * 1024 * 1024; // 2MB per user
+const CACHE_TTL = 2 * 60 * 1000; // 2 minutes
 
 function hash(s: string): string {
   let h = 0;
@@ -17,6 +18,18 @@ export interface CloudScript {
   size_bytes: number;
   updated_at: string;
 }
+
+// --- cache ---
+
+let _scriptsCache: { list: CloudScript[]; ts: number } | null = null;
+let _storageCache: { used: number; max: number; ts: number } | null = null;
+
+export function invalidateCache() {
+  _scriptsCache = null;
+  _storageCache = null;
+}
+
+// --- CRUD ---
 
 export async function saveScript(name: string, json: string): Promise<{ ok: boolean; error?: string; id?: string }> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -36,18 +49,14 @@ export async function saveScript(name: string, json: string): Promise<{ ok: bool
     .maybeSingle();
 
   if (existing && existing.content_hash === contentHash) {
-    return { ok: true, id: existing.id }; // No change, skip save
+    return { ok: true, id: existing.id };
   }
 
-  // Check quota
+  // Check quota — always fetch fresh for writes to avoid over-quota bugs
   const { data: usage } = await supabase.rpc('get_storage_usage', { p_user_id: user.id }) as { data: number };
   const currentUsage = typeof usage === 'number' ? usage : 0;
-  if (currentUsage + sizeBytes > MAX_BYTES && (!existing || existing.content_hash === contentHash)) {
-    // If it's an update to existing, we free old space
-    const oldSize = existing ? 0 : 0; // approximate — old record gets deleted below
-    if (currentUsage + sizeBytes > MAX_BYTES) {
-      return { ok: false, error: 'Storage quota exceeded (2MB). Delete old scripts first.' };
-    }
+  if (currentUsage + sizeBytes > MAX_BYTES) {
+    return { ok: false, error: 'Storage quota exceeded (2MB). Delete old scripts first.' };
   }
 
   // Delete old version if updating
@@ -67,13 +76,26 @@ export async function saveScript(name: string, json: string): Promise<{ ok: bool
     .select('id')
     .single();
 
-  if (error) return { ok: false, error: error.message };
+  if (error) {
+    // Still invalidate — partial state may have changed
+    invalidateCache();
+    return { ok: false, error: error.message };
+  }
+
+  invalidateCache();
   return { ok: true, id: data.id };
 }
 
-export async function listScripts(): Promise<CloudScript[]> {
+export async function listScripts(force = false): Promise<CloudScript[]> {
+  if (!force && _scriptsCache && Date.now() - _scriptsCache.ts < CACHE_TTL) {
+    return _scriptsCache.list;
+  }
+
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return [];
+  if (!user) {
+    _scriptsCache = { list: [], ts: Date.now() };
+    return [];
+  }
 
   const { data } = await supabase
     .from('user_scripts')
@@ -82,7 +104,9 @@ export async function listScripts(): Promise<CloudScript[]> {
     .order('updated_at', { ascending: false })
     .limit(100);
 
-  return (data || []) as CloudScript[];
+  const list = (data || []) as CloudScript[];
+  _scriptsCache = { list, ts: Date.now() };
+  return list;
 }
 
 export async function loadScript(id: string): Promise<string | null> {
@@ -98,15 +122,26 @@ export async function loadScript(id: string): Promise<string | null> {
 
 export async function deleteScript(id: string): Promise<boolean> {
   const { error } = await supabase.from('user_scripts').delete().eq('id', id);
+  invalidateCache();
   return !error;
 }
 
-export async function getStorageUsage(): Promise<{ used: number; max: number }> {
+export async function getStorageUsage(force = false): Promise<{ used: number; max: number }> {
+  if (!force && _storageCache && Date.now() - _storageCache.ts < CACHE_TTL) {
+    return _storageCache;
+  }
+
   const user = (await supabase.auth.getUser()).data.user;
-  if (!user) return { used: 0, max: MAX_BYTES };
+  if (!user) {
+    _storageCache = { used: 0, max: MAX_BYTES, ts: Date.now() };
+    return _storageCache;
+  }
   const { data } = await supabase.rpc('get_storage_usage', { p_user_id: user.id }) as { data: number };
-  return { used: typeof data === 'number' ? data : 0, max: MAX_BYTES };
+  _storageCache = { used: typeof data === 'number' ? data : 0, max: MAX_BYTES, ts: Date.now() };
+  return _storageCache;
 }
+
+// --- sharing ---
 
 export async function shareScript(name: string, json: string): Promise<string | null> {
   const user = (await supabase.auth.getUser()).data.user;

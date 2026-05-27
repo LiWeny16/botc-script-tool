@@ -474,7 +474,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
     const result = await saveScript(title, currentJson);
     setCloudSaving(false);
     if (result.ok) {
-      alertSuccess(result.id ? 'Saved to cloud' : 'Already saved (no changes)');
+      alertSuccess(result.id ? t('cloudScripts.saved') : t('cloudScripts.alreadySaved'));
     } else {
       alertError(result.error || 'Save failed');
     }
@@ -875,7 +875,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
               minHeight: 48,
             }}
           >
-            {cloudSaving ? 'Saving...' : 'Cloud'}
+            {cloudSaving ? t('cloudScripts.saving') : t('cloudScripts.cloud')}
           </Button>
 
           <Button

@@ -56,11 +56,11 @@ const ShareDialog = ({ open, onClose, script, originalJson, normalizedJson }: Sh
           <Box sx={{ textAlign: 'center', py: 4 }}>
             <Cloud size={36} strokeWidth={1} color="#999" />
             <Typography color="text.secondary" sx={{ mt: 1.5, mb: 2 }}>
-              Sign in with GitHub to create share links.
+              {t('share.loginPrompt')}
             </Typography>
             <Button variant="outlined" onClick={() => authStore.loginDialogOpen = true}
               sx={{ borderRadius: 2, textTransform: 'none' }}>
-              Sign in
+              {t('auth.signIn')}
             </Button>
           </Box>
         ) : !cloudShareUrl ? (

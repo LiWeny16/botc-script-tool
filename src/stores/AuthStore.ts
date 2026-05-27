@@ -63,11 +63,13 @@ class AuthStore {
   get avatarUrl() { return this.user?.user_metadata?.avatar_url as string | undefined; }
   get displayName() { return (this.user?.user_metadata?.user_name || this.user?.email) as string; }
 
-  // Storage + API usage (updated by UserMenu on open)
+  // Storage + API usage (cached; mutated by save/delete/generate)
   storageUsed = 0;
   storageMax = 2 * 1024 * 1024;
   apiUsed = 0;
   apiMax = 2;
+
+  private _apiQuotaTs = 0;
 
   async refreshStats() {
     if (!this.user) return;
@@ -75,18 +77,36 @@ class AuthStore {
       const [{ getStorageUsage }] = await Promise.all([
         import('../lib/cloudScripts'),
       ]);
-      const s = await getStorageUsage();
-      runInAction(() => { this.storageUsed = s.used; this.storageMax = s.max; });
+      const s = await getStorageUsage(); // cloudScripts has its own TTL cache
+      runInAction(() => {
+        this.storageUsed = s.used;
+        this.storageMax = s.max;
+      });
+    } catch { /* offline, stay at cached */ }
+  }
 
-      // Read API usage from free_tier_usage table
+  async refreshApiQuota() {
+    if (!this.user) return;
+    const now = Date.now();
+    if (now - this._apiQuotaTs < 2 * 60 * 1000) return;
+
+    try {
       const { data } = await supabase
         .from('free_tier_usage')
         .select('count')
         .eq('user_id', this.user.id)
         .eq('date', new Date().toISOString().slice(0, 10))
         .maybeSingle() as { data: { count: number } | null };
-      runInAction(() => { this.apiUsed = data?.count ?? 0; });
-    } catch { /* offline, stay at 0 */ }
+      runInAction(() => {
+        this.apiUsed = data?.count ?? 0;
+        this._apiQuotaTs = Date.now();
+      });
+    } catch { /* offline, stay at cached */ }
+  }
+
+  // Call after API consumption so next open fetches fresh quota
+  invalidateApiQuota() {
+    this._apiQuotaTs = 0;
   }
 }
 
