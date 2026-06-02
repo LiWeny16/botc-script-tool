@@ -30,7 +30,7 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   {
     id: 'openai',
     name: 'OpenAI',
-    icon: '/imgs/icons/brands/openai-color.svg',
+    icon: '/imgs/icons/brands/chatgpt-color.svg',
     format: 'openai',
     baseURL: 'https://api.openai.com/v1',
     models: ['gpt-5.5', 'gpt-5.5-pro', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'gpt-4o', 'o4-mini', 'o3'],

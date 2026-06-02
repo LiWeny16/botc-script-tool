@@ -1,6 +1,7 @@
 import { Fab, Zoom, Badge, Box } from '@mui/material';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from '../../utils/i18n';
 import { keyframes } from '@mui/material';
 import { agentStore } from '../../stores/AgentStore';
 import { agentGradient } from './agentStyles';
@@ -12,12 +13,13 @@ const pulse = keyframes`
 `;
 
 const AgentFAB = observer(() => {
+  const { t } = useTranslation();
   const isThinking = agentStore.status === 'thinking';
 
   return (
     <Zoom in>
       <Fab
-        aria-label="AI 说书人"
+        aria-label={t('agent.title')}
         onClick={() => agentStore.toggleDialog()}
         sx={{
           position: 'fixed',

@@ -5,6 +5,7 @@ import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { motion, AnimatePresence } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from '../../utils/i18n';
 import { agentStore } from '../../stores/AgentStore';
 import { preloadKnowledge } from '../../utils/agentKnowledge';
 import AgentBubble from './AgentBubble';
@@ -28,6 +29,7 @@ const dialogVariants = {
 };
 
 const AgentDialog = observer(() => {
+  const { t } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isOpen = agentStore.dialogOpen;
 
@@ -98,7 +100,7 @@ const AgentDialog = observer(() => {
                 variant="subtitle2"
                 sx={{ fontWeight: 600, fontSize: '0.88rem', whiteSpace: 'nowrap' }}
               >
-                AI 说书人
+                {t('agent.title')}
               </Typography>
               {agentStore.status === 'thinking' && (
                 <CircularProgress size={14} sx={{ color: agentAccent, flexShrink: 0 }} />
@@ -159,8 +161,8 @@ const AgentDialog = observer(() => {
                   sx={{ textAlign: 'center', fontSize: '0.82rem', lineHeight: 1.6, maxWidth: 280 }}
                 >
                   {agentStore.isConfigured
-                    ? '问我关于剧本的任何问题：添加角色、修改设置、检索游戏规则等。'
-                    : '点击右上角齿轮图标，先配置 API Key。'}
+                    ? t('agent.welcomeConfigured')
+                    : t('agent.welcomeNotConfigured')}
                 </Typography>
               </Box>
             )}

@@ -13,6 +13,7 @@ import VisibilityOffOutlinedIcon from '@mui/icons-material/VisibilityOffOutlined
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from '../../utils/i18n';
 import { agentStore } from '../../stores/AgentStore';
 import { authStore } from '../../stores/AuthStore';
 import {
@@ -38,6 +39,7 @@ function saveNum(key: string, value: number): void {
 }
 
 const AgentSettings = observer(() => {
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const open = Boolean(anchorEl);
 
@@ -56,7 +58,7 @@ const AgentSettings = observer(() => {
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ text: string; severity: 'success' | 'warning' } | null>(null);
 
   // Load provider config into local state
   const loadProvider = useCallback((pid: ProviderId) => {
@@ -119,7 +121,7 @@ const AgentSettings = observer(() => {
     saveNum('botc-agent-max-tokens', maxTokens);
     agentStore.setProvider(providerId);
     agentStore.refreshApiConfig();
-    setMessage('已保存');
+    setMessage({ text: t('agent.saved'), severity: 'success' });
     setTimeout(() => setMessage(null), 2000);
   };
 
@@ -132,7 +134,10 @@ const AgentSettings = observer(() => {
       baseURL,
       model,
     });
-    setMessage(ok ? '已同步到云端' : '保存失败，请先登录');
+    setMessage({
+      text: ok ? t('agent.syncedToCloud') : t('agent.saveFailed'),
+      severity: ok ? 'success' : 'warning',
+    });
     setSaving(false);
     setTimeout(() => setMessage(null), 3000);
   };
@@ -149,9 +154,9 @@ const AgentSettings = observer(() => {
         model: cloud.model ?? model,
       });
       agentStore.refreshApiConfig();
-      setMessage('已从云端加载');
+      setMessage({ text: t('agent.loadedFromCloud'), severity: 'success' });
     } else {
-      setMessage('云端暂无配置');
+      setMessage({ text: t('agent.noCloudConfig'), severity: 'warning' });
     }
     setTimeout(() => setMessage(null), 3000);
   };
@@ -168,7 +173,7 @@ const AgentSettings = observer(() => {
 
   return (
     <>
-      <Tooltip title="API 配置">
+      <Tooltip title={t('agent.apiConfig')}>
         <IconButton
           size="small"
           onClick={handleOpen}
@@ -208,16 +213,16 @@ const AgentSettings = observer(() => {
           {/* Header */}
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 600, fontSize: '0.85rem' }}>
-              API 配置
+              {t('agent.apiConfig')}
             </Typography>
             {authStore.isLoggedIn && (
               <Box sx={{ display: 'flex', gap: 0.5 }}>
-                <Tooltip title="上传到云端">
+                <Tooltip title={t('agent.saveToCloud')}>
                   <IconButton size="small" onClick={handleSaveToCloud} disabled={saving}>
                     <CloudUploadOutlinedIcon sx={{ fontSize: 15, color: alpha('#000', 0.4) }} />
                   </IconButton>
                 </Tooltip>
-                <Tooltip title="从云端加载">
+                <Tooltip title={t('agent.loadFromCloud')}>
                   <IconButton size="small" onClick={handleLoadFromCloud}>
                     <CloudDownloadOutlinedIcon sx={{ fontSize: 15, color: alpha('#000', 0.4) }} />
                   </IconButton>
@@ -260,7 +265,7 @@ const AgentSettings = observer(() => {
                 </ToggleButton>
               </Tooltip>
             ))}
-            <Tooltip title="自定义" placement="top">
+            <Tooltip title={t('agent.custom')} placement="top">
               <ToggleButton
                 value="custom"
                 sx={{
@@ -285,16 +290,16 @@ const AgentSettings = observer(() => {
             />
             <Typography variant="caption" sx={{ color: alpha('#000', 0.45), fontSize: '0.7rem' }}>
               {isCustom
-                ? '手动配置'
-                : `${preset?.name ?? ''} · ${preset?.format === 'anthropic' ? 'Anthropic API' : 'OpenAI 兼容'}`}
-              {agentStore.selectedProvider === providerId ? '（当前使用中）' : ''}
+                ? t('agent.manualConfig')
+                : `${preset?.name ?? ''} · ${preset?.format === 'anthropic' ? t('agent.anthropicApi') : t('agent.openaiCompatible')}`}
+              {agentStore.selectedProvider === providerId ? t('agent.currentlyActive') : ''}
             </Typography>
           </Box>
 
           {/* ── API Key ── */}
           <TextField
             size="small"
-            label="API Key"
+            label={t('agent.apiKey')}
             type={showKey ? 'text' : 'password'}
             value={apiKey}
             onChange={e => setApiKey(e.target.value)}
@@ -323,7 +328,7 @@ const AgentSettings = observer(() => {
           {/* ── Model ── */}
           <TextField
             size="small"
-            label="模型"
+            label={t('agent.model')}
             value={model}
             onChange={e => handleModelChange(e.target.value)}
             fullWidth
@@ -337,7 +342,7 @@ const AgentSettings = observer(() => {
             ))}
             {isCustomModel && (
               <MenuItem value={model} sx={{ fontSize: '0.82rem', color: agentAccent }}>
-                {model}（自定义）
+                {model}{t('agent.customModelSuffix')}
               </MenuItem>
             )}
           </TextField>
@@ -345,7 +350,7 @@ const AgentSettings = observer(() => {
           {/* ── Base URL ── */}
           <TextField
             size="small"
-            label="Base URL"
+            label={t('agent.baseUrl')}
             value={baseURL}
             onChange={e => setBaseURL(e.target.value)}
             fullWidth
@@ -367,7 +372,7 @@ const AgentSettings = observer(() => {
               transform: showAdvanced ? 'rotate(180deg)' : 'rotate(0deg)',
             }} />
             <Typography variant="caption" sx={{ fontSize: '0.72rem' }}>
-              高级参数
+              {t('agent.advanced')}
             </Typography>
           </Box>
 
@@ -377,7 +382,7 @@ const AgentSettings = observer(() => {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <Typography variant="caption" sx={{ fontSize: '0.72rem', color: alpha('#000', 0.6) }}>
-                    Temperature
+                    {t('agent.temperature')}
                   </Typography>
                   <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>
                     {temperature.toFixed(1)}
@@ -390,8 +395,8 @@ const AgentSettings = observer(() => {
                   sx={{ py: 0.3, '& .MuiSlider-thumb': { width: 12, height: 12 } }}
                 />
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant="caption" sx={{ fontSize: '0.6rem', color: alpha('#000', 0.3) }}>精确</Typography>
-                  <Typography variant="caption" sx={{ fontSize: '0.6rem', color: alpha('#000', 0.3) }}>创意</Typography>
+                  <Typography variant="caption" sx={{ fontSize: '0.6rem', color: alpha('#000', 0.3) }}>{t('agent.precise')}</Typography>
+                  <Typography variant="caption" sx={{ fontSize: '0.6rem', color: alpha('#000', 0.3) }}>{t('agent.creative')}</Typography>
                 </Box>
               </Box>
 
@@ -399,7 +404,7 @@ const AgentSettings = observer(() => {
               <Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
                   <Typography variant="caption" sx={{ fontSize: '0.72rem', color: alpha('#000', 0.6) }}>
-                    最大输出 Tokens
+                    {t('agent.maxTokens')}
                   </Typography>
                   <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600 }}>
                     {maxTokens}
@@ -437,15 +442,29 @@ const AgentSettings = observer(() => {
               '&:hover': { background: 'linear-gradient(135deg, #ba68c8, #8e24aa)', boxShadow: 'none' },
             }}
           >
-            保存本地
+            {t('agent.saveLocal')}
           </Button>
 
           {message && (
-            <Alert severity={message.includes('失败') || message.includes('暂无') ? 'warning' : 'success'}
+            <Alert severity={message.severity}
               sx={{ py: 0, borderRadius: agentRadiusSm, fontSize: '0.76rem' }}>
-              {message}
+              {message.text}
             </Alert>
           )}
+
+          {/* ── Privacy Notice ── */}
+          <Typography
+            variant="caption"
+            sx={{
+              textAlign: 'center',
+              color: alpha('#000', 0.3),
+              fontSize: '0.65rem',
+              mt: -0.25,
+              lineHeight: 1.4,
+            }}
+          >
+            {t('agent.privacyNotice')}
+          </Typography>
         </Box>
       </Popover>
     </>

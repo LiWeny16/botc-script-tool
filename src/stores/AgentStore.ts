@@ -20,6 +20,7 @@ export interface AgentMessage {
   content: string;
   toolCalls?: AgentToolCall[];
   streaming?: boolean;
+  isError?: boolean;
   timestamp: number;
 }
 
@@ -128,6 +129,7 @@ class AgentStore {
         last.streaming = false;
         if (!last.content && !last.toolCalls?.length) {
           last.content = '（已停止生成）';
+          last.isError = true;
         }
       }
       this.status = 'idle';
@@ -206,6 +208,7 @@ class AgentStore {
         ) {
           const emptyHint = '模型未返回内容，请检查 API Key、Base URL 与模型是否可用。';
           streamingMsg.content = emptyHint;
+          streamingMsg.isError = true;
           this.error = emptyHint;
           this.status = 'error';
           alertWarning(emptyHint, 4000);
@@ -224,6 +227,7 @@ class AgentStore {
         streamingMsg.content = streamingMsg.content.trim()
           ? streamingMsg.content
           : `请求失败：${msg}`;
+        streamingMsg.isError = true;
         this.error = msg;
         this.status = 'error';
         this.persistHistory();
@@ -236,6 +240,7 @@ class AgentStore {
           streamingMsg.streaming = false;
           if (!streamingMsg.content.trim() && (!streamingMsg.toolCalls?.length)) {
             streamingMsg.content = '请求未完成，请重试或检查网络与 API 配置。';
+            streamingMsg.isError = true;
             this.status = 'error';
           } else if (this.status === 'thinking') {
             this.status = 'idle';

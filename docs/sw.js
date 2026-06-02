@@ -1,4 +1,4 @@
-const CACHE_NAME = 'botc-static-v5';
+const CACHE_NAME = 'botc-static-v6';
 
 // 本地资源匹配（pathname）
 const LOCAL_PATTERNS = [

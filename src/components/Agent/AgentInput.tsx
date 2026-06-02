@@ -8,15 +8,14 @@ import StopIcon from '@mui/icons-material/Stop';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { agentStore } from '../../stores/AgentStore';
-import {
-  PROVIDER_PRESETS, getProviderConfig, saveProviderConfig,
-  getSelectedProvider,
-} from '../../utils/agentApiConfig';
+import { PROVIDER_PRESETS } from '../../utils/agentApiConfig';
+import { useTranslation } from '../../utils/i18n';
 import { agentAccent, agentBg, agentBgElevated, agentPanelSurface } from './agentStyles';
 
 const INPUT_RADIUS = '20px';
 
 const AgentInput = observer(() => {
+  const { t } = useTranslation();
   const [input, setInput] = useState('');
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -24,8 +23,8 @@ const AgentInput = observer(() => {
   const isConfigured = agentStore.isConfigured;
   const provider = PROVIDER_PRESETS.find(p => p.id === agentStore.selectedProvider);
   const providerId = agentStore.selectedProvider;
-  const cfg = getProviderConfig(providerId);
   const models = provider?.models ?? [];
+  const currentModel = agentStore.apiConfig.model;
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
@@ -78,7 +77,7 @@ const AgentInput = observer(() => {
           {isConfigured ? (
             <FormControl size="small" sx={{ minWidth: 0, flex: '0 1 auto' }}>
               <Select
-                value={cfg.model}
+                value={currentModel}
                 onChange={e => handleModelSwitch(e.target.value)}
                 variant="standard"
                 disableUnderline
@@ -98,9 +97,9 @@ const AgentInput = observer(() => {
                     {m}
                   </MenuItem>
                 ))}
-                {!models.includes(cfg.model) && (
-                  <MenuItem value={cfg.model} dense sx={{ fontSize: '0.76rem', py: 0.5, color: agentAccent }}>
-                    {cfg.model}
+                {!models.includes(currentModel) && (
+                  <MenuItem value={currentModel} dense sx={{ fontSize: '0.76rem', py: 0.5, color: agentAccent }}>
+                    {currentModel}
                   </MenuItem>
                 )}
               </Select>
@@ -110,7 +109,7 @@ const AgentInput = observer(() => {
               variant="caption"
               sx={{ fontSize: '0.65rem', color: alpha('#000', 0.35), lineHeight: 1 }}
             >
-              点击右侧齿轮配置 API Key
+              {t('agent.configureApiKeyHint')}
             </Typography>
           )}
         </Box>
@@ -143,10 +142,10 @@ const AgentInput = observer(() => {
           size="small"
           placeholder={
             !isConfigured
-              ? '请先在齿轮图标中配置 API Key...'
+              ? t('agent.configureApiKeyPlaceholder')
               : isThinking
-                ? '思考中...'
-                : '输入消息...'
+                ? t('agent.thinking')
+                : t('agent.inputPlaceholder')
           }
           value={input}
           onChange={e => setInput(e.target.value)}

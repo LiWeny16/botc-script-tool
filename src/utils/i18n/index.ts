@@ -11,6 +11,7 @@ import { cn as cnUi, en as enUi, es as esUi } from './ui';
 import { cn as cnSecondPage, en as enSecondPage, es as esSecondPage } from './secondPage';
 import { cn as cnImageGen, en as enImageGen, es as esImageGen } from './imageGen';
 import { cn as cnCloud, en as enCloud, es as esCloud } from './cloud';
+import { cn as cnAgent, en as enAgent, es as esAgent } from './agent';
 
 const cn = {
   ...cnCommon,
@@ -24,6 +25,7 @@ const cn = {
   ...cnSecondPage,
   ...cnImageGen,
   ...cnCloud,
+  ...cnAgent,
 } as const;
 
 const en = {
@@ -38,6 +40,7 @@ const en = {
   ...enSecondPage,
   ...enImageGen,
   ...enCloud,
+  ...enAgent,
 } as const;
 
 const es = {
@@ -52,6 +55,7 @@ const es = {
   ...esSecondPage,
   ...esImageGen,
   ...esCloud,
+  ...esAgent,
 } as const;
 
 export type TranslationKey = keyof typeof cn;

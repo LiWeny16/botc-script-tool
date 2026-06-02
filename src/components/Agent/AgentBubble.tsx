@@ -6,6 +6,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CodeIcon from '@mui/icons-material/Code';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
+import { useTranslation } from '../../utils/i18n';
 import MarkdownIt from 'markdown-it';
 import type { AgentMessage, AgentToolCall } from '../../stores/AgentStore';
 import { agentAccent, agentAccentDark, agentBgElevated } from './agentStyles';
@@ -115,13 +116,11 @@ function ToolCallPanel({ tc }: { tc: AgentToolCall }) {
 }
 
 const AgentBubble = observer(({ message }: AgentBubbleProps) => {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
   const isUser = message.role === 'user';
   const isStreaming = message.streaming;
-  const isError = message.role === 'assistant'
-    && (message.content.startsWith('Error:')
-      || message.content.startsWith('请求失败：')
-      || message.content.includes('模型未返回内容'));
+  const isError = message.isError === true;
   const hasToolCalls = !isUser && !!message.toolCalls?.length;
   const showBubble = isUser || !!message.content || isStreaming || hasToolCalls;
 
@@ -202,7 +201,7 @@ const AgentBubble = observer(({ message }: AgentBubbleProps) => {
             />
           ) : isStreaming ? (
             <Typography variant="body2" sx={{ fontSize: '0.85rem', color: alpha('#000', 0.45), fontStyle: 'italic' }}>
-              正在思考…
+              {t('agent.streamingHint')}
             </Typography>
           ) : null}
 
