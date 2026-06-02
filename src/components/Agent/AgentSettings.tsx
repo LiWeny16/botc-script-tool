@@ -81,21 +81,38 @@ const AgentSettings = observer(() => {
     setMessage(null);
   };
 
+  const applyConfig = (pid: ProviderId, cfg: { apiKey?: string; model?: string; baseURL?: string }) => {
+    saveProviderConfig(pid, cfg);
+    if (agentStore.selectedProvider === pid || pid === providerId) {
+      agentStore.setProvider(pid);
+      agentStore.refreshApiConfig();
+    }
+  };
+
   const switchProvider = (pid: ProviderId) => {
-    // Save current provider's fields first
+    // Save current + switch → auto-apply
     saveProviderConfig(providerId, { apiKey, model, baseURL });
-    // Switch
     setProviderId(pid);
     loadProvider(pid);
+    // Auto-apply new provider
+    const cfg = getProviderConfig(pid);
+    agentStore.setProvider(pid);
+    agentStore.refreshApiConfig();
+    // Also update local state from freshly loaded config
+    setApiKey(cfg.apiKey);
+    setModel(cfg.model);
+    setBaseURL(cfg.baseURL);
+  };
+
+  const handleModelChange = (newModel: string) => {
+    setModel(newModel);
+    applyConfig(providerId, { model: newModel });
   };
 
   const handleSave = () => {
-    // Save provider config
     saveProviderConfig(providerId, { apiKey, model, baseURL });
-    // Save advanced params
     saveNum('botc-agent-temperature', temperature);
     saveNum('botc-agent-max-tokens', maxTokens);
-    // Update agentStore
     agentStore.setProvider(providerId);
     agentStore.refreshApiConfig();
     setMessage('已保存');
@@ -304,7 +321,7 @@ const AgentSettings = observer(() => {
             size="small"
             label="模型"
             value={model}
-            onChange={e => setModel(e.target.value)}
+            onChange={e => handleModelChange(e.target.value)}
             fullWidth
             select={!isCustom && presetModels.length > 0}
             sx={sharedFieldSx}

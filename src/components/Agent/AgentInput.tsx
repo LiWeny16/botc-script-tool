@@ -1,12 +1,20 @@
 import { useState, useRef, useCallback } from 'react';
-import { Box, TextField, IconButton, alpha, Typography } from '@mui/material';
+import {
+  Box, TextField, IconButton, alpha, Typography, Select, MenuItem,
+  FormControl,
+} from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import StopIcon from '@mui/icons-material/Stop';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { agentStore } from '../../stores/AgentStore';
-import { PROVIDER_PRESETS } from '../../utils/agentApiConfig';
-import { agentAccent, agentBg, agentBgElevated, agentPanelSurface, agentRadiusMd } from './agentStyles';
+import {
+  PROVIDER_PRESETS, getProviderConfig, saveProviderConfig,
+  getSelectedProvider,
+} from '../../utils/agentApiConfig';
+import { agentAccent, agentBg, agentBgElevated, agentPanelSurface } from './agentStyles';
+
+const INPUT_RADIUS = '20px';
 
 const AgentInput = observer(() => {
   const [input, setInput] = useState('');
@@ -15,6 +23,9 @@ const AgentInput = observer(() => {
   const isThinking = agentStore.status === 'thinking';
   const isConfigured = agentStore.isConfigured;
   const provider = PROVIDER_PRESETS.find(p => p.id === agentStore.selectedProvider);
+  const providerId = agentStore.selectedProvider;
+  const cfg = getProviderConfig(providerId);
+  const models = provider?.models ?? [];
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
@@ -34,6 +45,11 @@ const AgentInput = observer(() => {
     agentStore.cancelGeneration();
   }, []);
 
+  const handleModelSwitch = (newModel: string) => {
+    saveProviderConfig(providerId, { model: newModel });
+    agentStore.refreshApiConfig();
+  };
+
   return (
     <Box
       sx={{
@@ -44,45 +60,79 @@ const AgentInput = observer(() => {
         bgcolor: agentBg,
       }}
     >
-      {/* Provider indicator */}
-      {provider && isConfigured && (
+      {/* Provider + Model selector bar */}
+      {provider && (
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
-            gap: 0.5,
-            px: 0.5,
-            pb: 0.5,
+            gap: 1,
+            px: 1,
+            pb: 0.75,
           }}
         >
           <Box
             component="img"
             src={provider.icon}
-            sx={{ width: 14, height: 14, flexShrink: 0 }}
+            sx={{ width: 15, height: 15, flexShrink: 0, opacity: isConfigured ? 0.6 : 0.3 }}
           />
-          <Typography
-            variant="caption"
-            sx={{ fontSize: '0.65rem', color: alpha('#000', 0.38), lineHeight: 1 }}
-          >
-            {provider.name} · {agentStore.apiConfig.model}
-          </Typography>
+          {isConfigured ? (
+            <FormControl size="small" sx={{ minWidth: 0, flex: '0 1 auto' }}>
+              <Select
+                value={cfg.model}
+                onChange={e => handleModelSwitch(e.target.value)}
+                variant="standard"
+                disableUnderline
+                MenuProps={{
+                  PaperProps: { sx: { maxHeight: 240 } },
+                }}
+                sx={{
+                  fontSize: '0.68rem',
+                  color: alpha('#000', 0.42),
+                  py: 0,
+                  '& .MuiSelect-select': { py: 0, pr: 2.5, pl: 0 },
+                  '& .MuiSvgIcon-root': { fontSize: 16, right: 0, color: alpha('#000', 0.3) },
+                }}
+              >
+                {models.map(m => (
+                  <MenuItem key={m} value={m} dense sx={{ fontSize: '0.76rem', py: 0.5 }}>
+                    {m}
+                  </MenuItem>
+                ))}
+                {!models.includes(cfg.model) && (
+                  <MenuItem value={cfg.model} dense sx={{ fontSize: '0.76rem', py: 0.5, color: agentAccent }}>
+                    {cfg.model}
+                  </MenuItem>
+                )}
+              </Select>
+            </FormControl>
+          ) : (
+            <Typography
+              variant="caption"
+              sx={{ fontSize: '0.65rem', color: alpha('#000', 0.35), lineHeight: 1 }}
+            >
+              点击右侧齿轮配置 API Key
+            </Typography>
+          )}
         </Box>
       )}
+
+      {/* Input box */}
       <Box
         component={motion.div}
         animate={{
           boxShadow: focused
-            ? `0 0 0 2px ${alpha(agentAccent, 0.22)}, 0 4px 20px ${alpha(agentAccent, 0.1)}`
-            : '0 1px 8px rgba(0,0,0,0.05), 0 0 0 1px rgba(0,0,0,0.06)',
+            ? `0 0 0 2px ${alpha(agentAccent, 0.22)}, 0 4px 24px ${alpha(agentAccent, 0.12)}`
+            : '0 2px 12px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.08)',
         }}
         transition={{ duration: 0.22 }}
         sx={{
           ...agentPanelSurface,
-          borderRadius: agentRadiusMd,
+          borderRadius: INPUT_RADIUS,
           display: 'flex',
           alignItems: 'flex-end',
-          gap: 0.75,
-          p: 0.75,
+          gap: 1,
+          p: 1,
           bgcolor: agentBgElevated,
         }}
       >
@@ -94,7 +144,7 @@ const AgentInput = observer(() => {
           size="small"
           placeholder={
             !isConfigured
-              ? '请先在设置中保存 API Key...'
+              ? '请先在齿轮图标中配置 API Key...'
               : isThinking
                 ? '思考中...'
                 : '输入消息...'
@@ -130,6 +180,7 @@ const AgentInput = observer(() => {
               color: '#fff',
               width: 34,
               height: 34,
+              borderRadius: '50%',
               '&:hover': { bgcolor: '#e53935' },
             }}
           >
@@ -144,6 +195,7 @@ const AgentInput = observer(() => {
               flexShrink: 0,
               width: 34,
               height: 34,
+              borderRadius: '50%',
               background: 'linear-gradient(135deg, #ab47bc, #7b1fa2)',
               color: '#fff',
               '&:hover': {

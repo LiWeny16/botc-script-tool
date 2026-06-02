@@ -33,7 +33,7 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     icon: '/imgs/icons/brands/openai-color.svg',
     format: 'openai',
     baseURL: 'https://api.openai.com/v1',
-    models: ['gpt-5.5', 'gpt-5.5-pro', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'gpt-4o', 'o4-mini'],
+    models: ['gpt-5.5', 'gpt-5.5-pro', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'gpt-4o', 'o4-mini', 'o3'],
   },
   {
     id: 'anthropic',
@@ -41,7 +41,7 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     icon: '/imgs/icons/brands/anthropic-color.svg',
     format: 'anthropic',
     baseURL: 'https://api.anthropic.com/v1',
-    models: ['claude-opus-4-8', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
+    models: ['claude-opus-4-8', 'claude-opus-4-7', 'claude-opus-4-6', 'claude-sonnet-4-6', 'claude-sonnet-4-5', 'claude-haiku-4-5'],
   },
 ];
 
