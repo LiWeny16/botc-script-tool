@@ -56,14 +56,14 @@ const AgentDialog = observer(() => {
             left: 24,
             width: 400,
             maxWidth: 'calc(100vw - 48px)',
-            minHeight: 320,
-            maxHeight: 'min(560px, calc(100vh - 120px))',
+            height: 'min(520px, calc(100vh - 120px))',
             zIndex: 1198,
             display: 'flex',
             flexDirection: 'column',
             borderRadius: agentRadiusLg,
             overflow: 'hidden',
             ...agentPanelSurface,
+            boxShadow: '0 8px 40px rgba(0,0,0,0.14), 0 2px 12px rgba(0,0,0,0.08)',
           }}
         >
           {/* Header */}

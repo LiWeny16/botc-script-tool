@@ -1,4 +1,3 @@
-# BOTC Script Tool — github.com/LiWeny16/botc-script-tool | botc.letshare.fun
 User-agent: *
 Allow: /
 

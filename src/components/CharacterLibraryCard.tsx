@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import MarkdownRenderer from './MarkdownRenderer';
 import {
     Card,
@@ -13,10 +15,8 @@ import {
     ListItem,
     ListItemAvatar,
     ListItemText,
-    Avatar,
     Chip,
     Divider,
-    CircularProgress,
 } from '@mui/material';
 import {
     Close as CloseIcon,
@@ -84,7 +84,11 @@ const CharacterItem = React.memo(({
     };
 
     return (
-        <React.Fragment key={uniqueKey}>
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.1 }}
+        >
             <ListItem
                 component="div"
                 onClick={handleClick}
@@ -187,7 +191,7 @@ const CharacterItem = React.memo(({
                 />
             </ListItem>
             <Divider />
-        </React.Fragment>
+        </motion.div>
     );
 });
 
@@ -215,12 +219,12 @@ const CharacterLibraryCard = observer(({
     const { t, language } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTab, setSelectedTab] = useState(0);
-    const [isLoading, setIsLoading] = useState(false);
     const [isPinned, setIsPinned] = useState(false); // 是否固定
     const [isDragging, setIsDragging] = useState(false); // 是否正在拖拽
     const dragOffsetRef = React.useRef({ x: 0, y: 0 }); // 使用 ref 存储拖拽偏移量,避免频繁渲染
     const dragStartRef = React.useRef({ x: 0, y: 0 }); // 拖拽起始位置
     const cardRef = React.useRef<HTMLDivElement>(null);
+    const listRef = React.useRef<HTMLDivElement>(null); // 虚拟列表滚动容器
     const rafRef = React.useRef<number | null>(null); // requestAnimationFrame ID
     const searchInputRef = React.useRef<HTMLInputElement>(null); // 搜索框引用
 
@@ -360,21 +364,27 @@ const CharacterLibraryCard = observer(({
         return teamCharacters ? teamCharacters.filter(char => char.team === currentTeam.key) : [];
     }, [currentTeam.key, filteredCharacters, selectedCharacters, searchTerm]);
 
-    // 处理打开时的加载效果
+    // 虚拟列表
+    const virtualizer = useVirtualizer({
+        count: currentCharacters.length,
+        getScrollElement: () => listRef.current,
+        estimateSize: () => 74,
+        overscan: 8,
+    });
+
+    // 处理打开时重置状态
     useEffect(() => {
         if (open) {
-            setIsLoading(true);
-
             // 重置搜索
             setSearchTerm('');
-            
+
             // 重置拖拽状态
             dragOffsetRef.current = { x: 0, y: 0 };
             if (cardRef.current) {
                 cardRef.current.style.transform = 'translate(0px, 0px)';
             }
             setIsDragging(false);
-            
+
             // 如果有初始团队，自动切换到对应的标签
             if (initialTeam) {
                 const teamIndex = teamTabs.findIndex(tab => tab.key === initialTeam);
@@ -386,16 +396,10 @@ const CharacterLibraryCard = observer(({
                 setSelectedTab(0);
             }
 
-            // 模拟数据加载时间，实际项目中这里可能是API调用
-            const timer = setTimeout(() => {
-                setIsLoading(false);
-                // 加载完成后自动聚焦搜索框
-                if (searchInputRef.current) {
-                    searchInputRef.current.focus();
-                }
-            }, 200); // 进一步减少加载时间
-
-            return () => clearTimeout(timer);
+            // 打开后自动聚焦搜索框
+            requestAnimationFrame(() => {
+                searchInputRef.current?.focus();
+            });
         }
     }, [open, initialTeam]);
 
@@ -516,327 +520,272 @@ const CharacterLibraryCard = observer(({
         }
     }, [isDragging, handleMouseMove, handleMouseUp]);
 
-    return open ? (
-        <>
-            {/* 背景遮罩层 - 点击关闭 (透明) */}
-            {!isPinned && (
-                <Box
-                    onClick={handleBackdropClick}
-                    sx={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        zIndex: 1000,
-                        backgroundColor: 'transparent',
-                        '@media print': {
-                            display: 'none',
-                        },
-                    }}
-                />
-            )}
-            
-            {/* 角色库卡片 */}
-            <Box
-                ref={cardRef}
-                sx={{
-                    position: 'fixed',
-                    // 如果有position参数，使用它；否则使用默认位置
-                    ...(position ? {
-                        top: Math.min(position.y, window.innerHeight - 750),
-                        left: Math.min(position.x, window.innerWidth - 420),
-                    } : {
-                        bottom: { xs: 80, sm: 100 },
-                        right: { xs: 16, sm: 24 },
-                    }),
-                    // transform 由 DOM 直接操作，不在这里设置
-                    zIndex: 1001,
-                    '@media print': {
-                        display: 'none',
-                    },
-                }}
-            >
-                <Card
-                    sx={{
-                        width: { xs: 340, sm: 400 },
-                        height: {
-                            xs: 'min(calc(100vh - 180px), 720px)',
-                            sm: 'min(calc(100vh - 120px), 830px)'
-                        },
-                        maxHeight: {
-                            xs: 'calc(100vh - 5px)',
-                            sm: 'calc(100vh - 5px)'
-                        },
-                        boxShadow: 6,
-                        borderRadius: 2,
-                        display: 'flex',
-                        flexDirection: 'column',
-                        opacity: open ? 1 : 0,
-                        transition: isDragging ? 'none' : 'opacity 0.15s ease-out',
-                        cursor: isDragging ? 'grabbing' : 'default',
-                        userSelect: 'none',
-                        WebkitUserSelect: 'none',
-                        MozUserSelect: 'none',
-                        msUserSelect: 'none',
-                        '& *': {
-                            userSelect: isDragging ? 'none !important' : 'auto',
-                            WebkitUserSelect: isDragging ? 'none !important' : 'auto',
-                            MozUserSelect: isDragging ? 'none !important' : 'auto',
-                            msUserSelect: isDragging ? 'none !important' : 'auto',
-                        },
-                    }}
-                >
-                    {/* 标题栏 - 可拖拽 */}
-                    <Box
-                        className="draggable-header"
-                        onMouseDown={handleMouseDown}
-                        sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            p: 2,
-                            pb: 1,
-                            borderBottom: '1px solid #e0e0e0',
-                            cursor: isDragging ? 'grabbing' : 'grab',
-                            '&:active': {
-                                cursor: 'grabbing',
-                            },
+    return (
+        <AnimatePresence>
+            {open && (
+                <>
+                    {/* 背景遮罩层 - 点击关闭 (透明) */}
+                    {!isPinned && (
+                        <motion.div
+                            key="lib-backdrop"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            onClick={handleBackdropClick}
+                            style={{
+                                position: 'fixed',
+                                top: 0, left: 0, right: 0, bottom: 0,
+                                zIndex: 1000,
+                                backgroundColor: 'transparent',
+                            }}
+                        />
+                    )}
+
+                    {/* 卡片入场动画层 */}
+                    <motion.div
+                        key="lib-card"
+                        initial={{ opacity: 0, scale: 0.96, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.96, y: 10 }}
+                        transition={{ type: 'spring', stiffness: 420, damping: 28, mass: 0.8 }}
+                        style={{
+                            position: 'fixed',
+                            ...(position ? {
+                                top: Math.min(position.y, window.innerHeight - 750),
+                                left: Math.min(position.x, window.innerWidth - 420),
+                            } : {
+                                bottom: 100,
+                                right: 24,
+                            }),
+                            zIndex: 1001,
                         }}
                     >
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                            <CharacterImage
-                                src="/imgs/images/sources/logo2.png"
-                                alt="BOTC Script Tool"
+                        {/* 拖拽层（直接操作 DOM transform，不走 framer-motion） */}
+                        <Box ref={cardRef}>
+                            <Card
                                 sx={{
-                                    height: 24,
-                                    objectFit: 'contain',
-                                }}
-                            />
-                            <Typography variant="h6" sx={{ fontSize: '1rem' }}>
-                                {t('characterLibrary')}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: 'flex', gap: 0.5 }}>
-                            {/* 固定/解锁按钮 */}
-                            <IconButton 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setIsPinned(!isPinned);
-                                }} 
-                                size="small"
-                                title={isPinned ? t('library.unpin') : t('library.pin')}
-                                sx={{
-                                    color: isPinned ? THEME_COLORS.good : 'text.secondary',
-                                    transition: 'all 0.2s',
-                                    '&:hover': {
-                                        color: THEME_COLORS.good,
-                                        backgroundColor: 'rgba(76, 175, 80, 0.08)',
+                                    width: { xs: 340, sm: 400 },
+                                    height: {
+                                        xs: 'min(calc(100vh - 180px), 720px)',
+                                        sm: 'min(calc(100vh - 120px), 830px)',
                                     },
-                                }}
-                            >
-                                {isPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
-                            </IconButton>
-                            {/* 关闭按钮 */}
-                            <IconButton 
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleClose();
-                                }} 
-                                size="small"
-                                sx={{
-                                    '&:hover': {
-                                        color: THEME_COLORS.evil,
-                                        backgroundColor: 'rgba(244, 67, 54, 0.08)',
-                                    },
-                                }}
-                            >
-                                <CloseIcon />
-                            </IconButton>
-                        </Box>
-                    </Box>
-
-                {/* 搜索栏 */}
-                <Box sx={{ p: 2, pb: 1 }}>
-                    <TextField
-                        fullWidth
-                        size="small"
-                        placeholder={t('searchCharacters')}
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        inputRef={searchInputRef}
-                        InputProps={{
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <SearchIcon fontSize="small" />
-                                </InputAdornment>
-                            ),
-                        }}
-                        sx={{
-                            '& .MuiOutlinedInput-root': {
-                                borderRadius: 1,
-                            },
-                        }}
-                    />
-                </Box>
-
-                {/* 团队标签页 - 多行布局 */}
-                <Box sx={{ borderBottom: '1px solid #e0e0e0', p: 1 }}>
-                    <Box
-                        sx={{
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            gap: 0.5,
-                        }}
-                    >
-                        {teamTabs.map((tab, index) => (
-                            <Box
-                                key={tab.key}
-                                onClick={() => setSelectedTab(index)}
-                                sx={{
+                                    maxHeight: 'calc(100vh - 5px)',
+                                    boxShadow: 6,
+                                    borderRadius: 2,
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 0.5,
-                                    px: 1.5,
-                                    py: 0.5,
-                                    borderRadius: 1,
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    backgroundColor: selectedTab === index ? tab.color : 'transparent',
-                                    color: selectedTab === index ? '#fff' : tab.color,
-                                    border: `1px solid ${tab.color}`,
-                                    transition: 'all 0.2s',
-                                    '&:hover': {
-                                        backgroundColor: selectedTab === index ? tab.color : `${tab.color}15`,
+                                    flexDirection: 'column',
+                                    cursor: isDragging ? 'grabbing' : 'default',
+                                    userSelect: 'none',
+                                    WebkitUserSelect: 'none',
+                                    MozUserSelect: 'none',
+                                    msUserSelect: 'none',
+                                    '& *': {
+                                        userSelect: isDragging ? 'none !important' : 'auto',
+                                        WebkitUserSelect: isDragging ? 'none !important' : 'auto',
+                                        MozUserSelect: isDragging ? 'none !important' : 'auto',
+                                        msUserSelect: isDragging ? 'none !important' : 'auto',
                                     },
                                 }}
                             >
+                                {/* 标题栏 - 可拖拽 */}
                                 <Box
+                                    className="draggable-header"
+                                    onMouseDown={handleMouseDown}
                                     sx={{
-                                        width: 8,
-                                        height: 8,
-                                        borderRadius: '50%',
-                                        backgroundColor: selectedTab === index ? '#fff' : tab.color,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        p: 2,
+                                        pb: 1,
+                                        borderBottom: '1px solid #e0e0e0',
+                                        cursor: isDragging ? 'grabbing' : 'grab',
+                                        '&:active': { cursor: 'grabbing' },
                                     }}
-                                />
-                                {tab.label}
-                                <Chip
-                                    label={tab.key === 'selected'
-                                        ? selectedCharacters.length
-                                        : tab.key === 'all'
-                                            ? Object.values(filteredCharacters).flat().length
-                                            : (filteredCharacters[tab.key as keyof typeof filteredCharacters]?.length || 0)
-                                    }
-                                    size="small"
-                                    sx={{
-                                        height: 16,
-                                        fontSize: '0.6rem',
-                                        backgroundColor: selectedTab === index ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)',
-                                        color: selectedTab === index ? '#fff' : 'inherit',
-                                        '& .MuiChip-label': {
-                                            px: 0.5,
-                                        },
-                                    }}
-                                />
-                            </Box>
-                        ))}
-                    </Box>
-                </Box>
-
-                {/* 角色列表 */}
-                <CardContent sx={{ flex: 1, overflow: 'auto', p: 0 }}>
-                    {isLoading ? (
-                        <Box sx={{ p: 2 }}>
-                            {/* 骨架屏加载效果 */}
-                            <Box sx={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                                mb: 3,
-                                gap: 2,
-                            }}>
-                                <CircularProgress size={24} />
-                                <Typography variant="body2" color="text.secondary">
-                                    {t('loading')}
-                                </Typography>
-                            </Box>
-
-                            {/* 模拟角色项的骨架屏 */}
-                            {[1, 2, 3, 4, 5].map((item) => (
-                                <Box key={item} sx={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    p: 1.5,
-                                    mb: 1,
-                                    opacity: 0.3,
-                                }}>
-                                    <Box sx={{
-                                        width: 48,
-                                        height: 48,
-                                        borderRadius: '50%',
-                                        backgroundColor: 'grey.300',
-                                        mr: 2,
-                                    }} />
-                                    <Box sx={{ flex: 1 }}>
-                                        <Box sx={{
-                                            height: 16,
-                                            backgroundColor: 'grey.300',
-                                            borderRadius: 1,
-                                            mb: 1,
-                                            width: '60%',
-                                        }} />
-                                        <Box sx={{
-                                            height: 12,
-                                            backgroundColor: 'grey.200',
-                                            borderRadius: 1,
-                                            width: '90%',
-                                        }} />
+                                >
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        <CharacterImage
+                                            src="/imgs/images/sources/logo2.png"
+                                            alt="BOTC Script Tool"
+                                            sx={{ height: 24, objectFit: 'contain' }}
+                                        />
+                                        <Typography variant="h6" sx={{ fontSize: '1rem' }}>
+                                            {t('characterLibrary')}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                        {/* 固定/解锁按钮 */}
+                                        <IconButton
+                                            onClick={(e) => { e.stopPropagation(); setIsPinned(!isPinned); }}
+                                            size="small"
+                                            title={isPinned ? t('library.unpin') : t('library.pin')}
+                                            sx={{
+                                                color: isPinned ? THEME_COLORS.good : 'text.secondary',
+                                                transition: 'all 0.2s',
+                                                '&:hover': { color: THEME_COLORS.good, backgroundColor: 'rgba(76, 175, 80, 0.08)' },
+                                            }}
+                                        >
+                                            {isPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
+                                        </IconButton>
+                                        {/* 关闭按钮 */}
+                                        <IconButton
+                                            onClick={(e) => { e.stopPropagation(); handleClose(); }}
+                                            size="small"
+                                            sx={{ '&:hover': { color: THEME_COLORS.evil, backgroundColor: 'rgba(244, 67, 54, 0.08)' } }}
+                                        >
+                                            <CloseIcon />
+                                        </IconButton>
                                     </Box>
                                 </Box>
-                            ))}
-                        </Box>
-                    ) : currentCharacters.length === 0 ? (
-                        <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            height: 200,
-                            color: 'text.secondary',
-                        }}>
-                            <Typography variant="body2">
-                                {searchTerm ? t('noSearchResults') : t('noCharactersInTeam')}
-                            </Typography>
-                        </Box>
-                    ) : (
-                        <List sx={{ p: 0 }}>
-                            {currentCharacters.map((character, index) => {
-                                const characterTeamColor = currentTeam.key === 'all' || currentTeam.key === 'selected'
-                                    ? teamTabs.find(t => t.key === character.team)?.color || THEME_COLORS.text.primary
-                                    : currentTeam.color;
 
-                                const isSelected = selectedCharacters.some(c => c.id === character.id);
-
-                                return (
-                                    <CharacterItem
-                                        key={`${character.team}-${character.id}-${index}`}
-                                        character={character}
-                                        index={index}
-                                        teamColor={characterTeamColor}
-                                        showTeamChip={currentTeam.key === 'all' || currentTeam.key === 'selected'}
-                                        isSelected={isSelected}
-                                        teamTabs={teamTabs}
-                                        onAddCharacter={handleAddCharacter}
-                                        onRemoveCharacter={handleRemoveCharacter}
+                                {/* 搜索栏 */}
+                                <Box sx={{ p: 2, pb: 1 }}>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        placeholder={t('searchCharacters')}
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        inputRef={searchInputRef}
+                                        InputProps={{
+                                            startAdornment: (
+                                                <InputAdornment position="start">
+                                                    <SearchIcon fontSize="small" />
+                                                </InputAdornment>
+                                            ),
+                                        }}
+                                        sx={{ '& .MuiOutlinedInput-root': { borderRadius: 1 } }}
                                     />
-                                );
-                            })}
-                        </List>
-                    )}
-                </CardContent>
-            </Card>
-        </Box>
-        </>
-    ) : null;
+                                </Box>
+
+                                {/* 团队标签页 */}
+                                <Box sx={{ borderBottom: '1px solid #e0e0e0', p: 1 }}>
+                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                                        {teamTabs.map((tab, index) => (
+                                            <Box
+                                                key={tab.key}
+                                                onClick={() => setSelectedTab(index)}
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 0.5,
+                                                    px: 1.5,
+                                                    py: 0.5,
+                                                    borderRadius: 1,
+                                                    cursor: 'pointer',
+                                                    fontSize: '0.8rem',
+                                                    backgroundColor: selectedTab === index ? tab.color : 'transparent',
+                                                    color: selectedTab === index ? '#fff' : tab.color,
+                                                    border: `1px solid ${tab.color}`,
+                                                    transition: 'all 0.2s',
+                                                    '&:hover': {
+                                                        backgroundColor: selectedTab === index ? tab.color : `${tab.color}15`,
+                                                    },
+                                                }}
+                                            >
+                                                <Box sx={{
+                                                    width: 8, height: 8,
+                                                    borderRadius: '50%',
+                                                    backgroundColor: selectedTab === index ? '#fff' : tab.color,
+                                                }} />
+                                                {tab.label}
+                                                <Chip
+                                                    label={
+                                                        tab.key === 'selected'
+                                                            ? selectedCharacters.length
+                                                            : tab.key === 'all'
+                                                                ? Object.values(filteredCharacters).flat().length
+                                                                : (filteredCharacters[tab.key as keyof typeof filteredCharacters]?.length || 0)
+                                                    }
+                                                    size="small"
+                                                    sx={{
+                                                        height: 16,
+                                                        fontSize: '0.6rem',
+                                                        backgroundColor: selectedTab === index ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.1)',
+                                                        color: selectedTab === index ? '#fff' : 'inherit',
+                                                        '& .MuiChip-label': { px: 0.5 },
+                                                    }}
+                                                />
+                                            </Box>
+                                        ))}
+                                    </Box>
+                                </Box>
+
+                                {/* 角色列表 - 虚拟化 + tab 切换动画 */}
+                                <CardContent
+                                    ref={listRef}
+                                    sx={{ flex: 1, overflow: 'auto', p: 0, position: 'relative' }}
+                                >
+                                    <AnimatePresence mode="wait" initial={false}>
+                                        <motion.div
+                                            key={`${currentTeam.key}|${searchTerm}`}
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            transition={{ duration: 0.12 }}
+                                            style={{ height: '100%' }}
+                                        >
+                                            {currentCharacters.length === 0 ? (
+                                                <Box sx={{
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    height: 200,
+                                                    color: 'text.secondary',
+                                                }}>
+                                                    <Typography variant="body2">
+                                                        {searchTerm ? t('noSearchResults') : t('noCharactersInTeam')}
+                                                    </Typography>
+                                                </Box>
+                                            ) : (
+                                                <List sx={{ p: 0, height: virtualizer.getTotalSize(), position: 'relative' }}>
+                                                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                                                        const character = currentCharacters[virtualRow.index];
+                                                        const characterTeamColor =
+                                                            currentTeam.key === 'all' || currentTeam.key === 'selected'
+                                                                ? teamTabs.find(t => t.key === character.team)?.color || THEME_COLORS.text.primary
+                                                                : currentTeam.color;
+                                                        const isSelected = selectedCharacters.some(c => c.id === character.id);
+
+                                                        return (
+                                                            <Box
+                                                                key={virtualRow.key}
+                                                                data-index={virtualRow.index}
+                                                                ref={virtualizer.measureElement}
+                                                                style={{
+                                                                    position: 'absolute',
+                                                                    top: 0,
+                                                                    left: 0,
+                                                                    width: '100%',
+                                                                    transform: `translateY(${virtualRow.start}px)`,
+                                                                }}
+                                                            >
+                                                                <CharacterItem
+                                                                    character={character}
+                                                                    index={virtualRow.index}
+                                                                    teamColor={characterTeamColor}
+                                                                    showTeamChip={currentTeam.key === 'all' || currentTeam.key === 'selected'}
+                                                                    isSelected={isSelected}
+                                                                    teamTabs={teamTabs}
+                                                                    onAddCharacter={handleAddCharacter}
+                                                                    onRemoveCharacter={handleRemoveCharacter}
+                                                                />
+                                                            </Box>
+                                                        );
+                                                    })}
+                                                </List>
+                                            )}
+                                        </motion.div>
+                                    </AnimatePresence>
+                                </CardContent>
+                            </Card>
+                        </Box>
+                    </motion.div>
+                </>
+            )}
+        </AnimatePresence>
+    );
 });
 
 export default CharacterLibraryCard;
+

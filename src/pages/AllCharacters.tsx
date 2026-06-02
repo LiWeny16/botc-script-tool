@@ -29,6 +29,12 @@ const theme = createTheme({
   breakpoints: {
     values: { xs: 0, sm: 600, md: 960, lg: 1280, xl: 1920 },
   },
+  components: {
+    MuiDialog: { defaultProps: { disableScrollLock: true } },
+    MuiDrawer: { defaultProps: { disableScrollLock: true } },
+    MuiMenu: { defaultProps: { disableScrollLock: true } },
+    MuiPopover: { defaultProps: { disableScrollLock: true } },
+  },
 });
 
 const TEAM_ORDER = ['townsfolk', 'outsider', 'minion', 'demon'] as const;

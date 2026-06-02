@@ -5,8 +5,8 @@ Blood on the Clocktower script editor & layout beautifier. React 19 + Vite 7 + T
 ## Build
 
 ```powershell
-yarn dev                        # dev server
-yarn build                      # prebuild -> tsc -> vite -> postbuild -> docs/
+pnpm dev                        # dev server
+pnpm build                      # prebuild -> tsc -> vite -> postbuild -> docs/
 node scripts/generate-seo-html.mjs  # postbuild: SEO, sitemap, script pages
 ```
 Build output goes to `docs/`, served by GitHub Pages. Committed.

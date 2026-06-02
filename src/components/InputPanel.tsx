@@ -579,8 +579,8 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: { xs: 'stretch', sm: 'center' },
-          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'stretch', md: 'center' },
+          flexDirection: { xs: 'column', md: 'row' },
           mb: 3,
           gap: 2,
         }}
@@ -591,8 +591,9 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
             fontWeight: 'bold',
             color: '#333',
             fontSize: { xs: '1.3rem', sm: '1.5rem' },
-            width: { xs: '100%', sm: 'auto' },
+            width: { xs: '100%', md: 'auto' },
             minWidth: 0,
+            flexShrink: 1,
           }}
         >
           {t('app.title')}
@@ -601,10 +602,11 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
           direction={{ xs: 'column', sm: 'row' }}
           spacing={{ xs: 1.5, sm: 1 }}
           sx={{
-            width: { xs: '100%', sm: 'auto' },
-            minWidth: { xs: 0, sm: 'min-content' },
+            width: { xs: '100%', md: 'auto' },
+            minWidth: { xs: 0, md: 'min-content' },
             alignItems: { xs: 'stretch', sm: 'center' },
-            flexShrink: { sm: 0 },
+            flexShrink: { md: 0 },
+            flexWrap: { sm: 'wrap' },
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>

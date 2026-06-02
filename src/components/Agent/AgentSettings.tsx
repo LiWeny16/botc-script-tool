@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import {
   Box, Typography, TextField, IconButton, Button, alpha, Alert, Popover, Tooltip,
-  ToggleButtonGroup, ToggleButton, Slider, Collapse, MenuItem,
+  Slider, Collapse, MenuItem,
   InputAdornment,
 } from '@mui/material';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
@@ -232,53 +233,75 @@ const AgentSettings = observer(() => {
           </Box>
 
           {/* ── Provider Tabs ── */}
-          <ToggleButtonGroup
-            value={providerId}
-            exclusive
-            onChange={(_, v) => { if (v) switchProvider(v); }}
-            size="small"
+          <Box
             sx={{
               display: 'flex',
-              '& .MuiToggleButtonGroup-grouped': {
-                m: 0, border: '1px solid', borderColor: alpha('#000', 0.12),
-              },
-              '& .MuiToggleButtonGroup-firstButton': {
-                borderTopLeftRadius: agentRadiusSm, borderBottomLeftRadius: agentRadiusSm,
-              },
-              '& .MuiToggleButtonGroup-lastButton': {
-                borderTopRightRadius: agentRadiusSm, borderBottomRightRadius: agentRadiusSm,
-              },
-              '& .MuiToggleButtonGroup-middleButton': { borderRadius: 0, ml: '-1px' },
+              border: '1px solid',
+              borderColor: alpha('#000', 0.12),
+              borderRadius: agentRadiusSm,
+              overflow: 'hidden',
             }}
           >
-            {PROVIDER_PRESETS.map(p => (
+            {PROVIDER_PRESETS.map((p, i) => (
               <Tooltip key={p.id} title={p.name} placement="top">
-                <ToggleButton
-                  value={p.id}
+                <Box
+                  onClick={() => switchProvider(p.id)}
                   sx={{
-                    flex: 1, py: 0.65, minWidth: 0,
-                    bgcolor: providerId === p.id ? alpha(agentAccent, 0.07) : 'transparent',
+                    flex: 1,
+                    position: 'relative',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    py: 0.65,
+                    cursor: 'pointer',
+                    borderRight: i < PROVIDER_PRESETS.length - 1 ? '1px solid' : 'none',
+                    borderRightColor: alpha('#000', 0.12),
                     '&:hover': { bgcolor: alpha(agentAccent, 0.04) },
                   }}
                 >
-                  <Box component="img" src={p.icon} sx={{ width: 22, height: 22 }} />
-                </ToggleButton>
+                  {providerId === p.id && (
+                    <motion.div
+                      layoutId="provider-tab-bg"
+                      style={{ position: 'absolute', inset: 0, background: alpha(agentAccent, 0.09) }}
+                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                    />
+                  )}
+                  <Box
+                    component="img"
+                    src={p.icon}
+                    sx={{ width: 22, height: 22, position: 'relative', zIndex: 1 }}
+                  />
+                </Box>
               </Tooltip>
             ))}
             <Tooltip title={t('agent.custom')} placement="top">
-              <ToggleButton
-                value="custom"
+              <Box
+                onClick={() => switchProvider('custom')}
                 sx={{
-                  py: 0.65, px: 1.2, minWidth: 0,
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  py: 0.65,
+                  px: 1.2,
+                  cursor: 'pointer',
+                  borderLeft: '1px solid',
+                  borderLeftColor: alpha('#000', 0.12),
                   color: isCustom ? agentAccent : alpha('#000', 0.5),
-                  bgcolor: isCustom ? alpha(agentAccent, 0.07) : 'transparent',
                   '&:hover': { bgcolor: alpha(agentAccent, 0.04) },
                 }}
               >
-                <TuneIcon sx={{ fontSize: 18 }} />
-              </ToggleButton>
+                {isCustom && (
+                  <motion.div
+                    layoutId="provider-tab-bg"
+                    style={{ position: 'absolute', inset: 0, background: alpha(agentAccent, 0.09) }}
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <TuneIcon sx={{ fontSize: 18, position: 'relative', zIndex: 1 }} />
+              </Box>
             </Tooltip>
-          </ToggleButtonGroup>
+          </Box>
 
           {/* Provider status line */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, mt: -0.5 }}>

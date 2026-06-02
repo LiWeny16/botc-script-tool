@@ -160,6 +160,7 @@ const AgentInput = observer(() => {
               fontSize: '0.88rem',
               padding: '6px 4px',
               lineHeight: 1.5,
+              transition: 'height 0.18s ease',
             },
           }}
           sx={{

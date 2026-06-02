@@ -43,6 +43,14 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     baseURL: 'https://api.anthropic.com/v1',
     models: ['claude-opus-4-8', 'claude-opus-4-7', 'claude-opus-4-6', 'claude-sonnet-4-6', 'claude-sonnet-4-5', 'claude-haiku-4-5'],
   },
+  {
+    id: 'gemini',
+    name: 'Google Gemini',
+    icon: '/imgs/icons/brands/gemini-color.svg',
+    format: 'openai',
+    baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    models: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash', 'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'],
+  },
 ];
 
 // ── Per-Provider Storage ──

@@ -40,6 +40,12 @@ const theme = createTheme({
       xl: 1920,
     },
   },
+  components: {
+    MuiDialog: { defaultProps: { disableScrollLock: true } },
+    MuiDrawer: { defaultProps: { disableScrollLock: true } },
+    MuiMenu: { defaultProps: { disableScrollLock: true } },
+    MuiPopover: { defaultProps: { disableScrollLock: true } },
+  },
 });
 
 const ScriptPreview = observer(() => {
