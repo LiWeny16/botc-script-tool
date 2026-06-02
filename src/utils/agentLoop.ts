@@ -117,6 +117,26 @@ function splitSystemMessages(messages: ModelMessage[]): {
   return { system, conversation };
 }
 
+/** Remove orphaned tool-result messages whose tool-call is not in the provided messages */
+function removeOrphanedToolResults(messages: ModelMessage[]): ModelMessage[] {
+  // Collect all known toolCallIds from assistant messages
+  const knownIds = new Set<string>();
+  for (const m of messages) {
+    if (m.role === 'assistant' && Array.isArray(m.content)) {
+      for (const part of m.content) {
+        if (part.type === 'tool-call' && part.toolCallId) {
+          knownIds.add(part.toolCallId);
+        }
+      }
+    }
+  }
+  // Keep only tool messages that reference a known toolCallId
+  return messages.filter(m => {
+    if (m.role !== 'tool' || !Array.isArray(m.content)) return true;
+    return m.content.some(part => part.type === 'tool-result' && knownIds.has(part.toolCallId));
+  });
+}
+
 // Layer 2: Step-level message pruning
 function compressStepMessages(messages: ModelMessage[]): ModelMessage[] {
   if (messages.length <= STEP_COMPRESS_THRESHOLD) return messages;
@@ -147,7 +167,7 @@ function compressStepMessages(messages: ModelMessage[]): ModelMessage[] {
       content: `[Compressed ${toolCount} tool results. Changes: ${[...changeSummaries].slice(0, 8).join(' | ')}]`,
     });
   }
-  const recent = nonSystem.slice(-8);
+  const recent = removeOrphanedToolResults(nonSystem.slice(-8));
   return [...compact, ...recent];
 }
 
@@ -155,7 +175,7 @@ function compressStepMessages(messages: ModelMessage[]): ModelMessage[] {
 function compactSession(messages: ModelMessage[]): ModelMessage[] {
   if (messages.length <= SESSION_COMPACT_THRESHOLD) return messages;
   const nonSystem = messages.filter(m => m.role !== 'system');
-  const lastN = nonSystem.slice(-6);
+  const lastN = removeOrphanedToolResults(nonSystem.slice(-6));
   const ops: string[] = [];
   const userInputs: string[] = [];
   for (const m of nonSystem.slice(0, -6)) {
