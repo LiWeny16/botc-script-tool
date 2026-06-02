@@ -145,10 +145,14 @@ class AgentStore {
     });
 
     try {
+      const storedTemp = parseFloat(localStorage.getItem('botc-agent-temperature') || '0.7');
+      const storedMax = parseInt(localStorage.getItem('botc-agent-max-tokens') || '4096', 10);
       const result = await runAgentLoopStream({
         apiConfig: this.apiConfig,
         messages: this.lastMessages,
         signal,
+        temperature: isNaN(storedTemp) ? 0.7 : storedTemp,
+        maxTokens: isNaN(storedMax) ? 4096 : storedMax,
         onTextDelta: (delta: string) => {
           if (signal.aborted) return;
           runInAction(() => {

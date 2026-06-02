@@ -10,6 +10,8 @@ interface AgentLoopInput {
   apiConfig: AgentApiConfig;
   messages: ModelMessage[];
   signal?: AbortSignal;
+  temperature?: number;
+  maxTokens?: number;
   onTextDelta?: (delta: string) => void;
   onToolCallStart?: (toolCallId: string, toolName: string, input: unknown) => void;
   onToolCallResult?: (toolCallId: string, result: unknown) => void;
@@ -206,11 +208,12 @@ function compactSession(messages: ModelMessage[]): ModelMessage[] {
   return [summary, ...lastN];
 }
 
-function agentStepOptions() {
+function agentStepOptions(temperature?: number, maxTokens?: number) {
   return {
     tools: ALL_TOOLS,
     stopWhen: stepCountIs(MAX_STEPS),
-    maxOutputTokens: 4096,
+    temperature: temperature ?? 0.7,
+    maxOutputTokens: maxTokens ?? 4096,
     prepareStep: async ({ messages: stepMsgs }: { messages: ModelMessage[] }) => {
       if (stepMsgs.length > STEP_COMPRESS_THRESHOLD) {
         return { messages: compressStepMessages(stepMsgs) };
@@ -418,7 +421,7 @@ async function runAgentLoopNonStream(input: AgentLoopInput): Promise<AgentLoopOu
 }
 
 async function runAgentLoopWithStream(input: AgentLoopInput): Promise<AgentLoopOutput> {
-  const { apiConfig, messages, signal, onTextDelta, onToolCallStart, onToolCallResult } = input;
+  const { apiConfig, messages, signal, temperature, maxTokens, onTextDelta, onToolCallStart, onToolCallResult } = input;
   const { model, system, conversation } = buildRequestContext(apiConfig, messages);
 
   const result = streamText({
@@ -426,7 +429,7 @@ async function runAgentLoopWithStream(input: AgentLoopInput): Promise<AgentLoopO
     system,
     messages: conversation,
     abortSignal: signal,
-    ...agentStepOptions(),
+    ...agentStepOptions(temperature, maxTokens),
   });
 
   let fullText = '';
