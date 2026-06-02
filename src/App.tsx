@@ -58,6 +58,8 @@ import ExportJsonDialog from './components/AppSub/ExportJsonDialog';
 import { trackGenerateScript, trackExportJson, trackExportImage, trackExportPdf, trackClearScript, trackAddCharacter, trackRemoveCharacter, trackEditCharacter } from './utils/analytics';
 import { AnimatePresence } from 'framer-motion';
 import AnimatedDialog from './components/AnimatedDialog';
+import AgentFAB from './components/Agent/AgentFAB';
+import AgentDialog from './components/Agent/AgentDialog';
 
 // Place this above the App component, or below the theme definition
 const printStyles = {
@@ -1280,6 +1282,10 @@ const App = observer(() => {
         />
       )}
       </AnimatePresence>
+
+      {/* AI Agent */}
+      <AgentFAB />
+      <AgentDialog />
     </ThemeProvider >
   );
 });
