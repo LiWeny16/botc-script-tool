@@ -60,39 +60,12 @@ class AgentStore {
       if (msg.role === 'user') {
         modelMessages.push({ role: 'user', content: msg.content });
       } else if (msg.role === 'assistant') {
-        // Assistant message content (no tool results — those were sent in previous loop steps)
-        const parts: Array<Record<string, unknown>> = [];
-        // Always include a text part — SDK requires at least one content part
-        parts.push({ type: 'text', text: msg.content || '' });
-        if (msg.toolCalls && msg.toolCalls.length > 0) {
-          for (const tc of msg.toolCalls) {
-            parts.push({
-              type: 'tool-call',
-              toolCallId: tc.toolCallId,
-              toolName: tc.toolName,
-              args: tc.toolInput,
-            });
-          }
-        }
-        modelMessages.push({
-          role: 'assistant',
-          content: parts as never,
-        });
-        // Add separate tool result messages for each completed tool call
-        if (msg.toolCalls) {
-          for (const tc of msg.toolCalls) {
-            // Skip tool calls without results (shouldn't happen for completed messages)
-            if (tc.toolResult === null || tc.toolResult === undefined) continue;
-            modelMessages.push({
-              role: 'tool' as const,
-              content: [{
-                type: 'tool-result',
-                toolCallId: tc.toolCallId,
-                toolName: tc.toolName,
-                output: tc.toolResult, // raw object — SDK handles serialization
-              }],
-            } as ModelMessage);
-          }
+        // Only include text content when rebuilding history for the next API call.
+        // Tool call/result pairs are not sent back — they're internal implementation
+        // details that cause schema validation errors when reconstructed from history.
+        // The assistant's text response is sufficient to maintain conversation context.
+        if (msg.content) {
+          modelMessages.push({ role: 'assistant', content: msg.content });
         }
       }
     }
