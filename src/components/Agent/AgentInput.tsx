@@ -46,8 +46,7 @@ const AgentInput = observer(() => {
   }, []);
 
   const handleModelSwitch = (newModel: string) => {
-    saveProviderConfig(providerId, { model: newModel });
-    agentStore.refreshApiConfig();
+    agentStore.updateApiConfig({ model: newModel });
   };
 
   return (

@@ -67,9 +67,13 @@ const AgentSettings = observer(() => {
   }, []);
 
   const handleOpen = (e: React.MouseEvent<HTMLElement>) => {
+    // Sync from MobX store (single source of truth) + localStorage
     const current = getSelectedProvider();
     setProviderId(current);
-    loadProvider(current);
+    const cfg = { ...getProviderConfig(current), ...agentStore.apiConfig };
+    setApiKey(cfg.apiKey);
+    setModel(cfg.model);
+    setBaseURL(cfg.baseURL);
     setTemperature(loadNum('botc-agent-temperature', 0.7));
     setMaxTokens(loadNum('botc-agent-max-tokens', 4096));
     setMessage(null);
