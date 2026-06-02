@@ -14,7 +14,8 @@
     "postbuild": "node scripts/generate-seo-html.mjs",
     "gen:manifest": "node ./scripts/generate-manifest.mjs",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "prepush": "pnpm lint && pnpm build"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^3.0.80",
