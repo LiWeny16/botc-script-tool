@@ -16,7 +16,7 @@ import { observer } from 'mobx-react-lite';
 import { agentStore } from '../../stores/AgentStore';
 import { authStore } from '../../stores/AuthStore';
 import {
-  PROVIDER_PROVIDER_PRESETS, getProviderConfig, saveProviderConfig,
+  PROVIDER_PRESETS, getProviderConfig, saveProviderConfig,
   saveApiConfigToCloud, loadApiConfigFromCloud, getSelectedProvider,
   type ProviderConfig,
 } from '../../utils/agentApiConfig';
@@ -104,7 +104,7 @@ const AgentSettings = observer(() => {
 
   const handleSaveToCloud = async () => {
     setSaving(true);
-    const preset = PROVIDER_PROVIDER_PRESETS.find(p => p.id === providerId);
+    const preset = PROVIDER_PRESETS.find(p => p.id === providerId);
     const ok = await saveApiConfigToCloud({
       format: preset?.format ?? 'openai',
       apiKey,
@@ -135,7 +135,7 @@ const AgentSettings = observer(() => {
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const preset = PROVIDER_PROVIDER_PRESETS.find(p => p.id === providerId);
+  const preset = PROVIDER_PRESETS.find(p => p.id === providerId);
   const isCustom = providerId === 'custom';
   const presetModels = preset?.models ?? [];
   const isCustomModel = !isCustom && model && !presetModels.includes(model);
