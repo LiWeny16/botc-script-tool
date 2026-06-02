@@ -17,13 +17,13 @@ export const OG_IMAGE_HEIGHT = 909;
 
 export const META = {
   cn: {
-    title: '免费血染钟楼剧本工具 — 板子美化器 | 自定义相克·双页排版·PDF导出·JSON编辑器',
+    title: '免费血染钟楼剧本工具 — 板子生成器 | PDF导出 | 自定义相克',
     description:
-      '免费血染钟楼（染·钟楼谜团）板子美化器。导入官方 JSON、自定义角色与相克关系、上传自制角色图标、双页排版、一键导出彩图 PDF。支持中文/英文/西班牙语，无需注册，打开即用。',
+      '免费血染钟楼剧本制作工具：导入官方JSON，自定义角色与相克关系，上传自制图标，双页排版，一键导出彩图PDF。无需注册，打开即用。',
     keywords:
       '血染钟楼剧本生成器,血染钟楼剧本美化,血染钟楼自创板子,血染钟楼自制DIY,染钟楼谜团剧本工具,BOTC剧本工具,血染钟楼彩图PDF导出,血染钟楼官方工具替代品,自定义相克关系编辑,血染钟楼自制角色图标,自定义夜间顺序,血染钟楼自定义背景,剧本排版美化',
     appTitle: 'BOTC剧本工具',
-    ogImageAlt: 'BOTC剧本工具：免费血染钟楼剧本美化器，支持自定义相克、双页排版和 PDF 导出',
+    ogImageAlt: 'BOTC剧本工具：免费血染钟楼板子生成器，支持 PDF 导出和自定义相克',
     featureList: [
       '导入官方剧本制作器 JSON',
       '自定义角色、特殊规则和相克关系',
@@ -95,9 +95,9 @@ export const META = {
     ogAlternate: ['en_US', 'es_ES'],
   },
   en: {
-    title: "Free BOTC Script Tool - Blood on the Clocktower Layout Beautifier & Custom Script Generator",
+    title: "Free BOTC Script Tool — Blood on the Clocktower Script Maker & PDF Generator",
     description:
-      'The free Blood on the Clocktower script tool. Import official JSON, customize characters, jinxes and night order, upload custom icons, choose two-page layout, then export print-ready PDF or images. No signup needed — open and create.',
+      "The free Blood on the Clocktower script maker — import official JSON, customize characters, jinxes & night order, upload custom icons, and export beautiful print-ready PDFs in minutes. No signup needed.",
     keywords:
       'Blood on the Clocktower script generator,BOTC script tool,botc script builder,botc script maker,BOTC custom script maker,BOTC homebrew script tool,Blood on the Clocktower PDF generator,alternative to official BOTC script tool,BOTC script beautifier,fancy BOTC script,BOTC script custom background,custom jinx editor BOTC,custom night order BOTC,BOTC custom character art',
     appTitle: "BOTC Script Tool",
@@ -173,9 +173,9 @@ export const META = {
     ogAlternate: ['zh_CN', 'es_ES'],
   },
   es: {
-    title: 'Herramienta BOTC gratuita - Generador y maquetador de guiones Blood on the Clocktower',
+    title: 'Herramienta BOTC Gratuita — Creador de Guiones Blood on the Clocktower | PDF',
     description:
-      'La herramienta gratuita para guiones de Blood on the Clocktower. Importa JSON oficial, personaliza personajes e interacciones jinx, y exporta PDF listo para imprimir. Sin registro, abre y crea.',
+      'Herramienta gratuita para crear guiones de Blood on the Clocktower. Importa JSON oficial, personaliza personajes y jinxes, sube iconos propios, y exporta PDF listo para imprimir. Sin registro.',
     keywords:
       'generador de guiones Blood on the Clocktower,herramienta BOTC,maquetador BOTC,crear guion BOTC,guion personalizado BOTC,interacciones jinx personalizadas,cómo personalizar interacciones BOTC,JSON de guion,juego de mesa,botc script builder,botc script maker',
     appTitle: 'BOTC Script Tool',
@@ -254,6 +254,8 @@ export const META = {
 
 function buildStructuredData(lang) {
   const m = META[lang];
+  const bcp47 = LANG_TO_BCP47[lang] || lang;
+  const canonicalUrl = `${SITE_URL}/`;
   const howToName = lang === 'cn'
     ? '如何使用 BOTC剧本工具制作血染钟楼剧本'
     : lang === 'es'
@@ -265,15 +267,16 @@ function buildStructuredData(lang) {
     '@graph': [
       {
         '@type': 'WebApplication',
+        '@id': `${canonicalUrl}#webapp`,
         name: m.appTitle,
         alternateName: m.title,
         description: m.description,
-        url: `${SITE_URL}/`,
+        url: canonicalUrl,
         applicationCategory: 'GameApplication',
         operatingSystem: 'Web',
         author: { '@type': 'Person', name: 'Onion' },
-        inLanguage: lang,
-        availableLanguage: LANGUAGES,
+        inLanguage: bcp47,
+        availableLanguage: LANGUAGES.map((l) => LANG_TO_BCP47[l] || l),
         image: OG_IMAGE,
         screenshot: OG_IMAGE,
         keywords: m.keywords,
@@ -289,13 +292,11 @@ function buildStructuredData(lang) {
           '@type': 'GeoShape',
           name: 'Worldwide',
         },
-        speakable: {
-          '@type': 'SpeakableSpecification',
-          xpath: ['/html/head/title', '/html/head/meta[@name="description"]/@content'],
-        },
       },
       {
         '@type': 'FAQPage',
+        '@id': `${canonicalUrl}#faq`,
+        description: m.description,
         mainEntity: m.faq.map((item) => ({
           '@type': 'Question',
           name: item.question,
@@ -307,6 +308,7 @@ function buildStructuredData(lang) {
       },
       {
         '@type': 'HowTo',
+        '@id': `${canonicalUrl}#howto`,
         name: howToName,
         description: m.description,
         image: OG_IMAGE,
@@ -320,17 +322,19 @@ function buildStructuredData(lang) {
           '@type': 'HowToStep',
           name: step.name,
           text: step.text,
-          url: `${SITE_URL}/#step${i + 1}`,
+          url: `${canonicalUrl}#step${i + 1}`,
         })),
       },
       {
         '@type': 'WebSite',
+        '@id': `${canonicalUrl}#website`,
         name: m.appTitle,
         url: SITE_URL,
-        inLanguage: lang,
+        inLanguage: bcp47,
       },
       {
         '@type': 'Organization',
+        '@id': `${canonicalUrl}#organization`,
         name: 'BOTC Script Tool',
         alternateName: lang === 'cn' ? 'BOTC剧本工具' : lang === 'es' ? 'Herramienta BOTC' : 'BOTC Script Tool',
         url: SITE_URL,
