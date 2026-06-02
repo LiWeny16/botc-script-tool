@@ -259,7 +259,7 @@ function getMapSummary(): string {
       .replace(/^- \*\*路径\*\*:.*$/gm, '')
       .replace(/^- \*\*大小\*\*:.*$/gm, '')
       .replace(/^- \*\*官方来源\*\*:.*$/gm, '')
-      .replace(/^- \*\*官方百科对应页\*\*:[\s\S]*?(?=^### |\n\n|\Z)/gm, '')
+      .replace(/^- \*\*官方百科对应页\*\*:[\s\S]*?(?=^### |\n\n|$)/gm, '')
       .replace(/\n{3,}/g, '\n\n')
       .trim();
     return `[KNOWLEDGE MAP — use search_knowledge / get_knowledge_topic to explore]\n${cleaned.slice(0, 1200)}`;

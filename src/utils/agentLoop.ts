@@ -289,7 +289,7 @@ async function runAgentLoopNonStream(input: AgentLoopInput): Promise<AgentLoopOu
   );
   const endpoint = `${baseURL}/v1/chat/completions`;
 
-  let apiMessages = toOpenAIChatMessages(system, conversation);
+  const apiMessages = toOpenAIChatMessages(system, conversation);
   let fullText = '';
   let stepCount = 0;
 
