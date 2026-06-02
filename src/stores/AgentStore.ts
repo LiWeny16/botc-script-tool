@@ -1,6 +1,9 @@
 import { makeAutoObservable, runInAction, observable } from 'mobx';
 import type { ModelMessage } from 'ai';
-import { getAgentApiConfig, saveAgentApiConfig, type AgentApiConfig } from '../utils/agentApiConfig';
+import {
+  getActiveApiConfig, saveActiveApiConfig, saveSelectedProvider, getSelectedProvider,
+  migrateLegacyConfig, type AgentApiConfig,
+} from '../utils/agentApiConfig';
 import { runAgentLoopStream } from '../utils/agentLoop';
 import { alertError, alertWarning } from '../utils/alert';
 
@@ -34,17 +37,30 @@ class AgentStore {
   error: string | null = null;
   dialogOpen = false;
   apiConfig: AgentApiConfig;
+  selectedProvider: string;
 
   private abortController: AbortController | null = null;
 
   constructor() {
-    this.apiConfig = getAgentApiConfig();
+    migrateLegacyConfig();
+    this.selectedProvider = getSelectedProvider();
+    this.apiConfig = getActiveApiConfig();
     makeAutoObservable(this);
     this.loadHistory();
   }
 
   get isConfigured() {
     return !!this.apiConfig.apiKey.trim();
+  }
+
+  setProvider(providerId: string) {
+    this.selectedProvider = providerId;
+    saveSelectedProvider(providerId);
+    this.apiConfig = getActiveApiConfig();
+  }
+
+  refreshApiConfig() {
+    this.apiConfig = getActiveApiConfig();
   }
 
   clearError() {
@@ -77,7 +93,7 @@ class AgentStore {
 
   updateApiConfig(config: Partial<AgentApiConfig>) {
     this.apiConfig = { ...this.apiConfig, ...config };
-    saveAgentApiConfig(this.apiConfig);
+    saveActiveApiConfig(config);
   }
 
   addMessage(msg: Omit<AgentMessage, 'id' | 'timestamp'>) {

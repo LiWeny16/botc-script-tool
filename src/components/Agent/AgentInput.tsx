@@ -1,10 +1,11 @@
 import { useState, useRef, useCallback } from 'react';
-import { Box, TextField, IconButton, alpha } from '@mui/material';
+import { Box, TextField, IconButton, alpha, Typography } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import StopIcon from '@mui/icons-material/Stop';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { agentStore } from '../../stores/AgentStore';
+import { PROVIDER_PRESETS } from '../../utils/agentApiConfig';
 import { agentAccent, agentBg, agentBgElevated, agentPanelSurface, agentRadiusMd } from './agentStyles';
 
 const AgentInput = observer(() => {
@@ -13,6 +14,7 @@ const AgentInput = observer(() => {
   const inputRef = useRef<HTMLInputElement>(null);
   const isThinking = agentStore.status === 'thinking';
   const isConfigured = agentStore.isConfigured;
+  const provider = PROVIDER_PRESETS.find(p => p.id === agentStore.selectedProvider);
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
@@ -42,6 +44,30 @@ const AgentInput = observer(() => {
         bgcolor: agentBg,
       }}
     >
+      {/* Provider indicator */}
+      {provider && isConfigured && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 0.5,
+            px: 0.5,
+            pb: 0.5,
+          }}
+        >
+          <Box
+            component="img"
+            src={provider.icon}
+            sx={{ width: 14, height: 14, flexShrink: 0 }}
+          />
+          <Typography
+            variant="caption"
+            sx={{ fontSize: '0.65rem', color: alpha('#000', 0.38), lineHeight: 1 }}
+          >
+            {provider.name} · {agentStore.apiConfig.model}
+          </Typography>
+        </Box>
+      )}
       <Box
         component={motion.div}
         animate={{
