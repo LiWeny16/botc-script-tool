@@ -562,6 +562,10 @@ function main() {
   writeFile(path.join(DOCS_DIR, 'llms-full.txt'), llmsFullTxt);
   console.log('[generate-seo-html] Written: llms-full.txt');
 
+  // 7. .nojekyll — prevent Jekyll processing on GitHub Pages
+  writeFile(path.join(DOCS_DIR, '.nojekyll'), '');
+  console.log('[generate-seo-html] Written: .nojekyll');
+
   console.log('[generate-seo-html] Done!');
 }
 
