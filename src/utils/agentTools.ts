@@ -58,7 +58,7 @@ export const searchCharacters = tool({
     '返回三语名字和官方ID，确保后续操作使用正确的角色ID。',
   inputSchema: z.object({
     query: z.string().describe('搜索关键词（名称、ID、别名、拼音均可）'),
-    team: z.string().optional().describe('按队伍过滤：townsfolk/outsider/minion/demon/traveler/fabled'),
+    team: z.enum(['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled']).optional().describe('按队伍过滤'),
     lang: z.enum(['cn', 'en', 'es']).optional().describe('返回语言，不指定则使用当前应用语言'),
     limit: z.number().optional().default(10).describe('最大返回数量'),
   }),
@@ -625,6 +625,23 @@ export const addSpecialRule = tool({
       updatedScript.specialRules = [...s.specialRules, newRule];
     }
     scriptStore.setScript(updatedScript);
+
+    // Sync to original JSON
+    try {
+      const jsonArray = JSON.parse(scriptStore.originalJson || '[]');
+      if (Array.isArray(jsonArray)) {
+        if (type === 'state') {
+          const meta = jsonArray.find((it: { id?: string }) => it && it.id === '_meta');
+          if (meta) {
+            meta.state = [...(meta.state || []), { stateName: title, stateDescription: content }];
+          }
+        } else {
+          jsonArray.push({ id: newRule.id, title, content });
+        }
+        scriptStore.setOriginalJson(JSON.stringify(jsonArray, null, 2));
+      }
+    } catch { /* best-effort sync — script state is already updated */ }
+
     return {
       added: title,
       type,
@@ -650,10 +667,11 @@ export const editSpecialRule = tool({
     if (!rule) return { error: `Rule not found: ${rule_id}. Check get_script_json for rule IDs.` };
 
     const updated = { ...rule };
-    if (title !== undefined) updated.title = title;
-    if (content !== undefined) updated.content = content;
+    const fields: string[] = [];
+    if (title !== undefined) { updated.title = title; fields.push('title'); }
+    if (content !== undefined) { updated.content = content; fields.push('content'); }
     scriptStore.updateSpecialRule(updated);
-    return { updated: rule_id, fields: Object.keys({ ...(title !== undefined && { title }), ...(content !== undefined && { content }) }) };
+    return { updated: rule_id, fields };
   },
 });
 
@@ -870,19 +888,11 @@ export const reorderCharacters = tool({
 // ── J: UI Config Extended ──
 
 export const resetUiConfig = tool({
-  description: '重置UI配置到默认值。可指定要重置的部分。',
-  inputSchema: z.object({
-    section: z.enum(['all', 'fonts', 'backgrounds', 'card', 'theme']).optional().default('all').describe('要重置的配置部分'),
-  }),
-  execute: async ({ section }) => {
-    if (section === 'all') {
-      uiConfigStore.resetToDefault();
-      return { reset: 'all', message: 'All UI config reset to defaults' };
-    }
-    // For partial reset, we reset to default then re-apply other settings
-    // Since resetToDefault resets everything, we note that partial reset is best-effort
+  description: '重置所有UI配置到默认值（包括字体、背景、卡片布局、主题）。注意：这是全量重置，无法只重置部分配置。',
+  inputSchema: z.object({}),
+  execute: async () => {
     uiConfigStore.resetToDefault();
-    return { reset: section, message: `UI config section "${section}" reset (full reset applied)` };
+    return { reset: 'all', message: 'All UI config (fonts, backgrounds, card, theme) reset to defaults' };
   },
 });
 

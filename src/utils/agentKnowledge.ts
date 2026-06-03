@@ -316,7 +316,7 @@ export function getSystemPrompt(): string {
 ## Few-shot：编辑操作示例
 
 用户: "把小怪宝和半兽人加一个相克：如果半兽人选到了照看小怪宝的玩家，该玩家不会死亡"
-→ add_custom_jinx({character_a_id:"lilmonsta", character_b_id:"lycanthrope", reason:"..."})
+→ add_custom_jinx({character_a_id:"lilmonsta", character_b_id:"lycanthrope", reason:"如果半兽人选到了照看小怪宝的玩家，该玩家不会死亡"})
 → 返回: added: "小怪宝 ↔ 半兽人"
 
 用户: "把占卜师的名字改成预言家"

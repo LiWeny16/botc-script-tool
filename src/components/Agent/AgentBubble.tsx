@@ -39,7 +39,8 @@ function ExportActions({ json, showDownload }: { json: string; showDownload: boo
   };
 
   const handleDownload = () => {
-    const formatted = (() => { try { return JSON.stringify(JSON.parse(json), null, 2); } catch { return json; } })();
+    let formatted: string;
+    try { formatted = JSON.stringify(JSON.parse(json), null, 2); } catch { formatted = json; }
     const blob = new Blob([formatted], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
