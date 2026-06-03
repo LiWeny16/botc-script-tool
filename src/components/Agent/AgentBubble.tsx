@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { Box, Typography, IconButton, Collapse, alpha } from '@mui/material';
+import { Box, Typography, IconButton, Collapse, alpha, Button } from '@mui/material';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import CheckIcon from '@mui/icons-material/Check';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import CodeIcon from '@mui/icons-material/Code';
+import DownloadIcon from '@mui/icons-material/Download';
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../../utils/i18n';
@@ -23,12 +25,123 @@ const bubbleAnim = {
   transition: { duration: 0.2, ease: 'easeOut' as const },
 };
 
+// ── Rich tool-result action components ──
+
+/** Download + Copy buttons for JSON export tools */
+function ExportActions({ json, showDownload }: { json: string; showDownload: boolean }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(json).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {});
+  };
+
+  const handleDownload = () => {
+    const formatted = (() => { try { return JSON.stringify(JSON.parse(json), null, 2); } catch { return json; } })();
+    const blob = new Blob([formatted], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'script.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <Box sx={{ display: 'flex', gap: 0.75, mt: 1 }}>
+      {showDownload && (
+        <Button
+          size="small"
+          variant="contained"
+          startIcon={<DownloadIcon sx={{ fontSize: 14 }} />}
+          onClick={handleDownload}
+          sx={{
+            fontSize: '0.7rem',
+            py: 0.3,
+            px: 1.2,
+            borderRadius: 1.5,
+            bgcolor: agentAccent,
+            textTransform: 'none',
+            '&:hover': { bgcolor: agentAccentDark },
+          }}
+        >
+          Download JSON
+        </Button>
+      )}
+      <Button
+        size="small"
+        variant="outlined"
+        startIcon={copied ? <CheckIcon sx={{ fontSize: 14 }} /> : <ContentCopyIcon sx={{ fontSize: 14 }} />}
+        onClick={handleCopy}
+        sx={{
+          fontSize: '0.7rem',
+          py: 0.3,
+          px: 1.2,
+          borderRadius: 1.5,
+          borderColor: alpha(agentAccent, 0.3),
+          color: agentAccent,
+          textTransform: 'none',
+          '&:hover': { borderColor: agentAccent, bgcolor: alpha(agentAccent, 0.05) },
+        }}
+      >
+        {copied ? 'Copied' : 'Copy JSON'}
+      </Button>
+    </Box>
+  );
+}
+
+/** Red-styled error card for failed tool calls */
+function ErrorCard({ error }: { error: string }) {
+  return (
+    <Box
+      sx={{
+        mt: 1,
+        px: 1.2,
+        py: 0.7,
+        borderRadius: 1.5,
+        bgcolor: alpha('#d32f2f', 0.06),
+        border: `1px solid ${alpha('#d32f2f', 0.2)}`,
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 0.6,
+      }}
+    >
+      <ErrorOutlineIcon sx={{ fontSize: 14, color: '#c62828', mt: 0.1, flexShrink: 0 }} />
+      <Typography variant="caption" sx={{ fontSize: '0.7rem', color: '#c62828', lineHeight: 1.4 }}>
+        {error.length > 300 ? error.slice(0, 300) + '...' : error}
+      </Typography>
+    </Box>
+  );
+}
+
+/** Switches on toolName to render contextual actions */
+function ToolResultActions({ tc }: { tc: AgentToolCall }) {
+  const result = tc.toolResult;
+  if (!result || typeof result !== 'object') return null;
+
+  // Error state — replace the OUTPUT section with a styled error card
+  if ('error' in result) {
+    return <ErrorCard error={String(result.error)} />;
+  }
+
+  // export_json / get_script_json → download + copy buttons
+  if ((tc.toolName === 'export_json' || tc.toolName === 'get_script_json') && 'json' in result) {
+    return <ExportActions json={String(result.json)} showDownload={tc.toolName === 'export_json'} />;
+  }
+
+  return null;
+}
+
 function ToolCallPanel({ tc }: { tc: AgentToolCall }) {
   const [expanded, setExpanded] = useState(false);
   const inputStr = typeof tc.toolInput === 'string' ? tc.toolInput : JSON.stringify(tc.toolInput, null, 2);
+  const hasError = tc.toolResult && typeof tc.toolResult === 'object' && 'error' in tc.toolResult;
   const resultStr = tc.toolResult != null
     ? (typeof tc.toolResult === 'string' ? tc.toolResult : JSON.stringify(tc.toolResult, null, 2))
     : '...';
+  const actions = <ToolResultActions tc={tc} />;
 
   return (
     <Box sx={{ mb: 0.75 }}>
@@ -41,22 +154,25 @@ function ToolCallPanel({ tc }: { tc: AgentToolCall }) {
           px: 1.2,
           py: 0.4,
           borderRadius: 2,
-          bgcolor: alpha(agentAccent, 0.07),
-          border: `1px solid ${alpha(agentAccent, 0.15)}`,
+          bgcolor: hasError ? alpha('#d32f2f', 0.08) : alpha(agentAccent, 0.07),
+          border: `1px solid ${hasError ? alpha('#d32f2f', 0.25) : alpha(agentAccent, 0.15)}`,
           cursor: 'pointer',
           userSelect: 'none',
-          '&:hover': { bgcolor: alpha(agentAccent, 0.12) },
+          '&:hover': { bgcolor: hasError ? alpha('#d32f2f', 0.14) : alpha(agentAccent, 0.12) },
           transition: 'background 0.15s',
         }}
       >
-        <CodeIcon sx={{ fontSize: 13, color: agentAccent }} />
-        <Typography variant="caption" sx={{ fontSize: '0.72rem', fontWeight: 600, color: agentAccent }}>
+        <CodeIcon sx={{ fontSize: 13, color: hasError ? '#c62828' : agentAccent }} />
+        <Typography
+          variant="caption"
+          sx={{ fontSize: '0.72rem', fontWeight: 600, color: hasError ? '#c62828' : agentAccent }}
+        >
           {tc.toolName}
         </Typography>
         <KeyboardArrowDownIcon
           sx={{
             fontSize: 14,
-            color: alpha(agentAccent, 0.6),
+            color: hasError ? alpha('#c62828', 0.6) : alpha(agentAccent, 0.6),
             transform: expanded ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s',
           }}
@@ -71,7 +187,7 @@ function ToolCallPanel({ tc }: { tc: AgentToolCall }) {
             borderRadius: 1.5,
             bgcolor: alpha('#000', 0.03),
             border: `1px solid ${alpha('#000', 0.06)}`,
-            maxHeight: 200,
+            maxHeight: 300,
             overflow: 'auto',
           }}
         >
@@ -92,23 +208,34 @@ function ToolCallPanel({ tc }: { tc: AgentToolCall }) {
           >
             {inputStr.length > 500 ? inputStr.slice(0, 500) + '...' : inputStr}
           </Typography>
-          <Typography variant="caption" sx={{ fontSize: '0.65rem', color: alpha('#000', 0.45), fontWeight: 600 }}>
-            OUTPUT
-          </Typography>
-          <Typography
-            component="pre"
-            sx={{
-              fontSize: '0.7rem',
-              m: 0,
-              mt: 0.2,
-              whiteSpace: 'pre-wrap',
-              wordBreak: 'break-all',
-              fontFamily: 'monospace',
-              color: tc.toolResult == null ? alpha('#000', 0.3) : 'inherit',
-            }}
-          >
-            {resultStr.length > 800 ? resultStr.slice(0, 800) + '...' : resultStr}
-          </Typography>
+
+          {/* Error tools: hide raw JSON, show styled error card instead */}
+          {hasError ? (
+            actions
+          ) : (
+            <>
+              <Typography variant="caption" sx={{ fontSize: '0.65rem', color: alpha('#000', 0.45), fontWeight: 600 }}>
+                OUTPUT
+              </Typography>
+              <Typography
+                component="pre"
+                sx={{
+                  fontSize: '0.7rem',
+                  m: 0,
+                  mt: 0.2,
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-all',
+                  fontFamily: 'monospace',
+                  color: tc.toolResult == null ? alpha('#000', 0.3) : 'inherit',
+                }}
+              >
+                {resultStr.length > 800 ? resultStr.slice(0, 800) + '...' : resultStr}
+              </Typography>
+            </>
+          )}
+
+          {/* Action buttons (download/copy for export, etc.) */}
+          {!hasError && actions}
         </Box>
       </Collapse>
     </Box>

@@ -376,6 +376,9 @@ async function runAgentLoopNonStream(input: AgentLoopInput): Promise<AgentLoopOu
         })),
       });
 
+      let consecutiveToolErrors = 0;
+      const MAX_CONSECUTIVE_TOOL_ERRORS = 3;
+
       for (const tc of toolCalls) {
         stepCount += 1;
         const toolName = tc.function.name;
@@ -395,6 +398,18 @@ async function runAgentLoopNonStream(input: AgentLoopInput): Promise<AgentLoopOu
           }
         } else {
           result = { error: `Unknown tool: ${toolName}` };
+        }
+
+        // Track consecutive tool errors — abort after 3 in a row
+        if (result && typeof result === 'object' && 'error' in result) {
+          consecutiveToolErrors += 1;
+          if (consecutiveToolErrors >= MAX_CONSECUTIVE_TOOL_ERRORS) {
+            onToolCallResult?.(tc.id, result);
+            const errMsg = `工具调用连续失败 ${MAX_CONSECUTIVE_TOOL_ERRORS} 次，请检查参数后重试。最后错误：${String(result.error).slice(0, 200)}`;
+            throw new Error(errMsg);
+          }
+        } else {
+          consecutiveToolErrors = 0;
         }
 
         onToolCallResult?.(tc.id, result);
@@ -434,6 +449,9 @@ async function runAgentLoopWithStream(input: AgentLoopInput): Promise<AgentLoopO
 
   let fullText = '';
   let stepCount = 0;
+  let consecutiveToolErrors = 0;
+  const MAX_CONSECUTIVE_TOOL_ERRORS = 3;
+
   for await (const part of result.fullStream) {
     if (part.type === 'error') {
       const errPart = part as { error?: unknown };
@@ -447,7 +465,18 @@ async function runAgentLoopWithStream(input: AgentLoopInput): Promise<AgentLoopO
       stepCount += 1;
       onToolCallStart?.(part.toolCallId, part.toolName, part.input);
     } else if (part.type === 'tool-result') {
-      onToolCallResult?.(part.toolCallId, (part as { output?: unknown }).output);
+      const output = (part as { output?: unknown }).output;
+      onToolCallResult?.(part.toolCallId, output);
+
+      // Track consecutive tool errors — abort after 3 in a row
+      if (output && typeof output === 'object' && 'error' in output) {
+        consecutiveToolErrors += 1;
+        if (consecutiveToolErrors >= MAX_CONSECUTIVE_TOOL_ERRORS) {
+          throw new Error(`工具调用连续失败 ${MAX_CONSECUTIVE_TOOL_ERRORS} 次，请检查参数后重试。最后错误：${String(output.error).slice(0, 200)}`);
+        }
+      } else {
+        consecutiveToolErrors = 0; // Reset on success
+      }
     }
   }
 
