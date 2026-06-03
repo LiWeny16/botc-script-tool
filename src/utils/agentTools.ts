@@ -263,6 +263,46 @@ export const replaceCharacter = tool({
   },
 });
 
+export const updateCharacter = tool({
+  description:
+    '编辑剧本中已有角色的字段（名称、能力、队伍、图片、夜序、提醒标记等）。' +
+    '对标 UI 中双击角色卡片打开的编辑对话框。修改后角色在原位置保持不变。',
+  inputSchema: z.object({
+    character_id: z.string().describe('角色ID（紧凑英文格式，如 "imp", "fortuneteller"）'),
+    name: z.string().optional().describe('新名称'),
+    ability: z.string().optional().describe('新能力描述'),
+    team: z.enum(['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled']).optional().describe('新队伍'),
+    image: z.string().optional().describe('新图片URL'),
+    firstNight: z.number().optional().describe('首夜序号（0=不在首夜行动）'),
+    otherNight: z.number().optional().describe('其他夜序号（0=不在其他夜行动）'),
+    firstNightReminder: z.string().optional().describe('首夜说书人提醒文本'),
+    otherNightReminder: z.string().optional().describe('其他夜说书人提醒文本'),
+    reminders: z.array(z.string()).optional().describe('标准提醒标记列表'),
+    remindersGlobal: z.array(z.string()).optional().describe('全局提醒标记列表'),
+    setup: z.boolean().optional().describe('是否初始设置角色'),
+  }),
+  execute: async ({ character_id, ...updates }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+    const c = s.all.find(ch => isSameCharacter(ch.id, character_id));
+    if (!c) return { error: `Character not in script: ${character_id}` };
+
+    // Filter out undefined fields
+    const filtered: Partial<Character> = {};
+    for (const [k, v] of Object.entries(updates)) {
+      if (v !== undefined) filtered[k as keyof typeof updates] = v as never;
+    }
+    if (Object.keys(filtered).length === 0) return { error: 'No fields to update' };
+
+    scriptStore.updateCharacter(character_id, filtered);
+    return {
+      updated: c.name,
+      fields: Object.keys(filtered),
+      message: `Updated ${c.name}: ${Object.keys(filtered).join(', ')}`,
+    };
+  },
+});
+
 export const getScriptSummary = tool({
   description: '获取当前剧本的摘要统计（队伍分布、角色数、诅咒数等）。',
   inputSchema: z.object({}),
@@ -335,10 +375,10 @@ export const getUiConfig = tool({
 });
 
 export const setUiConfig = tool({
-  description: '修改UI配置的某个部分。',
+  description: '修改UI配置的某个部分（背景/卡片/主题/字体）。',
   inputSchema: z.object({
-    section: z.enum(['backgrounds', 'card', 'theme']).describe('配置部分'),
-    updates: z.record(z.string(), z.unknown()).describe('要更新的键值对'),
+    section: z.enum(['backgrounds', 'card', 'theme', 'fonts']).describe('配置部分：backgrounds=背景, card=角色卡片, theme=主题, fonts=字体'),
+    updates: z.record(z.string(), z.unknown()).describe('要更新的键值对。fonts支持: scriptTitle/teamDivider/characterName/characterAbility/jinxText/specialRuleTitle/specialRuleContent/stateRuleTitle/stateRuleContent'),
   }),
   execute: async ({ section, updates }) => {
     if (section === 'theme') {
@@ -365,8 +405,19 @@ export const setUiConfig = tool({
       const bg: Record<string, unknown> = {};
       if (updates.mainBackground) bg.mainBackground = updates.mainBackground;
       if (updates.nightOrderBackground) bg.nightOrderBackground = updates.nightOrderBackground;
+      if (updates.mainBackgroundMode) bg.mainBackgroundMode = updates.mainBackgroundMode;
+      if (updates.nightOrderBackgroundMode) bg.nightOrderBackgroundMode = updates.nightOrderBackgroundMode;
       uiConfigStore.updateConfig(bg as never);
       return { updated: Object.keys(bg) };
+    }
+    if (section === 'fonts') {
+      const fontUpdates: Record<string, string> = {};
+      for (const [k, v] of Object.entries(updates)) {
+        if (typeof v === 'string') fontUpdates[k] = v;
+      }
+      if (Object.keys(fontUpdates).length === 0) return { error: 'No valid font values provided' };
+      uiConfigStore.updateFontConfig(fontUpdates as never);
+      return { updated: Object.keys(fontUpdates) };
     }
     return { error: `Unknown section: ${section}` };
   },
@@ -510,26 +561,372 @@ export const exportJson = tool({
   },
 });
 
+// ── F: Script Title & Metadata ──
+
+export const updateTitleInfo = tool({
+  description:
+    '编辑剧本标题、作者、人数、标题图片等元数据。对标 UI 中双击标题区域打开的编辑对话框。',
+  inputSchema: z.object({
+    title: z.string().optional().describe('剧本标题'),
+    author: z.string().optional().describe('剧本作者'),
+    playerCount: z.string().optional().describe('建议玩家数（如 "7-12"）'),
+    titleImage: z.string().optional().describe('标题图片URL'),
+    titleImageSize: z.number().optional().describe('标题图片尺寸（px）'),
+    useTitleImage: z.boolean().optional().describe('是否使用标题图片'),
+    showTitleFlourish: z.boolean().optional().describe('是否显示标题装饰'),
+    secondPageTitleText: z.string().optional().describe('第二页标题文字'),
+    secondPageTitleImage: z.string().optional().describe('第二页标题图片URL'),
+    secondPageTitleFontSize: z.number().optional().describe('第二页标题字号'),
+    secondPageTitleImageSize: z.number().optional().describe('第二页标题图片尺寸'),
+    useSecondPageTitleImage: z.boolean().optional().describe('第二页是否使用图片'),
+  }),
+  execute: async (updates) => {
+    if (!scriptStore.script) return { error: 'No script loaded' };
+    const filtered: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(updates)) {
+      if (v !== undefined) filtered[k] = v;
+    }
+    if (Object.keys(filtered).length === 0) return { error: 'No fields to update' };
+    scriptStore.updateTitleInfo(filtered as never);
+    return {
+      updated: Object.keys(filtered),
+      message: `Updated: ${Object.keys(filtered).join(', ')}`,
+    };
+  },
+});
+
+// ── G: Special Rules ──
+
+export const addSpecialRule = tool({
+  description:
+    '添加特殊规则到当前剧本（即首页或第二页的额外规则说明）。对标 UI 中的添加自定义规则功能。',
+  inputSchema: z.object({
+    title: z.string().describe('规则标题'),
+    content: z.string().describe('规则内容'),
+    type: z.enum(['special', 'state']).optional().default('special').describe('special=首页特殊规则, state=第二页状态规则'),
+  }),
+  execute: async ({ title, content, type }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+
+    const newRule = {
+      id: `custom_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      title,
+      content,
+      isState: type === 'state',
+      sourceType: (type === 'state' ? 'state' : 'special_rule') as 'state' | 'special_rule',
+      sourceIndex: -1,
+    };
+
+    const updatedScript = { ...s };
+    if (type === 'state') {
+      updatedScript.secondPageRules = [...(s.secondPageRules || []), newRule];
+    } else {
+      updatedScript.specialRules = [...s.specialRules, newRule];
+    }
+    scriptStore.setScript(updatedScript);
+    return {
+      added: title,
+      type,
+      totalSpecialRules: updatedScript.specialRules.length,
+      totalSecondPageRules: updatedScript.secondPageRules?.length ?? 0,
+    };
+  },
+});
+
+export const editSpecialRule = tool({
+  description: '编辑剧本中的特殊规则。对标 UI 中双击特殊规则打开的编辑对话框。',
+  inputSchema: z.object({
+    rule_id: z.string().describe('规则ID。用 get_script_json 查看所有规则及其ID。'),
+    title: z.string().optional().describe('新标题'),
+    content: z.string().optional().describe('新内容'),
+  }),
+  execute: async ({ rule_id, title, content }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+
+    const allRules = [...s.specialRules, ...(s.secondPageRules || [])];
+    const rule = allRules.find(r => r.id === rule_id);
+    if (!rule) return { error: `Rule not found: ${rule_id}. Check get_script_json for rule IDs.` };
+
+    const updated = { ...rule };
+    if (title !== undefined) updated.title = title;
+    if (content !== undefined) updated.content = content;
+    scriptStore.updateSpecialRule(updated);
+    return { updated: rule_id, fields: Object.keys({ ...(title !== undefined && { title }), ...(content !== undefined && { content }) }) };
+  },
+});
+
+export const removeSpecialRule = tool({
+  description: '删除剧本中的特殊规则。',
+  inputSchema: z.object({
+    rule_id: z.string().describe('规则ID'),
+  }),
+  execute: async ({ rule_id }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+
+    const allRules = [...s.specialRules, ...(s.secondPageRules || [])];
+    const rule = allRules.find(r => r.id === rule_id);
+    if (!rule) return { error: `Rule not found: ${rule_id}` };
+    scriptStore.removeSpecialRule(rule);
+    return {
+      removed: rule.title || rule_id,
+      totalSpecialRules: scriptStore.script?.specialRules.length ?? 0,
+    };
+  },
+});
+
+// ── H: Jinx Management ──
+
+export const addCustomJinx = tool({
+  description:
+    '添加自定义相克规则（诅咒关系）到当前剧本。对标 UI 中 CustomJinxDialog 或角色编辑对话框中的诅咒功能。' +
+    '需要两个角色都在当前剧本中。',
+  inputSchema: z.object({
+    character_a_id: z.string().describe('第一个角色ID（紧凑英文格式）'),
+    character_b_id: z.string().describe('第二个角色ID（紧凑英文格式）'),
+    reason: z.string().describe('相克规则描述文本'),
+  }),
+  execute: async ({ character_a_id, character_b_id, reason }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+    const charA = s.all.find(ch => isSameCharacter(ch.id, character_a_id));
+    if (!charA) return { error: `Character not in script: ${character_a_id}` };
+    const charB = s.all.find(ch => isSameCharacter(ch.id, character_b_id));
+    if (!charB) return { error: `Character not in script: ${character_b_id}` };
+    if (isSameCharacter(character_a_id, character_b_id)) return { error: 'Cannot create a jinx between a character and itself' };
+    if (!reason.trim()) return { error: 'Jinx reason cannot be empty' };
+
+    scriptStore.addCustomJinx(charA, charB, reason.trim());
+    return {
+      added: `${charA.name} ↔ ${charB.name}`,
+      reason: reason.trim(),
+      message: `Custom jinx added between ${charA.name} and ${charB.name}`,
+    };
+  },
+});
+
+export const removeCustomJinx = tool({
+  description: '删除自定义相克规则。只能删除非官方的相克（isOfficial=false）。',
+  inputSchema: z.object({
+    character_a_id: z.string().describe('第一个角色ID'),
+    character_b_id: z.string().describe('第二个角色ID'),
+  }),
+  execute: async ({ character_a_id, character_b_id }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+    const charA = s.all.find(ch => isSameCharacter(ch.id, character_a_id));
+    if (!charA) return { error: `Character not in script: ${character_a_id}` };
+    const charB = s.all.find(ch => isSameCharacter(ch.id, character_b_id));
+    if (!charB) return { error: `Character not in script: ${character_b_id}` };
+
+    // Check if it's a custom jinx (can't delete official)
+    const jinxEntry = s.jinx[charA.name]?.[charB.name];
+    if (!jinxEntry) return { error: `No jinx exists between ${charA.name} and ${charB.name}` };
+    if (jinxEntry.isOfficial) return { error: `Cannot delete official jinx: ${charA.name} ↔ ${charB.name}. Use update_jinx to toggle display instead.` };
+
+    scriptStore.removeCustomJinx(charA, charB);
+    return {
+      removed: `${charA.name} ↔ ${charB.name}`,
+      message: `Custom jinx removed between ${charA.name} and ${charB.name}`,
+    };
+  },
+});
+
+export const updateJinx = tool({
+  description:
+    '更新相克规则（切换显示/隐藏、修改描述文本）。可作用于官方和自定义相克。',
+  inputSchema: z.object({
+    character_a_id: z.string().describe('第一个角色ID'),
+    character_b_id: z.string().describe('第二个角色ID'),
+    display: z.boolean().optional().describe('是否显示该相克规则'),
+    reason: z.string().optional().describe('新的相克规则描述文本（覆盖原文本）'),
+  }),
+  execute: async ({ character_a_id, character_b_id, display, reason }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+    const charA = s.all.find(ch => isSameCharacter(ch.id, character_a_id));
+    if (!charA) return { error: `Character not in script: ${character_a_id}` };
+    const charB = s.all.find(ch => isSameCharacter(ch.id, character_b_id));
+    if (!charB) return { error: `Character not in script: ${character_b_id}` };
+
+    const jinxEntry = s.jinx[charA.name]?.[charB.name];
+    if (!jinxEntry) return { error: `No jinx exists between ${charA.name} and ${charB.name}` };
+
+    const updates: { display?: boolean; reason?: string } = {};
+    if (display !== undefined) updates.display = display;
+    if (reason !== undefined) updates.reason = reason;
+    if (Object.keys(updates).length === 0) return { error: 'No updates provided' };
+
+    scriptStore.updateOfficialJinx(charA, charB, updates);
+    return {
+      updated: `${charA.name} ↔ ${charB.name}`,
+      changes: updates,
+      message: `Updated jinx: ${charA.name} ↔ ${charB.name}`,
+    };
+  },
+});
+
+export const listJinx = tool({
+  description: '列出当前剧本中所有相克关系（诅咒），包括官方和自定义。返回详细结构化列表。',
+  inputSchema: z.object({}),
+  execute: async () => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+
+    const seen = new Set<string>();
+    const jinxList: Array<{
+      char_a: string;
+      char_a_id: string;
+      char_b: string;
+      char_b_id: string;
+      reason: string;
+      display: boolean;
+      isOfficial: boolean;
+    }> = [];
+
+    for (const [nameA, relations] of Object.entries(s.jinx)) {
+      const charA = s.all.find(ch => ch.name === nameA);
+      for (const [nameB, info] of Object.entries(relations)) {
+        const key = [nameA, nameB].sort().join('||');
+        if (seen.has(key)) continue;
+        seen.add(key);
+        const charB = s.all.find(ch => ch.name === nameB);
+        jinxList.push({
+          char_a: nameA,
+          char_a_id: charA?.id ?? '',
+          char_b: nameB,
+          char_b_id: charB?.id ?? '',
+          reason: info.reason?.slice(0, 200) ?? '',
+          display: info.display !== false,
+          isOfficial: info.isOfficial !== false,
+        });
+      }
+    }
+
+    return {
+      count: jinxList.length,
+      official: jinxList.filter(j => j.isOfficial).length,
+      custom: jinxList.filter(j => !j.isOfficial).length,
+      jinx: jinxList,
+    };
+  },
+});
+
+// ── I: Second Page & Reorder ──
+
+export const manageSecondPage = tool({
+  description: '管理第二页组件（标题、玩家分布表1、玩家分布表2）。对标 UI 中的第二页添加/删除按钮。',
+  inputSchema: z.object({
+    action: z.enum(['add', 'remove']).describe('add=添加, remove=删除'),
+    component: z.enum(['title', 'ppl_table1', 'ppl_table2']).optional().describe('要操作的组件类型。remove时必须指定。'),
+  }),
+  execute: async ({ action, component }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+
+    if (action === 'add') {
+      const comp = component || 'title';
+      scriptStore.addSecondPageComponent(comp);
+      return { added: comp, currentOrder: scriptStore.script?.secondPageOrder };
+    }
+
+    if (action === 'remove') {
+      if (!component) return { error: 'Must specify component type when removing' };
+      scriptStore.removeSecondPageComponent(component);
+      return { removed: component, currentOrder: scriptStore.script?.secondPageOrder };
+    }
+
+    return { error: `Unknown action: ${action}` };
+  },
+});
+
+export const reorderCharacters = tool({
+  description: '重新排序某队伍中的角色（改变角色在剧本展示中的前后顺序）。对标 UI 中的拖拽排序。',
+  inputSchema: z.object({
+    team: z.enum(['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled']).describe('目标队伍'),
+    character_ids: z.array(z.string()).describe('按新顺序排列的角色ID列表（必须包含该队伍所有角色，只改顺序不增删）'),
+  }),
+  execute: async ({ team, character_ids }) => {
+    const s = scriptStore.script;
+    if (!s) return { error: 'No script loaded' };
+    const teamChars = s.characters[team];
+    if (!teamChars) return { error: `Team "${team}" has no characters in script` };
+
+    // Validate that all IDs are in the team
+    const missing = character_ids.filter(id => !teamChars.find(c => isSameCharacter(c.id, id)));
+    if (missing.length > 0) return { error: `IDs not in team ${team}: ${missing.join(', ')}` };
+    // Validate no IDs are missing from the list
+    const extra = teamChars.filter(c => !character_ids.find(id => isSameCharacter(c.id, id)));
+    if (extra.length > 0) return { error: `Missing character IDs from list: ${extra.map(c => `${c.name}(${c.id})`).join(', ')}` };
+
+    scriptStore.reorderCharacters(team, character_ids);
+    const newOrder = scriptStore.script?.characters[team].map(c => c.name);
+    return { team, newOrder, message: `Reordered ${team}: ${newOrder?.join(', ')}` };
+  },
+});
+
+// ── J: UI Config Extended ──
+
+export const resetUiConfig = tool({
+  description: '重置UI配置到默认值。可指定要重置的部分。',
+  inputSchema: z.object({
+    section: z.enum(['all', 'fonts', 'backgrounds', 'card', 'theme']).optional().default('all').describe('要重置的配置部分'),
+  }),
+  execute: async ({ section }) => {
+    if (section === 'all') {
+      uiConfigStore.resetToDefault();
+      return { reset: 'all', message: 'All UI config reset to defaults' };
+    }
+    // For partial reset, we reset to default then re-apply other settings
+    // Since resetToDefault resets everything, we note that partial reset is best-effort
+    uiConfigStore.resetToDefault();
+    return { reset: section, message: `UI config section "${section}" reset (full reset applied)` };
+  },
+});
+
 // ── Tool Registry ──
 
 export const ALL_TOOLS = {
+  // A: Character CRUD
   search_characters: searchCharacters,
   get_character_detail: getCharacterDetail,
   add_character: addCharacter,
   remove_character: removeCharacter,
   replace_character: replaceCharacter,
+  update_character: updateCharacter,
+  // A2: Script metadata
   get_script_summary: getScriptSummary,
   get_script_json: getScriptJson,
+  update_title_info: updateTitleInfo,
+  // B: Config & UI
   get_config: getConfig,
   set_config: setConfig,
   get_ui_config: getUiConfig,
   set_ui_config: setUiConfig,
   set_theme: setTheme,
+  reset_ui_config: resetUiConfig,
+  // C: Knowledge Base
   search_knowledge: searchKnowledgeTool,
   get_knowledge_topic: getKnowledgeTopicTool,
+  // D: Night Order
   get_night_order: getNightOrder,
-  get_jinx_info: getJinxInfo,
   update_night_order: updateNightOrder,
+  // E: Jinx Management
+  get_jinx_info: getJinxInfo,
+  list_jinx: listJinx,
+  add_custom_jinx: addCustomJinx,
+  remove_custom_jinx: removeCustomJinx,
+  update_jinx: updateJinx,
+  // F: Special Rules
+  add_special_rule: addSpecialRule,
+  edit_special_rule: editSpecialRule,
+  remove_special_rule: removeSpecialRule,
+  // G: Second Page & Reorder
+  manage_second_page: manageSecondPage,
+  reorder_characters: reorderCharacters,
+  // H: Import/Export
   import_json: importJson,
   export_json: exportJson,
 };

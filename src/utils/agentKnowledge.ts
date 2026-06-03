@@ -299,13 +299,32 @@ export function getSystemPrompt(): string {
 |---------|-----------|
 | 查找/验证角色(含别名/拼音) | search_characters |
 | 角色完整详情 | get_character_detail |
-| BOTC规则/机制/设计 | search_knowledge / get_knowledge_topic |
+| 编辑角色字段(名称/能力/夜序等) | update_character |
+| 添加/删除/替换角色 | add_character / remove_character / replace_character |
+| 角色排序 | reorder_characters |
+| 剧本标题/作者/人数/标题图 | update_title_info |
 | 当前剧本 | get_script_summary / get_script_json |
-| 修改剧本角色 | add_character / remove_character / replace_character |
-| 相克关系 | get_jinx_info |
+| 相克关系(读取) | get_jinx_info / list_jinx |
+| 相克关系(添加/删除/编辑) | add_custom_jinx / remove_custom_jinx / update_jinx |
 | 夜序 | get_night_order / update_night_order |
-| 配置/主题/UI | get_config / set_config / set_theme / get_ui_config / set_ui_config |
+| 特殊规则(添加/编辑/删除) | add_special_rule / edit_special_rule / remove_special_rule |
+| 第二页组件 | manage_second_page |
+| BOTC规则/机制/设计 | search_knowledge / get_knowledge_topic |
+| 配置/主题/UI/字体 | get_config / set_config / set_theme / get_ui_config / set_ui_config / reset_ui_config |
 | 导入/导出 | import_json / export_json |
+
+## Few-shot：编辑操作示例
+
+用户: "把小怪宝和半兽人加一个相克：如果半兽人选到了照看小怪宝的玩家，该玩家不会死亡"
+→ add_custom_jinx({character_a_id:"lilmonsta", character_b_id:"lycanthrope", reason:"..."})
+→ 返回: added: "小怪宝 ↔ 半兽人"
+
+用户: "把占卜师的名字改成预言家"
+→ search_characters({query:"占卜师"}) → id:"fortuneteller"
+→ update_character({character_id:"fortuneteller", name:"预言家"})
+
+用户: "把剧本标题改成 紫罗兰之夜"
+→ update_title_info({title:"紫罗兰之夜"})
 
 ## 其他规则
 - 打招呼/问能力→直接答，不调工具
@@ -320,7 +339,10 @@ export function getCompactSystemPrompt(): string {
   return `BOTC assistant. 13/4/4/4. Good wins by executing Demon.
 CRITICAL: ANY character name → search_characters first (training data may be wrong). Never guess character identity.
 Rules: NO rule/mechanic guess — use search_knowledge. 90% confidence. Ask back if unclear.
-Tools: search_characters, search_knowledge, get_character_detail, get_script_summary, add/remove/replace_character, get_jinx_info.`;
+Edit tools: update_character, update_title_info, add/remove/replace_character, reorder_characters.
+Jinx: add_custom_jinx, remove_custom_jinx, update_jinx, list_jinx, get_jinx_info.
+Special rules: add/edit/remove_special_rule. Second page: manage_second_page.
+UI: get/set_ui_config (fonts/backgrounds/card/theme), set_theme, reset_ui_config.`;
 }
 
 /** Pre-warm: load all knowledge files in background. Call when Agent dialog opens. */
