@@ -31,6 +31,7 @@ export {
   toZhCanonicalCharacterId,
 } from './utils/characterIdMapping';
 export { PINYIN_MAP } from './utils/pinyinMap';
+export { CHARACTER_ALIASES, searchAliases, type AliasEntry } from './utils/characterAliases';
 export { getSpecialRuleTemplate, getAllSpecialRuleTemplates } from './utils/specialRules';
 export {
   type ScriptData,

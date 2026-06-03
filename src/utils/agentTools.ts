@@ -3,13 +3,15 @@ import { z } from 'zod';
 import { scriptStore } from '../stores/ScriptStore';
 import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
-import { CHARACTERS_EN, getCharacterInDictionary, getCharacterDictionary } from '../data/canonicalCharacters';
+import { CHARACTERS_EN, getCharacterInDictionary, getCharacterDictionary, getAllCharacterDictionaries } from '../data/canonicalCharacters';
 import type { Language } from './languages';
 import { searchKnowledge, getKnowledgeTopic } from './agentKnowledge';
 import { buildCharacter } from '../data/characterBuilder';
 import type { Character } from '../types';
 import { isSameCharacter } from '../data/utils/characterIdMapping';
 import { getJinx, getJinxDictionary } from '../data/jinx';
+import { PINYIN_MAP } from '../data/utils/pinyinMap';
+import { searchAliases } from '../data/utils/characterAliases';
 
 // ── Helpers ──
 
@@ -50,49 +52,156 @@ function scriptSummary() {
 // ── A: Script CRUD ──
 
 export const searchCharacters = tool({
-  description: '搜索角色库。支持中文/英文名称、ID 模糊匹配，可按队伍过滤。返回压缩摘要列表（最多10条）。',
+  description:
+    '搜索角色库。支持中/英/西语名称、ID、别名、拼音模糊搜索，可按队伍过滤。' +
+    '当用户提到任何角色名（中文/英文/西语/简称/昵称）时，必须先用此工具验证角色身份。' +
+    '返回三语名字和官方ID，确保后续操作使用正确的角色ID。',
   inputSchema: z.object({
-    query: z.string().describe('搜索关键词（名称或ID）'),
+    query: z.string().describe('搜索关键词（名称、ID、别名、拼音均可）'),
     team: z.string().optional().describe('按队伍过滤：townsfolk/outsider/minion/demon/traveler/fabled'),
+    lang: z.enum(['cn', 'en', 'es']).optional().describe('返回语言，不指定则使用当前应用语言'),
     limit: z.number().optional().default(10).describe('最大返回数量'),
   }),
-  execute: async ({ query, team, limit }) => {
-    const dict = getDict();
-    const q = query.toLowerCase();
-    const results: Array<{ id: string; name: string; team: string; ability: string }> = [];
+  execute: async ({ query, team, lang, limit }) => {
+    const q = query.toLowerCase().trim();
+    if (!q) return { count: 0, characters: [] };
 
-    for (const [id, c] of Object.entries(dict)) {
-      if (results.length >= limit) break;
-      const nameLower = c.name?.toLowerCase() ?? '';
-      const idLower = id.toLowerCase();
-      if (idLower.includes(q) || nameLower.includes(q) || q.includes(idLower.slice(0, 4))) {
-        if (team && c.team !== team) continue;
-        results.push({
-          id,
-          name: c.name,
-          team: c.team,
-          ability: c.ability?.slice(0, 80) ?? '',
-        });
+    const targetLang = lang || getLang();
+    const seen = new Set<string>();
+    const results: Array<{
+      id: string;
+      name: string;
+      name_cn: string;
+      name_en: string;
+      name_es: string;
+      team: string;
+      ability: string;
+      firstNight: number;
+      otherNight: number;
+    }> = [];
+
+    // helper: collect a character if not already seen
+    function collect(id: string, c: Character) {
+      if (seen.has(id) || results.length >= limit) return;
+      if (team && c.team !== team) return;
+      seen.add(id);
+      results.push({
+        id,
+        name: c.name,
+        name_cn: c.name,
+        name_en: c.name,
+        name_es: '',
+        team: c.team,
+        ability: c.ability?.slice(0, 100) ?? '',
+        firstNight: c.firstNight,
+        otherNight: c.otherNight,
+      });
+    }
+
+    // ── Step 1: Alias search ──
+    const aliasIds = searchAliases(query);
+    if (aliasIds.length > 0) {
+      const targetDict = getCharacterDictionary(targetLang);
+      for (const aid of aliasIds) {
+        if (results.length >= limit) break;
+        const c = getCharacterInDictionary(targetDict, aid);
+        if (c) collect(c.id, c);
       }
     }
+
+    // ── Step 2: Cross-language dictionary search ──
+    const allDicts = getAllCharacterDictionaries();
+    // Build language-specific name/ability maps (keyed by English compact ID)
+    const localeMap = new Map<string, { name_cn: string; name_en: string; name_es: string; ability_cn: string; ability_en: string; ability_es: string }>();
+    for (const [dictLang, dict] of allDicts) {
+      for (const [enId, c] of Object.entries(dict)) {
+        const entry = localeMap.get(enId) || { name_cn: '', name_en: '', name_es: '', ability_cn: '', ability_en: '', ability_es: '' };
+        if (dictLang === 'cn') { entry.name_cn = c.name; entry.ability_cn = c.ability; }
+        if (dictLang === 'en') { entry.name_en = c.name; entry.ability_en = c.ability; }
+        if (dictLang === 'es') { entry.name_es = c.name; entry.ability_es = c.ability; }
+        localeMap.set(enId, entry);
+      }
+    }
+
+    // Use English dict as iteration base (most complete)
+    for (const [enId, c] of Object.entries(CHARACTERS_EN)) {
+      if (results.length >= limit) break;
+      if (seen.has(enId)) continue;
+
+      const locales = localeMap.get(enId);
+      const nameCn = locales?.name_cn ?? '';
+      const nameEn = locales?.name_en ?? c.name ?? '';
+      const nameEs = locales?.name_es ?? '';
+      const abilityCn = locales?.ability_cn ?? '';
+      const abilityEn = locales?.ability_en ?? c.ability ?? '';
+      const abilityEs = locales?.ability_es ?? '';
+
+      // Four-way match (same pattern as CharacterLibraryCard)
+      const nameMatch = nameCn.toLowerCase().includes(q) || nameEn.toLowerCase().includes(q) || nameEs.toLowerCase().includes(q);
+      const abilityMatch = abilityCn.toLowerCase().includes(q) || abilityEn.toLowerCase().includes(q) || abilityEs.toLowerCase().includes(q);
+      const pinyinCn = PINYIN_MAP[nameCn];
+      const pinyinMatch = pinyinCn ? pinyinCn.includes(q) : false;
+      const idMatch = enId.toLowerCase().includes(q) || q.includes(enId.toLowerCase().slice(0, 4));
+
+      if (!nameMatch && !abilityMatch && !pinyinMatch && !idMatch) continue;
+      if (team && c.team !== team) continue;
+
+      seen.add(enId);
+
+      // Get the character in the target language for name/ability
+      const targetDict = getCharacterDictionary(targetLang);
+      const targetChar = getCharacterInDictionary(targetDict, enId) ?? c;
+      // Fallback: if target dict doesn't have this char, use English
+      const fallbackEn = getCharacterInDictionary(CHARACTERS_EN, enId);
+
+      results.push({
+        id: enId,
+        name: targetChar.name || fallbackEn?.name || nameEn || nameCn,
+        name_cn: nameCn || fallbackEn?.name || '',
+        name_en: nameEn || nameCn,
+        name_es: nameEs || '',
+        team: c.team,
+        ability: (targetChar.ability || fallbackEn?.ability || c.ability || '').slice(0, 100),
+        firstNight: c.firstNight,
+        otherNight: c.otherNight,
+      });
+    }
+
     return { count: results.length, characters: results };
   },
 });
 
 export const getCharacterDetail = tool({
-  description: '获取单个角色的完整信息（名称、能力、队伍、夜序、提醒标记）。仅在用户明确要求或需要详细信息时使用。',
+  description: '获取单个角色的完整信息（三语名称、能力、队伍、夜序、提醒标记）。仅在需要完整信息时使用。任何角色操作前建议先用 search_characters 确认ID。',
   inputSchema: z.object({
-    character_id: z.string().describe('角色ID（紧凑英文格式，如 "imp", "washerwoman"）'),
+    character_id: z.string().describe('角色ID（紧凑英文格式，如 "imp", "washerwoman", "lilmonsta"）'),
+    lang: z.enum(['cn', 'en', 'es']).optional().describe('返回语言，不指定则使用当前应用语言'),
   }),
-  execute: async ({ character_id: cid }) => {
-    const dict = getDict();
-    const c = getCharacterInDictionary(dict, cid);
-    if (!c) return { error: `Character not found: ${cid}` };
+  execute: async ({ character_id: cid, lang }) => {
+    const targetLang = lang || getLang();
+    const targetDict = getCharacterDictionary(targetLang);
+    const c = getCharacterInDictionary(targetDict, cid);
+    if (!c) return { error: `Character not found: ${cid}`, hint: 'Try search_characters with the character name to find the correct ID.' };
+
+    // Collect trilingual names
+    const cnDict = getCharacterDictionary('cn');
+    const enDict = CHARACTERS_EN;
+    const esDict = getCharacterDictionary('es');
+    const cnChar = getCharacterInDictionary(cnDict, cid);
+    const enChar = getCharacterInDictionary(enDict, cid);
+    const esChar = getCharacterInDictionary(esDict, cid);
+
     return {
       id: c.id,
       name: c.name,
+      name_cn: cnChar?.name ?? '',
+      name_en: enChar?.name ?? c.name,
+      name_es: esChar?.name ?? '',
       team: c.team,
       ability: c.ability,
+      ability_cn: cnChar?.ability ?? '',
+      ability_en: enChar?.ability ?? '',
+      ability_es: esChar?.ability ?? '',
       firstNight: c.firstNight,
       firstNightReminder: c.firstNightReminder,
       otherNight: c.otherNight,
