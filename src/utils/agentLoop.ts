@@ -2,7 +2,7 @@ import { streamText, stepCountIs, type LanguageModel, type ModelMessage } from '
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createDeepSeek } from '@ai-sdk/deepseek';
-import { ALL_TOOLS } from './agentTools';
+import { ALL_TOOLS } from './agentTools/index';
 import { getSystemPrompt } from './agentKnowledge';
 import type { AgentApiConfig } from './agentApiConfig';
 
