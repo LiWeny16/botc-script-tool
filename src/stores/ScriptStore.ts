@@ -2,6 +2,7 @@ import { makeAutoObservable } from 'mobx';
 import type { Script, Character } from '../types';
 import { isSameCharacter } from '../data/utils/characterIdMapping';
 import { configStore } from './ConfigStore';
+import { loadCachedScriptData, safeJsonParse, saveCachedScriptData } from '../utils/jsonSafety';
 
 class ScriptStore {
   script: Script | null = null;
@@ -15,18 +16,31 @@ class ScriptStore {
     this.loadFromStorage();
   }
 
+  /** Centralized safe parse of originalJson to array — replaces 12+ try/catch blocks */
+  private safeParseOriginalJsonArray(): any[] {
+    const parsed = safeJsonParse<unknown>(this.originalJson || '[]');
+    if (!parsed.ok) {
+      throw new Error(parsed.message);
+    }
+    if (!Array.isArray(parsed.value)) {
+      throw new Error('originalJson must be an array');
+    }
+    return parsed.value;
+  }
+
   // Set script data
   setScript(script: Script | null) {
     // Before setting, try to parse _meta.name_en from originalJson and store in script (does not affect default title)
     if (script) {
       try {
-        const parsed = JSON.parse(this.originalJson || '[]');
-        const meta = Array.isArray(parsed) ? parsed.find((it: any) => it && it.id === '_meta') : (parsed && parsed._meta);
+        const meta = this.safeParseOriginalJsonArray().find((it: any) => it && it.id === '_meta');
         const nameEn = meta && (meta.name_en || meta.nameEn);
         if (typeof nameEn === 'string' && nameEn.trim()) {
           (script as any).titleEn = nameEn.trim();
         }
-      } catch {}
+      } catch {
+        // Non-critical: keep going even if originalJson is unparseable
+      }
     }
     this.script = script;
     // Also generate normalized JSON
@@ -133,8 +147,7 @@ class ScriptStore {
 
       // 3. Extract jinx rules (from originalJson)
       try {
-        const originalParsed = JSON.parse(this.originalJson);
-        const originalArray = Array.isArray(originalParsed) ? originalParsed : [];
+        const originalArray = this.safeParseOriginalJsonArray();
 
         // Find all items with team === 'a jinxed'
         const jinxItems = originalArray.filter((item: any) => {
@@ -454,6 +467,7 @@ class ScriptStore {
     showTitleFlourish?: boolean;
     author?: string;
     playerCount?: string;
+    textAlignment?: 'left' | 'center' | 'right';
     secondPageTitleText?: string;
     secondPageTitleImage?: string;
     secondPageTitleFontSize?: number;
@@ -489,7 +503,8 @@ class ScriptStore {
 
     if (data.author !== undefined) updatedScript.author = data.author;
     if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
-    
+    if (data.textAlignment !== undefined) (updatedScript as any).textAlignment = data.textAlignment;
+
     // Update second page title config
     if (data.secondPageTitleText !== undefined) {
       updatedScript.secondPageTitleText = data.secondPageTitleText;
@@ -698,8 +713,7 @@ class ScriptStore {
   ) {
     console.log('Starting to sync jinx rule display state to JSON', { characterA: characterA.name, characterB: characterB.name, display });
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       // Find existing jinx relationship
       const existingJinxIndex = jsonArray.findIndex((item: any) => {
@@ -776,8 +790,7 @@ class ScriptStore {
   ) {
     console.log('Starting to sync custom jinx to JSON', { characterA: characterA.name, characterB: characterB.name, action });
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       if (action === 'add') {
         // Add jinx relationship
@@ -880,6 +893,7 @@ class ScriptStore {
     showTitleFlourish?: boolean;
     author?: string;
     playerCount?: string;
+    textAlignment?: 'left' | 'center' | 'right';
     secondPageTitleText?: string;
     secondPageTitleImage?: string;
     secondPageTitleFontSize?: number;
@@ -888,8 +902,7 @@ class ScriptStore {
   }) {
     console.log('Starting to sync title info to JSON', data);
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       // Check if _meta item exists
       let hasMetaItem = false;
@@ -928,6 +941,13 @@ class ScriptStore {
               updatedMeta.playerCount = data.playerCount;
             } else {
               delete updatedMeta.playerCount;
+            }
+          }
+          if (data.textAlignment !== undefined) {
+            if (data.textAlignment && data.textAlignment !== 'center') {
+              updatedMeta.text_alignment = data.textAlignment;
+            } else {
+              delete updatedMeta.text_alignment;
             }
           }
           
@@ -976,6 +996,9 @@ class ScriptStore {
         if (data.playerCount) {
           newMeta.playerCount = data.playerCount;
         }
+        if (data.textAlignment && data.textAlignment !== 'center') {
+          newMeta.text_alignment = data.textAlignment;
+        }
         if (data.secondPageTitleText) {
           newMeta.second_page_title_text = data.secondPageTitleText;
         }
@@ -1016,8 +1039,7 @@ class ScriptStore {
   private syncSecondPageOrderToJson(order: string[]) {
     console.log('Starting to sync second page component order to JSON', order);
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       // Check if _meta item exists
       let hasMetaItem = false;
@@ -1057,8 +1079,7 @@ class ScriptStore {
   ) {
     console.log('Starting to sync second page component config to JSON', { componentType, enabled });
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       // Check if _meta item exists
       let hasMetaItem = false;
@@ -1121,8 +1142,7 @@ class ScriptStore {
   private syncSpecialRuleUpdateToJson(updatedRule: any) {
     console.log('Starting to sync special rule update to JSON', updatedRule);
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       let newJsonArray: any[] = [];
 
@@ -1191,8 +1211,7 @@ class ScriptStore {
   private syncSpecialRuleToJson(deletedRule: any) {
     console.log('Starting to sync special rule deletion to JSON', deletedRule);
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       let newJsonArray: any[] = [];
 
@@ -1250,8 +1269,7 @@ class ScriptStore {
   private updateCharacterInJson(characterId: string, updates: Partial<Character>) {
     console.log('updateCharacterInJson:', { characterId, updates });
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
       
       let updated = false;
       const newJsonArray = jsonArray.map((item: any) => {
@@ -1330,8 +1348,7 @@ class ScriptStore {
   private addCharacterToJson(character: Character) {
     console.log('addCharacterToJson:', character.id);
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       // Check if already exists
       const exists = jsonArray.some((item: any) => {
@@ -1392,8 +1409,7 @@ class ScriptStore {
   private removeCharacterFromJson(characterId: string) {
     console.log('removeCharacterFromJson:', characterId);
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
       
       const newJsonArray = jsonArray.filter((item: any) => {
         const id = typeof item === 'string' ? item : item.id;
@@ -1411,8 +1427,7 @@ class ScriptStore {
   private replaceCharacterInJson(oldId: string, newCharacter: Character) {
     console.log('replaceCharacterInJson:', { oldId, newId: newCharacter.id });
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
 
       const index = jsonArray.findIndex((item: any) => {
         const id = typeof item === 'string' ? item : item.id;
@@ -1463,8 +1478,7 @@ class ScriptStore {
   private reorderCharactersInJson(newOrder: string[]) {
     console.log('reorderCharactersInJson:', newOrder);
     try {
-      const parsedJson = JSON.parse(this.originalJson);
-      const jsonArray = Array.isArray(parsedJson) ? parsedJson : [];
+      const jsonArray = this.safeParseOriginalJsonArray();
       
       // Categorize: meta, characters, jinxed, special_rule
       let metaItem: any = null;
@@ -1531,54 +1545,26 @@ class ScriptStore {
 
   // Save to localStorage
   private saveToStorage() {
-    try {
-      const data = {
-        script: this.script,
-        originalJson: this.originalJson,
-        normalizedJson: this.normalizedJson,
-        customTitle: this.customTitle,
-        customAuthor: this.customAuthor,
-        timestamp: Date.now(),
-      };
-      localStorage.setItem('botc-script-data', JSON.stringify(data));
-    } catch (error: any) {
-      // Catch QuotaExceededError (base64 images may cause data to be too large)
-      if (error?.name === 'QuotaExceededError' || error?.code === 22) {
-        console.error('localStorage quota exceeded (possibly due to large base64 image data)');
-        // Try saving only core data (remove normalizedJson to reduce size)
-        try {
-          const minimalData = {
-            script: this.script,
-            originalJson: this.originalJson,
-            customTitle: this.customTitle,
-            customAuthor: this.customAuthor,
-            timestamp: Date.now(),
-          };
-          localStorage.setItem('botc-script-data', JSON.stringify(minimalData));
-        } catch {
-          console.error('Still unable to save to localStorage even after trimming');
-        }
-      } else {
-        console.warn('Failed to save to localStorage:', error);
-      }
-    }
+    saveCachedScriptData({
+      originalJson: this.originalJson,
+      normalizedJson: this.normalizedJson,
+      customTitle: this.customTitle,
+      customAuthor: this.customAuthor,
+    });
   }
 
   // Load from localStorage
   private loadFromStorage() {
-    try {
-      const stored = localStorage.getItem('botc-script-data');
-      if (stored) {
-        const data = JSON.parse(stored);
-        this.script = data.script || null;
-        this.originalJson = data.originalJson || '';
-        this.normalizedJson = data.normalizedJson || '';
-        this.customTitle = data.customTitle || '';
-        this.customAuthor = data.customAuthor || '';
-      }
-    } catch (error) {
-      console.warn('Failed to load from localStorage:', error);
-    }
+    const data = loadCachedScriptData();
+    if (!data) return;
+
+    // Never restore potentially-corrupt cached script object.
+    // Always re-parse from originalJson on next generateScript call.
+    this.script = null;
+    this.originalJson = data.originalJson;
+    this.normalizedJson = data.normalizedJson;
+    this.customTitle = data.customTitle;
+    this.customAuthor = data.customAuthor;
   }
 
   // Check if there is stored data

@@ -13,8 +13,16 @@ import {
   FormControlLabel,
   Paper,
   Slider,
+  ToggleButton,
+  ToggleButtonGroup,
 } from '@mui/material';
-import { Close as CloseIcon, CloudUpload as UploadIcon } from '@mui/icons-material';
+import {
+  Close as CloseIcon,
+  CloudUpload as UploadIcon,
+  FormatAlignLeft as AlignLeftIcon,
+  FormatAlignCenter as AlignCenterIcon,
+  FormatAlignRight as AlignRightIcon,
+} from '@mui/icons-material';
 import { useTranslation } from '../utils/i18n';
 import { uiConfigStore } from '../stores/UIConfigStore';
 
@@ -22,11 +30,12 @@ interface TitleEditDialogProps {
   open: boolean;
   title: string;
   titleImage?: string;
-  titleImageSize?: number;  // 第一页标题图片大小
-  useTitleImage?: boolean;  // 是否使用图片标题
-  showTitleFlourish?: boolean;  // 是否显示标题印花
+  titleImageSize?: number;
+  useTitleImage?: boolean;
+  showTitleFlourish?: boolean;
   author: string;
   playerCount?: string;
+  textAlignment?: 'left' | 'center' | 'right';
   onClose: () => void;
   onSave: (data: {
     title: string;
@@ -36,6 +45,7 @@ interface TitleEditDialogProps {
     showTitleFlourish?: boolean;
     author: string;
     playerCount?: string;
+    textAlignment?: 'left' | 'center' | 'right';
   }) => void;
 }
 
@@ -48,12 +58,14 @@ const TitleEditDialog = ({
   showTitleFlourish,
   author,
   playerCount,
+  textAlignment,
   onClose,
   onSave,
 }: TitleEditDialogProps) => {
   const { t, language } = useTranslation();
   const [useImage, setUseImage] = useState(useTitleImage !== undefined ? useTitleImage : !!titleImage);
   const [showFlourish, setShowFlourish] = useState(showTitleFlourish !== undefined ? showTitleFlourish : true);
+  const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>(textAlignment || 'center');
   const [formData, setFormData] = useState({
     title: title || '',
     titleImage: titleImage || '',
@@ -83,6 +95,7 @@ const TitleEditDialog = ({
       playerCount: playerCount || '',
     });
     setShowFlourish(showTitleFlourish !== undefined ? showTitleFlourish : true);
+    setAlignment(textAlignment || 'center');
     setFirstPageImageSize(titleImageSize || 160);
     setFontSizes({
       xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
@@ -142,8 +155,9 @@ const TitleEditDialog = ({
       // 如果不使用图片且是base64，删除；如果是URL，保留
       titleImage: useImage ? formData.titleImage : (isBase64 ? undefined : formData.titleImage),
       titleImageSize: firstPageImageSize,
-      useTitleImage: useImage,  // 保存使用图片的标志
+      useTitleImage: useImage,
       showTitleFlourish: showFlourish,
+      textAlignment: alignment,
     };
     
     // 保存字体大小到 UIConfigStore
@@ -342,6 +356,30 @@ const TitleEditDialog = ({
             placeholder={t('title.playerCount')}
             size="small"
           />
+
+          {/* Title + Author text alignment */}
+          <Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+              {t('title.textAlignment')}
+            </Typography>
+            <ToggleButtonGroup
+              value={alignment}
+              exclusive
+              onChange={(_, val) => val && setAlignment(val)}
+              size="small"
+              fullWidth
+            >
+              <ToggleButton value="left">
+                <AlignLeftIcon sx={{ mr: 0.5 }} /> {t('title.alignLeft')}
+              </ToggleButton>
+              <ToggleButton value="center">
+                <AlignCenterIcon sx={{ mr: 0.5 }} /> {t('title.alignCenter')}
+              </ToggleButton>
+              <ToggleButton value="right">
+                <AlignRightIcon sx={{ mr: 0.5 }} /> {t('title.alignRight')}
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
         </Box>
       </DialogContent>
 

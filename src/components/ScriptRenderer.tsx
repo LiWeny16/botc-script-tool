@@ -471,7 +471,7 @@ const ScriptRenderer = observer(({
                             display: 'flex',
                             alignItems: 'flex-start',
                             justifyContent: "center",
-                            pt: compact ? '2%' : '30%',
+                            pt: compact ? '2%' : (uiConfigStore.config.nightOrderTopSpacingAuto ? '30%' : `${uiConfigStore.config.nightOrderTopSpacing}vh`),
                             boxShadow: 'none',
                             '& > *': {
                                 position: 'relative',
@@ -561,7 +561,7 @@ const ScriptRenderer = observer(({
                                             md: script?.specialRules && script.specialRules.length > 0 ? 'auto' : '100%'
                                         },
                                         display: 'flex',
-                                        justifyContent: 'center',
+                                        justifyContent: (script as any).textAlignment === 'left' ? 'flex-start' : (script as any).textAlignment === 'right' ? 'flex-end' : 'center',
                                     }}
                                 >
                                     {script.useTitleImage && script.titleImage ? (
@@ -620,7 +620,7 @@ const ScriptRenderer = observer(({
                                                 borderRadius: 2,
                                                 userSelect: 'none',
                                                 width: '100%',
-                                                justifyContent: 'center'
+                                                justifyContent: (script as any).textAlignment === 'left' ? 'flex-start' : (script as any).textAlignment === 'right' ? 'flex-end' : 'center'
                                             }}
                                         >
                                             <Typography
@@ -639,7 +639,7 @@ const ScriptRenderer = observer(({
                                                     lineHeight: 1.38,
                                                     m: 0,
                                                     whiteSpace: 'pre-wrap',
-                                                    textAlign: 'center',
+                                                    textAlign: (script as any).textAlignment || 'center',
                                                     wordBreak: 'break-word',
                                                     background: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
                                                     backgroundSize: 'cover',
@@ -776,6 +776,7 @@ const ScriptRenderer = observer(({
                                         color: THEME_COLORS.paper.secondary,
                                         fontSize: { xs: '0.75rem', sm: '0.95rem' },
                                         mt: 0.5,
+                                        textAlign: (script as any).textAlignment || 'center',
                                     }}
                                 >
                                     {script.author ? `${t('script.author2')}：${script.author}` : ''}
@@ -974,7 +975,7 @@ const ScriptRenderer = observer(({
                             display: 'flex',
                             alignItems: 'flex-start',
                             justifyContent: "center",
-                            pt: compact ? '2%' : '30%',
+                            pt: compact ? '2%' : (uiConfigStore.config.nightOrderTopSpacingAuto ? '30%' : `${uiConfigStore.config.nightOrderTopSpacing}vh`),
                             zIndex: 1,
                             boxShadow: 'none',
                             '& > *': {

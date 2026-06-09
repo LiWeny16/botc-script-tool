@@ -11,6 +11,25 @@ import { THEME_COLORS } from '../theme/colors';
 import { isSameCharacter, normalizeCharacterId } from '../data/utils/characterIdMapping';
 import { configStore } from '../stores/ConfigStore';
 import type { Language } from './languages';
+import { safeJsonParse } from './jsonSafety';
+
+/**
+ * Normalize an image field from JSON to a single URL string.
+ *
+ * In some script JSON formats (e.g. klutzbanana), `image` can be an array of
+ * URLs instead of a single string. This normalizes it to always be a string
+ * (the first URL if array), or undefined if missing/invalid.
+ */
+function normalizeImageUrl(image: unknown): string | undefined {
+  if (Array.isArray(image)) {
+    const first = image.find((x): x is string => typeof x === 'string' && x.length > 0);
+    return first;
+  }
+  if (typeof image === 'string' && image.length > 0) {
+    return image;
+  }
+  return undefined;
+}
 
 /**
  * Find character ID by character name
@@ -192,10 +211,14 @@ function getCharacterDictKey(
 
 // Parse JSON and generate script object
 export function generateScript(jsonString: string, language: Language = 'cn'): Script {
-  const json = JSON.parse(jsonString);
+  const parsed = safeJsonParse<unknown>(jsonString);
+  if (!parsed.ok) {
+    throw new Error(parsed.message);
+  }
 
+  const json = parsed.value;
   if (!Array.isArray(json)) {
-    throw new Error('JSON must be an array');
+    throw new Error('JSON top-level must be an array');
   }
 
   // Select character dictionary based on language
@@ -263,6 +286,12 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       item = { id: item };
     }
 
+    // Normalize image field: it may be a string or array of strings in some
+    // JSON formats (e.g. klutzbanana). Convert to single string unconditionally.
+    if (item.image !== undefined) {
+      item.image = normalizeImageUrl(item.image);
+    }
+
     // Process metadata
     if (item.id === '_meta') {
       script.title = item.name || 'Custom Script';
@@ -273,6 +302,9 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       script.showTitleFlourish = item.show_title_flourish;  // Parse flourish visibility
       script.author = item.author || '';
       script.playerCount = item.playerCount;  // Parse player count
+      // Parse title alignment — only allow valid CSS values
+      const rawAlign = (item as any).text_alignment;
+      (script as any).textAlignment = (rawAlign === 'left' || rawAlign === 'center' || rawAlign === 'right') ? rawAlign : 'center';
 
       // Parse second page config
       script.secondPageTitle = item.second_page_title;
@@ -353,7 +385,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
         }
       } else {
         // Normal mode: JSON custom info takes priority, but use official data if JSON lacks image
-        if (!item.image) {
+        if (!normalizeImageUrl(item.image)) {
           character = { ...charactersDict[dictKey], ...item };
           character.id = item.id; // Keep original ID
         }
@@ -431,7 +463,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
             id: character.id, // Keep original ID
             name: item.name !== undefined && item.name !== null && item.name !== '' ? item.name : officialChar.name,
             ability: item.ability !== undefined && item.ability !== null && item.ability !== '' ? item.ability : officialChar.ability,
-            image: item.image !== undefined && item.image !== null && item.image !== '' ? item.image : officialChar.image,
+            image: normalizeImageUrl(item.image) || officialChar.image,
             team: item.team !== undefined && item.team !== null ? item.team : officialChar.team,
             teamColor: item.teamColor !== undefined ? item.teamColor : officialChar.teamColor,
             // For potentially empty arrays/strings, just check !== undefined (allow empty values)

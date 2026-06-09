@@ -32,6 +32,10 @@ export interface UIConfig {
   // Title area height
   titleHeightMd: number;
 
+  // Night order top spacing
+  nightOrderTopSpacingAuto: boolean;  // AUTO centering
+  nightOrderTopSpacing: number;       // manual px (used when AUTO is off)
+
   // Title font size
   titleFontSize: {
     xs: string;
@@ -129,6 +133,9 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   enableTwoPageMode: false,
 
   titleHeightMd: 100,
+
+  nightOrderTopSpacingAuto: true,
+  nightOrderTopSpacing: 20,   // vh, default 20vh
 
   titleFontSize: {
     xs: '1.2rem',

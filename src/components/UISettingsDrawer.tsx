@@ -576,6 +576,40 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     />
                   </Box>
 
+                  {/* Night Order top spacing */}
+                  <Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+                      <Typography variant="caption">
+                        {t('ui.nightOrderTopSpacing')}
+                      </Typography>
+                      <FormControlLabel
+                        control={
+                          <Switch
+                            size="small"
+                            checked={uiConfigStore.config.nightOrderTopSpacingAuto}
+                            onChange={(e) => uiConfigStore.updateConfig({ nightOrderTopSpacingAuto: e.target.checked })}
+                          />
+                        }
+                        label={<Typography variant="caption">{t('ui.nightOrderTopSpacingAuto')}</Typography>}
+                      />
+                    </Box>
+                    {!uiConfigStore.config.nightOrderTopSpacingAuto && (
+                      <Box>
+                        <Typography variant="caption" gutterBottom>
+                          {uiConfigStore.config.nightOrderTopSpacing}vh
+                        </Typography>
+                        <Slider
+                          value={uiConfigStore.config.nightOrderTopSpacing}
+                          onChange={(_, value) => uiConfigStore.updateConfig({ nightOrderTopSpacing: value as number })}
+                          min={0}
+                          max={100}
+                          step={1}
+                          valueLabelDisplay="auto"
+                        />
+                      </Box>
+                    )}
+                  </Box>
+
                 </Stack>
               </AccordionDetails>
             </Accordion>

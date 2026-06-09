@@ -90,6 +90,10 @@ export const cn = {
   'export.chineseLang': '中文',
   'export.englishLang': '英文',
   'export.spanishLang': '西班牙语',
+  'title.textAlignment': '标题对齐',
+  'title.alignLeft': '居左',
+  'title.alignCenter': '居中',
+  'title.alignRight': '居右',
 } as const;
 
 export const en = {
@@ -183,6 +187,10 @@ export const en = {
   'export.chineseLang': 'Chinese',
   'export.englishLang': 'English',
   'export.spanishLang': 'Spanish',
+  'title.textAlignment': 'Text Alignment',
+  'title.alignLeft': 'Left',
+  'title.alignCenter': 'Center',
+  'title.alignRight': 'Right',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
@@ -276,4 +284,8 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'export.chineseLang': 'chino',
   'export.englishLang': 'inglés',
   'export.spanishLang': 'español',
+  'title.textAlignment': 'Alineación del texto',
+  'title.alignLeft': 'Izquierda',
+  'title.alignCenter': 'Centro',
+  'title.alignRight': 'Derecha',
 };

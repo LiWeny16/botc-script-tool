@@ -17,10 +17,22 @@ import { CSS } from '@dnd-kit/utilities';
 import type { NightAction } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import CharacterImage from './CharacterImage';
+import { normalizeImageUrl } from '../utils/jsonSafety';
+
+function getActionId(action: NightAction, index: number): string {
+  return `${normalizeImageUrl(action?.image)}-${index}`;
+}
+
+/** Extract a safe alt text from an image field that may be a string or string[] */
+function getImageAlt(image: unknown): string {
+  const url = normalizeImageUrl(image);
+  if (!url) return 'Night order character';
+  return url.split('/').pop()?.replace(/\.[^.]*$/, '') || 'Night order character';
+}
 
 interface NightOrderProps {
   title: string;
-  actions: NightAction[];
+  actions?: NightAction[] | null;
   isMobile?: boolean;
   disabled?: boolean;
   onReorder?: (oldIndex: number, newIndex: number) => void;
@@ -49,7 +61,7 @@ function SortableActionItem({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: action.image + index, disabled });
+  } = useSortable({ id: getActionId(action, index), disabled });
 
   const restrictedTransform = transform ? {
     ...transform,
@@ -80,8 +92,8 @@ function SortableActionItem({
       }}
     >
       <CharacterImage
-        src={action.image}
-        alt={action.image.split('/').pop()?.replace(/\.[^.]*$/, '') || `Night order character`}
+        src={normalizeImageUrl(action.image)}
+        alt={getImageAlt(action.image)}
         sx={{
           width: { xs: 35 * COMPACT_SCALE, sm: 38 * COMPACT_SCALE, md: 52 * COMPACT_SCALE },
           height: { xs: 35 * COMPACT_SCALE, sm: 38 * COMPACT_SCALE, md: 52 * COMPACT_SCALE },
@@ -97,6 +109,10 @@ function SortableActionItem({
 }
 
 export default function NightOrder({ title, actions, isMobile = false, disabled = false, onReorder, compact = false }: NightOrderProps) {
+  const safeActions = Array.isArray(actions)
+    ? actions.filter((action): action is NightAction => !!action && typeof action === 'object')
+    : [];
+  const safeTitle = typeof title === 'string' ? title : '';
   const COMPACT_SCALE = compact ? 0.65 : 1;
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -110,8 +126,8 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
     const { active, over } = event;
 
     if (over && active.id !== over.id && onReorder) {
-      const oldIndex = actions.findIndex((action, idx) => action.image + idx === active.id);
-      const newIndex = actions.findIndex((action, idx) => action.image + idx === over.id);
+      const oldIndex = safeActions.findIndex((action, idx) => getActionId(action, idx) === active.id);
+      const newIndex = safeActions.findIndex((action, idx) => getActionId(action, idx) === over.id);
 
       if (oldIndex !== -1 && newIndex !== -1) {
         onReorder(oldIndex, newIndex);
@@ -119,7 +135,7 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
     }
   };
 
-  const compactTitleChar = title.charAt(0);
+  const compactTitleChar = safeTitle.charAt(0);
 
   return (
     <Paper
@@ -169,9 +185,9 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
           }}
         >
           {isMobile ? (
-            title
+            safeTitle
           ) : (
-            title.split('').map((char, index) => (
+            safeTitle.split('').map((char, index) => (
               <Box
                 key={index}
                 component="span"
@@ -196,7 +212,7 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
         onDragEnd={handleDragEnd}
       >
         <SortableContext
-          items={actions.map((action, idx) => action.image + idx)}
+          items={safeActions.map((action, idx) => getActionId(action, idx))}
           strategy={isMobile ? rectSortingStrategy : verticalListSortingStrategy}
         >
           <Box
@@ -220,9 +236,9 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
               },
             }}
           >
-            {actions.map((action, index) => (
+            {safeActions.map((action, index) => (
               <SortableActionItem
-                key={action.image + index}
+                key={getActionId(action, index)}
                 action={action}
                 index={index}
                 isMobile={isMobile}

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { Component, useState, useRef, useEffect, useCallback, type ErrorInfo, type ReactNode } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Container,
@@ -180,6 +180,55 @@ const theme = createTheme({
   },
 });
 
+/** Top-level crash barrier — catches ANY render error in the entire app tree */
+class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  override state: { error: Error | null } = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('App render crashed:', error, errorInfo);
+  }
+  override render() {
+    if (this.state.error) {
+      return (
+        <Box sx={{ display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', minHeight:'100vh', gap:3, px:4, textAlign:'center', bgcolor:'#f5f5f5' }}>
+          <Typography variant="h5" color="error" fontWeight={700}>Application Error</Typography>
+          <Typography variant="body1" color="text.secondary" sx={{ maxWidth:500 }}>
+            {this.state.error.message || 'An unexpected error occurred.'}
+          </Typography>
+          <Box sx={{ display:'flex', gap:2 }}>
+            <Button variant="contained" color="error" onClick={() => { this.setState({ error: null }); window.location.reload(); }}>
+              Reload Page
+            </Button>
+            <Button variant="outlined" onClick={() => { try { localStorage.clear(); } catch {} window.location.reload(); }}>
+              Reset All Data &amp; Reload
+            </Button>
+          </Box>
+        </Box>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+class ScriptRendererErrorBoundary extends Component<
+  { children: ReactNode; fallback: ReactNode },
+  { hasError: boolean }
+> {
+  state = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('ScriptRenderer render crashed:', error, errorInfo);
+  }
+
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
 const App = observer(() => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -235,11 +284,12 @@ const App = observer(() => {
             const generatedScript = generateScript(originalJson, language);
             if (customTitle) generatedScript.title = customTitle;
             if (customAuthor) generatedScript.author = customAuthor;
-            scriptStore.setScript(generatedScript); // setScript automatically generates normalizedJson
+            scriptStore.setScript(generatedScript);
           } catch (error) {
-            console.error('Failed to regenerate script:', error);
-            // If stored JSON has issues, clear it
-            scriptStore.clear();
+            console.error('Failed to regenerate script from stored data:', error);
+            // Preserve originalJson so user can fix it; clear only the broken script
+            scriptStore.setScript(null);
+            setJsonParseError(`Startup error: ${error instanceof Error ? error.message : 'Invalid cached data'}. You can edit and re-generate.`);
           }
         }
       }
@@ -494,6 +544,7 @@ const App = observer(() => {
     showTitleFlourish?: boolean;
     author: string;
     playerCount?: string;
+    textAlignment?: 'left' | 'center' | 'right';
   }) => {
     scriptStore.updateTitleInfo({
       title: data.title,
@@ -503,6 +554,7 @@ const App = observer(() => {
       showTitleFlourish: data.showTitleFlourish,
       author: data.author,
       playerCount: data.playerCount,
+      textAlignment: data.textAlignment,
     });
   };
 
@@ -960,6 +1012,7 @@ const App = observer(() => {
   };
 
   return (
+    <AppErrorBoundary>
     <ThemeProvider theme={theme}>
       <GlobalStyles styles={printStyles} /> {/* 👈 add here */}
       <SEOManager />
@@ -1005,23 +1058,33 @@ const App = observer(() => {
 
           {/* Script display area - using ScriptRenderer component */}
           {script && (
-            <ScriptRenderer
-              script={script}
-              theme={theme}
-              readOnly={false}
-              onReorderCharacters={handleReorderCharacters}
-              onUpdateCharacter={handleUpdateCharacter}
-              onEditCharacter={handleEditCharacter}
-              onDeleteCharacter={handleRemoveCharacter}
-              onReplaceCharacter={handleReplaceCharacter}
-              onTitleEdit={handleTitleEdit}
-              onSecondPageTitleEdit={handleSecondPageTitleEdit}
-              onSpecialRuleEdit={handleSpecialRuleEdit}
-              onSpecialRuleDelete={(rule) => scriptStore.removeSpecialRule(rule)}
-              onNightOrderReorder={handleNightOrderReorder}
-            />
-          )
-          }
+            <ScriptRendererErrorBoundary
+              key={originalJson}
+              fallback={
+                <Paper sx={{ p: 4, textAlign: 'center', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
+                  <Typography color="error">
+                    Script preview failed to render. Please check the script JSON for invalid data.
+                  </Typography>
+                </Paper>
+              }
+            >
+              <ScriptRenderer
+                script={script}
+                theme={theme}
+                readOnly={false}
+                onReorderCharacters={handleReorderCharacters}
+                onUpdateCharacter={handleUpdateCharacter}
+                onEditCharacter={handleEditCharacter}
+                onDeleteCharacter={handleRemoveCharacter}
+                onReplaceCharacter={handleReplaceCharacter}
+                onTitleEdit={handleTitleEdit}
+                onSecondPageTitleEdit={handleSecondPageTitleEdit}
+                onSpecialRuleEdit={handleSpecialRuleEdit}
+                onSpecialRuleDelete={(rule) => scriptStore.removeSpecialRule(rule)}
+                onNightOrderReorder={handleNightOrderReorder}
+              />
+            </ScriptRendererErrorBoundary>
+          )}
 
           {/* Empty state prompt */}
           {!script && (
@@ -1110,6 +1173,7 @@ const App = observer(() => {
           showTitleFlourish={script?.showTitleFlourish}
           author={script?.author || ''}
           playerCount={script?.playerCount || ''}
+          textAlignment={(script as any)?.textAlignment || 'center'}
           onClose={handleCloseTitleEdit}
           onSave={handleTitleSave}
         />
@@ -1293,6 +1357,7 @@ const App = observer(() => {
       <AgentFAB />
       <AgentDialog />
     </ThemeProvider >
+    </AppErrorBoundary>
   );
 });
 
