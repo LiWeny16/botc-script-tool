@@ -102,7 +102,7 @@ const TitleEditDialog = ({
       sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
       md: parseFloat(uiConfigStore.config.titleFontSize.md),
     });
-  }, [open, title, titleImage, titleImageSize, useTitleImage, showTitleFlourish, author, playerCount]);
+  }, [open, title, titleImage, titleImageSize, useTitleImage, showTitleFlourish, author, playerCount, textAlignment]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();

@@ -61,7 +61,7 @@ function showCrashRecovery(message: string) {
 
   document.getElementById('crash-reload')!.onclick = () => location.reload();
   document.getElementById('crash-reset')!.onclick = () => {
-    try { localStorage.clear(); } catch {}
+    try { localStorage.clear(); } catch { /* quota or disabled */ }
     location.reload();
   };
 }

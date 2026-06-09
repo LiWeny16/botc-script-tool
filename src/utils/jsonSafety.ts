@@ -355,8 +355,9 @@ export function saveCachedScriptData(data: Omit<CachedScriptData, 'version' | 't
 
   try {
     localStorage.setItem(LS_SCRIPT_KEY, JSON.stringify(payload));
-  } catch (error: any) {
-    if (error?.name === 'QuotaExceededError' || error?.code === 22) {
+  } catch (error: unknown) {
+    const err = error as { name?: string; code?: number };
+    if (err?.name === 'QuotaExceededError' || err?.code === 22) {
       console.warn('[jsonSafety] localStorage quota exceeded, saving without normalizedJson');
       try {
         localStorage.setItem(LS_SCRIPT_KEY, JSON.stringify({
