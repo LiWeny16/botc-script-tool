@@ -1,0 +1,27 @@
+# BOTC Script Tool — github.com/LiWeny16/botc-script-tool | botc.letshare.fun
+User-agent: *
+Allow: /
+
+# AI Search Engine Bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+Sitemap: https://botc.letshare.fun/sitemap.xml

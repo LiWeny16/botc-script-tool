@@ -1,0 +1,45 @@
+[
+  {
+    "id": "_meta",
+    "name": "三种格式兼容测试",
+    "author": "测试",
+    "playerCount": "7-15",
+    "state": [
+      {
+        "stateName": "State格式-第一条",
+        "stateDescription": "这是使用 state 格式的第一条规则，会显示在第一页，如果开启双页模式也会显示在第二页。"
+      },
+      {
+        "stateName": "State格式-第二条",
+        "stateDescription": "这是使用 state 格式的第二条规则，只会显示在第二页。"
+      }
+    ],
+    "status": [
+      {
+        "name": "Status格式-第一条",
+        "skill": "这是使用 status 格式的第一条规则，会显示在第一页，如果开启双页模式也会显示在第二页。"
+      },
+      {
+        "name": "Status格式-第二条",
+        "skill": "这是使用 status 格式的第二条规则，只会显示在第二页。"
+      }
+    ]
+  },
+  {
+    "id": "special_rule_test",
+    "team": "special_rule",
+    "title": "Special Rule格式",
+    "content": "这是使用 special_rule team 格式的规则，会显示在第一页。"
+  },
+  "washerwoman",
+  "librarian",
+  "investigator",
+  "chef",
+  "empath",
+  "fortuneteller",
+  "butler",
+  "drunk",
+  "poisoner",
+  "spy",
+  "imp"
+]
