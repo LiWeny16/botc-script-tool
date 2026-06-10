@@ -152,6 +152,7 @@ export interface NormalizedScriptEntry {
   rules?: unknown;
   // jinx fields
   jinx?: unknown[];
+  jinxes?: unknown[];
   // state/status fields
   state?: unknown[];
   status?: unknown[];
@@ -255,8 +256,8 @@ export function normalizeScriptJsonInput(raw: unknown): NormalizeResult {
       }
     }
 
-    // Passthrough complex fields (title, content, rules, jinx, state, status)
-    for (const key of ['title', 'content', 'rules', 'jinx', 'state', 'status']) {
+    // Passthrough complex fields (title, content, rules, jinx, jinxes, state, status)
+    for (const key of ['title', 'content', 'rules', 'jinx', 'jinxes', 'state', 'status']) {
       const val = (entry as Record<string, unknown>)[key];
       if (val !== undefined) {
         (normalized as Record<string, unknown>)[key] = val;

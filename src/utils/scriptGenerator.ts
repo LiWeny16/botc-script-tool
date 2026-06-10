@@ -532,6 +532,15 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
         }
       }
     }
+
+    // Extract inline jinxes from character objects (e.g. Dante's Code format:
+    // jinxes field embedded inside character object with [{ id, reason }] array)
+    if (item.jinxes && Array.isArray(item.jinxes)) {
+      jinxItems.push({
+        id: item.id,
+        jinx: item.jinxes,
+      });
+    }
   }
 
   // Process custom jinx rules (after all characters are parsed)

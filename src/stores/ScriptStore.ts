@@ -123,6 +123,19 @@ class ScriptStore {
 
       jsonArray.push(meta);
 
+      // Pre-fetch original JSON array for jinx extraction
+      let originalArray: any[] = [];
+      try {
+        originalArray = this.safeParseOriginalJsonArray();
+      } catch { /* keep empty */ }
+
+      // Helper: find original JSON entry for a character ID
+      const findOrig = (charId: string) => originalArray?.find((item: any) => {
+        if (typeof item === 'string') return isSameCharacter(item, charId);
+        if (!item || item.id === '_meta') return false;
+        return isSameCharacter(item.id, charId);
+      });
+
       // 2. Add all characters (using script.all to maintain order)
       script.all.forEach(character => {
         const charJson: any = {
@@ -142,21 +155,23 @@ class ScriptStore {
         if (character.remindersGlobal && character.remindersGlobal.length > 0) charJson.remindersGlobal = character.remindersGlobal;
         if (character.setup) charJson.setup = character.setup;
 
+        // Copy inline jinxes from original JSON (Dante's Code format: jinxes inside character object)
+        const origItem = findOrig(character.id);
+        if (origItem && typeof origItem === 'object' && origItem.jinxes && Array.isArray(origItem.jinxes) && origItem.jinxes.length > 0) {
+          charJson.jinxes = origItem.jinxes;
+        }
+
         jsonArray.push(charJson);
       });
 
-      // 3. Extract jinx rules (from originalJson)
+      // 3. Extract jinx rules from originalJson (both legacy team:'a jinxed' and inline)
       try {
-        const originalArray = this.safeParseOriginalJsonArray();
-
-        // Find all items with team === 'a jinxed'
-        const jinxItems = originalArray.filter((item: any) => {
+        // Legacy format: team === 'a jinxed' entries
+        const legacyJinxItems = originalArray.filter((item: any) => {
           const itemObj = typeof item === 'string' ? { id: item } : item;
           return itemObj.team === 'a jinxed';
         });
-
-        // Add to normalized JSON
-        jinxItems.forEach((item: any) => jsonArray.push(item));
+        legacyJinxItems.forEach((item: any) => jsonArray.push(item));
       } catch (error) {
         console.warn('Failed to extract jinx rules:', error);
       }
@@ -634,8 +649,9 @@ class ScriptStore {
       };
     }
 
-    this.setScript(updatedScript);
+    // Sync JSON first so generateNormalizedJson (called by setScript) sees updated jinxes
     this.syncCustomJinxToJson(characterA, characterB, description, 'add', true);
+    this.setScript(updatedScript);
   }
 
   // Update official jinx rule (modify display state or custom description)
@@ -665,15 +681,14 @@ class ScriptStore {
       };
     }
 
-    this.setScript(updatedScript);
-
-    // Sync to JSON
+    // Sync JSON first so generateNormalizedJson (called by setScript) sees updated jinxes
     if (updates.reason !== undefined) {
       this.syncCustomJinxToJson(characterA, characterB, updates.reason, 'add', updates.display);
     } else if (updates.display !== undefined) {
       // Only update display state
       this.syncJinxDisplayToJson(characterA, characterB, updates.display);
     }
+    this.setScript(updatedScript);
   }
 
   // Delete custom jinx relationship
@@ -701,11 +716,12 @@ class ScriptStore {
       }
     }
 
-    this.setScript(updatedScript);
+    // Sync JSON first so generateNormalizedJson (called by setScript) sees updated jinxes
     this.syncCustomJinxToJson(characterA, characterB, '', 'remove', undefined);
+    this.setScript(updatedScript);
   }
 
-  // Sync only the jinx rule display state to JSON
+  // Sync only the jinx rule display state to JSON (inline jinxes format — Dante's Code style)
   private syncJinxDisplayToJson(
     characterA: Character,
     characterB: Character,
@@ -715,62 +731,85 @@ class ScriptStore {
     try {
       const jsonArray = this.safeParseOriginalJsonArray();
 
-      // Find existing jinx relationship
-      const existingJinxIndex = jsonArray.findIndex((item: any) => {
-        if (typeof item === 'string') return false;
-        return item.team === 'a jinxed' && 
-               isSameCharacter(item.id, characterA.id) && 
-               item.jinx && 
-               item.jinx.some((j: any) => isSameCharacter(j.id, characterB.id));
-      });
+      // Helper: find a character entry and upgrade string→object if needed
+      const ensureCharObject = (char: Character): { idx: number; obj: any } | null => {
+        const idx = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return isSameCharacter(item, char.id);
+          if (!item || item.id === '_meta') return false;
+          return isSameCharacter(item.id, char.id);
+        });
+        if (idx < 0) return null;
+        if (typeof jsonArray[idx] === 'string') {
+          const full = this.script?.all.find(c => isSameCharacter(c.id, char.id));
+          jsonArray[idx] = {
+            id: full?.id || char.id,
+            name: full?.name || char.name,
+            ability: full?.ability || '',
+            team: full?.team || '',
+            image: full?.image || '',
+          };
+        }
+        return { idx, obj: jsonArray[idx] };
+      };
 
-      if (existingJinxIndex >= 0) {
-        // Found existing jinx relationship entry
-        const jinxItem = jsonArray[existingJinxIndex];
-        const jinxEntry = jinxItem.jinx.find((j: any) => isSameCharacter(j.id, characterB.id));
-        
-        if (jinxEntry) {
-          if (display === true && !jinxEntry.reason) {
-            // If set to display and no custom reason, it's a pure official jinx
-            // Should delete this entry to let it fall back to official default display
-            jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterB.id));
-            
-            // If this character has no other jinx relationships, delete entire object
-            if (jinxItem.jinx.length === 0) {
-              jsonArray.splice(existingJinxIndex, 1);
+      // Check both inline jinxes and legacy format
+      const result = ensureCharObject(characterA);
+
+      // Find existing jinx entry (inline jinxes first, then fallback to legacy)
+      const findEntry = (): { container: any[]; entryIdx: number } | null => {
+        // Check inline jinxes on character object
+        if (result && result.obj.jinxes && Array.isArray(result.obj.jinxes)) {
+          const ei = result.obj.jinxes.findIndex((j: any) => j && isSameCharacter(j.id, characterB.id));
+          if (ei >= 0) return { container: result.obj.jinxes, entryIdx: ei };
+        }
+        // Fallback: check legacy team: 'a jinxed' entries
+        const legacyIdx = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return false;
+          return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id)
+            && item.jinx && item.jinx.some((j: any) => isSameCharacter(j.id, characterB.id));
+        });
+        if (legacyIdx >= 0) {
+          const legacyItem = jsonArray[legacyIdx];
+          const ei = legacyItem.jinx.findIndex((j: any) => isSameCharacter(j.id, characterB.id));
+          // Migrate legacy → inline
+          if (result) {
+            if (!result.obj.jinxes || !Array.isArray(result.obj.jinxes)) {
+              result.obj.jinxes = [];
             }
-          } else {
-            // Otherwise update display state
-            jinxEntry.display = display;
+            result.obj.jinxes.push({ ...legacyItem.jinx[ei] });
+            legacyItem.jinx.splice(ei, 1);
+            if (legacyItem.jinx.length === 0) jsonArray.splice(legacyIdx, 1);
+            const newEi = result.obj.jinxes.length - 1;
+            return { container: result.obj.jinxes, entryIdx: newEi };
           }
+          return { container: legacyItem.jinx, entryIdx: ei };
+        }
+        return null;
+      };
+
+      const found = findEntry();
+
+      if (found) {
+        if (display === true && !found.container[found.entryIdx]?.reason) {
+          // Display set to true with no custom reason → remove entry (let official default show)
+          found.container.splice(found.entryIdx, 1);
+          if (found.container === result?.obj?.jinxes && found.container.length === 0) {
+            delete result.obj.jinxes;
+          }
+        } else {
+          // Update display state
+          found.container[found.entryIdx].display = display;
         }
       } else if (display === false) {
-        // Only create entry when it doesn't exist and display is set to false
-        // If setting to true and entry doesn't exist, no need to create—keep official default
-        const characterJinxIndex = jsonArray.findIndex((item: any) => {
-          if (typeof item === 'string') return false;
-          return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
-        });
-
-        const newJinxEntry: any = {
-          id: characterB.id,
-          display: false,  // Only create entry when hiding
-        };
-
-        if (characterJinxIndex >= 0) {
-          // Character already has jinx object, add to jinx array
-          jsonArray[characterJinxIndex].jinx.push(newJinxEntry);
-        } else {
-          // Create new jinx object
-          const newJinxObject: any = {
-            id: characterA.id,
-            team: 'a jinxed',
-            jinx: [newJinxEntry],
-          };
-          jsonArray.push(newJinxObject);
+        // Entry doesn't exist and we want to hide → create inline jinxes entry
+        if (result) {
+          if (!result.obj.jinxes || !Array.isArray(result.obj.jinxes)) {
+            result.obj.jinxes = [];
+          }
+          result.obj.jinxes.push({ id: characterB.id, display: false });
         }
       }
-      // If not found and display is true, do nothing—keep official default display
+      // If display=true and entry doesn't exist: do nothing (keep official default)
 
       const jsonString = JSON.stringify(jsonArray, null, 2);
       console.log('Jinx rule display state sync completed');
@@ -780,7 +819,7 @@ class ScriptStore {
     }
   }
 
-  // Sync custom jinx relationship to JSON
+  // Sync custom jinx relationship to JSON (inline jinxes format — Dante's Code style)
   private syncCustomJinxToJson(
     characterA: Character,
     characterB: Character,
@@ -792,89 +831,77 @@ class ScriptStore {
     try {
       const jsonArray = this.safeParseOriginalJsonArray();
 
-      if (action === 'add') {
-        // Add jinx relationship
-        // Check if jinx relationship already exists
-        const existingJinxIndex = jsonArray.findIndex((item: any) => {
-          if (typeof item === 'string') return false;
-          return item.team === 'a jinxed' && 
-                 isSameCharacter(item.id, characterA.id) && 
-                 item.jinx && 
-                 item.jinx.some((j: any) => isSameCharacter(j.id, characterB.id));
+      // Helper: find a character entry index, upgrade string→object if needed
+      const ensureCharObject = (char: Character): number => {
+        let idx = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return isSameCharacter(item, char.id);
+          if (!item || item.id === '_meta') return false;
+          return isSameCharacter(item.id, char.id);
         });
-
-        if (existingJinxIndex >= 0) {
-          // Update existing jinx relationship
-          const jinxItem = jsonArray[existingJinxIndex];
-          const jinxEntry = jinxItem.jinx.find((j: any) => isSameCharacter(j.id, characterB.id));
-          if (jinxEntry && description) {
-            // Update description
-            jinxEntry.reason = description;
-            if (display !== undefined) {
-              jinxEntry.display = display;
-            }
-          }
-        } else {
-          // Add new jinx relationship
-          // Check if character already has a jinx object
-          const characterJinxIndex = jsonArray.findIndex((item: any) => {
-            if (typeof item === 'string') return false;
-            return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
-          });
-
-          const newJinxEntry: any = {
-            id: characterB.id,
+        if (idx < 0) return -1;
+        // Upgrade simple string ID to full object
+        if (typeof jsonArray[idx] === 'string') {
+          const full = this.script?.all.find(c => isSameCharacter(c.id, char.id));
+          jsonArray[idx] = {
+            id: full?.id || char.id,
+            name: full?.name || char.name,
+            ability: full?.ability || '',
+            team: full?.team || '',
+            image: full?.image || '',
           };
-          if (description) newJinxEntry.reason = description;
-          if (display !== undefined) {
-            newJinxEntry.display = display;
-          }
+        }
+        return idx;
+      };
 
-          if (characterJinxIndex >= 0) {
-            // Character already has jinx object, add to jinx array
-            jsonArray[characterJinxIndex].jinx.push(newJinxEntry);
+      // Remove legacy team: 'a jinxed' entries for this pair (migration)
+      const cleanLegacy = (char: Character, other: Character) => {
+        const legacyIdx = jsonArray.findIndex((item: any) => {
+          if (typeof item === 'string') return false;
+          return item.team === 'a jinxed' && isSameCharacter(item.id, char.id);
+        });
+        if (legacyIdx >= 0 && jsonArray[legacyIdx].jinx) {
+          jsonArray[legacyIdx].jinx = jsonArray[legacyIdx].jinx.filter(
+            (j: any) => !isSameCharacter(j.id, other.id)
+          );
+          if (jsonArray[legacyIdx].jinx.length === 0) {
+            jsonArray.splice(legacyIdx, 1);
+          }
+        }
+      };
+
+      // Apply jinx inline on characterA's entry
+      const idx = ensureCharObject(characterA);
+      if (idx >= 0) {
+        const charObj = jsonArray[idx];
+
+        if (action === 'add') {
+          if (!charObj.jinxes || !Array.isArray(charObj.jinxes)) {
+            charObj.jinxes = [];
+          }
+          const existIdx = charObj.jinxes.findIndex((j: any) =>
+            j && isSameCharacter(j.id, characterB.id)
+          );
+          const entry: any = { id: characterB.id };
+          if (description) entry.reason = description;
+          if (display !== undefined) entry.display = display;
+          if (existIdx >= 0) {
+            charObj.jinxes[existIdx] = entry;
           } else {
-            // Create new jinx object
-            const newJinxObject: any = {
-              id: characterA.id,
-              team: 'a jinxed',
-              jinx: [newJinxEntry],
-            };
-            jsonArray.push(newJinxObject);
+            charObj.jinxes.push(entry);
           }
-        }
-      } else if (action === 'remove') {
-        // Delete jinx relationship
-        const characterJinxIndex = jsonArray.findIndex((item: any) => {
-          if (typeof item === 'string') return false;
-          return item.team === 'a jinxed' && isSameCharacter(item.id, characterA.id);
-        });
-
-        if (characterJinxIndex >= 0) {
-          const jinxItem = jsonArray[characterJinxIndex];
-          jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterB.id));
-          
-          // If this character has no other jinx relationships, delete entire object
-          if (jinxItem.jinx.length === 0) {
-            jsonArray.splice(characterJinxIndex, 1);
-          }
-        }
-
-        // Also check reverse relationship
-        const reverseJinxIndex = jsonArray.findIndex((item: any) => {
-          if (typeof item === 'string') return false;
-          return item.team === 'a jinxed' && isSameCharacter(item.id, characterB.id);
-        });
-
-        if (reverseJinxIndex >= 0) {
-          const jinxItem = jsonArray[reverseJinxIndex];
-          jinxItem.jinx = jinxItem.jinx.filter((j: any) => !isSameCharacter(j.id, characterA.id));
-          
-          if (jinxItem.jinx.length === 0) {
-            jsonArray.splice(reverseJinxIndex, 1);
+        } else if (action === 'remove') {
+          if (charObj.jinxes && Array.isArray(charObj.jinxes)) {
+            charObj.jinxes = charObj.jinxes.filter(
+              (j: any) => !isSameCharacter(j.id, characterB.id)
+            );
+            if (charObj.jinxes.length === 0) delete charObj.jinxes;
           }
         }
       }
+
+      // Clean up any legacy team: 'a jinxed' format entries
+      cleanLegacy(characterA, characterB);
+      cleanLegacy(characterB, characterA);
 
       const jsonString = JSON.stringify(jsonArray, null, 2);
       console.log('Custom jinx sync completed');
