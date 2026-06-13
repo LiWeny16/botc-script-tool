@@ -197,6 +197,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, o
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    width: '100%',
   };
 
   // Handle double-click event
@@ -355,20 +356,24 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, o
           onDoubleClick={handleDoubleClick}
           onContextMenu={handleContextMenu}
           sx={{
+            position: 'relative',
             display: 'flex',
             flexDirection: 'column',
             width: '100%',
+            minWidth: 0,
+            boxSizing: 'border-box',
             px: CONFIG.card.paddingX,
             py: CONFIG.card.paddingY,
             backgroundColor: 'transparent',
             borderRadius: CONFIG.card.borderRadius,
-            transition: 'all 0.2s',
+            transition: 'background-color 0.2s, box-shadow 0.2s',
             cursor: isDragging ? 'grabbing' : 'grab',
+            touchAction: 'none',
             userSelect: 'none',
             WebkitUserSelect: 'none',
             MozUserSelect: 'none',
             msUserSelect: 'none',
-            zIndex: 10,
+            zIndex: isDragging ? 30 : 10,
             '&:hover': {
               backgroundColor: 'rgba(0, 0, 0, 0.02)',
               boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',

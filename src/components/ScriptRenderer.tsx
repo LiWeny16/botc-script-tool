@@ -45,7 +45,7 @@ export interface ScriptRendererProps {
     compact?: boolean;  // 超紧凑模式（全角色一览）
 
     // 事件回调（编辑模式下使用）
-    onReorderCharacters?: (team: string, newOrder: string[]) => void;
+    onReorderCharacters?: (team: string, newOrder: string[], columnLeftCount?: number) => void;
     onUpdateCharacter?: (characterId: string, updates: Partial<Character>) => void;
     onEditCharacter?: (character: Character) => void;
     onDeleteCharacter?: (character: Character) => void;

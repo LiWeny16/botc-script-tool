@@ -1,5 +1,7 @@
 import { Box, Typography, Divider } from '@mui/material';
 import { observer } from 'mobx-react-lite';
+import { Add as AddIcon } from '@mui/icons-material';
+import { useState, type ReactNode } from 'react';
 import type { Character, Script } from '../types';
 import { TEAM_COLORS } from '../data/characters/characters';
 import { THEME_COLORS, getTeamColor, getTeamName } from '../theme/colors';
@@ -12,8 +14,11 @@ import {
   closestCorners,
   KeyboardSensor,
   PointerSensor,
+  pointerWithin,
   useSensor,
   useSensors,
+  useDroppable,
+  type CollisionDetection,
   type DragEndEvent,
 } from '@dnd-kit/core';
 import {
@@ -36,6 +41,72 @@ interface CharacterSectionProps {
   readOnly?: boolean;
   compact?: boolean;
 }
+
+type ColumnSide = 'left' | 'right';
+
+interface CharacterColumnProps {
+  side: ColumnSide;
+  children: ReactNode;
+  isEmpty: boolean;
+}
+
+const CharacterColumn = ({ side, children, isEmpty }: CharacterColumnProps) => {
+  return (
+    <Box
+      data-column-side={side}
+      sx={{
+        flex: 1,
+        minWidth: 0,
+        minHeight: isEmpty ? 44 : 0,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 1,
+        borderRadius: 1,
+      }}
+    >
+      {children}
+    </Box>
+  );
+};
+
+interface ColumnBreakDropZoneProps {
+  id: string;
+}
+
+const ColumnBreakDropZone = ({ id }: ColumnBreakDropZoneProps) => {
+  const { setNodeRef, isOver } = useDroppable({ id });
+
+  return (
+    <Box
+      ref={setNodeRef}
+      aria-label="change column split"
+      sx={{
+        flex: '0 0 auto',
+        height: 40,
+        width: '100%',
+        borderRadius: 1,
+        border: `2px dashed ${isOver ? THEME_COLORS.good : 'rgba(0, 122, 204, 0.72)'}`,
+        backgroundColor: isOver ? 'rgba(0, 122, 204, 0.16)' : 'rgba(255, 255, 255, 0.82)',
+        color: isOver ? THEME_COLORS.good : THEME_COLORS.good,
+        boxShadow: isOver
+          ? '0 4px 14px rgba(0, 122, 204, 0.22)'
+          : '0 2px 10px rgba(0, 0, 0, 0.12)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'auto',
+        transition: 'background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease',
+      }}
+    >
+      <AddIcon sx={{ fontSize: 24, strokeWidth: 2.4 }} />
+    </Box>
+  );
+};
+
+const pointerFirstCollisionDetection: CollisionDetection = (args) => {
+  const pointerCollisions = pointerWithin(args);
+  return pointerCollisions.length > 0 ? pointerCollisions : closestCorners(args);
+};
 
 const CharacterSection = observer(({
   team, characters, script, onReorder, onUpdateCharacter, onEditCharacter,
@@ -78,32 +149,57 @@ const CharacterSection = observer(({
 
   // Use stored leftCount (default ceil-half)
   const rawLeft = script.columnLeftCount?.[team];
+  const hasManualColumnLayout = rawLeft !== undefined;
   const leftCount = rawLeft !== undefined
     ? Math.max(0, Math.min(characters.length, rawLeft))
     : Math.ceil(characters.length / 2);
+  const [isDraggingSection, setIsDraggingSection] = useState(false);
+  const useNaturalCardHeight = hasManualColumnLayout;
+  const leftBreakZoneId = `${team}__left_break_zone`;
+  const rightBreakZoneId = `${team}__right_break_zone`;
+  const leftCharacters = characters.slice(0, leftCount);
+  const rightCharacters = characters.slice(leftCount);
 
   const handleDragEnd = (event: DragEndEvent) => {
     if (disableDrag) return;
+    setIsDraggingSection(false);
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (!over) return;
 
     const oldIndex = characters.findIndex(c => c.id === active.id);
-    const newIndex = characters.findIndex(c => c.id === over.id);
-    if (oldIndex === -1 || newIndex === -1) return;
+    if (oldIndex === -1) return;
 
-    // Detect if the drag crossed the column boundary
-    const crossedLeftToRight = oldIndex < leftCount && newIndex >= leftCount;
-    const crossedRightToLeft = oldIndex >= leftCount && newIndex < leftCount;
+    const overId = String(over.id);
+    let newOrder = characters;
+    let newLeftCount = leftCount;
 
-    let newLeftCount: number | undefined;
-    if (crossedLeftToRight) {
-      newLeftCount = leftCount - 1;
-    } else if (crossedRightToLeft) {
-      newLeftCount = leftCount + 1;
+    if (overId === leftBreakZoneId || overId === rightBreakZoneId) {
+      const activeIsLeft = oldIndex < leftCount;
+
+      if (overId === leftBreakZoneId) {
+        const targetIndex = activeIsLeft ? Math.max(0, leftCount - 1) : leftCount;
+        newOrder = arrayMove(characters, oldIndex, targetIndex);
+        newLeftCount = activeIsLeft ? leftCount : Math.min(characters.length, leftCount + 1);
+      } else {
+        newOrder = arrayMove(characters, oldIndex, characters.length - 1);
+        newLeftCount = activeIsLeft ? Math.max(0, leftCount - 1) : leftCount;
+      }
+
+      const orderChanged = newOrder.some((c, index) => c.id !== characters[index]?.id);
+      const splitChanged = newLeftCount !== leftCount;
+      if (orderChanged || splitChanged) {
+        onReorder(team, newOrder.map(c => c.id), splitChanged ? newLeftCount : undefined);
+      }
+      return;
     }
 
-    const newOrder = arrayMove(characters, oldIndex, newIndex).map(c => c.id);
-    onReorder(team, newOrder, newLeftCount);
+    if (active.id === over.id) return;
+
+    const newIndex = characters.findIndex(c => c.id === over.id);
+    if (newIndex === -1) return;
+
+    const reorderedIds = arrayMove(characters, oldIndex, newIndex).map(c => c.id);
+    onReorder(team, reorderedIds);
   };
 
   return (
@@ -125,7 +221,13 @@ const CharacterSection = observer(({
       </Box>
 
       <Box sx={{ px: compact ? 0.2 : 2 }}>
-        <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={pointerFirstCollisionDetection}
+          onDragStart={() => setIsDraggingSection(true)}
+          onDragCancel={() => setIsDraggingSection(false)}
+          onDragEnd={handleDragEnd}
+        >
           <Box>
             <SortableContext items={characters.map(c => c.id)} strategy={rectSortingStrategy}>
               {characters.length === 1 ? (
@@ -148,25 +250,46 @@ const CharacterSection = observer(({
                   ))}
                 </Box>
               ) : (
-                <Box sx={{ display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
-                  <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    {characters.slice(0, leftCount).map((c, idx, arr) => (
-                      <Box key={c.id} sx={{ flex: 1, display: 'flex', mb: idx < arr.length - 1 ? 1 : 0 }}>
+                <Box sx={{ position: 'relative', display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' }, overflow: 'visible' }}>
+                  <CharacterColumn side="left" isEmpty={leftCharacters.length === 0}>
+                    {leftCharacters.map((c) => (
+                      <Box key={c.id} sx={{ flex: useNaturalCardHeight ? '0 0 auto' : 1, width: '100%', minWidth: 0, display: 'flex' }}>
                         <CharacterCard character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
                           allJinx={script.jinx} onUpdate={onUpdateCharacter} onEdit={onEditCharacter}
                           onDelete={onDeleteCharacter} onReplace={onReplaceCharacter} readOnly={readOnly} />
                       </Box>
                     ))}
-                  </Box>
-                  <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    {characters.slice(leftCount).map((c, idx, arr) => (
-                      <Box key={c.id} sx={{ flex: 1, display: 'flex', mb: idx < arr.length - 1 ? 1 : 0 }}>
+                  </CharacterColumn>
+                  <CharacterColumn side="right" isEmpty={rightCharacters.length === 0}>
+                    {rightCharacters.map((c) => (
+                      <Box key={c.id} sx={{ flex: useNaturalCardHeight ? '0 0 auto' : 1, width: '100%', minWidth: 0, display: 'flex' }}>
                         <CharacterCard character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
                           allJinx={script.jinx} onUpdate={onUpdateCharacter} onEdit={onEditCharacter}
                           onDelete={onDeleteCharacter} onReplace={onReplaceCharacter} readOnly={readOnly} />
                       </Box>
                     ))}
-                  </Box>
+                  </CharacterColumn>
+                  {isDraggingSection && !readOnly && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        bottom: -40,
+                        display: 'flex',
+                        gap: 1,
+                        pointerEvents: 'none',
+                        zIndex: 40,
+                      }}
+                    >
+                      <Box sx={{ flex: 1, minWidth: 0, pointerEvents: 'auto' }}>
+                        <ColumnBreakDropZone id={leftBreakZoneId} />
+                      </Box>
+                      <Box sx={{ flex: 1, minWidth: 0, pointerEvents: 'auto' }}>
+                        <ColumnBreakDropZone id={rightBreakZoneId} />
+                      </Box>
+                    </Box>
+                  )}
                 </Box>
               )}
             </SortableContext>
