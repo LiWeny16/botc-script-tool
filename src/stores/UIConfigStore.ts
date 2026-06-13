@@ -116,6 +116,9 @@ export interface UIConfig {
     // Jinx text
     jinxTextFontSizeMd: string;
     jinxTextLineHeight: number;
+
+    // Icon-only jinx position (when hideDuplicateJinx is on)
+    iconOnlyJinxPosition: 'below-description' | 'next-to-name';
   };
 }
 
@@ -197,6 +200,8 @@ const DEFAULT_UI_CONFIG: UIConfig = {
 
     jinxTextFontSizeMd: '0.77rem',
     jinxTextLineHeight: 1.4,
+
+    iconOnlyJinxPosition: 'below-description',
   },
 };
 

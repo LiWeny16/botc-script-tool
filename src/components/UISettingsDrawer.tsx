@@ -86,7 +86,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
       title: t('ui.category.iconSize'),
       keywords: [
         '图标', '大小', '头像', '相克', '传奇', '宽度', '高度', 'icon', 'size',
-        'icon', 'size', 'avatar', 'jinx', 'fabled', 'width', 'height', 'image'
+        'icon', 'size', 'avatar', 'jinx', 'fabled', 'width', 'height', 'image', 'position', '位置', '隐藏', 'hidden'
       ],
     },
     {
@@ -771,6 +771,23 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                       valueLabelDisplay="auto"
                     />
                   </Box>
+
+                  {/* 隐藏方相克图标位置 */}
+                  <FormControl component="fieldset" fullWidth sx={{ mt: 1 }}>
+                    <FormLabel component="legend">
+                      <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
+                        {t('ui.jinxIconPosition')}
+                      </Typography>
+                    </FormLabel>
+                    <RadioGroup
+                      row
+                      value={uiConfigStore.config.characterCard.iconOnlyJinxPosition}
+                      onChange={(e) => uiConfigStore.updateCharacterCardConfig({ iconOnlyJinxPosition: e.target.value as 'below-description' | 'next-to-name' })}
+                    >
+                      <FormControlLabel value="below-description" control={<Radio size="small" />} label={t('ui.jinxIconPositionBelowDesc')} />
+                      <FormControlLabel value="next-to-name" control={<Radio size="small" />} label={t('ui.jinxIconPositionNextToName')} />
+                    </RadioGroup>
+                  </FormControl>
 
                   {/* 传奇图标 */}
                   <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 2 }}>

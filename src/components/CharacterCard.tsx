@@ -17,6 +17,7 @@ interface CharacterCardProps {
   character: Character;
   jinxInfo?: Record<string, JinxInfo>;
   allCharacters?: Character[];
+  allJinx?: Record<string, Record<string, JinxInfo>>;
   onUpdate?: (characterId: string, updates: Partial<Character>) => void;
   onEdit?: (character: Character) => void;
   onDelete?: (character: Character) => void;
@@ -25,7 +26,32 @@ interface CharacterCardProps {
   compact?: boolean;
 }
 
-const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, onEdit, onDelete, onReplace, readOnly = false, compact = false }: CharacterCardProps) => {
+/** Team rank for jinx display priority — lower rank = icon (Demon), higher rank = full text (Townsfolk) */
+const TEAM_JINX_RANK: Record<string, number> = {
+  townsfolk: 4, outsider: 3, minion: 2, demon: 1,
+  traveler: 5, fabled: 6, loric: 7,
+};
+
+function shouldShowFullText(
+  charA: Character,
+  charB: Character,
+  allJinx: Record<string, Record<string, JinxInfo>>,
+): boolean {
+  const countA = Object.keys(allJinx[charA.name] || {}).filter(k => (allJinx[charA.name]?.[k]?.display) !== false).length;
+  const countB = Object.keys(allJinx[charB.name] || {}).filter(k => (allJinx[charB.name]?.[k]?.display) !== false).length;
+
+  if (countA > countB) return true;
+  if (countB > countA) return false;
+
+  const rankA = TEAM_JINX_RANK[charA.team] ?? 8;
+  const rankB = TEAM_JINX_RANK[charB.team] ?? 8;
+
+  if (rankA !== rankB) return rankA > rankB;
+
+  return charA.id < charB.id;
+}
+
+const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, onUpdate, onEdit, onDelete, onReplace, readOnly = false, compact = false }: CharacterCardProps) => {
   const COMPACT_SCALE = compact ? 0.47 : 1;
   const { t } = useTranslation();
   const theme = useTheme();
@@ -98,6 +124,44 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
       },
     },
   };
+
+  // Pre-compute jinx split for use in both name row and jinx section
+  const jinxSplit = (() => {
+    if (!jinxInfo || !allJinx) return { fullText: [] as [string, JinxInfo][], iconOnly: [] as [string, JinxInfo][] };
+    const entries = Object.entries(jinxInfo).filter(([_, d]) => d.display !== false);
+    if (entries.length === 0) return { fullText: [] as [string, JinxInfo][], iconOnly: [] as [string, JinxInfo][] };
+
+    const fullText: [string, JinxInfo][] = [];
+    const iconOnly: [string, JinxInfo][] = [];
+    if (configStore.config.hideDuplicateJinx) {
+      for (const [targetName, jinxData] of entries) {
+        const targetChar = allCharacters?.find(c => c.name === targetName);
+        if (!targetChar) { fullText.push([targetName, jinxData]); continue; }
+        if (shouldShowFullText(character, targetChar, allJinx)) {
+          fullText.push([targetName, jinxData]);
+        } else {
+          iconOnly.push([targetName, jinxData]);
+        }
+      }
+    } else {
+      fullText.push(...entries);
+    }
+    return { fullText, iconOnly };
+  })();
+
+  const showIconOnlyNextToName =
+    configStore.config.hideDuplicateJinx &&
+    jinxSplit.iconOnly.length > 0 &&
+    uiConfigStore.config.characterCard.iconOnlyJinxPosition === 'next-to-name' &&
+    !compact;
+
+  // Two-page mode is all-icons; "next-to-name" moves EVERY jinx icon beside the name
+  const showAllJinxNextToNameTwoPage =
+    uiConfigStore.config.enableTwoPageMode &&
+    configStore.config.hideDuplicateJinx &&
+    (jinxSplit.iconOnly.length > 0 || jinxSplit.fullText.length > 0) &&
+    uiConfigStore.config.characterCard.iconOnlyJinxPosition === 'next-to-name' &&
+    !compact;
 
   // Determine name color based on team type
   const getNameColor = () => {
@@ -353,26 +417,40 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                   >
                     {character.name}
                   </Typography>
-                  {jinxInfo && (() => {
-                    const visibleJinx = Object.entries(jinxInfo).filter(([_, jinxData]) => jinxData.display !== false);
-                    return visibleJinx.length > 0 && (
+                  {jinxInfo && allJinx && (() => {
+                    const entries = Object.entries(jinxInfo).filter(([_, d]) => d.display !== false);
+                    if (entries.length === 0) return null;
+                    // Show icons for ALL jinx targets (inline, same height as name)
+                    return (
                       <>
                         <CharacterImage
                           src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
-                          alt="Jinx Icon"
+                          alt="Jinx"
                           sx={{
                             width: CONFIG.jinx.icon.width,
                             height: CONFIG.jinx.icon.height,
                             borderRadius: CONFIG.jinx.icon.borderRadius,
                             flexShrink: 0,
-                            userDrag: 'none',
-                            WebkitUserDrag: 'none',
-                            pointerEvents: 'none',
+                            userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none',
                           }}
                         />
-                        <Typography sx={{ fontSize: `${0.55 * COMPACT_SCALE}rem`, color: '#8B7355', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                          ×{visibleJinx.length}
-                        </Typography>
+                        {entries.map(([targetName, _]) => {
+                          const targetChar = allCharacters?.find(c => c.name === targetName);
+                          return targetChar ? (
+                            <CharacterImage
+                              key={targetName}
+                              src={targetChar.image}
+                              alt={targetName}
+                              sx={{
+                                width: CONFIG.jinx.icon.width,
+                                height: CONFIG.jinx.icon.height,
+                                borderRadius: CONFIG.jinx.icon.borderRadius,
+                                flexShrink: 0,
+                                userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none',
+                              }}
+                            />
+                          ) : null;
+                        })}
                       </>
                     );
                   })()}
@@ -404,18 +482,70 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                 flexDirection: 'column',
                 gap: CONFIG.textArea.gap,
               }}>
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: CONFIG.name.fontWeight,
-                    fontSize: CONFIG.name.fontSize,
-                    color: nameColor,
-                    lineHeight: CONFIG.name.lineHeight,
-                    fontFamily: uiConfigStore.characterNameFont,
-                  }}
-                >
-                  {character.name}
-                </Typography>
+                {/* 名字行：名字 + 可选 iconOnly 相克图标（名称右边） */}
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: CONFIG.jinx.iconGap, flexWrap: 'wrap' }}>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      fontWeight: CONFIG.name.fontWeight,
+                      fontSize: CONFIG.name.fontSize,
+                      color: nameColor,
+                      lineHeight: CONFIG.name.lineHeight,
+                      fontFamily: uiConfigStore.characterNameFont,
+                    }}
+                  >
+                    {character.name}
+                  </Typography>
+                  {(showIconOnlyNextToName || showAllJinxNextToNameTwoPage) && (
+                    <>
+                      <CharacterImage
+                        src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
+                        alt="Jinx"
+                        sx={{
+                          width: CONFIG.jinx.icon.width,
+                          height: CONFIG.jinx.icon.height,
+                          borderRadius: CONFIG.jinx.icon.borderRadius,
+                          flexShrink: 0,
+                          userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none',
+                        }}
+                      />
+                      {jinxSplit.iconOnly.map(([targetName, _]) => {
+                        const targetChar = allCharacters?.find(c => c.name === targetName);
+                        return targetChar ? (
+                          <CharacterImage
+                            key={targetName}
+                            src={targetChar.image}
+                            alt={targetName}
+                            sx={{
+                              width: CONFIG.jinx.icon.width,
+                              height: CONFIG.jinx.icon.height,
+                              borderRadius: CONFIG.jinx.icon.borderRadius,
+                              flexShrink: 0,
+                              userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none',
+                            }}
+                          />
+                        ) : null;
+                      })}
+                      {showAllJinxNextToNameTwoPage && jinxSplit.fullText.map(([targetName, _]) => {
+                        const targetChar = allCharacters?.find(c => c.name === targetName);
+                        return targetChar ? (
+                          <CharacterImage
+                            key={'ft-'+targetName}
+                            src={targetChar.image}
+                            alt={targetName}
+                            sx={{
+                              width: CONFIG.jinx.icon.width,
+                              height: CONFIG.jinx.icon.height,
+                              borderRadius: CONFIG.jinx.icon.borderRadius,
+                              flexShrink: 0,
+                              userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none',
+                            }}
+                          />
+                        ) : null;
+                      })}
+                    </>
+                  )}
+                </Box>
 
                 <Box
                   sx={{
@@ -432,103 +562,57 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, onUpdate, 
                 </Box>
 
                 {/* Jinx rules - below description text, left-aligned */}
-                {jinxInfo && (() => {
-                // Filter out jinx rules with display set to false, and apply single-side hiding
-                const visibleJinxEntries = Object.entries(jinxInfo).filter(([targetName, jinxData]) => {
-                  if (jinxData.display === false) return false;
-                  if (configStore.config.hideDuplicateJinx) {
-                    const targetChar = allCharacters?.find(c => c.name === targetName);
-                    if (targetChar && character.id > targetChar.id) return false;
-                  }
-                  return true;
-                });
-                return visibleJinxEntries.length > 0 && (
-                  // Two-page mode or compact: show only djinn icon and jinx character icons in a row
-                  (uiConfigStore.config.enableTwoPageMode || compact) ? (
-                    <Box sx={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: CONFIG.jinx.iconGap,
-                      flexWrap: 'wrap',
-                    }}>
-                      {/* Djinn icon */}
-                      <CharacterImage
-                        src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
-                        alt="Jinx Icon"
-                        sx={{
-                          width: CONFIG.jinx.icon.width,
-                          height: CONFIG.jinx.icon.height,
-                          borderRadius: CONFIG.jinx.icon.borderRadius,
-                          flexShrink: 0,
-                          userDrag: 'none',
-                          WebkitUserDrag: 'none',
-                          pointerEvents: 'none',
-                        }}
-                      />
-                      {/* All jinx character icons */}
-                      {visibleJinxEntries.map(([targetName, _]) => {
-                        const targetChar = allCharacters?.find((c) => c.name === targetName);
-                        return targetChar ? (
-                          <CharacterImage
-                            key={targetName}
-                            src={targetChar.image}
-                            alt={targetName}
-                            sx={{
-                              width: CONFIG.jinx.icon.width,
-                              height: CONFIG.jinx.icon.height,
-                              borderRadius: CONFIG.jinx.icon.borderRadius,
-                              flexShrink: 0,
-                              userDrag: 'none',
-                              WebkitUserDrag: 'none',
-                              pointerEvents: 'none',
-                            }}
-                          />
-                        ) : null;
+                {(() => {
+                const { fullText, iconOnly } = jinxSplit;
+                if (fullText.length === 0 && iconOnly.length === 0) return null;
+                // Compact mode: icons already shown in name row above, skip extra row here
+                if (compact) return null;
+                // Next-to-name mode: iconOnly icons already shown next to name, only show fullText below
+                const showIconOnlyBelow = !showIconOnlyNextToName && iconOnly.length > 0;
+                // Two-page + next-to-name + no fullText below → nothing to render here
+                if (showAllJinxNextToNameTwoPage) return null;
+                return (
+                  uiConfigStore.config.enableTwoPageMode ? (
+                    /* Two-page: icon-only row for all jinx targets.
+                       When next-to-name mode is active, iconOnly icons are already beside the name;
+                       skip them here to avoid duplication. */
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: CONFIG.jinx.iconGap, flexWrap: 'wrap' }}>
+                      {fullText.length > 0 && (
+                        <CharacterImage
+                          src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
+                          alt="Jinx" sx={{ width: CONFIG.jinx.icon.width, height: CONFIG.jinx.icon.height, borderRadius: CONFIG.jinx.icon.borderRadius, flexShrink: 0, userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none' }}
+                        />
+                      )}
+                      {fullText.map(([targetName, _]) => {
+                        const tc = allCharacters?.find(c => c.name === targetName);
+                        return tc ? <CharacterImage key={targetName} src={tc.image} alt={targetName} sx={{ width: CONFIG.jinx.icon.width, height: CONFIG.jinx.icon.height, borderRadius: CONFIG.jinx.icon.borderRadius, flexShrink: 0, userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none' }} /> : null;
+                      })}
+                      {!showIconOnlyNextToName && iconOnly.map(([targetName, _]) => {
+                        const tc = allCharacters?.find(c => c.name === targetName);
+                        return tc ? <CharacterImage key={'io-'+targetName} src={tc.image} alt={targetName} sx={{ width: CONFIG.jinx.icon.width, height: CONFIG.jinx.icon.height, borderRadius: CONFIG.jinx.icon.borderRadius, flexShrink: 0, userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none', opacity: 0.55 }} /> : null;
                       })}
                     </Box>
                   ) : (
-                    // Single-page mode: keep original detailed display
+                    /* Single-page: full text cards + icon-only hint row */
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: CONFIG.jinx.gap }}>
-                      {visibleJinxEntries.map(([targetName, jinxData]) => {
-                        const targetChar = allCharacters?.find((c) => c.name === targetName);
+                      {showIconOnlyBelow && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: CONFIG.jinx.iconGap, flexWrap: 'wrap', opacity: 0.7 }}>
+                          <CharacterImage
+                            src="https://oss.gstonegames.com/data_file/clocktower/web/icons/djinn.png"
+                            alt="Jinx" sx={{ width: CONFIG.jinx.icon.width, height: CONFIG.jinx.icon.height, borderRadius: CONFIG.jinx.icon.borderRadius, flexShrink: 0, userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none' }}
+                          />
+                          {iconOnly.map(([targetName, _]) => {
+                            const tc = allCharacters?.find(c => c.name === targetName);
+                            return tc ? <CharacterImage key={targetName} src={tc.image} alt={targetName} sx={{ width: CONFIG.jinx.icon.width, height: CONFIG.jinx.icon.height, borderRadius: CONFIG.jinx.icon.borderRadius, flexShrink: 0, userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none' }} /> : null;
+                          })}
+                        </Box>
+                      )}
+                      {fullText.map(([targetName, jinxData]) => {
+                        const tc = allCharacters?.find(c => c.name === targetName);
                         return (
-                          <Box
-                            key={targetName}
-                            sx={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              borderRadius: 1.7,
-                              gap: CONFIG.jinx.iconGap,
-                              p: CONFIG.jinx.padding,
-                              backgroundColor: CONFIG.jinx.backgroundColor,
-                              // borderRadius: CONFIG.jinx.borderRadius,
-                            }}
-                          >
-                            {targetChar && (
-                              <CharacterImage
-                                src={targetChar.image}
-                                alt={targetName}
-                                sx={{
-                                  width: CONFIG.jinx.icon.width,
-                                  height: CONFIG.jinx.icon.height,
-                                  borderRadius: CONFIG.jinx.icon.borderRadius,
-                                  flexShrink: 0,
-                                  userDrag: 'none',
-                                  WebkitUserDrag: 'none',
-                                  pointerEvents: 'none',
-                                }}
-                              />
-                            )}
-                            <Typography
-                              variant="caption"
-                              sx={{
-                                fontSize: CONFIG.jinx.text.fontSize,
-                                color: THEME_COLORS.text.primary,
-                                lineHeight: CONFIG.jinx.text.lineHeight,
-                                fontStyle: `${CONFIG.jinx.text.fontStyle} !important`,
-                                flex: 1,
-                              }}
-                            >
+                          <Box key={targetName} sx={{ display: 'flex', alignItems: 'center', borderRadius: 1.7, gap: CONFIG.jinx.iconGap, p: CONFIG.jinx.padding, backgroundColor: CONFIG.jinx.backgroundColor }}>
+                            {tc && <CharacterImage src={tc.image} alt={targetName} sx={{ width: CONFIG.jinx.icon.width, height: CONFIG.jinx.icon.height, borderRadius: CONFIG.jinx.icon.borderRadius, flexShrink: 0, userDrag: 'none', WebkitUserDrag: 'none', pointerEvents: 'none' }} />}
+                            <Typography variant="caption" sx={{ fontSize: CONFIG.jinx.text.fontSize, color: THEME_COLORS.text.primary, lineHeight: CONFIG.jinx.text.lineHeight, fontStyle: `${CONFIG.jinx.text.fontStyle} !important`, flex: 1 }}>
                               {t('jinx.rule')}: {jinxData.reason}
                             </Typography>
                           </Box>

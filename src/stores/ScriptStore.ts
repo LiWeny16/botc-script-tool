@@ -80,6 +80,9 @@ class ScriptStore {
       if (script.secondPageOrder && script.secondPageOrder.length > 0) {
         meta.second_page_order = script.secondPageOrder.join(' ');
       }
+      if (script.columnLeftCount && Object.keys(script.columnLeftCount).length > 0) {
+        meta.column_left_count = script.columnLeftCount;
+      }
 
       // state and status (extracted from specialRules)
       const stateRules: any[] = [];
@@ -330,16 +333,23 @@ class ScriptStore {
   }
 
   // Reorder characters
-  reorderCharacters(team: string, newOrder: string[]) {
+  reorderCharacters(team: string, newOrder: string[], columnLeftCount?: number) {
     if (!this.script) return;
 
-    const updatedScript = {
+    const updatedScript: Script = {
       ...this.script,
       characters: {
         ...this.script.characters,
         [team]: newOrder.map(id => this.script!.characters[team].find(c => isSameCharacter(c.id, id))!),
       },
     };
+
+    if (columnLeftCount !== undefined) {
+      updatedScript.columnLeftCount = {
+        ...this.script.columnLeftCount,
+        [team]: columnLeftCount,
+      };
+    }
 
     // Rebuild all array to maintain consistency
     const newAllArray: Character[] = [];
@@ -352,6 +362,19 @@ class ScriptStore {
     // Use the new reorder method (preserves original format)
     const allIds = updatedScript.all.map(c => c.id);
     this.reorderCharactersInJson(allIds);
+  }
+
+  // Set per-team left column character count for asymmetric 2-col layout
+  setColumnLeftCount(team: string, count: number) {
+    if (!this.script) return;
+    const updatedScript = {
+      ...this.script,
+      columnLeftCount: {
+        ...this.script.columnLeftCount,
+        [team]: count,
+      },
+    };
+    this.setScript(updatedScript);
   }
 
   // Add character to script

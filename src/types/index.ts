@@ -105,6 +105,7 @@ export interface Script {
   secondPagePplTable1?: boolean;  // whether to show the first player count table
   secondPagePplTable2?: boolean;  // whether to show the second player count table (6-9 players)
   secondPageOrder?: string[];  // second page component order array
+  columnLeftCount?: Record<string, number>;  // per-team left column character count (for asymmetric 2-col layout)
 }
 
 // Second page component type
