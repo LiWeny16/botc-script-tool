@@ -201,7 +201,7 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     jinxTextFontSizeMd: '0.77rem',
     jinxTextLineHeight: 1.4,
 
-    iconOnlyJinxPosition: 'below-description',
+    iconOnlyJinxPosition: 'next-to-name',
   },
 };
 

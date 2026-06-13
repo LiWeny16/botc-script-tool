@@ -70,7 +70,9 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
       title: t('ui.category.pageLayout'),
       keywords: [
         '页面', '布局', '双页', '背景', '夜晚', '顺序', '标题', '高度', '模式',
-        'page', 'layout', 'two-page', 'two page', 'background', 'night', 'order', 'title', 'height', 'mode'
+        '相克', '隐藏', '图标', '位置',
+        'page', 'layout', 'two-page', 'two page', 'background', 'night', 'order', 'title', 'height', 'mode',
+        'jinx', 'hidden', 'icon', 'position'
       ],
     },
     {
@@ -86,7 +88,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
       title: t('ui.category.iconSize'),
       keywords: [
         '图标', '大小', '头像', '相克', '传奇', '宽度', '高度', 'icon', 'size',
-        'icon', 'size', 'avatar', 'jinx', 'fabled', 'width', 'height', 'image', 'position', '位置', '隐藏', 'hidden'
+        'icon', 'size', 'avatar', 'jinx', 'fabled', 'width', 'height', 'image'
       ],
     },
     {
@@ -562,6 +564,23 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     </Box>
                   </FormControl>
 
+                  {/* 隐藏方相克图标位置 */}
+                  <FormControl component="fieldset" fullWidth>
+                    <FormLabel component="legend">
+                      <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
+                        {t('ui.jinxIconPosition')}
+                      </Typography>
+                    </FormLabel>
+                    <RadioGroup
+                      row
+                      value={uiConfigStore.config.characterCard.iconOnlyJinxPosition}
+                      onChange={(e) => uiConfigStore.updateCharacterCardConfig({ iconOnlyJinxPosition: e.target.value as 'below-description' | 'next-to-name' })}
+                    >
+                      <FormControlLabel value="next-to-name" control={<Radio size="small" />} label={t('ui.jinxIconPositionNextToName')} />
+                      <FormControlLabel value="below-description" control={<Radio size="small" />} label={t('ui.jinxIconPositionBelowDesc')} />
+                    </RadioGroup>
+                  </FormControl>
+
                   {/* 标题区域高度 */}
                   <Box>
                     <Typography variant="caption" gutterBottom>
@@ -771,23 +790,6 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                       valueLabelDisplay="auto"
                     />
                   </Box>
-
-                  {/* 隐藏方相克图标位置 */}
-                  <FormControl component="fieldset" fullWidth sx={{ mt: 1 }}>
-                    <FormLabel component="legend">
-                      <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
-                        {t('ui.jinxIconPosition')}
-                      </Typography>
-                    </FormLabel>
-                    <RadioGroup
-                      row
-                      value={uiConfigStore.config.characterCard.iconOnlyJinxPosition}
-                      onChange={(e) => uiConfigStore.updateCharacterCardConfig({ iconOnlyJinxPosition: e.target.value as 'below-description' | 'next-to-name' })}
-                    >
-                      <FormControlLabel value="below-description" control={<Radio size="small" />} label={t('ui.jinxIconPositionBelowDesc')} />
-                      <FormControlLabel value="next-to-name" control={<Radio size="small" />} label={t('ui.jinxIconPositionNextToName')} />
-                    </RadioGroup>
-                  </FormControl>
 
                   {/* 传奇图标 */}
                   <Typography variant="caption" sx={{ fontWeight: 'medium', mt: 2 }}>
