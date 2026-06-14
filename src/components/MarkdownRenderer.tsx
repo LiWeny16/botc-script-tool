@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import MarkdownIt from 'markdown-it';
+import Box from '@mui/material/Box';
 import { configStore } from '../stores/ConfigStore';
 import { highlightAbilityText } from '../utils/scriptGenerator';
+import { sanitizeRichTextHtml } from '../utils/richTextSanitizer';
+import { renderAbilityMarkdown } from '../utils/richTextConvert';
+import { markdownRichTextSx } from '../utils/richTextStyles';
 import { observer } from 'mobx-react-lite';
-
-const md = new MarkdownIt('zero', { breaks: true, html: true });
-md.enable(['emphasis', 'strikethrough', 'list', 'heading', 'newline', 'escape', 'backticks']);
 
 interface MarkdownRendererProps {
   content: string;
@@ -16,15 +16,17 @@ export default observer(function MarkdownRenderer({ content, className }: Markdo
   const language = configStore.language;
   const html = useMemo(() => {
     if (!content) return '';
-    const rendered = md.render(content);
-    return highlightAbilityText(rendered, language);
+    const rendered = renderAbilityMarkdown(content);
+    return sanitizeRichTextHtml(highlightAbilityText(rendered, language));
   }, [content, language]);
 
   if (!content) return null;
 
   return (
-    <span
+    <Box
+      component="span"
       className={className}
+      sx={markdownRichTextSx}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );
