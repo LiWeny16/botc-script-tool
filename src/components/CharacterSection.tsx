@@ -1,6 +1,6 @@
-import { Box, Typography, Divider } from '@mui/material';
+import { Box, Typography, Divider, Menu, MenuItem, ListItemIcon, ListItemText } from '@mui/material';
 import { observer } from 'mobx-react-lite';
-import { Add as AddIcon } from '@mui/icons-material';
+import { Add as AddIcon, PersonAdd as PersonAddIcon } from '@mui/icons-material';
 import { useState, type ReactNode } from 'react';
 import type { Character, Script } from '../types';
 import { TEAM_COLORS } from '../data/characters/characters';
@@ -37,6 +37,7 @@ interface CharacterSectionProps {
   onEditCharacter?: (character: Character) => void;
   onDeleteCharacter?: (character: Character) => void;
   onReplaceCharacter?: (character: Character, position: { x: number; y: number }) => void;
+  onAddCustomCharacter?: (team: string) => void;
   disableDrag?: boolean;
   readOnly?: boolean;
   compact?: boolean;
@@ -110,11 +111,37 @@ const pointerFirstCollisionDetection: CollisionDetection = (args) => {
 
 const CharacterSection = observer(({
   team, characters, script, onReorder, onUpdateCharacter, onEditCharacter,
-  onDeleteCharacter, onReplaceCharacter, disableDrag = false, readOnly = false, compact = false,
+  onDeleteCharacter, onReplaceCharacter, onAddCustomCharacter,
+  disableDrag = false, readOnly = false, compact = false,
 }: CharacterSectionProps) => {
   const COMPACT_SCALE = compact ? 0.47 : 1;
   const { t } = useTranslation();
   const isChinese = configStore.language === 'cn';
+
+  const [contextMenu, setContextMenu] = useState<{
+    mouseX: number;
+    mouseY: number;
+  } | null>(null);
+
+  const handleContextMenu = (event: React.MouseEvent) => {
+    if (readOnly || !onAddCustomCharacter) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setContextMenu(
+      contextMenu === null
+        ? { mouseX: event.clientX + 2, mouseY: event.clientY - 6 }
+        : null,
+    );
+  };
+
+  const handleClose = () => {
+    setContextMenu(null);
+  };
+
+  const handleCreateCustom = () => {
+    handleClose();
+    onAddCustomCharacter?.(team);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -203,7 +230,7 @@ const CharacterSection = observer(({
   };
 
   return (
-    <Box sx={{ backgroundColor: 'transparent' }}>
+    <Box sx={{ backgroundColor: 'transparent' }} onContextMenu={handleContextMenu}>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Typography variant="h5" sx={{
           fontFamily: uiConfigStore.teamDividerFont, fontWeight: 'bold',
@@ -296,6 +323,59 @@ const CharacterSection = observer(({
           </Box>
         </DndContext>
       </Box>
+
+      {/* Right-click context menu for creating custom character */}
+      <Menu
+        open={contextMenu !== null}
+        onClose={handleClose}
+        anchorReference="anchorPosition"
+        anchorPosition={
+          contextMenu !== null
+            ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+            : undefined
+        }
+        disableScrollLock={true}
+        slotProps={{
+          paper: {
+            elevation: 8,
+            sx: {
+              minWidth: 180,
+              borderRadius: 2,
+              overflow: 'hidden',
+              mt: 0.5,
+              '& .MuiList-root': {
+                padding: '6px',
+              },
+            }
+          }
+        }}
+        TransitionProps={{
+          timeout: 200,
+        }}
+      >
+        <MenuItem
+          onClick={handleCreateCustom}
+          sx={{
+            borderRadius: 1,
+            mx: 0.5,
+            px: 1.5,
+            py: 1,
+            '&:hover': {
+              backgroundColor: 'action.hover',
+            },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: 36 }}>
+            <PersonAddIcon fontSize="small" sx={{ color: 'primary.main' }} />
+          </ListItemIcon>
+          <ListItemText
+            primary={t('character.createCustom')}
+            primaryTypographyProps={{
+              fontSize: '0.9rem',
+            }}
+          />
+        </MenuItem>
+      </Menu>
     </Box>
   );
 });

@@ -540,6 +540,22 @@ const App = observer(() => {
     setLibraryCardOpen(true);
   };
 
+  // Handle creating a custom character via right-click context menu
+  const handleAddCustomCharacter = useCallback((team: string) => {
+    const customId = `custom_${Date.now()}`;
+    const customCharacter: Character = {
+      id: customId,
+      name: t('character.customName'),
+      ability: t('character.customAbility'),
+      team,
+      image: 'https://oss.gstonegames.com/data_file/clocktower/web/icons/lunatic.png',
+      firstNight: 0,
+      otherNight: 0,
+    };
+    scriptStore.addCharacter(customCharacter);
+    trackAddCharacter({ characterId: customId, team });
+  }, [t, scriptStore]);
+
   // Handle first page title editing
   const handleTitleEdit = () => {
     setTitleEditDialogOpen(true);
@@ -1092,6 +1108,7 @@ const App = observer(() => {
                 onEditCharacter={handleEditCharacter}
                 onDeleteCharacter={handleRemoveCharacter}
                 onReplaceCharacter={handleReplaceCharacter}
+                onAddCustomCharacter={handleAddCustomCharacter}
                 onTitleEdit={handleTitleEdit}
                 onSecondPageTitleEdit={handleSecondPageTitleEdit}
                 onSpecialRuleEdit={handleSpecialRuleEdit}
