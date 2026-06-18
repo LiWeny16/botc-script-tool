@@ -228,10 +228,10 @@ const CharacterLibraryCard = observer(({
     const rafRef = React.useRef<number | null>(null); // requestAnimationFrame ID
     const searchInputRef = React.useRef<HTMLInputElement>(null); // 搜索框引用
 
-    // 根据当前语言选择角色数据源
+    // 根据当前角色语言选择角色数据源 (UI language may differ)
     const currentCharacterData = useMemo(() => {
-        return getCharacterDictionary(language);
-    }, [language]);
+        return getCharacterDictionary(configStore.characterLanguage);
+    }, [configStore.characterLanguage]);
 
     // 按团队分类角色，包含传奇角色和 Loric 角色，去重处理
     const charactersByTeam = useMemo(() => {
@@ -252,8 +252,8 @@ const CharacterLibraryCard = observer(({
             outsider: [] as Character[],
             minion: [] as Character[],
             demon: [] as Character[],
-            fabled: getFabledCharacters(language), // 使用多语言传奇角色
-            loric: getLoricCharacters(language), // 使用多语言奇遇角色
+            fabled: getFabledCharacters(configStore.characterLanguage), // 使用多语言传奇角色
+            loric: getLoricCharacters(configStore.characterLanguage), // 使用多语言奇遇角色
             traveler: [] as Character[],
         };
 
@@ -275,7 +275,7 @@ const CharacterLibraryCard = observer(({
         });
 
         return teams;
-    }, [currentCharacterData, language, open]);
+    }, [currentCharacterData, configStore.characterLanguage, open]);
 
     // 搜索过滤 - 只在组件可见时计算
     const filteredCharacters = useMemo(() => {

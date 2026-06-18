@@ -31,6 +31,10 @@ function normalizeImageUrl(image: unknown): string | undefined {
   return undefined;
 }
 
+function resolveImageEnabledFlag(value: unknown, image: string | undefined): boolean {
+  return value === undefined ? !!image : value !== false;
+}
+
 /**
  * Find character ID by character name
  * @param name Character name (Chinese or English)
@@ -296,23 +300,42 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
     if (item.id === '_meta') {
       script.title = item.name || 'Custom Script';
       script.titleEn = item.titleEn || item.title_en || item.nameEn || item.name_en;  // Parse English title (supports multiple field names)
-      script.titleImage = item.titleImage || item.logo;  // Support titleImage or logo field
+      script.titleImage = normalizeImageUrl(item.titleImage || item.logo);  // Support titleImage or logo field
       script.titleImageSize = item.titleImageSize;  // Parse first page title image size
-      script.useTitleImage = item.use_title_image !== false ? !!script.titleImage : false;  // Default based on whether image exists
+      script.useTitleImage = resolveImageEnabledFlag(item.use_title_image, script.titleImage);  // Default based on whether image exists
       script.showTitleFlourish = item.show_title_flourish;  // Parse flourish visibility
       script.author = item.author || '';
       script.playerCount = item.playerCount;  // Parse player count
+      script.storytellerFirstNight =
+        item.storyteller_first_night_title || item.storyteller_first_night;
+      script.storytellerOtherNight =
+        item.storyteller_other_night_title || item.storyteller_other_night;
+
+      script.storytellerFirstNightTitleImage = normalizeImageUrl(item.storyteller_first_night_title_image);
+      script.useStorytellerFirstNightTitleImage = resolveImageEnabledFlag(
+        item.use_storyteller_first_night_title_image,
+        script.storytellerFirstNightTitleImage,
+      );
+      script.storytellerFirstNightTitleImageSize = item.storyteller_first_night_title_image_size;
+
+      script.storytellerOtherNightTitleImage = normalizeImageUrl(item.storyteller_other_night_title_image);
+      script.useStorytellerOtherNightTitleImage = resolveImageEnabledFlag(
+        item.use_storyteller_other_night_title_image,
+        script.storytellerOtherNightTitleImage,
+      );
+      script.storytellerOtherNightTitleImageSize = item.storyteller_other_night_title_image_size;
+
       // Parse title alignment — only allow valid CSS values
-      const rawAlign = (item as any).text_alignment;
+      const rawAlign = (item as any).text_alignment || (item as any).textAlignment;
       (script as any).textAlignment = (rawAlign === 'left' || rawAlign === 'center' || rawAlign === 'right') ? rawAlign : 'center';
 
       // Parse second page config
       script.secondPageTitle = item.second_page_title;
       script.secondPageTitleText = item.second_page_title_text;
-      script.secondPageTitleImage = item.second_page_title_image;
+      script.secondPageTitleImage = normalizeImageUrl(item.second_page_title_image);
       script.secondPageTitleFontSize = item.second_page_title_font_size;
       script.secondPageTitleImageSize = item.second_page_title_image_size;
-      script.useSecondPageTitleImage = item.use_second_page_title_image !== false ? !!script.secondPageTitleImage : false;  // Default based on whether image exists
+      script.useSecondPageTitleImage = resolveImageEnabledFlag(item.use_second_page_title_image, script.secondPageTitleImage);  // Default based on whether image exists
       script.secondPagePplTable1 = item.second_page_ppl_table1;
       script.secondPagePplTable2 = item.second_page_ppl_table2;
       // Parse second page component order
@@ -774,10 +797,34 @@ export function highlightAbilityText(text: string, language: Language = 'cn'): s
 
   const purpleKeywordsES = ['Viajero', 'Viajeros', 'loco', 'locura'];
 
+  const redKeywordsDE = [
+    'funktioniert nicht richtig', 'funktionieren nicht richtig',
+    'nicht funktionieren', 'nicht funktioniert',
+    'wählen oder beeinflussen', 'beeinflussen oder wählen',
+    'böse', 'Böse', 'böser', 'bösen', 'böses',
+    'negative Fähigkeit',
+    'exekutiert', 'Exekution',
+    'Dämon', 'Dämonen', 'Minion', 'Minions',
+    'vergiftet', 'vergiften', 'Gift', 'falsch', 'falsche',
+    'Wesier', 'Vizier',
+  ];
+
+  const blueKeywordsDE = [
+    'betrunken', 'gut', 'Gut', 'guter', 'guten', 'gutes',
+    'Teedame', 'Außenseiter', 'Dorfbewohner',
+    'gesund', 'nüchtern', 'lebend', 'leben', 'überleben',
+    'wiederbelebt', 'wiederbeleben', 'wiederbelebt werden',
+  ];
+
+  const purpleKeywordsDE = [
+    'Traveller', 'Traveller',
+    'verrückt', 'Verrückt', 'Wahnsinn', 'wahnsinnig',
+  ];
+
   // Select keyword list based on language
-  let redKeywords = language === 'cn' ? redKeywordsCN : language === 'es' ? redKeywordsES : redKeywordsEN;
-  let blueKeywords = language === 'cn' ? blueKeywordsCN : language === 'es' ? blueKeywordsES : blueKeywordsEN;
-  let purpleKeywords = language === 'cn' ? purpleKeywordsCN : language === 'es' ? purpleKeywordsES : purpleKeywordsEN;
+  let redKeywords = language === 'cn' ? redKeywordsCN : language === 'es' ? redKeywordsES : language === 'de' ? redKeywordsDE : redKeywordsEN;
+  let blueKeywords = language === 'cn' ? blueKeywordsCN : language === 'es' ? blueKeywordsES : language === 'de' ? blueKeywordsDE : blueKeywordsEN;
+  let purpleKeywords = language === 'cn' ? purpleKeywordsCN : language === 'es' ? purpleKeywordsES : language === 'de' ? purpleKeywordsDE : purpleKeywordsEN;
 
   // Helper function to escape regex special characters
   const escapeRegex = (str: string) => {

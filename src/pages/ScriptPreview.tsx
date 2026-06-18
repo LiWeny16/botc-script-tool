@@ -83,7 +83,7 @@ const ScriptPreview = observer(() => {
           }
           setSharedName(result.name);
           setOriginalJson(result.json);
-          setScript(generateScript(result.json, language));
+          setScript(generateScript(result.json, configStore.characterLanguage));
           trackPreviewScript({ scriptName: result.name });
         } catch (err) {
           setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
@@ -112,7 +112,7 @@ const ScriptPreview = observer(() => {
             jsonString = decodeURIComponent(jsonParam);
           }
           setOriginalJson(jsonString);
-          setScript(generateScript(jsonString, language));
+          setScript(generateScript(jsonString, configStore.characterLanguage));
           trackPreviewScript({ scriptName: scriptName || 'shared' });
         } catch (err) {
           setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
@@ -140,7 +140,7 @@ const ScriptPreview = observer(() => {
       try {
         const jsonString = await loadScriptJson(jsonUrl);
         setOriginalJson(jsonString);
-        setScript(generateScript(jsonString, language));
+        setScript(generateScript(jsonString, configStore.characterLanguage));
         trackPreviewScript({ scriptName: decodedName });
       } catch (err) {
         setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
@@ -156,12 +156,12 @@ const ScriptPreview = observer(() => {
   useEffect(() => {
     if (originalJson) {
       try {
-        setScript(generateScript(originalJson, language));
+        setScript(generateScript(originalJson, configStore.characterLanguage));
       } catch (err) {
         console.error('Failed to regenerate script:', err);
       }
     }
-  }, [language, originalJson]);
+  }, [language, originalJson, configStore.characterLanguage]);
 
   const handleExportJson = () => {
     if (!originalJson) return;

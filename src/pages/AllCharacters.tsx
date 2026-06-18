@@ -19,6 +19,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { observer } from 'mobx-react-lite';
 import { buildAllCharactersScript } from '../utils/allCharactersScript';
+import { configStore } from '../stores/ConfigStore';
 import ScriptRenderer from '../components/ScriptRenderer';
 import { useTranslation } from '../utils/i18n';
 import LanguageSwitcher from '../components/LanguageSwitcher';
@@ -45,8 +46,8 @@ const AllCharacters = observer(() => {
   const [summaryExpanded, setSummaryExpanded] = useState(true);
 
   const script: Script = useMemo(
-    () => buildAllCharactersScript(language),
-    [language],
+    () => buildAllCharactersScript(configStore.characterLanguage),
+    [configStore.characterLanguage],
   );
 
   // Group character names by team for the summary

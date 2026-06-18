@@ -18,7 +18,7 @@ export const searchCharacters = tool({
   inputSchema: z.object({
     query: z.string().describe('搜索关键词（名称、ID、别名、拼音均可）'),
     team: z.enum(['townsfolk', 'outsider', 'minion', 'demon', 'traveler', 'fabled']).optional().describe('按队伍过滤'),
-    lang: z.enum(['cn', 'en', 'es']).optional().describe('返回语言，不指定则使用当前应用语言'),
+    lang: z.enum(['cn', 'en', 'es', 'de']).optional().describe('返回语言，不指定则使用当前应用语言'),
     limit: z.number().optional().default(10).describe('最大返回数量'),
   }),
   execute: async ({ query, team, lang, limit }) => {
@@ -125,7 +125,7 @@ export const getCharacterDetail = tool({
   description: '获取单个角色的完整信息（三语名称、能力、队伍、夜序、提醒标记）。仅在需要完整信息时使用。任何角色操作前建议先用 search_characters 确认ID。',
   inputSchema: z.object({
     character_id: z.string().describe('角色ID（紧凑英文格式，如 "imp", "washerwoman", "lilmonsta"）'),
-    lang: z.enum(['cn', 'en', 'es']).optional().describe('返回语言，不指定则使用当前应用语言'),
+    lang: z.enum(['cn', 'en', 'es', 'de']).optional().describe('返回语言，不指定则使用当前应用语言'),
   }),
   execute: async ({ character_id: cid, lang }) => {
     const targetLang = lang || getLang();

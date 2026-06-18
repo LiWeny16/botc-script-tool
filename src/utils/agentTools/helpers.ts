@@ -8,8 +8,12 @@ export function getLang(): Language {
   return configStore.language;
 }
 
+export function getCharacterLang(): Language {
+  return configStore.characterLanguage;
+}
+
 export function getDict() {
-  return getCharacterDictionary(getLang());
+  return getCharacterDictionary(getCharacterLang());
 }
 
 export function scriptSummary() {
@@ -40,9 +44,11 @@ export function buildLocaleMap() {
     name_cn: string;
     name_en: string;
     name_es: string;
+    name_de: string;
     ability_cn: string;
     ability_en: string;
     ability_es: string;
+    ability_de: string;
   }>();
 
   for (const [dictLang, dict] of getAllCharacterDictionaries()) {
@@ -51,13 +57,16 @@ export function buildLocaleMap() {
         name_cn: '',
         name_en: '',
         name_es: '',
+        name_de: '',
         ability_cn: '',
         ability_en: '',
         ability_es: '',
+        ability_de: '',
       };
       if (dictLang === 'cn') { entry.name_cn = c.name; entry.ability_cn = c.ability; }
       if (dictLang === 'en') { entry.name_en = c.name; entry.ability_en = c.ability; }
       if (dictLang === 'es') { entry.name_es = c.name; entry.ability_es = c.ability; }
+      if (dictLang === 'de') { entry.name_de = c.name; entry.ability_de = c.ability; }
       localeMap.set(enId, entry);
     }
   }

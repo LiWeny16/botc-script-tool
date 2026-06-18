@@ -29,6 +29,17 @@ export interface UIConfig {
   // Two-page mode
   enableTwoPageMode: boolean;
 
+  // Storyteller night order sheet
+  enableStorytellerNightOrderSheet: boolean;
+  storytellerNightSheet: {
+  iconSize: number,
+  textSize: number,
+  spacing: number,
+  groupGap: number,
+  reminderFontSize: number,
+  titleContentSpacing: number,
+}
+
   // Title area height
   titleHeightMd: number;
 
@@ -117,12 +128,23 @@ export interface UIConfig {
     jinxTextFontSizeMd: string;
     jinxTextLineHeight: number;
   };
+
+  avatarIcon: {
+    enableDesignerBadge: boolean;
+    designerAvatarUrl: string;
+    designerName: string;
+    designerPosX: number;
+    designerPosY: number;
+  };
 }
 
 const DEFAULT_UI_CONFIG: UIConfig = {
   nightOrderBackground: 'green',
   nightOrderBackgroundMode: 'official',
   customNightOrderBackground: '',
+
+
+
 
   mainBackground: 'classic',
   mainBackgroundMode: 'official',
@@ -131,6 +153,15 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   theme: 'none',
   cornerFlower: 'default',
   enableTwoPageMode: false,
+  enableStorytellerNightOrderSheet: false,
+  storytellerNightSheet: {
+    iconSize: 2,
+    textSize: 1,
+    groupGap: 1,
+    spacing: 1,
+    reminderFontSize: 1,
+    titleContentSpacing: 50,
+  },
 
   titleHeightMd: 100,
 
@@ -198,6 +229,13 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     jinxTextFontSizeMd: '0.77rem',
     jinxTextLineHeight: 1.4,
   },
+  avatarIcon: {
+    enableDesignerBadge: true,
+    designerAvatarUrl: '/imgs/icons/fabled/onion.webp',
+    designerName: '',
+    designerPosX: 140,
+    designerPosY: 95,
+  },
 };
 
 const STORAGE_KEY = 'botc-ui-config';
@@ -219,7 +257,14 @@ class UIConfigStore {
         const parsed = JSON.parse(savedConfig);
         // Do not load customFonts from localStorage, use IndexedDB instead
         const { customFonts, ...restConfig } = parsed;
-        this.config = { ...DEFAULT_UI_CONFIG, ...restConfig };
+        this.config = {
+          ...DEFAULT_UI_CONFIG,
+          ...restConfig,
+          storytellerNightSheet: {
+            ...DEFAULT_UI_CONFIG.storytellerNightSheet,
+            ...(restConfig.storytellerNightSheet || {}),
+          },
+        };
 
         // If localStorage has old font data, migrate to IndexedDB
         if (customFonts && Array.isArray(customFonts) && customFonts.length > 0) {
@@ -280,6 +325,13 @@ class UIConfigStore {
   // Update font config
   updateFontConfig(updates: Partial<UIConfig['fonts']>) {
     this.config.fonts = { ...this.config.fonts, ...updates };
+    this.saveConfig();
+  }
+  updateStorytellerNightSheetConfig(updates: Partial<UIConfig['storytellerNightSheet']>) {
+    this.config.storytellerNightSheet = {
+      ...this.config.storytellerNightSheet,
+      ...updates,
+    };
     this.saveConfig();
   }
 

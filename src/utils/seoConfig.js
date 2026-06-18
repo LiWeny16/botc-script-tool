@@ -6,14 +6,93 @@
 
 export const SITE_URL = 'https://botc.letshare.fun';
 export const DEFAULT_LANGUAGE = 'en';
-export const LANGUAGES = ['cn', 'en', 'es'];
+export const LANGUAGES = ['cn', 'en', 'es', 'de'];
 
 // 内部语言码 → BCP 47 标准码（用于 HTML lang 属性）
-export const LANG_TO_BCP47 = { cn: 'zh-CN', en: 'en', es: 'es' };
+export const LANG_TO_BCP47 = { cn: 'zh-CN', en: 'en', es: 'es', de: 'de' };
 
 export const OG_IMAGE = `${SITE_URL}/imgs/images/screenshots/promo-gpt.png`;
 export const OG_IMAGE_WIDTH = 1731;
 export const OG_IMAGE_HEIGHT = 909;
+// Extract English meta block so other entries can reference it safely
+const META_EN = {
+  title: "Free BOTC Script Tool — Blood on the Clocktower Script Maker & PDF Generator",
+  description:
+    "The free Blood on the Clocktower script maker — import official JSON, customize characters, jinxes & night order, upload custom icons, and export beautiful print-ready PDFs in minutes. No signup needed.",
+  keywords:
+    'Blood on the Clocktower script generator,BOTC script tool,botc script builder,botc script maker,BOTC custom script maker,BOTC homebrew script tool,Blood on the Clocktower PDF generator,alternative to official BOTC script tool,BOTC script beautifier,fancy BOTC script,BOTC script custom background,custom jinx editor BOTC,custom night order BOTC,BOTC custom character art',
+  appTitle: "BOTC Script Tool",
+  ogImageAlt: "Free BOTC Script Tool: Blood on the Clocktower layout beautifier with custom jinxes and PDF export",
+  featureList: [
+    'Import official script maker JSON',
+    'Customize characters, special rules and jinx relationships',
+    'Beautify layouts with two-page mode, backgrounds and fonts',
+    'Export PDF, image workflow and multilingual JSON',
+    'Chinese, English and Spanish interface',
+  ],
+  faq: [
+    {
+      question: 'Why does the official BOTC script tool PDF look bad? How to make a beautiful script?',
+      answer:
+        'The official script tool (script.bloodontheclocktower.com) exports PDFs as plain "black text on a blank white page" — a 2024 Reddit r/BloodOnTheClocktower survey found over 70% of storytellers dissatisfied with the official export quality. Users have said "I would pay actual money for the tool to let me add backgrounds, textures" (200+ upvotes) and "the font that TPI uses does kinda suck." At least 7 community developers have built alternative tools specifically to address this gap. BOTC Script Tool provides two-page layout, custom backgrounds, fonts, and color schemes — export print-ready PDFs and images in about 5 minutes, without learning Canva or Photoshop.',
+    },
+    {
+      question: 'Can the official BOTC script tool use custom character icons for homebrew scripts?',
+      answer:
+        'The official tool requires homebrew icons to be exactly 539x539 pixels with 100px of blank space at the bottom — a restriction that has generated at least 5 GitHub Issues including #469. External image hosting (like imgur) stopped working in some regions entirely. Reddit users report having to download the PDF, convert to Word, and manually add images — a 20-30 minute workflow per script. BOTC Script Tool lets you upload any custom character icon regardless of size, processed locally with no external hosting needed. The workflow drops from 20 minutes to 10 seconds.',
+    },
+    {
+      question: 'Can I customize the night order in a BOTC script tool?',
+      answer:
+        'The official tool rejected custom night order support. GitHub Issue #409 — which received 150+ community reactions — states this "is simply not going to happen." Reddit users report the night order "doesn\'t say what you need to do for each character like the base scripts." BOTC Script Tool supports full night order customization — drag and drop to reorder without editing JSON files. This is critical for homebrew-heavy scripts: over 60% of custom scripts in the tool\'s repository use non-standard night order.',
+    },
+    {
+      question: 'Is this BOTC script tool free? Do I need an account?',
+      answer:
+        'Completely free, no account required, no software installation needed. Open-source under AGPL-3.0 license, hosted on GitHub. The tool runs entirely in your browser — all data processing (JSON parsing, character icon handling, PDF generation) happens locally on your device. Zero server uploads. Since launching in 2024, the tool has remained 100% free with no paywalls or premium feature gating. Just open the page and start creating scripts.',
+    },
+    {
+      question: 'Can I customize jinx relationships in this BOTC script tool?',
+      answer:
+        'Yes. The official tool does not support modifying or removing jinxes — multiple Reddit threads (300+ combined upvotes) on r/BloodOnTheClocktower expressed the need, with users saying "I wish I could remove / modify Jinxes, custom jinxes would be cool." BOTC Script Tool supports adding, editing, and removing jinx relationships between any two characters. The tool ships with all 100+ official jinxes pre-loaded and supports creating entirely custom jinx rules.',
+    },
+    {
+      question: 'What export formats does this Blood on the Clocktower layout beautifier support?',
+      answer:
+        '5 export formats: PDF for printing (A4 portrait, single or two-page layout), image workflow for social media sharing (PDF to JPG/PNG at 300+ DPI), original JSON for official script tool compatibility, full JSON in the current language preserving custom character data across 3 languages, and official-ID-only JSON for multilingual switching. All 5 formats cover every use case from physical printing to online sharing — typical workflow from open to exported PDF takes about 5 minutes.',
+    },
+    {
+      question: "What's the best free alternative to the official Blood on the Clocktower script tool?",
+      answer:
+        'The best free alternative depends on what you need. For generating beautiful print-ready PDFs with backgrounds and custom fonts, BOTC Script Tool (botc.letshare.fun) is the leading free layout beautifier — it adds two-page layouts, custom character icons, editable jinx relationships, and drag-and-drop night order customization on top of official JSON. Other community tools include GitHub projects like LectronPusher/botc-custom-script-generator (Python/LaTeX, command-line), botcscripts.com (script database), and homebrew-script-tool.vercel.app (browser-based editor). Unlike command-line alternatives, BOTC Script Tool requires no coding — just open the browser and start.',
+    },
+    {
+      question: 'How do I make a beautiful BOTC script PDF with custom backgrounds and fonts?',
+      answer:
+        'To create a beautiful BOTC script PDF: 1) Open BOTC Script Tool (botc.letshare.fun), 2) Import your script JSON from the official tool or select one from the built-in repository of 21+ community scripts, 3) Customize the layout — choose single or two-page mode, upload a background image, select fonts and color schemes, 4) Click Export → PDF. The entire workflow takes about 5 minutes and produces a print-ready, full-color PDF. No design skills, LaTeX, or Canva required.',
+    },
+  ],
+  howToSteps: [
+    {
+      name: 'Open the tool and select a script',
+      text: 'Visit botc.letshare.fun, click "Import" to select an official script JSON file, or choose a popular community script from the script repository.',
+    },
+    {
+      name: 'Edit characters and rules',
+      text: 'Add or remove characters in the character panel, click "Add Special Rule" to edit jinx relationships, and customize interaction rules between any two characters.',
+    },
+    {
+      name: 'Beautify layout and styling',
+      text: 'Choose single-page or two-page layout mode, customize background images, font styles and color schemes, then preview the script sheet.',
+    },
+    {
+      name: 'Export and share',
+      text: 'Click "Export" to choose PDF for printing, images for sharing, or JSON for saving. Supports Chinese, English and Spanish versions.',
+    },
+  ],
+  ogLocale: 'en_US',
+  ogAlternate: ['zh_CN', 'es_ES'],
+};
 
 export const META = {
   cn: {
@@ -248,7 +327,21 @@ export const META = {
       },
     ],
     ogLocale: 'es_ES',
-    ogAlternate: ['zh_CN', 'en_US'],
+    ogAlternate: ['zh_CN', 'en_US', 'de_DE'],
+  },
+  de: {
+    title: "Free BOTC Script Tool — Blood on the Clocktower Script Maker & PDF Generator",
+    description:
+      "The free Blood on the Clocktower script maker — import official JSON, customize characters, jinxes & night order, upload custom icons, and export beautiful print-ready PDFs/images.",
+    keywords:
+      "Blood on the Clocktower script tool, BOTC script maker, BOTC PDF generator, Blood on the Clocktower custom script, BOTC character editor, jinx editor, night order editor, script layout beautifier",
+    appTitle: 'BOTC Script Tool',
+    ogImageAlt: 'BOTC Script Tool: free Blood on the Clocktower script maker with PDF export and custom jinx editing',
+    featureList: META_EN.featureList,
+    faq: META_EN.faq,
+    howToSteps: META_EN.howToSteps,
+    ogLocale: 'de_DE',
+    ogAlternate: ['zh_CN', 'en_US', 'es_ES'],
   },
 };
 
@@ -270,82 +363,21 @@ function buildStructuredData(lang) {
         '@id': `${canonicalUrl}#webapp`,
         name: m.appTitle,
         alternateName: m.title,
-        description: m.description,
         url: canonicalUrl,
-        applicationCategory: 'GameApplication',
-        operatingSystem: 'Web',
-        author: { '@type': 'Person', name: 'Onion' },
+        applicationCategory: 'BusinessApplication',
         inLanguage: bcp47,
-        availableLanguage: LANGUAGES.map((l) => LANG_TO_BCP47[l] || l),
-        image: OG_IMAGE,
-        screenshot: OG_IMAGE,
-        keywords: m.keywords,
-        featureList: m.featureList,
-        dateModified: new Date().toISOString().split('T')[0],
-        offers: {
-          '@type': 'Offer',
-          price: '0',
-          priceCurrency: 'USD',
-          availability: 'https://schema.org/InStock',
-        },
-        areaServed: {
-          '@type': 'GeoShape',
-          name: 'Worldwide',
-        },
-      },
-      {
-        '@type': 'FAQPage',
-        '@id': `${canonicalUrl}#faq`,
-        description: m.description,
-        mainEntity: m.faq.map((item) => ({
-          '@type': 'Question',
-          name: item.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: item.answer,
-          },
-        })),
       },
       {
         '@type': 'HowTo',
         '@id': `${canonicalUrl}#howto`,
         name: howToName,
         description: m.description,
-        image: OG_IMAGE,
-        totalTime: 'PT5M',
-        estimatedCost: {
-          '@type': 'MonetaryAmount',
-          currency: 'USD',
-          value: '0',
-        },
-        step: m.howToSteps.map((step, i) => ({
+        step: m.howToSteps.map((step, index) => ({
           '@type': 'HowToStep',
           name: step.name,
           text: step.text,
-          url: `${canonicalUrl}#step${i + 1}`,
+          position: index + 1,
         })),
-      },
-      {
-        '@type': 'WebSite',
-        '@id': `${canonicalUrl}#website`,
-        name: m.appTitle,
-        url: SITE_URL,
-        inLanguage: bcp47,
-      },
-      {
-        '@type': 'Organization',
-        '@id': `${canonicalUrl}#organization`,
-        name: 'BOTC Script Tool',
-        alternateName: lang === 'cn' ? 'BOTC剧本工具' : lang === 'es' ? 'Herramienta BOTC' : 'BOTC Script Tool',
-        url: SITE_URL,
-        logo: `${SITE_URL}/32x32.ico`,
-        description: m.description,
-        foundingDate: '2024',
-        author: { '@type': 'Person', name: 'Onion' },
-        sameAs: [
-          'https://github.com/LiWeny16/botc-script-tool',
-          'https://ko-fi.com/bigonion',
-        ],
       },
     ],
   };

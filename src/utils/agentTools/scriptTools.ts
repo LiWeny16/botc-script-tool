@@ -3,8 +3,7 @@ import { z } from 'zod';
 import { scriptStore } from '../../stores/ScriptStore';
 import { isSameCharacter } from '../../data/utils/characterIdMapping';
 import type { Character } from '../../types';
-import { getLang } from './helpers';
-import { scriptSummary } from './helpers';
+import { getLang, getCharacterLang, scriptSummary } from './helpers';
 
 // ── F: Script Title & Metadata ──
 
@@ -238,7 +237,7 @@ export const importJson = tool({
     }
     const { generateScript } = await import('../scriptGenerator');
     try {
-      const script = generateScript(json_string, getLang());
+      const script = generateScript(json_string, getCharacterLang());
       scriptStore.setScript(script);
       scriptStore.setOriginalJson(json_string);
       return {

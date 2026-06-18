@@ -3,12 +3,14 @@ import { DEFAULT_LANGUAGE, isSupportedLanguage, normalizeLanguage, SUPPORTED_LAN
 
 export interface AppConfig {
   language: Language;
+  characterLanguage: Language;
   officialIdParseMode: boolean; // Whether official ID parse mode is enabled
   hideDuplicateJinx: boolean; // Whether to show jinx on only one character card
 }
 
 const DEFAULT_CONFIG: AppConfig = {
   language: DEFAULT_LANGUAGE,
+  characterLanguage: DEFAULT_LANGUAGE,
   officialIdParseMode: false, // Official ID parse mode is disabled by default
   hideDuplicateJinx: false, // Show jinx on both cards by default
 };
@@ -35,6 +37,7 @@ class ConfigStore {
           ...DEFAULT_CONFIG,
           ...parsed,
           language: normalizeLanguage(parsed.language),
+          characterLanguage: normalizeLanguage(parsed.characterLanguage),
         };
       }
     } catch (error) {
@@ -139,6 +142,12 @@ class ConfigStore {
     this.updateUrlLanguage(language);
   }
 
+  // Set character language (separate from UI language)
+  setCharacterLanguage(language: Language) {
+    this.config.characterLanguage = language;
+    this.saveConfig();
+  }
+
   // Set official ID parse mode
   setOfficialIdParseMode(enabled: boolean) {
     this.config.officialIdParseMode = enabled;
@@ -167,6 +176,11 @@ class ConfigStore {
   // Get current language
   get language() {
     return this.config.language;
+  }
+
+  // Get current character language
+  get characterLanguage() {
+    return this.config.characterLanguage;
   }
 }
 

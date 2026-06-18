@@ -150,7 +150,7 @@ export default observer(function CharacterEditDialog({
   useEffect(() => {
     if (character && scriptStore.script) {
       const defaultData: Partial<Character> =
-        getCharacterInDictionary(getCharacterDictionary(language), character.id) ?? {};
+        getCharacterInDictionary(getCharacterDictionary(configStore.characterLanguage), character.id) ?? {};
       const mergedData = {
         ...defaultData,
         ...character,
@@ -181,7 +181,7 @@ export default observer(function CharacterEditDialog({
   useEffect(() => {
     if (!isJsonDirty && character) {
       const defaultData =
-        getCharacterInDictionary(getCharacterDictionary(language), character.id) ?? {};
+        getCharacterInDictionary(getCharacterDictionary(configStore.characterLanguage), character.id) ?? {};
       const merged = { ...defaultData, ...character, ...editData };
       const characterFields = [
         'id', 'name', 'ability', 'team', 'teamColor', 'image',
@@ -317,7 +317,7 @@ export default observer(function CharacterEditDialog({
     if (character) {
       const updates: Partial<Character> = {};
       const defaultData: Partial<Character> =
-        getCharacterInDictionary(getCharacterDictionary(language), character.id) ?? {};
+        getCharacterInDictionary(getCharacterDictionary(configStore.characterLanguage), character.id) ?? {};
       
       // 创建完整的原始数据（包含默认值）
       const originalData = {

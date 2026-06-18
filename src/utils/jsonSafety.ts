@@ -51,6 +51,38 @@ export function safeJsonParse<T = unknown>(input: string): SafeParseResult<T> {
   }
 }
 
+export function createDisplayJson(jsonString: string): string {
+  try {
+    const data = JSON.parse(jsonString);
+
+    return JSON.stringify(
+      data,
+      (key, value) => {
+        // Alle Base64-Bilder entfernen
+        if (
+          typeof value === 'string' &&
+          value.startsWith('data:image/')
+        ) {
+          return undefined;
+        }
+
+        // Optional auch Größenfelder ausblenden
+        if (
+          key.endsWith('_image_size') ||
+          key === 'titleImageSize'
+        ) {
+          return undefined;
+        }
+
+        return value;
+      },
+      2
+    );
+  } catch {
+    return jsonString;
+  }
+}
+
 // ── Type guards & safe casts ──────────────────────────────────────────────
 
 export function isRecord(value: unknown): value is Record<string, unknown> {

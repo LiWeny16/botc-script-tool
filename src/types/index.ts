@@ -49,6 +49,16 @@ export interface ScriptMeta {
   second_page_ppl_table1?: boolean;  // whether to show the first player count table
   second_page_ppl_table2?: boolean;  // whether to show the second player count table (6-9 players)
   second_page_order?: string;  // second page component order (space-separated string)
+  storyteller_first_night_title?: string;
+  storyteller_first_night_title_image?: string;
+  use_storyteller_first_night_title_image?: boolean;
+  storyteller_first_night_title_image_size?: number;
+  storyteller_other_night_title?: string;
+  storyteller_other_night_title_image?: string;
+  use_storyteller_other_night_title_image?: boolean;
+  storyteller_other_night_title_image_size?: number;
+  playerCount?: string;
+  text_alignment?: 'left' | 'center' | 'right';
 }
 
 // Special rule card item
@@ -105,6 +115,17 @@ export interface Script {
   secondPagePplTable1?: boolean;  // whether to show the first player count table
   secondPagePplTable2?: boolean;  // whether to show the second player count table (6-9 players)
   secondPageOrder?: string[];  // second page component order array
+  storytellerFirstNight?: string;
+  storytellerFirstNightTitleImage?: string;
+  useStorytellerFirstNightTitleImage?: boolean;
+  storytellerFirstNightTitleImageSize?: number;
+  storytellerFirstNightTitleFontSize?: string;
+
+  storytellerOtherNight?: string;
+  storytellerOtherNightTitleImage?: string;
+  useStorytellerOtherNightTitleImage?: boolean;
+  storytellerOtherNightTitleImageSize?: number;
+  storytellerOtherNightTitleFontSize?: string;
 }
 
 // Second page component type

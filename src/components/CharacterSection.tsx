@@ -3,10 +3,11 @@ import { observer } from 'mobx-react-lite';
 import type { Character, Script } from '../types';
 import { TEAM_COLORS } from '../data/characters/characters';
 import { THEME_COLORS, getTeamColor, getTeamName } from '../theme/colors';
-import { useTranslation } from '../utils/i18n';
+import type { Language } from '../utils/languages';
 import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import CharacterCard from './CharacterCard';
+import { useTranslation } from '../utils/i18n';
 import {
   DndContext,
   closestCenter,
@@ -37,11 +38,21 @@ interface CharacterSectionProps {
   compact?: boolean;
 }
 
+
 const CharacterSection = observer(({ team, characters, script, onReorder, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, disableDrag = false, readOnly = false, compact = false }: CharacterSectionProps) => {
   const COMPACT_SCALE = compact ? 0.47 : 1;
   const { t } = useTranslation();
   const isChinese = configStore.language === 'cn';
-
+  
+  const getTeamLabel = (labelKey: 'good' | 'evil', lang: Language) => {
+    const labelMap: Record<Language, Record<'good' | 'evil', string>> = {
+      cn: { good: '善良阵营', evil: '邪恶阵营' },
+      en: { good: 'Good', evil: 'Evil' },
+      es: { good: 'Bando Bueno', evil: 'Bando Malvado' },
+      de: { good: 'Gut', evil: 'Böse' },
+    };
+    return labelMap[lang]?.[labelKey] ?? (labelKey === 'good' ? 'Good' : 'Evil');
+  };
   const sensors = useSensors(
     useSensor(PointerSensor, {
       // 添加激活约束：需要移动5px才开始拖拽，避免与双击和点击冲突
@@ -61,12 +72,14 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
   const isStandardTeam = standardTeams.includes(team);
 
   // 传奇角色、奇遇角色、旅行者和未知团队不显示阵营标签，直接显示类型
+  const characterLanguage = configStore.characterLanguage;
+
   const teamLabel =
     !isStandardTeam || team === 'fabled' || team === 'loric' || team === 'traveler'
       ? ''
       : team === 'townsfolk' || team === 'outsider'
-        ? t('team.good')
-        : t('team.evil');
+        ? getTeamLabel('good', characterLanguage)
+        : getTeamLabel('evil', characterLanguage);
 
   // 获取第一个角色的自定义颜色（如果有）
   const customColor = characters.length > 0 ? characters[0].teamColor : undefined;
@@ -84,19 +97,50 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
               ? THEME_COLORS.evil
               : getTeamColor(team, customColor);  // 使用getTeamColor处理未知团队
 
-  // 获取翻译后的团队名称
   const getTranslatedTeamName = (teamKey: string): string => {
-    const teamMap: Record<string, string> = {
-      'townsfolk': t('team.townsfolk'),
-      'outsider': t('team.outsider'),
-      'minion': t('team.minion'),
-      'demon': t('team.demon'),
-      'fabled': t('team.fabled'),
-      'loric': t('team.loric'),
-      'traveler': t('team.traveler'),
+    const teamMap: Record<string, Record<string, string>> = {
+      cn: {
+        'townsfolk': '镇民',
+        'outsider': '外来者',
+        'minion': '爪牙',
+        'demon': '恶魔',
+        'fabled': '说书人·传奇角色',
+        'loric': '说书人·奇遇角色',
+        'traveler': '旅行者',
+      },
+      en: {
+        'townsfolk': 'Townsfolk',
+        'outsider': 'Outsider',
+        'minion': 'Minion',
+        'demon': 'Demon',
+        'fabled': 'Fabled',
+        'loric': 'Loric',
+        'traveler': 'Traveler',
+      },
+      es: {
+        'townsfolk': 'Aldeanos',
+        'outsider': 'Forasteros',
+        'minion': 'Esbirros',
+        'demon': 'Demonios',
+        'fabled': 'Legendarios',
+        'loric': 'Aventureros',
+        'traveler': 'Viajeros',
+      },
+      de: {
+        'townsfolk': 'Dorfbewohner',
+        'outsider': 'Außenseiter',
+        'minion': 'Minion',
+        'demon': 'Dämon',
+        'fabled': 'Fabled',
+        'loric': 'Loric',
+        'traveler': 'Traveler',
+      },
     };
-    return teamMap[teamKey] || getTeamName(teamKey);
+
+    return teamMap[characterLanguage]?.[teamKey] || getTeamName(teamKey);
   };
+
+
 
   const handleDragEnd = (event: DragEndEvent) => {
     // 如果禁用拖拽，直接返回
@@ -180,8 +224,8 @@ const CharacterSection = observer(({ team, characters, script, onReorder, onUpda
                 <Box
                   sx={{
                     display: 'flex',
-                    justifyContent: 'center',
-                    px: { xs: 0, sm: 2, md: 4 },
+                    justifyContent: 'flex-start',
+                    px: 0,
                   }}
                 >
                   <Box
