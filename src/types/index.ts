@@ -126,6 +126,7 @@ export interface Script {
   useStorytellerOtherNightTitleImage?: boolean;
   storytellerOtherNightTitleImageSize?: number;
   storytellerOtherNightTitleFontSize?: string;
+  columnLeftCount?: Record<string, number>;  // per-team left column character count (for asymmetric 2-col layout)
 }
 
 // Second page component type

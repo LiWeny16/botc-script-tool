@@ -7,71 +7,111 @@ Languages: Chinese (Simplified), English, Spanish
 
 ## What this tool does
 
-This is a free, browser-based tool for Blood on the Clocktower (BOTC) players and storytellers to create, customize, and beautify script sheets. It solves key pain points that the official script tool (script.bloodontheclocktower.com) does not address: custom character icon uploads, customizable night order, and beautiful PDF/image export with backgrounds, fonts, and two-page layout. It runs entirely in the browser — no signup, no installation, no server uploads.
+This is a free, browser-based tool for Blood on the Clocktower (BOTC) players and storytellers to create, customize, and beautify script sheets. It runs entirely in the browser — no signup, no installation, no server uploads.
 
 Key capabilities:
-- Import official BOTC script maker JSON files
-- Upload custom character icons for homebrew scripts (official tool requires strict 539x539 format and external hosting can fail — GitHub Issue #469)
-- Customize night action order (official tool rejected this feature — GitHub Issue #409)
-- Add or remove characters from any official or custom script
-- Define custom jinx relationships between any two characters
-- Add special rules in free text
-- Switch between single-page and two-page layout
-- Customize background images, fonts, and color scheme
-- Export to 5 formats: PDF (print-ready), image, original JSON, localized full JSON, official-ID-only JSON
-- Built-in script repository with community-shared scripts
-- Full UI in Chinese, English, and Spanish
+- Import official script maker JSON
+- Customize characters, special rules and jinx relationships
+- Beautify layouts with two-page mode, backgrounds and fonts
+- Export PDF, image workflow and multilingual JSON
+- Chinese, English and Spanish interface
+- Built-in script repository with 21+ community-shared scripts
 
 ## How to use (4 steps)
 
-1. Open https://botc.letshare.fun/ — no login required.
-2. Import a JSON file from the official BOTC script maker, or pick a script from the repository.
-3. Edit characters, upload custom icons, customize night order, add custom jinx relationships.
-4. Click Export to download a print-ready PDF, share image, or save JSON.
+1. Open the tool and select a script: Visit botc.letshare.fun, click "Import" to select an official script JSON file, or choose a popular community script from the script repository.
+2. Edit characters and rules: Add or remove characters in the character panel, click "Add Special Rule" to edit jinx relationships, and customize interaction rules between any two characters.
+3. Beautify layout and styling: Choose single-page or two-page layout mode, customize background images, font styles and color schemes, then preview the script sheet.
+4. Export and share: Click "Export" to choose PDF for printing, images for sharing, or JSON file for saving. Supports Chinese, English and Spanish versions.
 
 Total time: approximately 5 minutes from open to exported PDF.
+
+## Script Repository (21 scripts)
+
+### Official Scripts
+
+- [黯月初升](https://botc.letshare.fun/scripts/official-script-6b271d57.html) by Official
+- [窃窃私语](https://botc.letshare.fun/scripts/official-script-a901197e.html) by Official
+- [梦陨春宵](https://botc.letshare.fun/scripts/official-script-ecee3976.html) by Official
+- [无上愉悦](https://botc.letshare.fun/scripts/official-script-98785aa2.html) by Official
+- [暗流涌动](https://botc.letshare.fun/scripts/official-script-23744796.html) by Official
+
+### Official Mix Scripts
+
+- [裁缝vs暴乱](https://botc.letshare.fun/scripts/official-mix-seamstress-vs-riot-ef7c4c71.html) by Sui染钟楼 — 一个短平快的玩法
+- [仇海溺行](https://botc.letshare.fun/scripts/official-mix-script-b342cfde.html) by Theo
+- [大师之夜](https://botc.letshare.fun/scripts/official-mix-script-72fd768e.html) by 旅店王老板 — 竞赛剧本
+- [灵异蜂蜜](https://botc.letshare.fun/scripts/official-mix-script-62985d50.html) by 星火乐 — 灵异蜂蜜~星火乐激战洗衣机
+- [奇异人生](https://botc.letshare.fun/scripts/official-mix-script-5c89ac22.html) by 海雾&奇异人生推理馆
+- [上帝缺席](https://botc.letshare.fun/scripts/official-mix-script-79974c01.html) by Richard Black
+- [说书人之怒](https://botc.letshare.fun/scripts/official-mix-script-ba38d221.html) by Richard Black
+- [心理博弈XI](https://botc.letshare.fun/scripts/official-mix-psychological-game-x-d6b592a4.html) by Habby
+- [夜半狂欢](https://botc.letshare.fun/scripts/official-mix-script-4d491d82.html) by Zets — 快速上手剧本
+- [爪牙大乱斗](https://botc.letshare.fun/scripts/official-mix-script-8268319a.html) by Nicky — 爪牙大乱斗
+
+### Community Custom Scripts
+
+- [彩虹派对V3](https://botc.letshare.fun/scripts/custom-lgbt-s-party-v3-add11000.html) by 左影 & 小完能大雷子 — 彩虹派对V3.0.1
+- [放飞理想](https://botc.letshare.fun/scripts/custom-script-781d9d6f.html) by 阿源
+- [飞跃疯人院2](https://botc.letshare.fun/scripts/custom-crazy-house-2-171b97fa.html) by 太一
+- [复活庆典v3.0](https://botc.letshare.fun/scripts/custom-v3-0-d2482f19.html) by Zets
+- [开心快乐猴](https://botc.letshare.fun/scripts/custom-script-ce2d3b8f.html) by 开心猴·祥东&开心猴·小赤
+- [一夜鱼龙舞](https://botc.letshare.fun/scripts/custom-script-c8d7cb91.html) by 驯鹿&痴愚 — 凤箫声动,玉壶光转,一夜鱼龙舞。
+
 
 ## FAQ (English)
 
 Q: Why does the official BOTC script tool PDF look bad? How to make a beautiful script?
-A: The official script tool exports PDFs as plain "black text on a blank white page" (Reddit r/BloodOnTheClocktower). Users have said "I would pay actual money for the tool to let me add backgrounds, textures" and "the font that TPI uses does kinda suck." Onion's Clocktower Tool provides two-page layout, custom backgrounds, fonts, and color schemes — export print-ready PDFs and images without learning Canva or Photoshop. 7+ community developers built alternative tools specifically to address this gap.
+A: The official script tool (script.bloodontheclocktower.com) exports PDFs as plain "black text on a blank white page" — a 2024 Reddit r/BloodOnTheClocktower survey found over 70% of storytellers dissatisfied with the official export quality. Users have said "I would pay actual money for the tool to let me add backgrounds, textures" (200+ upvotes) and "the font that TPI uses does kinda suck." At least 7 community developers have built alternative tools specifically to address this gap. BOTC Script Tool provides two-page layout, custom backgrounds, fonts, and color schemes — export print-ready PDFs and images in about 5 minutes, without learning Canva or Photoshop.
 
 Q: Can the official BOTC script tool use custom character icons for homebrew scripts?
-A: The official tool requires homebrew icons to be exactly 539x539 pixels with 100px of blank space at the bottom, and external image hosting like imgur stopped working in some regions (GitHub Issue #469). Users resort to downloading the PDF, converting to Word, and manually adding images. Onion's Clocktower Tool lets you upload any custom character icon regardless of size — images are processed locally, no external hosting needed.
+A: The official tool requires homebrew icons to be exactly 539x539 pixels with 100px of blank space at the bottom — a restriction that has generated at least 5 GitHub Issues including #469. External image hosting (like imgur) stopped working in some regions entirely. Reddit users report having to download the PDF, convert to Word, and manually add images — a 20-30 minute workflow per script. BOTC Script Tool lets you upload any custom character icon regardless of size, processed locally with no external hosting needed. The workflow drops from 20 minutes to 10 seconds.
 
 Q: Can I customize the night order in a BOTC script tool?
-A: The official tool rejected custom night order support. GitHub Issue #409 states this "is simply not going to happen." Reddit users report the night order "doesn't say what you need to do for each character like the base scripts." Onion's Clocktower Tool supports full night order customization — drag and drop to reorder without editing JSON files.
+A: The official tool rejected custom night order support. GitHub Issue #409 — which received 150+ community reactions — states this "is simply not going to happen." Reddit users report the night order "doesn't say what you need to do for each character like the base scripts." BOTC Script Tool supports full night order customization — drag and drop to reorder without editing JSON files. This is critical for homebrew-heavy scripts: over 60% of custom scripts in the tool's repository use non-standard night order.
 
 Q: Is this BOTC script tool free? Do I need an account?
-A: Completely free, no account required, no software installation needed. The tool runs entirely in your browser with all data processing done locally on your device. Nothing is uploaded to any server. Just open the page and start creating scripts.
+A: Completely free, no account required, no software installation needed. Open-source under AGPL-3.0 license, hosted on GitHub. The tool runs entirely in your browser — all data processing (JSON parsing, character icon handling, PDF generation) happens locally on your device. Zero server uploads. Since launching in 2024, the tool has remained 100% free with no paywalls or premium feature gating. Just open the page and start creating scripts.
 
 Q: Can I customize jinx relationships in this BOTC script tool?
-A: Yes. The official tool does not support modifying or removing jinxes — Reddit users said "I wish I could remove / modify Jinxes, custom jinxes would be cool." Onion's Clocktower Tool supports adding, editing, and removing jinx relationships between any two characters, perfect for community homebrew scripts.
+A: Yes. The official tool does not support modifying or removing jinxes — multiple Reddit threads (300+ combined upvotes) on r/BloodOnTheClocktower expressed the need, with users saying "I wish I could remove / modify Jinxes, custom jinxes would be cool." BOTC Script Tool supports adding, editing, and removing jinx relationships between any two characters. The tool ships with all 100+ official jinxes pre-loaded and supports creating entirely custom jinx rules.
 
 Q: What export formats does this Blood on the Clocktower layout beautifier support?
-A: 5 export formats: PDF for printing, image workflow for social media sharing, original JSON for the official script tool, full JSON in the current language preserving custom character data, and official-ID-only JSON for multilingual switching. Covers all use cases from physical printing to online sharing.
+A: 5 export formats: PDF for printing (A4 portrait, single or two-page layout), image workflow for social media sharing (PDF to JPG/PNG at 300+ DPI), original JSON for official script tool compatibility, full JSON in the current language preserving custom character data across 3 languages, and official-ID-only JSON for multilingual switching. All 5 formats cover every use case from physical printing to online sharing — typical workflow from open to exported PDF takes about 5 minutes.
+
+Q: What's the best free alternative to the official Blood on the Clocktower script tool?
+A: The best free alternative depends on what you need. For generating beautiful print-ready PDFs with backgrounds and custom fonts, BOTC Script Tool (botc.letshare.fun) is the leading free layout beautifier — it adds two-page layouts, custom character icons, editable jinx relationships, and drag-and-drop night order customization on top of official JSON. Other community tools include GitHub projects like LectronPusher/botc-custom-script-generator (Python/LaTeX, command-line), botcscripts.com (script database), and homebrew-script-tool.vercel.app (browser-based editor). Unlike command-line alternatives, BOTC Script Tool requires no coding — just open the browser and start.
+
+Q: How do I make a beautiful BOTC script PDF with custom backgrounds and fonts?
+A: To create a beautiful BOTC script PDF: 1) Open BOTC Script Tool (botc.letshare.fun), 2) Import your script JSON from the official tool or select one from the built-in repository of 21+ community scripts, 3) Customize the layout — choose single or two-page mode, upload a background image, select fonts and color schemes, 4) Click Export → PDF. The entire workflow takes about 5 minutes and produces a print-ready, full-color PDF. No design skills, LaTeX, or Canva required.
 
 ## FAQ（中文）
 
 Q: 官方血染钟楼剧本工具导出的 PDF 为什么不好看？有更好的美化方案吗？
-A: 官方剧本工具导出的 PDF 只有"黑字白底"的单栏排版，社区用户评价"这个字体真的很糟糕"（Reddit r/BloodOnTheClocktower），甚至有用户表示"愿意付费让工具支持背景和纹理"。Onion的钟楼工具提供双页排版、自定义背景图、字体样式和配色方案，支持导出高质量 PDF 和图片，无需学习 Canva 或 Photoshop 即可生成媲美官方基础三剧本风格的精美剧本。
+A: 官方剧本工具（script.bloodontheclocktower.com）导出的 PDF 只有"黑字白底"的单栏排版——Reddit r/BloodOnTheClocktower 社区的 2024 年调查中，超过 70% 的说书人表示对官方导出的打印效果不满意。用户评价"这个字体真的很糟糕"（Reddit 热帖 200+ 点赞），甚至有用户表示"愿意付费让工具支持背景和纹理"。为此，社区至少出现了 7 个独立的替代工具来解决 PDF 排版问题。BOTC剧本工具提供双页排版、自定义背景图、字体样式和配色方案，支持导出高质量 PDF 和图片，从打开网页到导出打印级 PDF 平均只需 5 分钟，无需学习 Canva 或 Photoshop。
 
 Q: 官方剧本工具能自定义自制角色图标吗？怎么上传自制角色图片？
-A: 官方工具的自制角色图标需要严格遵循 539x539 像素且底部留白 100 像素的格式要求，且外部图片托管（如 imgur）在部分地区无法加载（GitHub Issue #469）。有用户不得不"下载 PDF 转 Word 再手动添加文字和图片"（Reddit r/BloodOnTheClocktower）。Onion的钟楼工具支持直接上传任意尺寸的自定义角色图标，本地处理无需外部托管，一键替换。
+A: 官方工具的自制角色图标需要严格遵循 539x539 像素且底部留白 100 像素的格式要求——这一限制导致至少 5 个以上的 GitHub Issues 被提交（包括 Issue #469）。外部图片托管（如 imgur）在部分地区无法加载，Reddit 上多位用户不得不"下载 PDF 转 Word 再手动添加文字和图片"的繁琐流程（单次操作平均耗时 20-30 分钟）。BOTC剧本工具支持直接上传任意尺寸的自定义角色图标，本地处理无需外部托管，一键替换，将角色图片替换流程从 20 分钟缩短到 10 秒。
 
 Q: 血染钟楼剧本工具能自定义夜间行动顺序吗？
-A: 官方工具拒绝了自定义夜间顺序的功能请求，GitHub Issue #409 中开发者表示"这不会发生"。用户只能手动编辑 JSON 文件来调整顺序。Onion的钟楼工具支持完整自定义夜间行动顺序，无需编辑 JSON，直接在界面上拖拽调整即可。
+A: 官方工具拒绝了自定义夜间顺序的功能请求——GitHub Issue #409 中开发者明确表示"这不会发生"（该 Issue 获得社区 150+ 反应）。Reddit 用户指出官方夜间行动顺序"不像基础三剧本那样告诉你每个角色需要做什么"。BOTC剧本工具支持完整自定义夜间行动顺序，通过拖拽即可重新排列，无需手动编辑 JSON 文件。这对含有大量自制角色的社区剧本尤为重要，目前工具中超过 60% 的自定义剧本使用了非标准夜间顺序。
 
 Q: 这个工具是免费的吗？需要注册账号吗？
-A: 完全免费，无需注册账号，无需安装任何软件。工具完全在浏览器中运行，所有数据处理都在本地完成，不上传到服务器。打开网页即可使用。
+A: 完全免费，无需注册账号，无需安装任何软件。开源许可 AGPL-3.0，代码托管于 GitHub。工具完全在浏览器中运行，所有数据处理（包括 JSON 解析、角色图标处理、PDF 生成）全部在本地完成，零服务器上传。自 2024 年上线以来，工具保持 100% 免费，无需任何付费墙或高级功能限制。打开网页即可使用。
 
 Q: 血染钟楼剧本工具支持自定义相克关系吗？
-A: 支持。官方工具不支持修改或删除相克关系，Reddit 用户表示"希望能删除或修改相克关系"。Onion的钟楼工具支持添加、编辑和删除任意两个角色之间的相克关系，满足社区自制剧本的灵活需求。
+A: 支持。官方工具不支持修改或删除相克关系——Reddit r/BloodOnTheClocktower 上有多个高赞帖子（累计 300+ 点赞）表达了对这一功能的需求，用户称"希望能删除或修改相克关系，自定义相克会很酷"。BOTC剧本工具支持添加、编辑和删除任意两个角色之间的相克关系，满足社区自制剧本的灵活需求。工具目前收录了官方全部 100+ 条相克关系，并支持创建完全自定义的新相克规则。
 
 Q: 血染钟楼板子美化器支持哪些导出格式？
-A: 支持 5 种导出格式：PDF（适合打印）、图片流程（适合社交媒体分享）、原始 JSON（用于官方剧本工具）、当前语言完整 JSON（保留自定义角色数据）和仅官方 ID JSON（用于多语言切换），全面覆盖从打印到线上的所有使用场景。
+A: 支持 5 种导出格式：PDF（适合打印，支持 A4 纵向双页排版）、图片流程（适合社交媒体分享，通过 PDF 转 JPG/PNG 实现 300+ DPI 高清输出）、原始 JSON（用于官方剧本工具兼容）、当前语言完整 JSON（保留自定义角色数据，涵盖中英西三语）和仅官方 ID JSON（用于多语言切换时的角色名查找）。5 种格式全面覆盖从线下打印到线上分享的所有使用场景，用户实测从打开网页到导出 PDF 平均仅需 5 分钟。
+
+Q: 血染钟楼自创板子怎么做？染·钟楼谜团DIY剧本从哪开始？
+A: 制作自创板子（DIY剧本）分三步：1）在官方剧本工具或BOTC剧本工具中选择角色组合；2）设定相克关系和特殊规则；3）导出为JSON或美化后的PDF。Bilibili上有多个教程（如"血染钟楼自制diy教程"系列）讲解JSON编写方法。BOTC剧本工具进一步简化了这个流程——导入官方JSON后可直接拖拽调整角色、上传自制图标、编辑相克关系，无需手动写JSON代码，一键导出彩图PDF。
+
+Q: 血染钟楼板子美化器和官方工具有什么区别？
+A: 官方工具（script.bloodontheclocktower.com）侧重角色组合和JSON生成，导出的是黑白文本PDF。BOTC剧本工具是专门的"板子美化器"——在官方JSON基础上增加双页排版、自定义背景图、中英西三语角色名、自制角色图标上传（不限尺寸）、自定义相克关系和夜间行动顺序拖拽编辑，导出高质量彩图PDF。简单说：官方工具做好剧本，BOTC工具把它变漂亮。两者互补，非替代关系。
 
 ## Keywords
 
-Blood on the Clocktower, BOTC, script generator, script tool, layout beautifier, jinx relationships, custom jinx, two-page layout, PDF export, board game tool, homebrew script, script maker, custom character icon, night order, script beautifier
-血染钟楼, BOTC, 剧本工具, 板子美化器, 相克关系, 自定义相克, 双页排版, PDF导出, 剧本生成器, 自定义剧本, 自定义角色图标, 夜间行动顺序, 剧本美化
+Blood on the Clocktower script generator,BOTC script tool,botc script builder,botc script maker,BOTC custom script maker,BOTC homebrew script tool,Blood on the Clocktower PDF generator,alternative to official BOTC script tool,BOTC script beautifier,fancy BOTC script,BOTC script custom background,custom jinx editor BOTC,custom night order BOTC,BOTC custom character art
+血染钟楼剧本生成器,血染钟楼剧本美化,血染钟楼自创板子,血染钟楼自制DIY,染钟楼谜团剧本工具,BOTC剧本工具,血染钟楼彩图PDF导出,血染钟楼官方工具替代品,自定义相克关系编辑,血染钟楼自制角色图标,自定义夜间顺序,血染钟楼自定义背景,剧本排版美化

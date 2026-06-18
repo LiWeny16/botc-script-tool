@@ -47,11 +47,12 @@ export interface ScriptRendererProps {
     compact?: boolean;  // 超紧凑模式（全角色一览）
 
     // 事件回调（编辑模式下使用）
-    onReorderCharacters?: (team: string, newOrder: string[]) => void;
+    onReorderCharacters?: (team: string, newOrder: string[], columnLeftCount?: number) => void;
     onUpdateCharacter?: (characterId: string, updates: Partial<Character>) => void;
     onEditCharacter?: (character: Character) => void;
     onDeleteCharacter?: (character: Character) => void;
     onReplaceCharacter?: (character: Character, position: { x: number; y: number }) => void;
+    onAddCustomCharacter?: (team: string) => void;
     onTitleEdit?: (mode: 'main' | 'firstNight' | 'otherNight') => void;
     onSecondPageTitleEdit?: () => void;  // 第二页标题编辑
     onSpecialRuleEdit?: (rule: any) => void;
@@ -74,6 +75,7 @@ const ScriptRenderer = observer(({
     onEditCharacter = () => { },
     onDeleteCharacter = () => { },
     onReplaceCharacter = () => { },
+    onAddCustomCharacter,
     onTitleEdit = () => { },
     onSecondPageTitleEdit = () => { },
     onSpecialRuleEdit = () => { },
@@ -246,6 +248,7 @@ const ScriptRenderer = observer(({
                         onEditCharacter={readOnly ? () => { } : onEditCharacter}
                         onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                         onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                        onAddCustomCharacter={onAddCustomCharacter}
                         disableDrag={readOnly}
                         readOnly={readOnly}
                     />
@@ -263,6 +266,7 @@ const ScriptRenderer = observer(({
                         onEditCharacter={readOnly ? () => { } : onEditCharacter}
                         onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                         onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                        onAddCustomCharacter={onAddCustomCharacter}
                         disableDrag={readOnly}
                         readOnly={readOnly}
                     />
@@ -280,6 +284,7 @@ const ScriptRenderer = observer(({
                         onEditCharacter={readOnly ? () => { } : onEditCharacter}
                         onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                         onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                        onAddCustomCharacter={onAddCustomCharacter}
                         disableDrag={readOnly}
                         readOnly={readOnly}
                     />
@@ -315,6 +320,7 @@ const ScriptRenderer = observer(({
                             onEditCharacter={readOnly ? () => { } : onEditCharacter}
                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                            onAddCustomCharacter={onAddCustomCharacter}
                             disableDrag={readOnly}
                             readOnly={readOnly}
                         />
@@ -322,13 +328,7 @@ const ScriptRenderer = observer(({
                 }
                 return null;
         }
-    }, [script, readOnly, onSecondPageTitleEdit, onReorderCharacters, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, onSpecialRuleEdit, onSpecialRuleDelete]);
-
-    console.log(
-        'ScriptRenderer',
-        script.storytellerOtherNightTitleImage,
-        script.useStorytellerOtherNightTitleImage
-        );
+    }, [script, readOnly, onSecondPageTitleEdit, onTitleEdit, onReorderCharacters, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, onAddCustomCharacter, onSpecialRuleEdit, onSpecialRuleDelete]);
     
     return (
         <>
@@ -828,6 +828,7 @@ const ScriptRenderer = observer(({
                                             onEditCharacter={readOnly ? () => { } : onEditCharacter}
                                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                                            onAddCustomCharacter={onAddCustomCharacter}
                                             disableDrag={readOnly}
                                             readOnly={readOnly}
                                             compact={compact}
@@ -848,6 +849,7 @@ const ScriptRenderer = observer(({
                                             onEditCharacter={readOnly ? () => { } : onEditCharacter}
                                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                                            onAddCustomCharacter={onAddCustomCharacter}
                                             disableDrag={readOnly}
                                             readOnly={readOnly}
                                             compact={compact}
@@ -869,6 +871,7 @@ const ScriptRenderer = observer(({
                                             onEditCharacter={readOnly ? () => { } : onEditCharacter}
                                             onDeleteCharacter={readOnly ? () => { } : onDeleteCharacter}
                                             onReplaceCharacter={readOnly ? () => { } : onReplaceCharacter}
+                                            onAddCustomCharacter={onAddCustomCharacter}
                                             disableDrag={readOnly}
                                             readOnly={readOnly}
                                             compact={compact}

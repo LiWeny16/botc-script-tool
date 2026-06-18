@@ -468,8 +468,8 @@ const App = observer(() => {
   }, [language, originalJson, customTitle, customAuthor, isInitialized, configStore.characterLanguage]);
 
   // Update character order and sync to JSON
-  const handleReorderCharacters = (team: string, newOrder: string[]) => {
-    scriptStore.reorderCharacters(team, newOrder);
+  const handleReorderCharacters = (team: string, newOrder: string[], columnLeftCount?: number) => {
+    scriptStore.reorderCharacters(team, newOrder, columnLeftCount);
   };
 
   // Update character info and sync to JSON
@@ -514,6 +514,21 @@ const App = observer(() => {
     setEditDialogOpen(false);
     setEditingCharacter(null);
   }, []);
+
+  // Regenerate script when per-character jinx version changes
+  const handleJinxVersionChange = useCallback(() => {
+    const originalJson = scriptStore.originalJson || '';
+    const customTitle = scriptStore.script?.title || '';
+    const customAuthor = scriptStore.script?.author || '';
+    try {
+      const generatedScript = generateScript(originalJson, language);
+      if (customTitle) generatedScript.title = customTitle;
+      if (customAuthor) generatedScript.author = customAuthor;
+      scriptStore.setScript(generatedScript);
+    } catch (error) {
+      console.error('Failed to regenerate script after jinx version change:', error);
+    }
+  }, [language]);
 
   // Stable close callbacks (avoid observer component re-renders from inline arrow functions)
   const handleCloseUISettings = useCallback(() => setUiSettingsOpen(false), []);
@@ -560,13 +575,28 @@ const App = observer(() => {
     setLibraryCardOpen(true);
   };
 
-
   const handleTitleEdit = (mode: 'main' | 'firstNight' | 'otherNight') => {
     setTitleEditState({
       open: true,
       mode,
     });
   };
+
+  // Handle creating a custom character via right-click context menu
+  const handleAddCustomCharacter = useCallback((team: string) => {
+    const customId = `custom_${Date.now()}`;
+    const customCharacter: Character = {
+      id: customId,
+      name: t('character.customName'),
+      ability: t('character.customAbility'),
+      team,
+      image: 'https://oss.gstonegames.com/data_file/clocktower/web/icons/lunatic.png',
+      firstNight: 0,
+      otherNight: 0,
+    };
+    scriptStore.addCharacter(customCharacter);
+    trackAddCharacter({ characterId: customId, team });
+  }, [t, scriptStore]);
 
   // Handle second page title editing
   const handleSecondPageTitleEdit = () => {
@@ -1120,6 +1150,7 @@ const App = observer(() => {
                 onEditCharacter={handleEditCharacter}
                 onDeleteCharacter={handleRemoveCharacter}
                 onReplaceCharacter={handleReplaceCharacter}
+                onAddCustomCharacter={handleAddCustomCharacter}
                 onTitleEdit={handleTitleEdit}
                 onSecondPageTitleEdit={handleSecondPageTitleEdit}
                 onSpecialRuleEdit={handleSpecialRuleEdit}
@@ -1171,6 +1202,7 @@ const App = observer(() => {
           character={editingCharacter}
           onClose={handleCloseEditDialog}
           onSave={handleUpdateCharacter}
+          onJinxVersionChange={handleJinxVersionChange}
         />
       )}
 
@@ -1259,7 +1291,6 @@ const App = observer(() => {
             }
 
             if (titleEditState.mode === 'firstNight') {
-              console.log("Saving firstNight image", data);
               scriptStore.updateTitleInfo({
                 storytellerFirstNight: data.title,
                 storytellerFirstNightTitleImage: data.titleImage,
@@ -1269,7 +1300,6 @@ const App = observer(() => {
             }
 
             if (titleEditState.mode === 'otherNight') {
-              console.log("Saving otherNight image", data);
               scriptStore.updateTitleInfo({
                 storytellerOtherNight: data.title,
                 storytellerOtherNightTitleImage: data.titleImage,

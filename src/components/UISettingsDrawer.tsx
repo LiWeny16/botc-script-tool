@@ -80,6 +80,7 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
       title: t('ui.category.pageLayout'),
       keywords: [
         '页面', '布局', '双页', '背景', '夜晚', '顺序', '标题', '高度', '模式',
+        'jinx', 'hidden', 'icon', 'position',
         'page', 'layout', 'two-page', 'two page', 'background', 'night', 'order', 'title', 'height', 'mode'
       ],
     },
@@ -628,6 +629,20 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                   </FormControl>
 
                   {/* 标题区域高度 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.jinxIconPosition')}
+                    </Typography>
+                    <RadioGroup
+                      row
+                      value={uiConfigStore.config.characterCard.iconOnlyJinxPosition}
+                      onChange={(e) => uiConfigStore.updateCharacterCardConfig({ iconOnlyJinxPosition: e.target.value as 'below-description' | 'next-to-name' })}
+                    >
+                      <FormControlLabel value="next-to-name" control={<Radio size="small" />} label={t('ui.jinxIconPositionNextToName')} />
+                      <FormControlLabel value="below-description" control={<Radio size="small" />} label={t('ui.jinxIconPositionBelowDesc')} />
+                    </RadioGroup>
+                  </Box>
+
                   <Box>
                     <Typography variant="caption" gutterBottom>
                       {t('ui.titleHeight')}: {uiConfigStore.config.titleHeightMd}px

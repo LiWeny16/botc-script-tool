@@ -329,6 +329,11 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       const rawAlign = (item as any).text_alignment || (item as any).textAlignment;
       (script as any).textAlignment = (rawAlign === 'left' || rawAlign === 'center' || rawAlign === 'right') ? rawAlign : 'center';
 
+      // Parse column left count (asymmetric 2-col layout)
+      if (item.column_left_count && typeof item.column_left_count === 'object') {
+        script.columnLeftCount = item.column_left_count;
+      }
+
       // Parse second page config
       script.secondPageTitle = item.second_page_title;
       script.secondPageTitleText = item.second_page_title_text;
@@ -719,7 +724,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
           if (!script.jinx[nameA][nameB]) {
             // Official jinx rule, shown by default
             script.jinx[nameA][nameB] = {
-              reason: getJinx(keyA, keyB, language),
+              reason: getJinx(keyA, keyB, language, configStore.config.jinxVersion),
               display: true,
               isOfficial: true,
             };

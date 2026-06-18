@@ -13,7 +13,7 @@ export {
 } from './canonicalCharacters';
 
 // Jinx data exports
-export { getJinxDictionary, hasJinx, getJinx, parseJinxSource, type JinxSourceEntry } from './jinx';
+export { getJinxDictionary, getJinxLegacyDictionary, hasJinx, getJinx, parseJinxSource, parseJinxSourceLegacy, type JinxSourceEntry, type JinxVersion, type JinxVersionMap } from './jinx';
 
 // Characters subdirectory exports (convenience re-exports)
 export { TEAM_COLORS, TEAM_NAMES } from './characters/characters';

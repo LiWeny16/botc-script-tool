@@ -24,6 +24,7 @@ import {
   Stack,
   Tabs,
   Tab,
+  Switch,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -56,6 +57,7 @@ interface CharacterEditDialogProps {
   character: Character | null;
   onClose: () => void;
   onSave: (characterId: string, updates: Partial<Character>) => void;
+  onJinxVersionChange?: () => void;
 }
 
 // 相克关系项接口
@@ -69,6 +71,7 @@ export default observer(function CharacterEditDialog({
   character,
   onClose,
   onSave,
+  onJinxVersionChange,
 }: CharacterEditDialogProps) {
   const { t, language } = useTranslation();
   const theme = useTheme();
@@ -977,6 +980,43 @@ export default observer(function CharacterEditDialog({
             {activeTab === 3 && (
               <Box component="section">
                 <Typography sx={sectionTitleSx}>{t('customJinx.management')}</Typography>
+
+                {/* Per-character jinx version toggle */}
+                {character && (
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      p: 2,
+                      mb: 2.5,
+                      borderRadius: 2.5,
+                      backgroundColor: '#fff',
+                      boxShadow: `0 10px 24px ${alpha('#101828', 0.05)}`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <Box>
+                      <Typography sx={{ fontWeight: 760, fontSize: 14, color: '#1f2933' }}>
+                        {t('customJinx.jinxVersion')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.25 }}>
+                        {configStore.getJinxVersion(character.id) === 'legacy'
+                          ? t('customJinx.versionLegacy')
+                          : t('customJinx.versionModern')}
+                      </Typography>
+                    </Box>
+                    <Switch
+                      checked={configStore.getJinxVersion(character.id) === 'legacy'}
+                      onChange={(e) => {
+                        const version = e.target.checked ? 'legacy' : 'modern';
+                        configStore.setJinxVersion(character.id, version);
+                        onJinxVersionChange?.();
+                      }}
+                    />
+                  </Paper>
+                )}
+
             {jinxItems.length > 0 && (
               <List sx={{ mb: 2, p: 0 }}>
                 {jinxItems.map((jinx, index) => {

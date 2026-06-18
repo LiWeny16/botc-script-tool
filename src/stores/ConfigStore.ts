@@ -1,11 +1,14 @@
 import { makeAutoObservable } from 'mobx';
 import { DEFAULT_LANGUAGE, isSupportedLanguage, normalizeLanguage, SUPPORTED_LANGUAGES, type Language } from '../utils/languages';
+import type { JinxVersion, JinxVersionMap } from '../data';
+import { toZhCanonicalCharacterId } from '../data/utils/characterIdMapping';
 
 export interface AppConfig {
   language: Language;
   characterLanguage: Language;
   officialIdParseMode: boolean; // Whether official ID parse mode is enabled
   hideDuplicateJinx: boolean; // Whether to show jinx on only one character card
+  jinxVersion: JinxVersionMap; // Per-character jinx rule version ('legacy'|'modern'), default: modern (empty)
 }
 
 const DEFAULT_CONFIG: AppConfig = {
@@ -13,6 +16,7 @@ const DEFAULT_CONFIG: AppConfig = {
   characterLanguage: DEFAULT_LANGUAGE,
   officialIdParseMode: false, // Official ID parse mode is disabled by default
   hideDuplicateJinx: false, // Show jinx on both cards by default
+  jinxVersion: {}, // All modern by default (only legacy entries stored)
 };
 
 const STORAGE_KEY = 'botc-app-config';
@@ -157,6 +161,25 @@ class ConfigStore {
   // Set hide duplicate jinx mode
   setHideDuplicateJinx(enabled: boolean) {
     this.config.hideDuplicateJinx = enabled;
+    this.saveConfig();
+  }
+
+  // Get jinx version for a character (defaults to 'modern')
+  getJinxVersion(characterId: string): JinxVersion {
+    const normalizedId = toZhCanonicalCharacterId(characterId);
+    return this.config.jinxVersion[normalizedId] ?? 'modern';
+  }
+
+  // Set jinx version for a character (modern removes from map to keep it sparse)
+  setJinxVersion(characterId: string, version: JinxVersion) {
+    const normalizedId = toZhCanonicalCharacterId(characterId);
+    const newMap = { ...this.config.jinxVersion };
+    if (version === 'modern') {
+      delete newMap[normalizedId];
+    } else {
+      newMap[normalizedId] = version;
+    }
+    this.config.jinxVersion = newMap;
     this.saveConfig();
   }
 
