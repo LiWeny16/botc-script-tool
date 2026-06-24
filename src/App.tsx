@@ -76,7 +76,7 @@ const printStyles = {
     },
 
     // 3. Only show the core script area to print, and all its children
-    '#script-preview, #script-preview *, #main_script, #main_script *, #script-preview-2, #script-preview-2 *': {
+    '#script-preview, #script-preview *, #main_script, #main_script *, #script-preview-2, #script-preview-2 *, #script-preview-3, #script-preview-3 *, #script-preview-4, #script-preview-4 *': {
       visibility: 'visible !important',
     },
 
@@ -124,6 +124,34 @@ const printStyles = {
       pageBreakBefore: 'always !important', // Force page break before second page
       pageBreakInside: 'avoid !important',
       marginTop: '0 !important', // Ensure no top margin when printing
+    },
+
+    '#script-preview-3': {
+      position: 'relative !important',
+      left: '0 !important',
+      top: '0 !important',
+      width: '100vw !important',
+      height: '100vh !important',
+      margin: '0 !important',
+      padding: '0 !important',
+      overflow: 'hidden !important',
+      pageBreakBefore: 'always !important',
+      pageBreakInside: 'avoid !important',
+      marginTop: '0 !important',
+    },
+
+    '#script-preview-4': {
+      position: 'relative !important',
+      left: '0 !important',
+      top: '0 !important',
+      width: '100vw !important',
+      height: '100vh !important',
+      margin: '0 !important',
+      padding: '0 !important',
+      overflow: 'hidden !important',
+      pageBreakBefore: 'always !important',
+      pageBreakInside: 'avoid !important',
+      marginTop: '0 !important',
     },
 
     // 6. Ensure bottom avatars and text boxes are visible when printing
@@ -240,7 +268,13 @@ const App = observer(() => {
   const [replacingCharacter, setReplacingCharacter] = useState<Character | null>(null);
   const [libraryPosition, setLibraryPosition] = useState<{ x: number; y: number } | undefined>(undefined);
   const [uiSettingsOpen, setUiSettingsOpen] = useState<boolean>(false);
-  const [titleEditDialogOpen, setTitleEditDialogOpen] = useState<boolean>(false);
+  const [titleEditState, setTitleEditState] = useState<{
+    open: boolean;
+    mode: 'main' | 'firstNight' | 'otherNight' | null;
+  }>({
+    open: false,
+    mode: null,
+  });
   const [secondPageTitleEditDialogOpen, setSecondPageTitleEditDialogOpen] = useState<boolean>(false);
   const [specialRuleEditDialogOpen, setSpecialRuleEditDialogOpen] = useState<boolean>(false);
   const [editingSpecialRule, setEditingSpecialRule] = useState<any>(null);
@@ -257,9 +291,6 @@ const App = observer(() => {
 
   // Get state from MobX store
   const { script, originalJson, normalizedJson, customTitle, customAuthor } = scriptStore;
-
-  // Prevent re-generating with the same (json, language) in the same render cycle
-  const lastRegenerateKeyRef = useRef<string>('');
 
   // Initialize and load data
   useEffect(() => {
@@ -284,7 +315,7 @@ const App = observer(() => {
         // If stored data exists, regenerate script (to adapt to language changes)
         if (originalJson) {
           try {
-            const generatedScript = generateScript(originalJson, language);
+          const generatedScript = generateScript(originalJson, language);
             if (customTitle) generatedScript.title = customTitle;
             if (customAuthor) generatedScript.author = customAuthor;
             scriptStore.setScript(generatedScript);
@@ -323,11 +354,8 @@ const App = observer(() => {
 
       if (jsonToSave) {
         try {
-          // Validate JSON format — must be a valid array
-          const parsed = JSON.parse(jsonToSave);
-          if (!Array.isArray(parsed)) {
-            throw new Error('JSON top-level must be an array');
-          }
+          // Validate JSON format
+          JSON.parse(jsonToSave);
 
           // Save to localStorage
           const stored = localStorage.getItem('botc-script-data');
@@ -420,26 +448,21 @@ const App = observer(() => {
 
   // Listen for language changes, regenerate script
   useEffect(() => {
-    if (!originalJson || !isInitialized) return;
+        if (originalJson && isInitialized) {
+      try {
+        const generatedScript = generateScript(originalJson, language);
 
-    // Skip if this (json, language) combo was already processed (avoids double-generation on mount)
-    const regenKey = `${originalJson}|${language}`;
-    if (regenKey === lastRegenerateKeyRef.current) return;
-    lastRegenerateKeyRef.current = regenKey;
+        // Restore custom title and author
+        if (customTitle) generatedScript.title = customTitle;
+        if (customAuthor) generatedScript.author = customAuthor;
 
-    try {
-      const generatedScript = generateScript(originalJson, language);
-
-      // Restore custom title and author
-      if (customTitle) generatedScript.title = customTitle;
-      if (customAuthor) generatedScript.author = customAuthor;
-
-      scriptStore.setScript(generatedScript); // setScript automatically generates normalizedJson
-    } catch (error) {
-      console.error('Failed to regenerate script on language switch:', error);
-      // Set error message
-      const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
-      setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
+        scriptStore.setScript(generatedScript); // setScript automatically generates normalizedJson
+      } catch (error) {
+        console.error('Failed to regenerate script on language switch:', error);
+        // Set error message
+        const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
+        setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
+      }
     }
   }, [language, originalJson, customTitle, customAuthor, isInitialized]);
 
@@ -509,7 +532,7 @@ const App = observer(() => {
   // Stable close callbacks (avoid observer component re-renders from inline arrow functions)
   const handleCloseUISettings = useCallback(() => setUiSettingsOpen(false), []);
   const handleCloseShareDialog = useCallback(() => setShareDialogOpen(false), []);
-  const handleCloseTitleEdit = useCallback(() => setTitleEditDialogOpen(false), []);
+  const handleCloseTitleEdit = useCallback(() => setTitleEditState({ open: false, mode: null }), []);
   const handleCloseSecondPageTitleEdit = useCallback(() => setSecondPageTitleEditDialogOpen(false), []);
   const handleCloseExportJson = useCallback(() => setExportJsonDialogOpen(false), []);
   const handleCloseExportImage = useCallback(() => setExportImageDialogOpen(false), []);
@@ -551,6 +574,13 @@ const App = observer(() => {
     setLibraryCardOpen(true);
   };
 
+  const handleTitleEdit = (mode: 'main' | 'firstNight' | 'otherNight') => {
+    setTitleEditState({
+      open: true,
+      mode,
+    });
+  };
+
   // Handle creating a custom character via right-click context menu
   const handleAddCustomCharacter = useCallback((team: string) => {
     const customId = `custom_${Date.now()}`;
@@ -566,11 +596,6 @@ const App = observer(() => {
     scriptStore.addCharacter(customCharacter);
     trackAddCharacter({ characterId: customId, team });
   }, [t, scriptStore]);
-
-  // Handle first page title editing
-  const handleTitleEdit = () => {
-    setTitleEditDialogOpen(true);
-  };
 
   // Handle second page title editing
   const handleSecondPageTitleEdit = () => {
@@ -1206,20 +1231,77 @@ const App = observer(() => {
         />
       )}
 
-      {titleEditDialogOpen && (
+      {titleEditState.open && (
         <TitleEditDialog
           key="title-edit"
-          open={titleEditDialogOpen}
-          title={script?.title || ''}
-          titleImage={script?.titleImage}
-          titleImageSize={script?.titleImageSize}
-          useTitleImage={script?.useTitleImage}
+          open={titleEditState.open}
+          title={
+            titleEditState.mode === 'main'
+              ? script?.title || ''
+              : titleEditState.mode === 'firstNight'
+              ? script?.storytellerFirstNight || ''
+              : script?.storytellerOtherNight || ''
+          }
+          titleImage={
+            titleEditState.mode === 'main'
+              ? script?.titleImage
+              : titleEditState.mode === 'firstNight'
+              ? script?.storytellerFirstNightTitleImage
+              : script?.storytellerOtherNightTitleImage
+          }
+          titleImageSize={
+            titleEditState.mode === 'main'
+              ? script?.titleImageSize
+              : titleEditState.mode === 'firstNight'
+              ? script?.storytellerFirstNightTitleImageSize
+              : script?.storytellerOtherNightTitleImageSize
+          }
+          useTitleImage={
+            titleEditState.mode === 'main'
+              ? script?.useTitleImage
+              : titleEditState.mode === 'firstNight'
+              ? script?.useStorytellerFirstNightTitleImage
+              : script?.useStorytellerOtherNightTitleImage
+          }
           showTitleFlourish={script?.showTitleFlourish}
           author={script?.author || ''}
           playerCount={script?.playerCount || ''}
           textAlignment={(script as any)?.textAlignment || 'center'}
-          onClose={handleCloseTitleEdit}
-          onSave={handleTitleSave}
+          onClose={() =>
+            setTitleEditState({ open: false, mode: null })
+          }
+            onSave={(data) => {
+            if (titleEditState.mode === 'main') {
+              scriptStore.updateTitleInfo({
+                title: data.title,
+                titleImage: data.titleImage,
+                titleImageSize: data.titleImageSize,
+                useTitleImage: data.useTitleImage,
+                showTitleFlourish: data.showTitleFlourish,
+                author: data.author,
+                playerCount: data.playerCount,
+                textAlignment: data.textAlignment,
+              });
+            }
+
+            if (titleEditState.mode === 'firstNight') {
+              scriptStore.updateTitleInfo({
+                storytellerFirstNight: data.title,
+                storytellerFirstNightTitleImage: data.titleImage,
+                storytellerFirstNightTitleImageSize: data.titleImageSize,
+                useStorytellerFirstNightTitleImage: data.useTitleImage,
+              });
+            }
+
+            if (titleEditState.mode === 'otherNight') {
+              scriptStore.updateTitleInfo({
+                storytellerOtherNight: data.title,
+                storytellerOtherNightTitleImage: data.titleImage,
+                storytellerOtherNightTitleImageSize: data.titleImageSize,
+                useStorytellerOtherNightTitleImage: data.useTitleImage,
+              });
+            }
+          }}
         />
       )}
 

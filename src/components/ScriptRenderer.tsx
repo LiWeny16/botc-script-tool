@@ -33,6 +33,8 @@ import {
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import StorytellerNightOrderSheet from './StorytellerNightOrderSheet';
+import EditablePageTitle from './EditablePageTitle';
 
 
 const backgroundIndex = 2
@@ -51,11 +53,12 @@ export interface ScriptRendererProps {
     onDeleteCharacter?: (character: Character) => void;
     onReplaceCharacter?: (character: Character, position: { x: number; y: number }) => void;
     onAddCustomCharacter?: (team: string) => void;
-    onTitleEdit?: () => void;
+    onTitleEdit?: (mode: 'main' | 'firstNight' | 'otherNight') => void;
     onSecondPageTitleEdit?: () => void;  // 第二页标题编辑
     onSpecialRuleEdit?: (rule: any) => void;
     onSpecialRuleDelete?: (rule: any) => void;
     onNightOrderReorder?: (nightType: 'first' | 'other', oldIndex: number, newIndex: number) => void;
+
 }
 
 /**
@@ -78,6 +81,8 @@ const ScriptRenderer = observer(({
     onSpecialRuleEdit = () => { },
     onSpecialRuleDelete = () => { },
     onNightOrderReorder = () => { },
+    
+
 }: ScriptRendererProps) => {
     const COMPACT_SCALE = compact ? 0.47 : 1;
     const { t, language } = useTranslation();
@@ -92,7 +97,9 @@ const ScriptRenderer = observer(({
         if (language !== 'cn' && titleEn && titleEn.trim()) return titleEn.trim();
         return base;
     }, [language, script]);
-
+    const allCharacters = useMemo<Character[]>(() => {
+        return Object.values(script.characters).flat();
+    }, [script.characters]);
     // 第二页拖拽传感器
     const secondPageSensors = useSensors(
         useSensor(PointerSensor, {
@@ -103,6 +110,11 @@ const ScriptRenderer = observer(({
         })
     );
 
+    const displayedFirstNightTitle =
+        script.storytellerFirstNight || t('firstNight');
+
+    const displayedOtherNightTitle =
+        script.storytellerOtherNight || t('otherNight');
     // 获取第二页所有可用的组件 ID
     const getAvailableSecondPageComponents = useCallback(() => {
         const components: string[] = [];
@@ -316,8 +328,8 @@ const ScriptRenderer = observer(({
                 }
                 return null;
         }
-    }, [script, readOnly, onSecondPageTitleEdit, onReorderCharacters, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, onAddCustomCharacter, onSpecialRuleEdit, onSpecialRuleDelete]);
-
+    }, [script, readOnly, onSecondPageTitleEdit, onTitleEdit, onReorderCharacters, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, onAddCustomCharacter, onSpecialRuleEdit, onSpecialRuleDelete]);
+    
     return (
         <>
             {/* 第一页 - 主要剧本内容 */}
@@ -419,54 +431,6 @@ const ScriptRenderer = observer(({
                     />
                     </>})()}
 
-                    {/* 美术设计盒子 - 仅在非只读模式下显示 */}
-                    {!readOnly && (
-                        <Box sx={{
-                            position: 'absolute',
-                            top: { xs: 12, sm: 16, md: 95 },
-                            left: { xs: 12, sm: 16, md: 140 },
-                            zIndex: 5,
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                            pointerEvents: 'none',
-                        }}>
-                            <Box
-                                component="img"
-                                src="/imgs/icons/fabled/onion.webp"
-                                alt="Onion Avatar"
-                                sx={{
-                                    width: { xs: 50, sm: 60, md: 70 },
-                                    height: { xs: 50, sm: 60, md: 70 },
-                                    borderRadius: '50%',
-                                    border: '2px solid #d4af37',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                                    objectFit: 'cover',
-                                    mb: { xs: -1, sm: -1.5, md: -2 },
-                                    position: 'relative',
-                                    zIndex: 2,
-                                }}
-                            />
-                            <Box sx={{
-                                pt: { xs: 1.5, sm: 2, md: 2.5 },
-                                pb: { xs: 0.75, sm: 1, md: 1.25 },
-                                position: 'relative',
-                                zIndex: 1,
-                                minWidth: { xs: '80px', sm: '90px', md: '100px' },
-                            }}>
-                                <Typography sx={{
-                                    fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
-                                    color: '#404040ff',
-                                    fontWeight: 700,
-                                    textAlign: 'center',
-                                    whiteSpace: 'nowrap',
-                                }}>
-                                    {t('credits.designTitle')}: {t('credits.designers')}
-                                </Typography>
-                            </Box>
-                        </Box>
-                    )}
-
                     {/* 左侧 - 首个夜晚 */}
                     {!isMobile && (
                         <Box id="night-order-left" sx={{
@@ -477,7 +441,7 @@ const ScriptRenderer = observer(({
                             display: 'flex',
                             alignItems: 'flex-start',
                             justifyContent: "center",
-                            pt: compact ? '2%' : (uiConfigStore.config.nightOrderTopSpacingAuto ? '30%' : `${uiConfigStore.config.nightOrderTopSpacing}vh`),
+                            pt: compact ? '2%' : (uiConfigStore.config.nightOrderTopSpacingAuto ? '25%' : `${uiConfigStore.config.nightOrderTopSpacing}vh`),
                             boxShadow: 'none',
                             '& > *': {
                                 position: 'relative',
@@ -485,7 +449,7 @@ const ScriptRenderer = observer(({
                             }
                         }}>
                             <NightOrder
-                                title={t('night.first')}
+                                title={t('firstNight')}
                                 actions={script.firstnight}
                                 disabled={readOnly || configStore.config.officialIdParseMode}
                                 onReorder={(oldIndex, newIndex) => onNightOrderReorder('first', oldIndex, newIndex)}
@@ -574,7 +538,7 @@ const ScriptRenderer = observer(({
                                         <Box
                                             onMouseEnter={() => !readOnly && setTitleHovered(true)}
                                             onMouseLeave={() => !readOnly && setTitleHovered(false)}
-                                            onDoubleClick={() => !readOnly && onTitleEdit()}
+                                            onDoubleClick={() => !readOnly && onTitleEdit?.('main')}
                                             sx={{
                                                 position: 'relative',
                                                 cursor: readOnly ? 'default' : 'pointer',
@@ -603,7 +567,7 @@ const ScriptRenderer = observer(({
                                             {!readOnly && titleHovered && (
                                                 <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 3, display: 'flex', gap: 1 }}>
                                                     <IconButton
-                                                        onClick={(e) => { e.stopPropagation(); onTitleEdit(); }}
+                                                        onClick={(e) => { e.stopPropagation(); onTitleEdit?.('main'); }}
                                                         sx={{ backgroundColor: 'rgba(255,255,255,0.9)', '&:hover': { backgroundColor: 'rgba(255,255,255,1)' } }}
                                                         size="small"
                                                     >
@@ -616,7 +580,7 @@ const ScriptRenderer = observer(({
                                         <Box
                                             onMouseEnter={() => !readOnly && setTitleHovered(true)}
                                             onMouseLeave={() => !readOnly && setTitleHovered(false)}
-                                            onDoubleClick={() => !readOnly && onTitleEdit()}
+                                            onDoubleClick={() => !readOnly && onTitleEdit?.('main')}
                                             sx={{
 
                                                 position: 'relative',
@@ -662,7 +626,7 @@ const ScriptRenderer = observer(({
                                             {!readOnly && titleHovered && (
                                                 <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 3, display: 'flex', gap: 1 }}>
                                                     <IconButton
-                                                        onClick={(e) => { e.stopPropagation(); onTitleEdit(); }}
+                                                        onClick={(e) => { e.stopPropagation(); onTitleEdit?.('main'); }}
                                                         sx={{ backgroundColor: 'rgba(255,255,255,0.9)', '&:hover': { backgroundColor: 'rgba(255,255,255,1)' } }}
                                                         size="small"
                                                     >
@@ -858,6 +822,7 @@ const ScriptRenderer = observer(({
                                         />
                                     ))
                                 }
+                                
                             </Box>
                         </Box>
 
@@ -866,7 +831,7 @@ const ScriptRenderer = observer(({
                             <Box sx={{ mt: 2, display: 'flex', gap: 1.5, position: 'relative', zIndex: 1, px: { xs: 1, sm: 2, md: 3 } }}>
                                 <Box sx={{ flex: 1, minWidth: 0 }}>
                                     <NightOrder
-                                        title={t('night.first')}
+                                        title={t('firstNight')}
                                         actions={script.firstnight}
                                         isMobile={true}
                                         disabled={readOnly || configStore.config.officialIdParseMode}
@@ -876,7 +841,7 @@ const ScriptRenderer = observer(({
                                 </Box>
                                 <Box sx={{ flex: 1, minWidth: 0 }}>
                                     <NightOrder
-                                        title={t('night.other')}
+                                        title={t('otherNight')}
                                         actions={script.othernight}
                                         isMobile={true}
                                         disabled={readOnly || configStore.config.officialIdParseMode}
@@ -984,7 +949,7 @@ const ScriptRenderer = observer(({
                             display: 'flex',
                             alignItems: 'flex-start',
                             justifyContent: "center",
-                            pt: compact ? '2%' : (uiConfigStore.config.nightOrderTopSpacingAuto ? '30%' : `${uiConfigStore.config.nightOrderTopSpacing}vh`),
+                            pt: compact ? '2%' : (uiConfigStore.config.nightOrderTopSpacingAuto ? '25%' : `${uiConfigStore.config.nightOrderTopSpacing}vh`),
                             zIndex: 1,
                             boxShadow: 'none',
                             '& > *': {
@@ -993,7 +958,7 @@ const ScriptRenderer = observer(({
                             }
                         }}>
                             <NightOrder
-                                title={t('night.other')}
+                                title={t('otherNight')}
                                 actions={script?.othernight || []}
                                 disabled={readOnly || configStore.config.officialIdParseMode}
                                 onReorder={(oldIndex, newIndex) => onNightOrderReorder('other', oldIndex, newIndex)}
@@ -1260,6 +1225,438 @@ const ScriptRenderer = observer(({
                         )}
                     </Box>
                 </Paper>
+            )}
+            {/* PAGE 3 */}
+            {uiConfigStore.config.enableStorytellerNightOrderSheet && (
+            <Paper
+                elevation={16}
+                id="script-preview-3"
+                sx={{
+                    display: "flex",
+                    zIndex: 1,
+                    mt: 5,
+                    mb: 5,
+                    width: "100%",
+                    '@media print': {
+                        mt: 0,
+                        boxShadow: 'none !important',
+                        height: '100vh !important',
+                        minHeight: '100vh !important',
+                    },
+                }}
+            >
+                <Box
+                    sx={{
+                        display: "flex",
+                        width: "100%",
+                        minHeight: '100vh',
+                        justifyContent: "center",
+                        position: 'relative',
+                    }}
+                >
+
+                    {/* Corner flowers */}
+                    {(() => {
+                        const cf = uiConfigStore.cornerFlowers;
+                        const blSrc = cf?.bl || '/imgs/images/sources/flowers/flower3_2.png';
+                        const brSrc = cf?.br || '/imgs/images/sources/flowers/flower4.png';
+                        const trSrc = cf?.tr || '/imgs/images/sources/flowers/flower7.png';
+                        const tlSrc = cf?.tl || '/imgs/images/sources/flowers/flower4_2.png';
+
+                        const blTransform = cf ? 'scaleX(-1)' : 'none';
+                        const tlTransform = cf ? 'scaleX(-1) scaleY(-1)' : 'rotate(180deg)';
+
+                        return (
+                        <>
+                            <CharacterImage
+                                src={blSrc}
+                                alt="左下角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    transform: blTransform,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={brSrc}
+                                alt="右下角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    right: 0,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={trSrc}
+                                alt="右上角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={tlSrc}
+                                alt="左上角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    transform: tlTransform,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/back_tower.png"}
+                                alt={"back_tower"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "0%",
+                                    bottom: "0",
+                                    display: "flex",
+                                    width: "20%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.4,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/back_tower2.png"}
+                                alt={"back_tower2"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "36%",
+                                    bottom: "0%",
+                                    display: "flex",
+                                    width: "50%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.8,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                        </>
+                        );
+                    })()}
+
+                    {/* linker Rand */}
+                    {!isMobile && (
+                        <Box
+                            sx={{
+                                padding: 1.5,
+                                flexShrink: 0,
+                                position: 'relative',
+                                backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                                width: '75px',
+                                boxShadow: 'none',
+                            }}
+                        />
+                    )}
+
+                    {/* Mittlere Seite */}
+                    <Paper
+                        elevation={0}
+                        sx={{
+                            flex: 1,
+                            minHeight: '100vh',
+                            backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
+                            backgroundSize: '100% 100%',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            borderRadius: 0,
+                            position: 'relative',
+                            boxShadow: 'none',
+                        }}
+                    >
+                        
+                        <EditablePageTitle
+                            title={displayedFirstNightTitle}
+                            titleImage={script.storytellerFirstNightTitleImage}
+                            useImage={script.useStorytellerFirstNightTitleImage}
+                            imageSize={script.storytellerFirstNightTitleImageSize}
+                            fontSize={script.storytellerFirstNightTitleFontSize}
+                            readOnly={readOnly}
+                            onEdit={() => onTitleEdit?.('firstNight')}
+                            />
+                        <Box
+                            sx={{
+                                mt: `${uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px`,
+                            }}
+                            >
+                            <StorytellerNightOrderSheet
+                                characters={allCharacters}
+                                mode="firstNight"
+                            />
+                            </Box>
+                        <Box sx={{ pb: '14vh' }}>
+                            <JinxSection key="jinx" script={script} />
+                        </Box>
+                    </Paper>
+
+                    {/* rechter Rand */}
+                    {!isMobile && (
+                        <Box
+                            sx={{
+                                padding: 1.5,
+                                flexShrink: 0,
+                                position: 'relative',
+                                backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                                width: '75px',
+                                boxShadow: 'none',
+                            }}
+                        />
+                    )}
+                </Box>
+            </Paper>
+            )}
+            {/* PAGE 4 */}
+            {uiConfigStore.config.enableStorytellerNightOrderSheet && (
+            <Paper
+                elevation={16}
+                id="script-preview-4"
+                sx={{
+                display: "flex",
+                zIndex: 1,
+                mt: 5,
+                mb: 5,
+                width: "100%",
+                '@media print': {
+                    mt: 0,
+                    boxShadow: 'none !important',
+                    height: '100vh !important',
+                    minHeight: '100vh !important',
+                },
+                }}
+            >
+                <Box
+                sx={{
+                    display: "flex",
+                    width: "100%",
+                    minHeight: "100vh",
+                    justifyContent: "center",
+                    position: "relative",
+                }}
+                >
+
+
+                {/* Corner flowers */}
+                {(() => {
+                    const cf = uiConfigStore.cornerFlowers;
+                    const blSrc = cf?.bl || '/imgs/images/sources/flowers/flower3_2.png';
+                    const brSrc = cf?.br || '/imgs/images/sources/flowers/flower4.png';
+                    const trSrc = cf?.tr || '/imgs/images/sources/flowers/flower7.png';
+                    const tlSrc = cf?.tl || '/imgs/images/sources/flowers/flower4_2.png';
+
+                    const blTransform = cf ? 'scaleX(-1)' : 'none';
+                    const tlTransform = cf ? 'scaleX(-1) scaleY(-1)' : 'rotate(180deg)';
+                    
+
+                    return (
+                        <>
+                            <CharacterImage
+                                src={blSrc}
+                                alt="左下角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    transform: blTransform,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={brSrc}
+                                alt="右下角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    right: 0,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={trSrc}
+                                alt="右上角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={tlSrc}
+                                alt="左上角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    transform: tlTransform,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/back_tower.png"}
+                                alt={"back_tower"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "0%",
+                                    bottom: "0",
+                                    display: "flex",
+                                    width: "20%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.4,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/back_tower2.png"}
+                                alt={"back_tower2"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "36%",
+                                    bottom: "0%",
+                                    display: "flex",
+                                    width: "50%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.8,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                        />
+                        </>
+                        );
+                })()}
+
+                {/* linker Rand */}
+                {!isMobile && (
+                    <Box
+                    sx={{
+                        padding: 1.5,
+                        flexShrink: 0,
+                        position: 'relative',
+                        backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                        width: '75px',
+                        boxShadow: 'none',
+                    }}
+                    />
+                )}
+
+                {/* Mitte */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                    flex: 1,
+                    minHeight: '100vh',
+                    backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
+                    backgroundSize: '100% 100%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    borderRadius: 0,
+                    position: 'relative',
+                    boxShadow: 'none',
+                    }}
+                >
+                    <EditablePageTitle
+                        title = {displayedOtherNightTitle}
+                        titleImage={script.storytellerOtherNightTitleImage}
+                        useImage={script.useStorytellerOtherNightTitleImage}
+                        imageSize={script.storytellerOtherNightTitleImageSize}
+                        fontSize={script.storytellerOtherNightTitleFontSize}
+                        readOnly={readOnly}
+                        onEdit={() => onTitleEdit?.('otherNight')}
+                    />
+                    
+                    <Box
+                        sx={{
+                            mt: `${uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px`,
+                        }}
+                        >
+                        <StorytellerNightOrderSheet
+                            characters={allCharacters}
+                            mode="otherNight"
+                        />
+                    </Box>
+                    <Box sx={{ pb: '14vh' }}>
+                        <JinxSection key="jinx" script={script} />
+                    </Box>
+                </Paper>
+
+                {/* rechter Rand */}
+                {!isMobile && (
+                    <Box
+                    sx={{
+                        padding: 1.5,
+                        flexShrink: 0,
+                        position: 'relative',
+                        backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                        width: '75px',
+                        boxShadow: 'none',
+                    }}
+                    />
+                )}
+                </Box>
+            </Paper>
             )}
         </>
     );

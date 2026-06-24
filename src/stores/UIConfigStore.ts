@@ -29,6 +29,17 @@ export interface UIConfig {
   // Two-page mode
   enableTwoPageMode: boolean;
 
+  // Storyteller night order sheet
+  enableStorytellerNightOrderSheet: boolean;
+  storytellerNightSheet: {
+  iconSize: number,
+  textSize: number,
+  spacing: number,
+  groupGap: number,
+  reminderFontSize: number,
+  titleContentSpacing: number,
+}
+
   // Title area height
   titleHeightMd: number;
 
@@ -120,12 +131,16 @@ export interface UIConfig {
     // Icon-only jinx position (when hideDuplicateJinx is on)
     iconOnlyJinxPosition: 'below-description' | 'next-to-name';
   };
+
 }
 
 const DEFAULT_UI_CONFIG: UIConfig = {
   nightOrderBackground: 'green',
   nightOrderBackgroundMode: 'official',
   customNightOrderBackground: '',
+
+
+
 
   mainBackground: 'classic',
   mainBackgroundMode: 'official',
@@ -134,6 +149,15 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   theme: 'none',
   cornerFlower: 'default',
   enableTwoPageMode: false,
+  enableStorytellerNightOrderSheet: false,
+  storytellerNightSheet: {
+    iconSize: 2,
+    textSize: 1,
+    groupGap: 1,
+    spacing: 1,
+    reminderFontSize: 1,
+    titleContentSpacing: 50,
+  },
 
   titleHeightMd: 100,
 
@@ -224,7 +248,14 @@ class UIConfigStore {
         const parsed = JSON.parse(savedConfig);
         // Do not load customFonts from localStorage, use IndexedDB instead
         const { customFonts, ...restConfig } = parsed;
-        this.config = { ...DEFAULT_UI_CONFIG, ...restConfig };
+        this.config = {
+          ...DEFAULT_UI_CONFIG,
+          ...restConfig,
+          storytellerNightSheet: {
+            ...DEFAULT_UI_CONFIG.storytellerNightSheet,
+            ...(restConfig.storytellerNightSheet || {}),
+          },
+        };
 
         // If localStorage has old font data, migrate to IndexedDB
         if (customFonts && Array.isArray(customFonts) && customFonts.length > 0) {
@@ -285,6 +316,13 @@ class UIConfigStore {
   // Update font config
   updateFontConfig(updates: Partial<UIConfig['fonts']>) {
     this.config.fonts = { ...this.config.fonts, ...updates };
+    this.saveConfig();
+  }
+  updateStorytellerNightSheetConfig(updates: Partial<UIConfig['storytellerNightSheet']>) {
+    this.config.storytellerNightSheet = {
+      ...this.config.storytellerNightSheet,
+      ...updates,
+    };
     this.saveConfig();
   }
 
