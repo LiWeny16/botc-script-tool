@@ -469,6 +469,19 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
       return;
     }
     if (!currentJson || !hasScript) return;
+
+    // Validate JSON is a valid array before saving to cloud
+    try {
+      const parsed = JSON.parse(currentJson);
+      if (!Array.isArray(parsed)) {
+        alertError(t('input.errorJsonMustBeArray'));
+        return;
+      }
+    } catch {
+      alertError(t('input.errorInvalidJson'));
+      return;
+    }
+
     setCloudSaving(true);
     const title = titleInput || scriptStore.script?.title || 'Untitled';
     const result = await saveScript(title, currentJson);

@@ -323,8 +323,11 @@ const App = observer(() => {
 
       if (jsonToSave) {
         try {
-          // Validate JSON format
-          JSON.parse(jsonToSave);
+          // Validate JSON format — must be a valid array
+          const parsed = JSON.parse(jsonToSave);
+          if (!Array.isArray(parsed)) {
+            throw new Error('JSON top-level must be an array');
+          }
 
           // Save to localStorage
           const stored = localStorage.getItem('botc-script-data');
