@@ -53,7 +53,6 @@ export function buildCoreCanonicalBases(): CanonicalCharacterBase[] {
     // ZH_CORE is a legacy bundle; entries are not guaranteed to satisfy the full Character type
     const zhChar = (ZH_CORE_CHARACTERS as unknown as Record<string, Character | undefined>)[cnId];
     const esRow = spanishOverrides.get(id);
-
     return {
       id,
       team: role.team as string,
@@ -115,11 +114,13 @@ export function getMergedCharacterDictionary(language: Language): Record<string,
 export const CHARACTERS = getMergedCharacterDictionary('cn');
 export const CHARACTERS_EN = getMergedCharacterDictionary('en');
 export const CHARACTERS_ES = getMergedCharacterDictionary('es');
+export const CHARACTERS_DE = CHARACTERS_EN;
 
 const CHARACTER_DICTIONARIES: Record<Language, Record<string, Character>> = {
   'cn': CHARACTERS,
   en: CHARACTERS_EN,
   es: CHARACTERS_ES,
+  de: CHARACTERS_DE,
 };
 
 /** Get the full character table (including expansions) by UI language; equivalent to {@link getMergedCharacterDictionary} */

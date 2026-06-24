@@ -64,12 +64,14 @@ const JINX_BY_LANG: Record<Language, Record<string, Record<string, string>>> = {
   'cn': jinxZh,
   en: jinxEn,
   es: jinxEs,
+  de: jinxEn,
 };
 
 const JINX_LEGACY_BY_LANG: Record<Language, Record<string, Record<string, string>>> = {
   'cn': jinxZhLegacy,
   en: jinxEnLegacy,
   es: jinxEsLegacy,
+  de: jinxEnLegacy,
 };
 
 export function getJinxDictionary(language: Language): Record<string, Record<string, string>> {
