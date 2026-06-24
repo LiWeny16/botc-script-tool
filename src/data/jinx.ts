@@ -15,6 +15,7 @@ import { toZhCanonicalCharacterId } from './utils/characterIdMapping';
 import jinxZhData from './sources/jinxZh.json';
 import jinxEnData from './sources/jinxEn.json';
 import jinxEsData from './sources/jinxEs.json';
+import jinxDeData from './sources/jinxDe.json';
 
 export interface JinxSourceEntry {
   id: string;
@@ -55,23 +56,25 @@ export function parseJinxSourceLegacy(data: JinxSourceEntry[]): Record<string, R
 const jinxZh = parseJinxSource(jinxZhData as JinxSourceEntry[]);
 const jinxEn = parseJinxSource(jinxEnData as JinxSourceEntry[]);
 const jinxEs = parseJinxSource(jinxEsData as JinxSourceEntry[]);
+const jinxDe = parseJinxSource(jinxDeData as JinxSourceEntry[]);
 
 const jinxZhLegacy = parseJinxSourceLegacy(jinxZhData as JinxSourceEntry[]);
 const jinxEnLegacy = parseJinxSourceLegacy(jinxEnData as JinxSourceEntry[]);
 const jinxEsLegacy = parseJinxSourceLegacy(jinxEsData as JinxSourceEntry[]);
+const jinxDeLegacy = parseJinxSourceLegacy(jinxDeData as JinxSourceEntry[]);
 
 const JINX_BY_LANG: Record<Language, Record<string, Record<string, string>>> = {
   'cn': jinxZh,
   en: jinxEn,
   es: jinxEs,
-  de: jinxEn,
+  de: jinxDe,
 };
 
 const JINX_LEGACY_BY_LANG: Record<Language, Record<string, Record<string, string>>> = {
   'cn': jinxZhLegacy,
   en: jinxEnLegacy,
   es: jinxEsLegacy,
-  de: jinxEnLegacy,
+  de: jinxDeLegacy,
 };
 
 export function getJinxDictionary(language: Language): Record<string, Record<string, string>> {
