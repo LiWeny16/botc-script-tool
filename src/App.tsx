@@ -258,6 +258,9 @@ const App = observer(() => {
   // Get state from MobX store
   const { script, originalJson, normalizedJson, customTitle, customAuthor } = scriptStore;
 
+  // Prevent re-generating with the same (json, language) in the same render cycle
+  const lastRegenerateKeyRef = useRef<string>('');
+
   // Initialize and load data
   useEffect(() => {
 
@@ -414,21 +417,26 @@ const App = observer(() => {
 
   // Listen for language changes, regenerate script
   useEffect(() => {
-    if (originalJson && isInitialized) {
-      try {
-        const generatedScript = generateScript(originalJson, language);
+    if (!originalJson || !isInitialized) return;
 
-        // Restore custom title and author
-        if (customTitle) generatedScript.title = customTitle;
-        if (customAuthor) generatedScript.author = customAuthor;
+    // Skip if this (json, language) combo was already processed (avoids double-generation on mount)
+    const regenKey = `${originalJson}|${language}`;
+    if (regenKey === lastRegenerateKeyRef.current) return;
+    lastRegenerateKeyRef.current = regenKey;
 
-        scriptStore.setScript(generatedScript); // setScript automatically generates normalizedJson
-      } catch (error) {
-        console.error('Failed to regenerate script on language switch:', error);
-        // Set error message
-        const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
-        setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
-      }
+    try {
+      const generatedScript = generateScript(originalJson, language);
+
+      // Restore custom title and author
+      if (customTitle) generatedScript.title = customTitle;
+      if (customAuthor) generatedScript.author = customAuthor;
+
+      scriptStore.setScript(generatedScript); // setScript automatically generates normalizedJson
+    } catch (error) {
+      console.error('Failed to regenerate script on language switch:', error);
+      // Set error message
+      const errorMessage = error instanceof Error ? error.message : t('input.errorParse');
+      setJsonParseError(`${t('input.errorParse')}: ${errorMessage}`);
     }
   }, [language, originalJson, customTitle, customAuthor, isInitialized]);
 

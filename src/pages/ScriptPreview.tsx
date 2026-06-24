@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Box,
@@ -58,6 +58,8 @@ const ScriptPreview = observer(() => {
   const [loading, setLoading] = useState<boolean>(true);
   const [originalJson, setOriginalJson] = useState<string>('');
   const [sharedName, setSharedName] = useState<string>('');
+  const tRef = useRef(t);
+  tRef.current = t;
 
   const isShared = Boolean(shareId);
 
@@ -86,7 +88,7 @@ const ScriptPreview = observer(() => {
           setScript(generateScript(result.json, language));
           trackPreviewScript({ scriptName: result.name });
         } catch (err) {
-          setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
+          setError(`${tRef.current('error.loadFailed')}：${err instanceof Error ? err.message : tRef.current('error.unknownError')}`);
         } finally {
           setLoading(false);
         }
@@ -115,7 +117,7 @@ const ScriptPreview = observer(() => {
           setScript(generateScript(jsonString, language));
           trackPreviewScript({ scriptName: scriptName || 'shared' });
         } catch (err) {
-          setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
+          setError(`${tRef.current('error.loadFailed')}：${err instanceof Error ? err.message : tRef.current('error.unknownError')}`);
         } finally {
           setLoading(false);
         }
@@ -124,7 +126,7 @@ const ScriptPreview = observer(() => {
 
       // 3) Legacy: script name lookup
       if (!scriptName) {
-        setError(t('error.noScriptName'));
+        setError(tRef.current('error.noScriptName'));
         setLoading(false);
         return;
       }
@@ -132,7 +134,7 @@ const ScriptPreview = observer(() => {
       const decodedName = decodeURIComponent(scriptName);
       const jsonUrl = getScriptJsonUrl(decodedName);
       if (!jsonUrl) {
-        setError(`${t('error.scriptNotFound')}：${decodedName}`);
+        setError(`${tRef.current('error.scriptNotFound')}：${decodedName}`);
         setLoading(false);
         return;
       }
@@ -143,14 +145,14 @@ const ScriptPreview = observer(() => {
         setScript(generateScript(jsonString, language));
         trackPreviewScript({ scriptName: decodedName });
       } catch (err) {
-        setError(`${t('error.loadFailed')}：${err instanceof Error ? err.message : t('error.unknownError')}`);
+        setError(`${tRef.current('error.loadFailed')}：${err instanceof Error ? err.message : tRef.current('error.unknownError')}`);
       } finally {
         setLoading(false);
       }
     };
 
     loadScript();
-  }, [scriptName, shareId, searchParams, language, t]);
+  }, [scriptName, shareId, searchParams]);
 
   // Regenerate on language change
   useEffect(() => {

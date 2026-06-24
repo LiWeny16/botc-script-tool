@@ -482,6 +482,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
   const handleCloudLoad = (json: string, _name: string) => {
     onJsonChange?.(json);
+    onGenerate(json);
   };
 
   // 拖动调整大小的处理函数
