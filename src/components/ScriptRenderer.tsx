@@ -420,11 +420,11 @@ const ScriptRenderer = observer(({
                     </>})()}
 
                     {/* 美术设计盒子 - 仅在非只读模式下显示 */}
-                    {!readOnly && (
+                    {!readOnly && uiConfigStore.config.avatarIcon.enableDesignerBadge && (
                         <Box sx={{
                             position: 'absolute',
-                            top: { xs: 12, sm: 16, md: 95 },
-                            left: { xs: 12, sm: 16, md: 140 },
+                            top: { xs: 12, sm: 16, md: uiConfigStore.config.avatarIcon.designerPosY },
+                            left: { xs: 12, sm: 16, md: uiConfigStore.config.avatarIcon.designerPosX },
                             zIndex: 5,
                             display: 'flex',
                             flexDirection: 'column',
@@ -433,7 +433,7 @@ const ScriptRenderer = observer(({
                         }}>
                             <Box
                                 component="img"
-                                src="/imgs/icons/fabled/onion.webp"
+                                src={uiConfigStore.config.avatarIcon.designerAvatarUrl}
                                 alt="Onion Avatar"
                                 sx={{
                                     width: { xs: 50, sm: 60, md: 70 },
@@ -461,7 +461,7 @@ const ScriptRenderer = observer(({
                                     textAlign: 'center',
                                     whiteSpace: 'nowrap',
                                 }}>
-                                    {t('credits.designTitle')}: {t('credits.designers')}
+                                    {t('credits.designTitle')}: {uiConfigStore.config.avatarIcon.designerName || t('credits.designers')}
                                 </Typography>
                             </Box>
                         </Box>
