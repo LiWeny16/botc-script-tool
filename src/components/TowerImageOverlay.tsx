@@ -7,6 +7,7 @@ interface TowerImageOverlayProps {
   image: TowerImage;
   onUpdate: (id: string, partial: Partial<TowerImage>) => void;
   onDelete: (id: string) => void;
+  onDoubleClick?: () => void;
   containerRef: React.RefObject<HTMLElement>;
 }
 
@@ -14,6 +15,7 @@ export default function TowerImageOverlay({
   image,
   onUpdate,
   onDelete,
+  onDoubleClick,
   containerRef,
 }: TowerImageOverlayProps) {
   const [isHovered, setIsHovered] = useState(false);
@@ -171,6 +173,7 @@ export default function TowerImageOverlay({
       ref={imgRef}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onDoubleClick={onDoubleClick}
       sx={containerSx}
     >
       <Box
