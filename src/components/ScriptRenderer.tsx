@@ -1007,6 +1007,7 @@ const ScriptRenderer = observer(({
                                   image={img}
                                   onUpdate={(id, partial) => uiConfigStore.updateTowerImage(id, partial)}
                                   onDelete={(id) => uiConfigStore.removeTowerImage(id)}
+                                  onDoubleClick={onOpenTowerImageDialog}
                                   containerRef={page2ContainerRef}
                                 />
                               ))
@@ -1274,6 +1275,7 @@ const ScriptRenderer = observer(({
                                   image={img}
                                   onUpdate={(id, partial) => uiConfigStore.updateTowerImage(id, partial)}
                                   onDelete={(id) => uiConfigStore.removeTowerImage(id)}
+                                  onDoubleClick={onOpenTowerImageDialog}
                                   containerRef={page3ContainerRef}
                                 />
                               ))
