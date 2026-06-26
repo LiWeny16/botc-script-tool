@@ -1,8 +1,10 @@
 import React from 'react';
+import { Box } from '@mui/material';
 import type { Character } from '../types';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
+import { getTeamColor } from '../theme/colors';
 
 interface Props {
   characters: Character[];
@@ -62,7 +64,7 @@ export default observer(function StorytellerNightOrderSheet({
   );
 
   return (
-    <div 
+    <div
       className="storyteller-nightorder-sheet"
       style={{
         paddingLeft: '20px',
@@ -76,10 +78,23 @@ export default observer(function StorytellerNightOrderSheet({
             paddingLeft: '20px',
             fontSize: '3rem',
             marginTop: '0px',
+            marginBottom: '0.3rem',
           }}
         >
           {title}
         </h1>
+
+        <Box
+          component="hr"
+          sx={{
+            border: 'none',
+            borderTop: '2px solid',
+            borderColor: 'divider',
+            mx: '20px',
+            mb: '1.5rem',
+            opacity: 0.6,
+          }}
+        />
 
         {groups.map(([order, characters]) => (
           <div key={order} className="storyteller-nightorder-group">
@@ -92,6 +107,8 @@ export default observer(function StorytellerNightOrderSheet({
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: '12px',
+                  paddingLeft: '20px',
+                  marginBottom: '0.5rem',
                 }}
               >
                 <img
@@ -115,15 +132,26 @@ export default observer(function StorytellerNightOrderSheet({
                     justifyContent: 'center',
                   }}
                 >
-                  <div className="storyteller-nightorder-name"
-                  style={{
-                    fontWeight: 'bold',
-                  }}
+                  <div
+                    className="storyteller-nightorder-name"
+                    style={{
+                      fontWeight: 'bold',
+                      fontFamily: uiConfigStore.config.fonts.characterName,
+                      color: getTeamColor(character.team, character.teamColor),
+                      fontSize: config.textSize > 0 ? `${config.textSize}rem` : '1rem',
+                      marginBottom: '0.15rem',
+                    }}
                   >
                     {character.name}
                   </div>
 
-                  <div className="storyteller-nightorder-text">
+                  <div
+                    className="storyteller-nightorder-text"
+                    style={{
+                      fontFamily: uiConfigStore.config.fonts.characterAbility,
+                      fontSize: config.textSize > 0 ? `${config.textSize * 0.85}rem` : '0.85rem',
+                    }}
+                  >
                     {character[reminderField]}
                   </div>
                 </div>

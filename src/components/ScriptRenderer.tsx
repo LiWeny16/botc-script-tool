@@ -1333,6 +1333,25 @@ const ScriptRenderer = observer(({
                                     WebkitUserDrag: 'none',
                                 }}
                             />
+                            {uiConfigStore.config.theme === 'sakura' ? (
+                              <CharacterImage
+                                component="img"
+                                src="/imgs/images/background/back_cherry.jpg"
+                                alt="back_cherry"
+                                sx={{
+                                  position: "absolute",
+                                  left: "0%",
+                                  bottom: "0",
+                                  width: "100%",
+                                  zIndex: backgroundIndex,
+                                  opacity: 0.5,
+                                  userSelect: 'none',
+                                  WebkitUserDrag: 'none',
+                                  pointerEvents: 'none',
+                                }}
+                              />
+                            ) : (
+                              <>
                             <CharacterImage
                                 component="img"
                                 src={"/imgs/images/background/back_tower.png"}
@@ -1367,6 +1386,8 @@ const ScriptRenderer = observer(({
                                     pointerEvents: 'none',
                                 }}
                             />
+                              </>
+                            )}
                         </>
                         );
                     })()}
@@ -1420,7 +1441,7 @@ const ScriptRenderer = observer(({
                                 mode="firstNight"
                             />
                             </Box>
-                        <Box sx={{ pb: '14vh' }}>
+                        <Box sx={{ pt: '2rem', pb: '4vh', px: '20px' }}>
                             <JinxSection key="jinx" script={script} />
                         </Box>
                     </Paper>
@@ -1550,6 +1571,25 @@ const ScriptRenderer = observer(({
                                     WebkitUserDrag: 'none',
                                 }}
                             />
+                            {uiConfigStore.config.theme === 'sakura' ? (
+                              <CharacterImage
+                                component="img"
+                                src="/imgs/images/background/back_cherry.jpg"
+                                alt="back_cherry"
+                                sx={{
+                                  position: "absolute",
+                                  left: "0%",
+                                  bottom: "0",
+                                  width: "100%",
+                                  zIndex: backgroundIndex,
+                                  opacity: 0.5,
+                                  userSelect: 'none',
+                                  WebkitUserDrag: 'none',
+                                  pointerEvents: 'none',
+                                }}
+                              />
+                            ) : (
+                              <>
                             <CharacterImage
                                 component="img"
                                 src={"/imgs/images/background/back_tower.png"}
@@ -1583,7 +1623,9 @@ const ScriptRenderer = observer(({
                                     WebkitUserDrag: 'none',
                                     pointerEvents: 'none',
                                 }}
-                        />
+                            />
+                              </>
+                            )}
                         </>
                         );
                 })()}
