@@ -103,3 +103,24 @@ export function execUndoableReplace(
 export function stripHtmlTags(text: string): string {
   return text.replace(/<\/?[^>\n]+>/g, '');
 }
+
+/**
+ * Recursively strip HTML tags from all string values in a JSON-serializable structure.
+ * Arrays and objects are traversed; strings are cleaned; all other primitives pass through.
+ */
+export function deepStripHtml<T>(value: T): T {
+  if (typeof value === 'string') {
+    return stripHtmlTags(value) as unknown as T;
+  }
+  if (Array.isArray(value)) {
+    return value.map(deepStripHtml) as unknown as T;
+  }
+  if (typeof value === 'object' && value !== null) {
+    const result: Record<string, unknown> = {};
+    for (const key of Object.keys(value as object)) {
+      result[key] = deepStripHtml((value as Record<string, unknown>)[key]);
+    }
+    return result as unknown as T;
+  }
+  return value;
+}
