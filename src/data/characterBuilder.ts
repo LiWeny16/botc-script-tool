@@ -79,6 +79,7 @@ function mergeLocale(
 
 /**
  * Resolve the final text using the fallback chain:
+ *   de  → en → zh-CN
  *   es  → en → zh-CN
  *   en  → zh-CN
  *   zh-CN → en (when zh is undefined)
@@ -87,6 +88,10 @@ export function resolveLocale(
   locales: Partial<Record<Language, Partial<CharacterLocale>>>,
   language: Language,
 ): CharacterLocale {
+  if (language === 'de') {
+    const enFilled = mergeLocale(locales['en'], locales['cn']);
+    return mergeLocale(locales['de'], enFilled);
+  }
   if (language === 'es') {
     const enFilled = mergeLocale(locales['en'], locales['cn']);
     return mergeLocale(locales['es'], enFilled);

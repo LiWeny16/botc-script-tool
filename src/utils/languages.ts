@@ -1,4 +1,4 @@
-export const SUPPORTED_LANGUAGES = ['cn', 'en', 'es'] as const;
+export const SUPPORTED_LANGUAGES = ['cn', 'en', 'es', 'de'] as const;
 
 export type Language = (typeof SUPPORTED_LANGUAGES)[number];
 
@@ -8,12 +8,14 @@ export const LANGUAGE_LABELS: Record<Language, string> = {
   cn: 'Simplified Chinese',
   en: 'English',
   es: 'Español',
+  de: 'Deutsch',
 };
 
 export const LANGUAGE_SHORT_LABELS: Record<Language, string> = {
   cn: 'Chinese',
   en: 'English',
   es: 'Español',
+  de: 'Deutsch',
 };
 
 // Internal language code → BCP 47 standard code (for HTML lang attribute)
@@ -21,6 +23,7 @@ export const LANG_TO_BCP47: Record<Language, string> = {
   cn: 'zh-CN',
   en: 'en',
   es: 'es',
+  de: 'de',
 };
 
 export function isSupportedLanguage(value: string | null | undefined): value is Language {
