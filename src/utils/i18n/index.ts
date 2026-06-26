@@ -3,10 +3,10 @@ import type { Language } from '../languages';
 import { cn as cnCommon, en as enCommon, es as esCommon } from './common';
 import { cn as cnApp, en as enApp, es as esApp } from './app';
 import { cn as cnInput, en as enInput, es as esInput, de as deInput } from './input';
-import { cn as cnScript, en as enScript, es as esScript } from './script';
+import { cn as cnScript, en as enScript, es as esScript, de as deScript } from './script';
 import { cn as cnRepo, en as enRepo, es as esRepo } from './repo';
 import { cn as cnAbout, en as enAbout, es as esAbout } from './about';
-import { cn as cnCharacter, en as enCharacter, es as esCharacter, de as deCharackter } from './character';
+import { cn as cnCharacter, en as enCharacter, es as esCharacter, de as deCharacter } from './character';
 import { cn as cnUi, en as enUi, es as esUi, de as deUi } from './ui';
 import { cn as cnSecondPage, en as enSecondPage, es as esSecondPage } from './secondPage';
 import { cn as cnImageGen, en as enImageGen, es as esImageGen } from './imageGen';
@@ -63,14 +63,9 @@ export type TranslationKey = keyof typeof cn;
 const de = {
   ...en,
   ...deInput,
-  ...deCharackter,
+  ...deScript,
+  ...deCharacter,
   ...deUi,
-  'team.good': 'Gut',
-  'team.evil': 'Böse',
-  'team.townsfolk': 'Dorfbewohner',
-  'team.outsider': 'Außenseiter',
-  'team.minion': 'Minion',
-  'team.demon': 'Dämon',
 };
 
 export const translations: Record<Language, Partial<Record<TranslationKey, string>>> = {

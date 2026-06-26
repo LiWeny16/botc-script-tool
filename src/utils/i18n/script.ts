@@ -123,3 +123,12 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'share.compressedDescription': 'Utiliza un formato simplificado que solo incluye ID de personajes, URL más corta',
   'share.copyLink': 'Copiar enlace',
 };
+
+export const de: Partial<Record<keyof typeof cn, string>> = {
+  'team.good': 'Gut',
+  'team.evil': 'Böse',
+  'team.townsfolk': 'Dorfbewohner',
+  'team.outsider': 'Außenseiter',
+  'team.minion': 'Minion',
+  'team.demon': 'Dämon',
+};
