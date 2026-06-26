@@ -170,7 +170,7 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   theme: 'none',
   cornerFlower: 'default',
   enableTwoPageMode: false,
-  enableStorytellerNightOrderSheet: false,
+  enableStorytellerNightOrderSheet: true,
   storytellerNightSheet: {
     iconSize: 1.6,
     textSize: 1.02,

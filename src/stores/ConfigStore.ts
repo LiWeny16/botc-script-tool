@@ -13,7 +13,7 @@ export interface AppConfig {
 const DEFAULT_CONFIG: AppConfig = {
   language: DEFAULT_LANGUAGE,
   officialIdParseMode: false, // Official ID parse mode is disabled by default
-  hideDuplicateJinx: false, // Show jinx on both cards by default
+  hideDuplicateJinx: true, // Hide duplicate jinx by default
   jinxVersion: {}, // All modern by default (only legacy entries stored)
 };
 
