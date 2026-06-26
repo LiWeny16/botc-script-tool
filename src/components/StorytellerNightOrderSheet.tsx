@@ -1,10 +1,10 @@
 import React from 'react';
-import { Box } from '@mui/material';
+import { Box, Typography, Divider } from '@mui/material';
 import type { Character } from '../types';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
-import { getTeamColor } from '../theme/colors';
+import { getTeamColor, THEME_COLORS } from '../theme/colors';
 
 interface Props {
   characters: Character[];
@@ -52,10 +52,10 @@ export default observer(function StorytellerNightOrderSheet({
       ? 'firstNightReminder'
       : 'otherNightReminder';
 
-  const title =
+  const sectionLabel =
     mode === 'firstNight'
-      ? t('firstNight')
-      : t('otherNight');
+      ? t('firstNightReminder')
+      : t('otherNightReminder');
 
   const groups = groupByNightOrder(
     characters,
@@ -71,31 +71,44 @@ export default observer(function StorytellerNightOrderSheet({
         paddingRight: '20px',
       }}
     >
-      <section>
-        <h1
-          style={{
-            fontFamily: uiConfigStore.config.fonts.teamDivider,
-            paddingLeft: '20px',
-            fontSize: '3rem',
-            marginTop: '0px',
-            marginBottom: '0.3rem',
-          }}
-        >
-          {title}
-        </h1>
-
-        <Box
-          component="hr"
+      {/* Section label with divider — matches Jinx Rules style */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          mx: '20px',
+          mb: '1.2rem',
+        }}
+      >
+        <Divider
           sx={{
-            border: 'none',
-            borderTop: '2px solid',
-            borderColor: 'divider',
-            mx: '20px',
-            mb: '1.5rem',
-            opacity: 0.6,
+            flex: 1,
+            borderColor: THEME_COLORS.paper,
+            borderWidth: 1,
           }}
         />
+        <Typography
+          sx={{
+            fontFamily: uiConfigStore.config.fonts.teamDivider,
+            fontWeight: 'bold',
+            color: THEME_COLORS.paper.primary,
+            textAlign: 'center',
+            fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
+            px: 2,
+          }}
+        >
+          {sectionLabel}
+        </Typography>
+        <Divider
+          sx={{
+            flex: 1,
+            borderColor: THEME_COLORS.paper,
+            borderWidth: 1,
+          }}
+        />
+      </Box>
 
+      <section>
         {groups.map(([order, characters]) => (
           <div key={order} className="storyteller-nightorder-group">
             {characters.map((character) => (

@@ -1679,7 +1679,7 @@ const ScriptRenderer = observer(({
                             mode="otherNight"
                         />
                     </Box>
-                    <Box sx={{ pb: '14vh' }}>
+                    <Box sx={{ pt: '2rem', pb: '4vh', px: '20px' }}>
                         <JinxSection key="jinx" script={script} />
                     </Box>
                 </Paper>
@@ -1687,14 +1687,14 @@ const ScriptRenderer = observer(({
                 {/* rechter Rand */}
                 {!isMobile && (
                     <Box
-                    sx={{
-                        padding: 1.5,
-                        flexShrink: 0,
-                        position: 'relative',
-                        backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                        width: '75px',
-                        boxShadow: 'none',
-                    }}
+                        sx={{
+                            padding: 1.5,
+                            flexShrink: 0,
+                            position: 'relative',
+                            backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                            width: '75px',
+                            boxShadow: 'none',
+                        }}
                     />
                 )}
                 </Box>
