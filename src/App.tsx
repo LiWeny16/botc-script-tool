@@ -45,6 +45,7 @@ import { getSpecialRuleTemplate } from './data/utils/specialRules';
 import { deepStripHtml } from './utils/richTextEditorUtils';
 import { getAllCharacterDictionaries, getCharacterDictionary, getCharacterInDictionary } from './data';
 import UISettingsDrawer from './components/UISettingsDrawer';
+import TowerImageDialog from './components/TowerImageDialog';
 import AboutDialog from './components/AboutDialog';
 import {
   GlobalStyles,
@@ -289,6 +290,7 @@ const App = observer(() => {
   const [exportImageDialogOpen, setExportImageDialogOpen] = useState<boolean>(false); // Export image hint dialog
   const [unlockModeDialogOpen, setUnlockModeDialogOpen] = useState<boolean>(false); // Unlock mode dialog
   const [pendingEditCharacter, setPendingEditCharacter] = useState<Character | null>(null); // Pending character to edit
+  const [towerImageDialogOpen, setTowerImageDialogOpen] = useState<boolean>(false);
 
   // Get state from MobX store
   const { script, originalJson, normalizedJson, customTitle, customAuthor } = scriptStore;
@@ -542,6 +544,8 @@ const App = observer(() => {
   const handleCloseAboutDialog = useCallback(() => setAboutDialogOpen(false), []);
   const handleCloseCustomJinx = useCallback(() => setCustomJinxDialogOpen(false), []);
   const handleClosePrintDialog = useCallback(() => setPrintDialogOpen(false), []);
+  const handleOpenTowerImageDialog = useCallback(() => setTowerImageDialogOpen(true), []);
+  const handleCloseTowerImageDialog = useCallback(() => setTowerImageDialogOpen(false), []);
 
   // Handle adding character to script
   const handleAddCharacter = (character: Character) => {
@@ -1158,6 +1162,7 @@ const App = observer(() => {
                 onSpecialRuleEdit={handleSpecialRuleEdit}
                 onSpecialRuleDelete={(rule) => scriptStore.removeSpecialRule(rule)}
                 onNightOrderReorder={handleNightOrderReorder}
+                onOpenTowerImageDialog={handleOpenTowerImageDialog}
               />
             </ScriptRendererErrorBoundary>
           )}
@@ -1236,8 +1241,14 @@ const App = observer(() => {
           key="ui-settings"
           open={uiSettingsOpen}
           onClose={handleCloseUISettings}
+          onOpenTowerImageDialog={handleOpenTowerImageDialog}
         />
       )}
+
+      <TowerImageDialog
+        open={towerImageDialogOpen}
+        onClose={handleCloseTowerImageDialog}
+      />
 
       {titleEditState.open && (
         <TitleEditDialog

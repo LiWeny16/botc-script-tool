@@ -32,6 +32,7 @@ import {
   Lock as LockIcon,
   Search as SearchIcon,
   FontDownload as FontDownloadIcon,
+  Add as AddIcon,
 } from '@mui/icons-material';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { useTranslation } from '../utils/i18n';
@@ -40,6 +41,7 @@ import FontUploader from './FontUploader';
 interface UISettingsDrawerProps {
   open: boolean;
   onClose: () => void;
+  onOpenTowerImageDialog?: () => void;
 }
 
 // 配置项分类
@@ -49,7 +51,7 @@ interface SettingCategory {
   keywords: string[]; // 用于搜索的关键词（中英文）
 }
 
-const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => {
+const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UISettingsDrawerProps) => {
   const { t } = useTranslation();
   const [isPinned, setIsPinned] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,6 +59,13 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
 
   // 定义配置分类及其关键词（中英文）
   const categories: SettingCategory[] = [
+    {
+      id: 'towerImages',
+      title: 'Tower Images',
+      keywords: [
+        'tower', 'image', 'background', 'decoration', 'upload', 'opacity', 'scale', 'position',
+      ],
+    },
     {
       id: 'backgroundSettings',
       title: t('ui.category.backgroundSettings'),
@@ -540,6 +549,27 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     </RadioGroup>
                   </FormControl>
                 </Stack>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
+            {/* Tower Images */}
+            {filteredCategories.find(c => c.id === 'towerImages')?.show && (
+            <Accordion defaultExpanded={false}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                  Tower Images
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Button
+                  variant="outlined"
+                  fullWidth
+                  startIcon={<AddIcon />}
+                  onClick={onOpenTowerImageDialog}
+                >
+                  Manage Tower Images
+                </Button>
               </AccordionDetails>
             </Accordion>
             )}

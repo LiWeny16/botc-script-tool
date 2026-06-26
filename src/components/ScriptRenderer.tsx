@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { Box, Paper, Typography, IconButton, useMediaQuery } from '@mui/material';
-import { Edit as EditIcon } from '@mui/icons-material';
+import { Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import type { Script, Character, SecondPageComponentType } from '../types';
 import CharacterSection from './CharacterSection';
@@ -9,6 +9,7 @@ import SpecialRulesSection from './SpecialRulesSection';
 import StateRulesSection from './StateRulesSection';
 import JinxSection from './JinxSection';
 import CharacterImage from './CharacterImage';
+import TowerImageOverlay from './TowerImageOverlay';
 import { SecondPageTitle } from './SecondPageTitle';
 import { PlayerCountTable } from './PlayerCountTable';
 import { SecondPageAddButton } from './SecondPageAddButton';
@@ -57,6 +58,7 @@ export interface ScriptRendererProps {
     onSpecialRuleEdit?: (rule: any) => void;
     onSpecialRuleDelete?: (rule: any) => void;
     onNightOrderReorder?: (nightType: 'first' | 'other', oldIndex: number, newIndex: number) => void;
+    onOpenTowerImageDialog?: () => void;
 
 }
 
@@ -80,12 +82,14 @@ const ScriptRenderer = observer(({
     onSpecialRuleEdit = () => { },
     onSpecialRuleDelete = () => { },
     onNightOrderReorder = () => { },
-    
+    onOpenTowerImageDialog,
 
 }: ScriptRendererProps) => {
     const COMPACT_SCALE = compact ? 0.47 : 1;
     const { t, language } = useTranslation();
     const scriptRef = useRef<HTMLDivElement>(null);
+    const page2ContainerRef = useRef<HTMLDivElement>(null);
+    const page3ContainerRef = useRef<HTMLDivElement>(null);
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [titleHovered, setTitleHovered] = useState<boolean>(false);
 
@@ -346,18 +350,10 @@ const ScriptRenderer = observer(({
         textShadow: '0 1px 0 rgba(255, 255, 255, 0.45)',
         cursor: readOnly ? 'default' : 'pointer',
     };
-    const storytellerPageBackgroundImage = uiConfigStore.config.theme === 'sakura'
-        ? `url(${uiConfigStore.mainBackgroundUrl})`
-        : `url(/imgs/images/background/back_tower.png), url(/imgs/images/background/back_tower2.png), url(${uiConfigStore.mainBackgroundUrl})`;
-    const storytellerPageBackgroundSize = uiConfigStore.config.theme === 'sakura'
-        ? '100% 100%'
-        : '18% auto, 42% auto, 100% 100%';
-    const storytellerPageBackgroundPosition = uiConfigStore.config.theme === 'sakura'
-        ? 'center'
-        : 'left bottom, 58% bottom, center';
-    const storytellerPageBackgroundRepeat = uiConfigStore.config.theme === 'sakura'
-        ? 'no-repeat'
-        : 'no-repeat, no-repeat, no-repeat';
+    const storytellerPageBackgroundImage = `url(${uiConfigStore.mainBackgroundUrl})`;
+    const storytellerPageBackgroundSize = `100% 100%`;
+    const storytellerPageBackgroundPosition = `center`;
+    const storytellerPageBackgroundRepeat = `no-repeat`;
     const storytellerNightPageSx = {
         flex: 1,
         minHeight: '100vh',
@@ -559,6 +555,7 @@ const ScriptRenderer = observer(({
                     {/* 中间 - 主要内容区域 */}
                     <Paper
                         id="main_script"
+                        ref={page2ContainerRef}
                         elevation={0}
                         sx={{
                             pt: compact ? 0 : 2,
@@ -984,61 +981,55 @@ const ScriptRenderer = observer(({
                             </Paper>
                         )}
 
-                        {/* 背景装饰（紧凑模式隐藏） */}
-                        {!compact && <>
-                        {uiConfigStore.config.theme === 'sakura' ? (
-                          <CharacterImage
-                            component="img"
-                            src="/imgs/images/background/back_cherry.jpg"
-                            alt="back_cherry"
-                            sx={{
-                              position: "absolute",
-                              left: "0%",
-                              bottom: "0",
-                              width: "100%",
-                              zIndex: backgroundIndex,
-                              opacity: 0.5,
-                              userSelect: 'none',
-                              WebkitUserDrag: 'none',
-                            }}
-                          />
-                        ) : (
+                        {/* Background decoration - Tower Image Overlays */}
+                        {!compact && (
                           <>
-                        <CharacterImage
-                            component="img"
-                            src={"/imgs/images/background/back_tower.png"}
-                            alt={"back_tower"}
-                            sx={{
-                                position: "absolute",
-                                left: "0%",
-                                bottom: "0",
-                                display: "flex",
-                                width: "20%",
-                                zIndex: backgroundIndex,
-                                opacity: 0.4,
-                                userSelect: 'none',
-                                WebkitUserDrag: 'none',
-                            }}
-                        />
-                        <CharacterImage
-                            component="img"
-                            src={"/imgs/images/background/back_tower2.png"}
-                            alt={"back_tower2"}
-                            sx={{
-                                position: "absolute",
-                                left: "36%",
-                                bottom: "0%",
-                                display: "flex",
-                                width: "50%",
-                                zIndex: backgroundIndex,
-                                opacity: 0.8,
-                                userSelect: 'none',
-                                WebkitUserDrag: 'none',
-                            }}
-                        />
+                            {uiConfigStore.config.theme === 'sakura' ? (
+                              <CharacterImage
+                                component="img"
+                                src="/imgs/images/background/back_cherry.jpg"
+                                alt="back_cherry"
+                                sx={{
+                                  position: "absolute",
+                                  left: "0%",
+                                  bottom: "0",
+                                  width: "100%",
+                                  zIndex: backgroundIndex,
+                                  opacity: 0.5,
+                                  userSelect: 'none',
+                                  WebkitUserDrag: 'none',
+                                }}
+                              />
+                            ) : (
+                              uiConfigStore.activeTowerImages.map(img => (
+                                <TowerImageOverlay
+                                  key={img.id}
+                                  image={img}
+                                  onUpdate={(id, partial) => uiConfigStore.updateTowerImage(id, partial)}
+                                  onDelete={(id) => uiConfigStore.removeTowerImage(id)}
+                                  containerRef={page2ContainerRef}
+                                />
+                              ))
+                            )}
+                            {/* Add tower image button */}
+                            {!readOnly && (
+                              <Box sx={{ position: 'absolute', bottom: 8, right: 8, zIndex: 10 }}>
+                                <IconButton
+                                  size="small"
+                                  onClick={onOpenTowerImageDialog}
+                                  sx={{
+                                    backgroundColor: 'rgba(255,255,255,0.85)',
+                                    border: '1px dashed',
+                                    borderColor: 'divider',
+                                    '&:hover': { backgroundColor: 'action.hover' },
+                                  }}
+                                >
+                                  <AddIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
+                            )}
                           </>
                         )}
-                        </>}
 
                         <Box sx={{ height: compact ? "5vh" : "20vh" }}></Box>
                     </Paper>
@@ -1196,6 +1187,7 @@ const ScriptRenderer = observer(({
                         {/* 中间 - 第二页内容区域 */}
                         <Paper
                             elevation={0}
+                            ref={page3ContainerRef}
                             sx={{
                                 pt: 2,
                                 flex: 1,
@@ -1257,7 +1249,7 @@ const ScriptRenderer = observer(({
                                 </SortableContext>
                             </DndContext>
 
-                            {/* 背景装饰 - 放在 Paper 容器内，DndContext 外 */}
+                            {/* Background decoration - Tower Image Overlays */}
                             {uiConfigStore.config.theme === 'sakura' ? (
                               <CharacterImage
                                 component="img"
@@ -1276,42 +1268,32 @@ const ScriptRenderer = observer(({
                                 }}
                               />
                             ) : (
-                              <>
-                            <CharacterImage
-                                component="img"
-                                src={"/imgs/images/background/back_tower.png"}
-                                alt={"back_tower"}
-                                sx={{
-                                    position: "absolute",
-                                    left: "0%",
-                                    bottom: "0",
-                                    display: "flex",
-                                    width: "20%",
-                                    zIndex: backgroundIndex,
-                                    opacity: 0.4,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                    pointerEvents: 'none',
-                                }}
-                            />
-                            <CharacterImage
-                                component="img"
-                                src={"/imgs/images/background/back_tower2.png"}
-                                alt={"back_tower2"}
-                                sx={{
-                                    position: "absolute",
-                                    left: "36%",
-                                    bottom: "0%",
-                                    display: "flex",
-                                    width: "50%",
-                                    zIndex: backgroundIndex,
-                                    opacity: 0.8,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                    pointerEvents: 'none',
-                                }}
-                            />
-                              </>
+                              uiConfigStore.activeTowerImages.map(img => (
+                                <TowerImageOverlay
+                                  key={img.id}
+                                  image={img}
+                                  onUpdate={(id, partial) => uiConfigStore.updateTowerImage(id, partial)}
+                                  onDelete={(id) => uiConfigStore.removeTowerImage(id)}
+                                  containerRef={page3ContainerRef}
+                                />
+                              ))
+                            )}
+                            {/* Add tower image button */}
+                            {!readOnly && (
+                              <Box sx={{ position: 'absolute', bottom: 8, right: 8, zIndex: 10 }}>
+                                <IconButton
+                                  size="small"
+                                  onClick={onOpenTowerImageDialog}
+                                  sx={{
+                                    backgroundColor: 'rgba(255,255,255,0.85)',
+                                    border: '1px dashed',
+                                    borderColor: 'divider',
+                                    '&:hover': { backgroundColor: 'action.hover' },
+                                  }}
+                                >
+                                  <AddIcon fontSize="small" />
+                                </IconButton>
+                              </Box>
                             )}
                         </Paper>
 

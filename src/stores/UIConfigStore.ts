@@ -1,7 +1,25 @@
 import { makeAutoObservable } from 'mobx';
 import { fontStorage } from '../utils/fontStorage';
+import { towerImageStorage } from '../utils/towerImageStorage';
 
 // Custom font interface
+
+// Tower image interface
+export interface TowerImage {
+  id: string;
+  url: string;
+  x: number;
+  y: number;
+  scale: number;
+  opacity: number;
+  isDefault: boolean;
+}
+
+export const DEFAULT_TOWERS: TowerImage[] = [
+  { id: 'back_tower', url: '/imgs/images/background/back_tower.png', x: 0, y: 0, scale: 1.0, opacity: 0.4, isDefault: true },
+  { id: 'back_tower2', url: '/imgs/images/background/back_tower2.png', x: 36, y: 0, scale: 1.0, opacity: 0.8, isDefault: true },
+];
+
 export interface CustomFont {
   id: string;
   name: string;
@@ -82,6 +100,9 @@ export interface UIConfig {
 
   // Custom font list
   customFonts: CustomFont[];
+
+  // Tower images
+  towerImages: TowerImage[];
 
   // Character card configuration
   characterCard: {
@@ -190,6 +211,8 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   // Custom font list
   customFonts: [],
 
+  towerImages: [...DEFAULT_TOWERS],
+
   characterCard: {
     cardPaddingX: 0.5,
     cardPaddingY: 0.5,
@@ -238,6 +261,7 @@ class UIConfigStore {
     makeAutoObservable(this);
     this.loadConfig();
     this.loadCustomFontsFromIndexedDB(); // Load custom fonts from IndexedDB
+    this.loadTowerImagesFromIndexedDB(); // Load tower images from IndexedDB
   }
 
   // Load config from localStorage
@@ -247,7 +271,7 @@ class UIConfigStore {
       if (savedConfig) {
         const parsed = JSON.parse(savedConfig);
         // Do not load customFonts from localStorage, use IndexedDB instead
-        const { customFonts, ...restConfig } = parsed;
+        const { customFonts, towerImages, ...restConfig } = parsed;
         this.config = {
           ...DEFAULT_UI_CONFIG,
           ...restConfig,
@@ -294,7 +318,7 @@ class UIConfigStore {
   saveConfig() {
     try {
       // Save config without customFonts (they are stored in IndexedDB)
-      const { customFonts, ...configToSave } = this.config;
+      const { customFonts, towerImages, ...configToSave } = this.config;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(configToSave));
     } catch (error) {
       console.error('Failed to save UI config to localStorage:', error);
@@ -465,7 +489,15 @@ class UIConfigStore {
     // 3. Clear custom font list
     this.config.customFonts = [];
 
-    // 4. Delete localStorage config instead of saving defaults
+    // 4. Clean up all tower images from IndexedDB
+    try {
+      await towerImageStorage.clearAllImages();
+      console.log('All tower images cleaned from IndexedDB');
+    } catch (error) {
+      console.error('Failed to clean up tower images:', error);
+    }
+
+    // 5. Delete localStorage config instead of saving defaults
     try {
       localStorage.removeItem(STORAGE_KEY);
       console.log('Deleted localStorage key:', STORAGE_KEY);
@@ -475,6 +507,104 @@ class UIConfigStore {
   }
 
   // Getters
+  
+  // Load tower images from IndexedDB
+  async loadTowerImagesFromIndexedDB() {
+    try {
+      const images = await towerImageStorage.getAllImages();
+      if (images.length > 0) {
+        this.config.towerImages = images.map(img => ({
+          id: img.id,
+          url: img.url,
+          x: img.x,
+          y: img.y,
+          scale: img.scale,
+          opacity: img.opacity,
+          isDefault: img.isDefault,
+        }));
+      }
+      console.log('Loaded', images.length, 'tower images from IndexedDB');
+    } catch (error) {
+      console.error('Failed to load tower images from IndexedDB:', error);
+      // Keep defaults if loading fails
+    }
+  }
+
+  // Add tower image
+  async addTowerImage(image: TowerImage) {
+    try {
+      await towerImageStorage.saveImage({
+        ...image,
+        createdAt: Date.now(),
+      });
+      this.config.towerImages = [...this.config.towerImages, image];
+      console.log('Tower image saved to IndexedDB:', image.id);
+    } catch (error) {
+      console.error('Failed to save tower image:', error);
+      throw error;
+    }
+  }
+
+  // Remove tower image
+  async removeTowerImage(id: string) {
+    try {
+      await towerImageStorage.deleteImage(id);
+      this.config.towerImages = this.config.towerImages.filter(img => img.id !== id);
+      console.log('Tower image removed:', id);
+    } catch (error) {
+      console.error('Failed to remove tower image:', error);
+      throw error;
+    }
+  }
+
+  // Update tower image
+  async updateTowerImage(id: string, updates: Partial<TowerImage>) {
+    const index = this.config.towerImages.findIndex(img => img.id === id);
+    if (index === -1) {
+      console.warn('Tower image not found:', id);
+      return;
+    }
+    const updated = { ...this.config.towerImages[index], ...updates };
+    this.config.towerImages[index] = updated;
+    // Persist url-bearing images to IndexedDB
+    if (updated.url) {
+      try {
+        await towerImageStorage.saveImage({
+          ...updated,
+          createdAt: Date.now(),
+        });
+      } catch (error) {
+        console.error('Failed to update tower image in IndexedDB:', error);
+      }
+    }
+    console.log('Tower image updated:', id);
+  }
+
+  // Reset tower images to defaults
+  async resetTowerImages() {
+    try {
+      await towerImageStorage.clearAllImages();
+      this.config.towerImages = [...DEFAULT_TOWERS];
+      // Re-save defaults to IndexedDB
+      for (const img of DEFAULT_TOWERS) {
+        await towerImageStorage.saveImage({
+          ...img,
+          createdAt: Date.now(),
+        });
+      }
+      console.log('Tower images reset to defaults');
+    } catch (error) {
+      console.error('Failed to reset tower images:', error);
+      this.config.towerImages = [...DEFAULT_TOWERS];
+    }
+  }
+
+  // Getter for active tower images
+  get activeTowerImages() {
+    return this.config.towerImages;
+  }
+
+
   get nightOrderBackgroundUrl() {
     // Theme override
     if (this.config.theme === 'sakura') {
