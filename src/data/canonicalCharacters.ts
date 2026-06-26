@@ -6,6 +6,7 @@
  * @attribution
  *   English roles (roles.json): https://github.com/bra1n/townsquare
  *   Spanish roles (rolesEs.json): https://github.com/bra1n/townsquare
+ *   German role text (jk_all_roles_de.json): local curated translation
  *   Chinese role text (ZH_CORE_CHARACTERS): https://clocktower.gstonegames.com/
  */
 
@@ -13,6 +14,7 @@ import type { Character } from '../types';
 import type { Language } from '../utils/languages';
 import rolesData from './sources/roles.json';
 import rolesEsData from './sources/rolesEs.json';
+import rolesDeData from './sources/jk_all_roles_de.json';
 import { ZH_CORE_CHARACTERS } from './characters/characters';
 import { buildDictionary, type CanonicalCharacterBase, type CharacterLocale } from './characterBuilder';
 import { normalizeCharacterId, toOfficialEnCharacterId, toZhCanonicalCharacterId } from './utils/characterIdMapping';
@@ -46,6 +48,10 @@ const spanishOverrides = new Map(
   (rolesEsData as Array<{ id: string; name?: string; ability?: string }>).map((r) => [r.id, r]),
 );
 
+const germanOverrides = new Map(
+  (rolesDeData as Array<Record<string, unknown>>).map((r) => [r.id as string, r]),
+);
+
 export function buildCoreCanonicalBases(): CanonicalCharacterBase[] {
   return (rolesData as Record<string, unknown>[]).map((role) => {
     const id = role.id as string;
@@ -53,6 +59,8 @@ export function buildCoreCanonicalBases(): CanonicalCharacterBase[] {
     // ZH_CORE is a legacy bundle; entries are not guaranteed to satisfy the full Character type
     const zhChar = (ZH_CORE_CHARACTERS as unknown as Record<string, Character | undefined>)[cnId];
     const esRow = spanishOverrides.get(id);
+    const deRow = germanOverrides.get(id);
+
     return {
       id,
       team: role.team as string,
@@ -72,6 +80,7 @@ export function buildCoreCanonicalBases(): CanonicalCharacterBase[] {
               ...(esRow.ability !== undefined ? { ability: esRow.ability } : {}),
             }
           : undefined,
+        de: deRow ? partialLocaleFromRole(deRow) : undefined,
       },
     };
   });
@@ -114,7 +123,7 @@ export function getMergedCharacterDictionary(language: Language): Record<string,
 export const CHARACTERS = getMergedCharacterDictionary('cn');
 export const CHARACTERS_EN = getMergedCharacterDictionary('en');
 export const CHARACTERS_ES = getMergedCharacterDictionary('es');
-export const CHARACTERS_DE = CHARACTERS_EN;
+export const CHARACTERS_DE = getMergedCharacterDictionary('de');
 
 const CHARACTER_DICTIONARIES: Record<Language, Record<string, Character>> = {
   'cn': CHARACTERS,
