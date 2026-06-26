@@ -84,6 +84,14 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
       ],
     },
     {
+      id: 'storytellerNightSheet',
+      title: t('ui.category.storytellerNightSheet'),
+      keywords: [
+        'night', 'order', 'storyteller', 'sheet', 'reminder',
+        'page', 'title', 'spacing', 'icon', 'text'
+      ],
+    },
+    {
       id: 'iconSize',
       title: t('ui.category.iconSize'),
       keywords: [
@@ -564,6 +572,23 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
                     </Box>
                   </FormControl>
 
+                  <FormControl component="fieldset" fullWidth>
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <Box>
+                        <FormLabel component="legend">
+                          {t('ui.enableStorytellerNightOrderSheet')}
+                        </FormLabel>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                          {t('ui.enableStorytellerNightOrderSheetDesc')}
+                        </Typography>
+                      </Box>
+                      <Switch
+                        checked={uiConfigStore.config.enableStorytellerNightOrderSheet}
+                        onChange={(e) => uiConfigStore.updateConfig({ enableStorytellerNightOrderSheet: e.target.checked })}
+                      />
+                    </Box>
+                  </FormControl>
+
                   {/* 隐藏方相克图标位置 */}
                   <FormControl component="fieldset" fullWidth>
                     <FormLabel component="legend">
@@ -724,6 +749,62 @@ const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => 
             )}
 
             {/* 3. 图标大小配置 */}
+
+            {filteredCategories.find(c => c.id === 'storytellerNightSheet')?.show && (
+            <Accordion defaultExpanded={!searchQuery}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                  {t('ui.category.storytellerNightSheet')}
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={2}>
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      Icon Size: {uiConfigStore.config.storytellerNightSheet.iconSize}
+                    </Typography>
+                    <Slider
+                      value={uiConfigStore.config.storytellerNightSheet.iconSize}
+                      onChange={(_, value) => uiConfigStore.updateStorytellerNightSheetConfig({ iconSize: value as number })}
+                      min={0.5}
+                      max={4}
+                      step={0.1}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      Text Size: {uiConfigStore.config.storytellerNightSheet.textSize}
+                    </Typography>
+                    <Slider
+                      value={uiConfigStore.config.storytellerNightSheet.textSize}
+                      onChange={(_, value) => uiConfigStore.updateStorytellerNightSheetConfig({ textSize: value as number })}
+                      min={0.5}
+                      max={2}
+                      step={0.1}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      Title Spacing: {uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px
+                    </Typography>
+                    <Slider
+                      value={uiConfigStore.config.storytellerNightSheet.titleContentSpacing}
+                      onChange={(_, value) => uiConfigStore.updateStorytellerNightSheetConfig({ titleContentSpacing: value as number })}
+                      min={-200}
+                      max={200}
+                      step={1}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
             {filteredCategories.find(c => c.id === 'iconSize')?.show && (
             <Accordion defaultExpanded={!searchQuery}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>

@@ -98,6 +98,9 @@ export const cn = {
   'fontUploader.errorAllFields': '请填写所有字段并选择字体文件',
   'fontUploader.errorReadFile': '读取字体文件失败',
   'fontUploader.errorUpload': '上传字体失败，请重试',
+  'ui.enableStorytellerNightOrderSheet': 'Storyteller \u591c\u95f4\u987a\u5e8f\u8868',
+  'ui.enableStorytellerNightOrderSheetDesc': '\u751f\u6210\u989d\u5916\u9875\u9762\u663e\u793a\u9996\u591c\u548c\u5176\u4ed6\u591c\u665a\u63d0\u793a',
+  'ui.category.storytellerNightSheet': 'Storyteller \u591c\u95f4\u987a\u5e8f\u8868',
 } as const;
 
 export const en = {
@@ -200,6 +203,9 @@ export const en = {
   'fontUploader.errorAllFields': 'Please fill in all fields and select a font file',
   'fontUploader.errorReadFile': 'Failed to read font file',
   'fontUploader.errorUpload': 'Failed to upload font, please try again',
+  'ui.enableStorytellerNightOrderSheet': 'Storyteller Night Order Sheet',
+  'ui.enableStorytellerNightOrderSheetDesc': 'Generate additional pages with first night and other night reminders',
+  'ui.category.storytellerNightSheet': 'Storyteller Night Order Sheet',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
@@ -302,6 +308,9 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'fontUploader.errorAllFields': 'Rellena todos los campos y selecciona un archivo de fuente',
   'fontUploader.errorReadFile': 'Error al leer el archivo de fuente',
   'fontUploader.errorUpload': 'Error al subir la fuente, inténtalo de nuevo',
+  'ui.enableStorytellerNightOrderSheet': 'Tabla de orden nocturno del narrador',
+  'ui.enableStorytellerNightOrderSheetDesc': 'Genera paginas adicionales con recordatorios de la primera noche y otras noches',
+  'ui.category.storytellerNightSheet': 'Tabla de orden nocturno del narrador',
 };
 
 export const de = {

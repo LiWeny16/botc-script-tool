@@ -36,7 +36,11 @@
   #script-preview,
   #script-preview *,
   #script-preview-2,
-  #script-preview-2 * {
+  #script-preview-2 *,
+  #script-preview-3,
+  #script-preview-3 *,
+  #script-preview-4,
+  #script-preview-4 * {
     visibility: visible !important;
   }
 

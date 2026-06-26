@@ -67,9 +67,20 @@ class ScriptStore {
       if (script.useTitleImage !== undefined) meta.use_title_image = script.useTitleImage;
       if (script.showTitleFlourish !== undefined) meta.show_title_flourish = script.showTitleFlourish;
       if (script.playerCount) meta.playerCount = script.playerCount;
+      if ((script as any).textAlignment && (script as any).textAlignment !== 'center') {
+        meta.text_alignment = (script as any).textAlignment;
+      }
       
       // Second page configuration
       if (script.secondPageTitle !== undefined) meta.second_page_title = script.secondPageTitle;
+      if (script.storytellerFirstNight !== undefined) meta.storyteller_first_night_title = script.storytellerFirstNight;
+      if (script.storytellerOtherNight !== undefined) meta.storyteller_other_night_title = script.storytellerOtherNight;
+      if (script.storytellerOtherNightTitleImage) meta.storyteller_other_night_title_image = script.storytellerOtherNightTitleImage;
+      if (script.useStorytellerOtherNightTitleImage !== undefined) meta.use_storyteller_other_night_title_image = script.useStorytellerOtherNightTitleImage;
+      if(script.storytellerFirstNightTitleImage) meta.storyteller_first_night_title_image = script.storytellerFirstNightTitleImage;
+      if(script.useStorytellerFirstNightTitleImage !== undefined) meta.use_storyteller_first_night_title_image = script.useStorytellerFirstNightTitleImage;
+      if (script.storytellerFirstNightTitleImageSize) meta.storyteller_first_night_title_image_size = script.storytellerFirstNightTitleImageSize;
+      if (script.storytellerOtherNightTitleImageSize) meta.storyteller_other_night_title_image_size = script.storytellerOtherNightTitleImageSize;
       if (script.secondPageTitleText) meta.second_page_title_text = script.secondPageTitleText;
       if (script.secondPageTitleImage) meta.second_page_title_image = script.secondPageTitleImage;
       if (script.secondPageTitleFontSize) meta.second_page_title_font_size = script.secondPageTitleFontSize;
@@ -519,7 +530,15 @@ class ScriptStore {
     secondPageTitleImage?: string;
     secondPageTitleFontSize?: number;
     secondPageTitleImageSize?: number;
-    useSecondPageTitleImage?: boolean;
+    useSecondPageTitleImage?: boolean;  
+    storytellerFirstNight?: string;
+    storytellerOtherNight?: string;
+    storytellerFirstNightTitleImage?: string;
+    storytellerOtherNightTitleImage?: string;
+    useStorytellerFirstNightTitleImage?: boolean;
+    useStorytellerOtherNightTitleImage?: boolean;
+    storytellerFirstNightTitleImageSize?: number;
+    storytellerOtherNightTitleImageSize?: number;
   }) {
     if (!this.script) return;
 
@@ -552,6 +571,31 @@ class ScriptStore {
     if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
     if (data.textAlignment !== undefined) (updatedScript as any).textAlignment = data.textAlignment;
 
+    if (data.storytellerFirstNight !== undefined) {
+      updatedScript.storytellerFirstNight = data.storytellerFirstNight;
+    }
+    if (data.storytellerOtherNight !== undefined) {
+      updatedScript.storytellerOtherNight = data.storytellerOtherNight;
+    }
+    if (data.storytellerFirstNightTitleImage !== undefined) {
+      updatedScript.storytellerFirstNightTitleImage = data.storytellerFirstNightTitleImage;
+    }
+    if (data.storytellerOtherNightTitleImage !== undefined) {
+      updatedScript.storytellerOtherNightTitleImage = data.storytellerOtherNightTitleImage;
+    }
+    if (data.useStorytellerFirstNightTitleImage !== undefined) {
+      updatedScript.useStorytellerFirstNightTitleImage = data.useStorytellerFirstNightTitleImage;
+    }
+    if (data.useStorytellerOtherNightTitleImage !== undefined) {
+      updatedScript.useStorytellerOtherNightTitleImage = data.useStorytellerOtherNightTitleImage;
+    }
+    if (data.storytellerFirstNightTitleImageSize !== undefined) {
+      updatedScript.storytellerFirstNightTitleImageSize = data.storytellerFirstNightTitleImageSize;
+    }
+    if (data.storytellerOtherNightTitleImageSize !== undefined) {
+      updatedScript.storytellerOtherNightTitleImageSize = data.storytellerOtherNightTitleImageSize;
+    }
+
     // Update second page title config
     if (data.secondPageTitleText !== undefined) {
       updatedScript.secondPageTitleText = data.secondPageTitleText;
@@ -572,7 +616,6 @@ class ScriptStore {
     if (data.useSecondPageTitleImage !== undefined) {
       updatedScript.useSecondPageTitleImage = data.useSecondPageTitleImage;
     }
-
     this.setScript(updatedScript);
     this.syncTitleInfoToJson(data);
   }
@@ -958,6 +1001,14 @@ class ScriptStore {
     secondPageTitleFontSize?: number;
     secondPageTitleImageSize?: number;
     useSecondPageTitleImage?: boolean;
+    storytellerFirstNight?: string;
+    storytellerOtherNight?: string;
+    storytellerOtherNightTitleImage?: string;
+    storytellerFirstNightTitleImage?: string;
+    useStorytellerFirstNightTitleImage?: boolean;
+    useStorytellerOtherNightTitleImage?: boolean;
+    storytellerFirstNightTitleImageSize?: number;
+    storytellerOtherNightTitleImageSize?: number;
   }) {
     console.log('Starting to sync title info to JSON', data);
     try {
@@ -1014,6 +1065,30 @@ class ScriptStore {
           if (data.secondPageTitleText !== undefined) {
             updatedMeta.second_page_title_text = data.secondPageTitleText;
           }
+          if (data.storytellerFirstNight !== undefined) {
+            updatedMeta.storyteller_first_night_title = data.storytellerFirstNight;
+          }
+          if (data.storytellerOtherNight !== undefined) {
+            updatedMeta.storyteller_other_night_title = data.storytellerOtherNight;
+          }
+          if (data.storytellerFirstNightTitleImage !== undefined) {
+            updatedMeta.storyteller_first_night_title_image = data.storytellerFirstNightTitleImage;
+          }
+          if (data.storytellerOtherNightTitleImage !== undefined) {
+            updatedMeta.storyteller_other_night_title_image = data.storytellerOtherNightTitleImage;
+          }
+          if (data.useStorytellerFirstNightTitleImage !== undefined) {
+            updatedMeta.use_storyteller_first_night_title_image = data.useStorytellerFirstNightTitleImage;
+          }
+          if (data.useStorytellerOtherNightTitleImage !== undefined) {
+            updatedMeta.use_storyteller_other_night_title_image = data.useStorytellerOtherNightTitleImage;
+          }
+          if (data.storytellerFirstNightTitleImageSize !== undefined) {
+            updatedMeta.storyteller_first_night_title_image_size = data.storytellerFirstNightTitleImageSize;
+          }
+          if (data.storytellerOtherNightTitleImageSize !== undefined) {
+            updatedMeta.storyteller_other_night_title_image_size = data.storytellerOtherNightTitleImageSize;
+          }
           if ('secondPageTitleImage' in data) {
             if (data.secondPageTitleImage) {
               updatedMeta.second_page_title_image = data.secondPageTitleImage;
@@ -1052,6 +1127,12 @@ class ScriptStore {
         if (data.titleImageSize !== undefined) {
           newMeta.titleImageSize = data.titleImageSize;
         }
+        if (data.useTitleImage !== undefined) {
+          newMeta.use_title_image = data.useTitleImage;
+        }
+        if (data.showTitleFlourish !== undefined) {
+          newMeta.show_title_flourish = data.showTitleFlourish;
+        }
         if (data.playerCount) {
           newMeta.playerCount = data.playerCount;
         }
@@ -1061,6 +1142,30 @@ class ScriptStore {
         if (data.secondPageTitleText) {
           newMeta.second_page_title_text = data.secondPageTitleText;
         }
+        if (data.storytellerFirstNight) {
+          newMeta.storyteller_first_night_title = data.storytellerFirstNight;
+        } 
+        if (data.storytellerOtherNight) {
+          newMeta.storyteller_other_night_title = data.storytellerOtherNight;
+        }
+        if (data.storytellerFirstNightTitleImageSize !== undefined) {
+          newMeta.storyteller_first_night_title_image_size = data.storytellerFirstNightTitleImageSize;
+        }
+        if (data.storytellerOtherNightTitleImageSize !== undefined) {
+          newMeta.storyteller_other_night_title_image_size = data.storytellerOtherNightTitleImageSize;
+        }
+        if (data.storytellerFirstNightTitleImage) {
+          newMeta.storyteller_first_night_title_image = data.storytellerFirstNightTitleImage;
+        }
+        if (data.storytellerOtherNightTitleImage) {
+          newMeta.storyteller_other_night_title_image = data.storytellerOtherNightTitleImage;
+        }
+        if (data.useStorytellerFirstNightTitleImage !== undefined) {
+          newMeta.use_storyteller_first_night_title_image = data.useStorytellerFirstNightTitleImage;
+        }
+        if (data.useStorytellerOtherNightTitleImage !== undefined) {
+          newMeta.use_storyteller_other_night_title_image = data.useStorytellerOtherNightTitleImage;
+        }
         if (data.secondPageTitleImage) {
           newMeta.second_page_title_image = data.secondPageTitleImage;
         }
@@ -1069,6 +1174,9 @@ class ScriptStore {
         }
         if (data.secondPageTitleImageSize !== undefined) {
           newMeta.second_page_title_image_size = data.secondPageTitleImageSize;
+        }
+        if (data.useSecondPageTitleImage !== undefined) {
+          newMeta.use_second_page_title_image = data.useSecondPageTitleImage;
         }
         
         newJsonArray.unshift(newMeta);

@@ -469,19 +469,6 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
       return;
     }
     if (!currentJson || !hasScript) return;
-
-    // Validate JSON is a valid array before saving to cloud
-    try {
-      const parsed = JSON.parse(currentJson);
-      if (!Array.isArray(parsed)) {
-        alertError(t('input.errorJsonMustBeArray'));
-        return;
-      }
-    } catch {
-      alertError(t('input.errorInvalidJson'));
-      return;
-    }
-
     setCloudSaving(true);
     const title = titleInput || scriptStore.script?.title || 'Untitled';
     const result = await saveScript(title, currentJson);
@@ -495,7 +482,6 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
   const handleCloudLoad = (json: string, _name: string) => {
     onJsonChange?.(json);
-    onGenerate(json);
   };
 
   // 拖动调整大小的处理函数
@@ -1068,6 +1054,48 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
                   checked={uiConfigStore.config.enableTwoPageMode}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     uiConfigStore.updateConfig({ enableTwoPageMode: e.target.checked })
+                  }
+                />
+              </Box>
+              {/* Storyteller Night Order Sheet */}
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: 2,
+                  justifyContent: 'space-between'
+                }}
+              >
+                <Box sx={{ flex: 1, minWidth: 0 }}>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 600,
+                      fontSize: '0.875rem',
+                      mb: 0.25
+                    }}
+                  >
+                    {t('ui.enableStorytellerNightOrderSheet')}
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontSize: '0.7rem',
+                      color: 'text.secondary',
+                      display: 'block'
+                    }}
+                  >
+                    {t('ui.enableStorytellerNightOrderSheetDesc')}
+                  </Typography>
+                </Box>
+
+                <IOSSwitch
+                  checked={uiConfigStore.config.enableStorytellerNightOrderSheet}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    uiConfigStore.updateConfig({
+                      enableStorytellerNightOrderSheet: e.target.checked
+                    })
                   }
                 />
               </Box>
