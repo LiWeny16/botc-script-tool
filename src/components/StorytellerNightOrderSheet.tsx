@@ -5,6 +5,7 @@ import { uiConfigStore } from '../stores/UIConfigStore';
 import { observer } from 'mobx-react-lite';
 import { useTranslation } from '../utils/i18n';
 import { getTeamColor, THEME_COLORS } from '../theme/colors';
+import CharacterImage from './CharacterImage';
 
 interface Props {
   characters: Character[];
@@ -63,6 +64,8 @@ export default observer(function StorytellerNightOrderSheet({
     reminderField,
   );
 
+  if (groups.length === 0) return null;
+
   return (
     <div
       className="storyteller-nightorder-sheet"
@@ -71,7 +74,7 @@ export default observer(function StorytellerNightOrderSheet({
         paddingRight: '20px',
       }}
     >
-      {/* Section label with divider — matches Jinx Rules style */}
+      {/* Section label with side dividers */}
       <Box
         sx={{
           display: 'flex',
@@ -124,16 +127,14 @@ export default observer(function StorytellerNightOrderSheet({
                   marginBottom: '0.5rem',
                 }}
               >
-                <img
+                <CharacterImage
                   src={character.image}
                   alt={character.name}
-                  className="storyteller-nightorder-icon"
-                  style={{
+                  sx={{
                     width: `${config.iconSize * 40}px`,
                     height: `${config.iconSize * 40}px`,
                     objectFit: 'contain',
                     flexShrink: 0,
-                    display: 'block',
                   }}
                 />
 
@@ -143,6 +144,8 @@ export default observer(function StorytellerNightOrderSheet({
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'center',
+                    flex: 1,
+                    minWidth: 0,
                   }}
                 >
                   <div
