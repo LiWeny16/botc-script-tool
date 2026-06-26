@@ -612,6 +612,7 @@ const App = observer(() => {
     author: string;
     playerCount?: string;
     textAlignment?: 'left' | 'center' | 'right';
+    authorAlignment?: 'left' | 'center' | 'right';
   }) => {
     scriptStore.updateTitleInfo({
       title: data.title,
@@ -622,6 +623,7 @@ const App = observer(() => {
       author: data.author,
       playerCount: data.playerCount,
       textAlignment: data.textAlignment,
+      authorAlignment: data.authorAlignment,
     });
   };
 
@@ -1267,6 +1269,7 @@ const App = observer(() => {
           author={script?.author || ''}
           playerCount={script?.playerCount || ''}
           textAlignment={(script as any)?.textAlignment || 'center'}
+          authorAlignment={(script as any)?.authorAlignment || 'center'}
           onClose={() =>
             setTitleEditState({ open: false, mode: null })
           }
@@ -1281,6 +1284,7 @@ const App = observer(() => {
                 author: data.author,
                 playerCount: data.playerCount,
                 textAlignment: data.textAlignment,
+                authorAlignment: data.authorAlignment,
               });
             }
 

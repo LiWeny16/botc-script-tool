@@ -1,61 +1,70 @@
 # Extension Contract
 
-Purpose: keep new languages, features, and tooling compatible with the project architecture.
+Purpose: keep stack-specific agents, skills, rules, and hooks compatible with this harness.
+
+Use during setup whenever adding assets from ECC, SuperClaude, toolboxes, or local project conventions.
 
 ## Non-Invasive Extension Rules
 
-Extensions must preserve project ownership boundaries.
+Extensions must preserve project and harness ownership boundaries.
 
-- Preserve existing `CLAUDE.md`, `.gitignore`, build configs, and ESLint rules unless the user explicitly requests an overwrite.
-- Treat existing project structure as fact. Read `CLAUDE.md` (Project Context) before extending.
-- Register added tools, scripts, or workflows in `Harness/README.md` and `MEMORY.md`.
-- Core harness docs are `Harness/README.md`, `Harness/PLAN.md`, `Harness/context-loading.md`, `Harness/dispatch.md`, and this file. Extensions must not replace these.
+- Preserve existing `.claude/`, `CLAUDE.md`, `AGENTS.md`, `.gitignore`, `Harness/README.md`, `Harness/workflows/*.md`, settings, hooks, and local rules unless the user explicitly requests an overwrite.
+- Treat existing project config as project fact. Read it before adding assets, then adapt new assets to the project instead of replacing the project.
+- Register added agents, skills, workflows, rules, and hooks in `Harness/MEMORY.md` and this docs router where applicable.
+- Added assets may extend `.claude/skills/`, `.claude/agents/`, `.claude/rules/`, or `Harness/workflows/`, but they must not replace core harness docs.
+- Core harness docs are `Harness/README.md`, `Harness/PROGRESS.md`, `Harness/subagents.md`, `Harness/context-loading.md`, `Harness/dispatch.md`, `Harness/agent-workflow.md`, and this file.
+- If an optional workflow needs a new command or tool, document the command and fallback in `Harness/workflows/<name>.md` instead of changing core harness behavior.
 
-## Adding a Language
+## Agent Contract
 
-Template for adding a new UI language (e.g., German `de`):
+Every added agent must have frontmatter:
 
-1. **Type system** — add `'de'` to `Language` type in `src/utils/languages.ts`
-2. **i18n keys** — add `de` blocks to ALL i18n files:
-   - `src/utils/map.ts` — main translation map
-   - `src/utils/i18n/ui.ts` — UI strings
-   - `src/utils/i18n/input.ts` — input/label strings
-   - `src/utils/i18n/character.ts` — character ability text
-3. **Registry** — add `de` entries to `src/utils/i18n/index.ts`
-4. **UI** — update `LanguageSwitcher.tsx` with the new language option
-5. **Character data** — add language-specific data files:
-   - `src/data/sources/roles_de.json` — character names + abilities
-   - `src/data/sources/jinxDe.json` — jinx descriptions
-6. **Canonical registry** — update `canonicalCharacters.ts` and `characterBuilder.ts`
-7. **Verification** — `pnpm build && pnpm lint` must pass
+```yaml
+---
+name: stack-agent-name
+description: Use when ...
+tools: Read, Grep, Glob
+model: sonnet
+---
+```
 
-**Constraints:**
-- Never overwrite existing translations in other languages.
-- Fallback chain: new language → en → zh-CN (follow the existing `es → en → zh-CN` pattern).
-- Character IDs remain language-agnostic. Translations map to IDs, not the other way.
+Agent body must state:
 
-## Adding a Feature
+- load first
+- inputs required
+- allowed write set or read-only
+- forbidden scope
+- verification or evidence
+- return format from [subagents.md](subagents.md) and [dispatch.md](dispatch.md)
 
-1. Read `CLAUDE.md` (Common Modification Paths) to identify affected files
-2. Create `Harness/PLAN.md` entries for the feature
-3. Follow `Harness/lifecycle.md` phases
-4. After implementation, update `CLAUDE.md` if new files or patterns were added
+## Skill Contract
 
-**Constraints:**
-- New components follow existing patterns: MobX `observer()` for state, `useTranslation()` for i18n, MUI for UI.
-- New state goes in the appropriate MobX store (`ScriptStore`, `ConfigStore`, or `UIConfigStore`).
-- New types go in `src/types/index.ts`.
-- Drag-and-drop uses `@dnd-kit` (already a dependency).
+Every added skill must state:
 
-## Adding a Build Script or Tool
+- when to use
+- docs to load
+- required inputs
+- allowed writes
+- output format
+- whether to update `Harness/PROGRESS.md` and task files
+- whether to use [subagents.md](subagents.md) and [dispatch.md](dispatch.md)
 
-1. Scripts go in `scripts/` (Node.js `.mjs` or shell)
-2. Document the script in `CLAUDE.md` (Key Files table)
-3. If it's a new build phase, update the build pipeline description
+Skills should extend the harness. They should not replace `Harness/README.md`, `Harness/PROGRESS.md`, `subagents.md`, `context-loading.md`, `dispatch.md`, or `agent-workflow.md`.
+
+## Rules
+
+- Do not add broad agents that can write anywhere.
+- Do not add agents whose role overlaps an existing common agent without naming the difference.
+- Do not add tools that bypass project permissions or user approval.
+- Do not run stack-specific writing agents in parallel unless write sets are disjoint.
+- If an added asset conflicts with this harness, adapt the asset instead of changing the core contract.
 
 ## Registration
 
-After extending:
-- List new files in `CLAUDE.md` (Key Files) if they're permanent project files
-- Update `Harness/PLAN.md` when the extension affects current work
-- Verify: `pnpm build && pnpm lint` passes
+After adding assets:
+
+- list agents in `Harness/MEMORY.md#Agents`
+- list skills in `Harness/MEMORY.md#Skills`
+- list workflows by path in `Harness/MEMORY.md` or `Harness/README.md`
+- update `Harness/PROGRESS.md` and `Harness/tasks/<task-id>/PROGRESS.md` when the asset affects current work
+- run `node Harness/scripts/validate-harness.mjs`

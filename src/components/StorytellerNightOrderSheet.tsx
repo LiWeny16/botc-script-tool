@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Typography, Divider } from '@mui/material';
 import type { Character } from '../types';
 import { uiConfigStore } from '../stores/UIConfigStore';
@@ -64,14 +63,31 @@ export default observer(function StorytellerNightOrderSheet({
     reminderField,
   );
 
+  const clamp = (value: number, min: number, max: number) =>
+    Math.min(Math.max(value, min), max);
+  const baseTextSize = clamp(config.textSize || 1.02, 0.9, 1.02);
+  const nameFontSize = `${baseTextSize * 1.12}rem`;
+  const reminderTextSize = clamp(
+    config.reminderFontSize || baseTextSize * 0.96,
+    0.9,
+    Math.min(baseTextSize, 1),
+  );
+  const reminderFontSize = `${reminderTextSize}rem`;
+  const entryGap = `${clamp(config.spacing || 1, 0.7, 1) * 0.5}rem`;
+  const groupGap = `${clamp(config.groupGap || 1, 0.7, 1) * 0.34}rem`;
+  const iconSizePx = `${clamp(config.iconSize || 1.6, 1.25, 1.6) * 36}px`;
+
   if (groups.length === 0) return null;
 
   return (
-    <div
+    <Box
       className="storyteller-nightorder-sheet"
-      style={{
-        paddingLeft: '20px',
-        paddingRight: '20px',
+      sx={{
+        position: 'relative',
+        zIndex: 2,
+        px: { xs: '10px', sm: '14px', md: '18px' },
+        pb: { xs: 1.25, md: 1.75 },
+        color: THEME_COLORS.text.primary,
       }}
     >
       {/* Section label with side dividers */}
@@ -79,8 +95,10 @@ export default observer(function StorytellerNightOrderSheet({
         sx={{
           display: 'flex',
           alignItems: 'center',
-          mx: '20px',
-          mb: '1.2rem',
+          mx: { xs: 0.5, sm: 1.25 },
+          mb: { xs: '0.62rem', md: '0.72rem' },
+          position: 'relative',
+          zIndex: 3,
         }}
       >
         <Divider
@@ -88,16 +106,23 @@ export default observer(function StorytellerNightOrderSheet({
             flex: 1,
             borderColor: THEME_COLORS.paper,
             borderWidth: 1,
+            position: 'relative',
+            zIndex: 0,
           }}
         />
         <Typography
           sx={{
+            position: 'relative',
+            zIndex: 1,
             fontFamily: uiConfigStore.config.fonts.teamDivider,
             fontWeight: 'bold',
             color: THEME_COLORS.paper.primary,
             textAlign: 'center',
-            fontSize: { xs: '1.1rem', sm: '1.3rem', md: '1.5rem' },
-            px: 2,
+            fontSize: { xs: '0.92rem', sm: '1.02rem', md: '1.14rem' },
+            lineHeight: 1.05,
+            px: { xs: 1, md: 1.5 },
+            backgroundColor: 'rgba(247, 241, 221, 0.72)',
+            borderRadius: '999px',
           }}
         >
           {sectionLabel}
@@ -107,13 +132,32 @@ export default observer(function StorytellerNightOrderSheet({
             flex: 1,
             borderColor: THEME_COLORS.paper,
             borderWidth: 1,
+            position: 'relative',
+            zIndex: 0,
           }}
         />
       </Box>
 
-      <section>
+      <Box
+        component="section"
+        className="storyteller-nightorder-list"
+        sx={{
+          columnCount: 1,
+          columnGap: 0,
+          position: 'relative',
+          zIndex: 2,
+        }}
+      >
         {groups.map(([order, characters]) => (
-          <div key={order} className="storyteller-nightorder-group">
+          <div
+            key={order}
+            className="storyteller-nightorder-group"
+            style={{
+              breakInside: 'avoid',
+              pageBreakInside: 'avoid',
+              marginBottom: groupGap,
+            }}
+          >
             {characters.map((character) => (
               <div
                 key={character.id}
@@ -121,18 +165,21 @@ export default observer(function StorytellerNightOrderSheet({
                 style={{
                   display: 'flex',
                   flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: '12px',
-                  paddingLeft: '20px',
-                  marginBottom: '0.5rem',
+                  alignItems: 'flex-start',
+                  gap: entryGap,
+                  paddingLeft: 'clamp(2px, 0.7vw, 8px)',
+                  paddingRight: 'clamp(2px, 0.55vw, 6px)',
+                  marginBottom: '0.42rem',
+                  breakInside: 'avoid',
+                  pageBreakInside: 'avoid',
                 }}
               >
                 <CharacterImage
                   src={character.image}
                   alt={character.name}
                   sx={{
-                    width: `${config.iconSize * 40}px`,
-                    height: `${config.iconSize * 40}px`,
+                    width: iconSizePx,
+                    height: iconSizePx,
                     objectFit: 'contain',
                     flexShrink: 0,
                   }}
@@ -154,8 +201,9 @@ export default observer(function StorytellerNightOrderSheet({
                       fontWeight: 'bold',
                       fontFamily: uiConfigStore.config.fonts.characterName,
                       color: getTeamColor(character.team, character.teamColor),
-                      fontSize: config.textSize > 0 ? `${config.textSize}rem` : '1rem',
-                      marginBottom: '0.15rem',
+                      fontSize: nameFontSize,
+                      lineHeight: 1.06,
+                      marginBottom: '0.12rem',
                     }}
                   >
                     {character.name}
@@ -165,7 +213,9 @@ export default observer(function StorytellerNightOrderSheet({
                     className="storyteller-nightorder-text"
                     style={{
                       fontFamily: uiConfigStore.config.fonts.characterAbility,
-                      fontSize: config.textSize > 0 ? `${config.textSize * 0.85}rem` : '0.85rem',
+                      fontSize: reminderFontSize,
+                      lineHeight: 1.3,
+                      color: THEME_COLORS.text.primary,
                     }}
                   >
                     {character[reminderField]}
@@ -175,7 +225,7 @@ export default observer(function StorytellerNightOrderSheet({
             ))}
           </div>
         ))}
-      </section>
-    </div>
+      </Box>
+    </Box>
   );
 });

@@ -865,15 +865,19 @@ export default observer(function CharacterEditDialog({
                     />
                   </Box>
                 </Box>
-                <Divider sx={{ borderColor: alpha('#101828', 0.08) }} />
+              </Box>
+            )}
+
+            {activeTab === 2 && (
+              <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                 <Typography sx={sectionTitleSx}>{t('storytellerReminders')}</Typography>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
                   <Box>
                     <Typography sx={formLabelSx}>{t('firstNightReminder')}</Typography>
                     <TextField
                       fullWidth
                       multiline
-                      minRows={4}
+                      minRows={3}
                       value={editData.firstNightReminder || ''}
                       onChange={(e) => handleChange('firstNightReminder', e.target.value)}
                       disabled={isEditDisabled}
@@ -886,7 +890,7 @@ export default observer(function CharacterEditDialog({
                     <TextField
                       fullWidth
                       multiline
-                      minRows={4}
+                      minRows={3}
                       value={editData.otherNightReminder || ''}
                       onChange={(e) => handleChange('otherNightReminder', e.target.value)}
                       disabled={isEditDisabled}
@@ -895,11 +899,7 @@ export default observer(function CharacterEditDialog({
                     />
                   </Box>
                 </Box>
-              </Box>
-            )}
-
-            {activeTab === 2 && (
-              <Box component="section" sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+                <Divider sx={{ borderColor: alpha('#101828', 0.08) }} />
                 <Typography sx={sectionTitleSx}>{t('reminderTokens')}</Typography>
                 <Box>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>

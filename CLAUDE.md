@@ -1,10 +1,38 @@
 # BOTC Script Tool — CLAUDE.md
 
-## 1. Startup
+## 1. Harness Binding & Startup
 
-- Every session: read `Harness/README.md` (the doc router). Never bulk-read `Harness/`.
-- If work spans more than one step, update `Harness/PLAN.md`.
-- All routing and per-task doc loads live in `Harness/README.md`. Not here.
+- If `Harness/` exists, this repository is governed by the Harness contract. Treat these files as mandatory operating instructions, not optional references.
+- Every session: load `Harness/MEMORY.md` first, then `Harness/README.md`.
+- If `Harness/SETUP.md` exists, follow it before normal project work; it is the install/bootstrap contract and may be deleted after setup is complete.
+
+### 1a. CEO Contract (READ BEFORE ANY TOOL USE)
+
+`/wf-max` active → you are **CEO, not implementer** (enforced by hooks + `.runtime/current-mode.json`).
+
+| ALLOWED (W0) | FORBIDDEN (always on source) |
+|---|---|
+| Read Harness docs, CLAUDE.md | Edit / Write / MultiEdit |
+| Grep/Glob for scoping | Bash (except `ls`/`dir`/`tree`/`git`) |
+| Agent spawn (ONE message) | Deep source reads → delegate to Worker |
+| Write PLAN.md / PROGRESS.md | Sequential spawn (AP6) |
+
+**Tempted to edit source? STOP. Spawn a Worker.**
+
+- `Harness/MEMORY.md` is the memory/resource router: agents, skills, durable memories, and cross-session lessons. Follow its registrations when selecting agents/skills or recording memory.
+- `Harness/README.md` is the task router. For every request, check `Harness/README.md#Load By Task`; if a row matches, read and follow those docs before acting.
+- `Harness/PROGRESS.md` is the global task index. Load at session start to see active task and task history.
+- If work spans more than one step, create a task capsule from `Harness/tasks/_template/` and update `Harness/tasks/<task-id>/PROGRESS.md`.
+- Use `/wf <task>`, `/wf-review [focus]`, `wf mode`, `workflow mode`, or `wk mode` for long, difficult, uncertain, multi-file, or repeated-failure work.
+- Use `/wf-max [task]` for maximum parallelism — CEO→Manager→Worker hierarchy. CEO never writes code directly.
+- Use `/wf-auto` for perpetual self-directed optimization — never stops, continuously improves until 8-angle exhaustion.
+- Use `subagent-orchestrator` and `Harness/subagents.md` when coordinating multiple subagents.
+- Use `/wf-update` to check for and apply scaffold updates from GitHub. See `.claude/skills/wf-update/SKILL.md`.
+- Subagents are readers and reporters. Only the main agent writes to `Harness/tasks/<task-id>/PROGRESS.md` and `Harness/tasks/<task-id>/PLAN.md`.
+- For memory writing and consolidation (repeated failures, user corrections, closeout), dispatch `memory-master`.
+- For context analysis and compression alerts (~85% window), dispatch `context-master`.
+- Universal rules live in `.claude/rules/ecc/common.md`.
+- Never bulk-read `Harness/`; route through `Harness/README.md` and `Harness/MEMORY.md`.
 
 ---
 
@@ -37,6 +65,7 @@ Before implementing:
 - No abstractions for single-use code.
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
+- Use explicit interfaces or state models only when they protect a real boundary, clarify ownership, or make verification/recovery simpler.
 - If you write 200 lines and it could be 50, rewrite it.
 
 Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
@@ -81,11 +110,21 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 
 ## 6. Memory & Self-Learning
 
-- `MEMORY.md` is the index. Detailed durable memory lives in `memory/`.
-- **Tool reflection trigger**: record a lightweight reflection when the same tool/use pattern fails 3+ times, or when a better command pattern/environment fix is found. Write it newest-first in `memory/tool-usage-reflections.md`.
-- **User correction trigger**: record a lightweight preference/correction when the user asks to remember it, or when the user corrects the same assumption/pattern 2+ times. Write it newest-first in `memory/user-corrections-preferences.md`.
-- **Agent lesson trigger**: record reusable lessons from review/debug loops in `memory/agent-lessons-patterns.md` when they would prevent recurrence.
+- `Harness/MEMORY.md` is the resource index. Detailed durable memory lives in `Harness/memory/`.
+- **Tool reflection trigger**: record a lightweight reflection when the same tool/use pattern fails 3+ times, or when a better command pattern/environment fix is found. Write it newest-first in `Harness/memory/tool-usage-reflections.md`.
+- **User correction trigger**: record a lightweight preference/correction when the user asks to remember it, or when the user corrects the same assumption/pattern 2+ times. Write it newest-first in `Harness/memory/user-corrections-preferences.md`.
+- **Agent lesson trigger**: record reusable lessons from review/debug loops in `Harness/memory/agent-lessons-patterns.md` when they would prevent recurrence.
+- **WF auto-trigger**: before WF closeout, dispatch `context-master` then `memory-master` (or use `/wf-learn`).
+- **Context threshold trigger**: when context approaches ~85% of the window, dispatch `context-master` to analyze and write a non-blocking compression suggestion to `Harness/tasks/<task-id>/PROGRESS.md#Heartbeat`.
+- **Closeout trigger**: during WF closeout, dispatch `context-master` to extract durable knowledge, then `memory-master` to consolidate into `Harness/memory/*`.
 - Update old entries instead of duplicating them. Never record secrets, credentials, tokens, or private data. If a memory is ambiguous, ask before writing.
+
+## 7. CEO Constraints
+
+- Never call `EnterPlanMode` — delegate planning to `planner` subagents (see `Harness/WF.md`).
+- Never write code directly in `/wf` or `/wf-max` mode — delegate all implementation to subagents (see `Harness/WF-MAX.md`).
+- **Enforcement**: `.claude/settings.json` denies `EnterPlanMode` via the `deny` list. CEO contract is in [Section 1a](#1a-ceo-contract-read-before-any-tool-use) — read it first.
+- WF-MAX hooks in `.claude/settings.json` block CEO Edit/Write/MultiEdit/Bash on source files. `Harness/.runtime/current-mode.json` persists mode state across sessions.
 
 ---
 

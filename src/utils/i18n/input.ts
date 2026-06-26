@@ -96,6 +96,7 @@ export const cn = {
   'title.alignLeft': '居左',
   'title.alignCenter': '居中',
   'title.alignRight': '居右',
+  'title.authorAlignment': '作者对齐',
 } as const;
 
 export const en = {
@@ -195,6 +196,7 @@ export const en = {
   'title.alignLeft': 'Left',
   'title.alignCenter': 'Center',
   'title.alignRight': 'Right',
+  'title.authorAlignment': 'Author Alignment',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
@@ -294,6 +296,7 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'title.alignLeft': 'Izquierda',
   'title.alignCenter': 'Centro',
   'title.alignRight': 'Derecha',
+  'title.authorAlignment': 'Alineación del autor',
 };
 
 export const de = {
@@ -393,4 +396,5 @@ export const de = {
   'title.alignLeft': 'Links',
   'title.alignCenter': 'Zentriert',
   'title.alignRight': 'Rechts',
+  'title.authorAlignment': 'Autor-Ausrichtung',
 } as const;

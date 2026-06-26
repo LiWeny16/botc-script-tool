@@ -25,7 +25,7 @@ export default function EditablePageTitle({
   titleImage,
   useImage = false,
   imageSize = 160,
-  fontSize = '5rem',
+  fontSize = 'clamp(3rem, 4.8vw, 4.2rem)',
   readOnly = false,
   onEdit,
   textAlignment = 'center',
@@ -45,6 +45,7 @@ export default function EditablePageTitle({
             ? 'flex-end'
             : 'center',
         width: '100%',
+        zIndex: 3,
       }}
     >
       {useImage && titleImage ? (
@@ -58,6 +59,7 @@ export default function EditablePageTitle({
             display: 'flex',
             justifyContent: 'center',
             width: '100%',
+            zIndex: 2,
           }}
         >
           <CharacterImage
@@ -106,6 +108,7 @@ export default function EditablePageTitle({
             cursor: readOnly ? 'default' : 'pointer',
             width: '100%',
             display: 'flex',
+            zIndex: 2,
             justifyContent:
               textAlignment === 'left'
                 ? 'flex-start'
@@ -119,8 +122,12 @@ export default function EditablePageTitle({
               fontFamily: uiConfigStore.scriptTitleFont,
               fontWeight: 'bold',
               fontSize,
+              lineHeight: 1.08,
               textAlign: textAlignment,
               whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              maxWidth: 'min(900px, 88%)',
+              letterSpacing: 0,
 
               background: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
               backgroundSize: 'cover',

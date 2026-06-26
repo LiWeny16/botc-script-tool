@@ -25,17 +25,22 @@ const commonAgents = [
   'debugger',
   'reviewer',
   'verifier',
+  'memory-master',
+  'context-master',
+  'explore-manager',
+  'architect-manager',
+  'implement-manager',
+  'review-manager',
 ];
 
 const commonSkills = [
-  'harness-router',
-  'harness-lifecycle',
-  'harness-research',
-  'harness-context',
-  'harness-build-loop',
-  'wf-mode',
+  'wf-update',
+  'wf-max',
+  'wf-review',
+  'wf-learn',
   'subagent-orchestrator',
-  'readme-optimizer',
+  'wf-readme',
+  'wf-remove',
 ];
 
 const memoryFiles = [
@@ -50,14 +55,16 @@ const required = [
   'README.md',
   'Harness/MEMORY.md',
   'Harness/WF.md',
+  'Harness/WF-MAX.md',
   ...memoryFiles,
   '.claude/settings.json',
   '.claude/commands/wf.md',
+  '.claude/commands/wf-max.md',
   '.claude/rules/ecc/common.md',
   ...commonAgents.map(agent => `.claude/agents/${agent}.md`),
   ...commonSkills.map(skill => `.claude/skills/${skill}/SKILL.md`),
   'Harness/README.md',
-  'Harness/PLAN.md',
+  'Harness/PROGRESS.md',
   'Harness/lifecycle.md',
   'Harness/subagents.md',
   'Harness/dispatch.md',
@@ -65,21 +72,23 @@ const required = [
   'Harness/context-loading.md',
   'Harness/agent-workflow.md',
   'Harness/architecture.md',
-  'Harness/data-flow.md',
-  'Harness/state-machines.md',
-  'Harness/features/_template.md',
   'Harness/research/README.md',
   'Harness/research/research-results.md',
   'Harness/research/PRD.md',
-  'Harness/domain/ports.md',
+  '.claude/skills/wf-update/SKILL.md',
+  '.claude/commands/wf-update.md',
+  'Harness/scripts/wf-update-check.mjs',
+  'Harness/scripts/wf-remove.mjs',
+  'Harness/scripts/scan-clean.mjs',
+  '.claude/commands/wf-remove.md',
+  'Harness/.harness-version',
 ];
 
 const projectFacts = [
-  'Harness/PLAN.md',
+  'Harness/PROGRESS.md',
   'Harness/research/PRD.md',
   'Harness/research/research-results.md',
   'Harness/architecture.md',
-  'Harness/domain/ports.md',
 ];
 
 const contextPacks = [
@@ -93,6 +102,8 @@ const contextPacks = [
   'Reviewer:',
   'Debugger:',
   'Verifier:',
+  'Memory Master:',
+  'Context Master:',
 ];
 
 const durableCommunicationDocs = [
@@ -181,6 +192,37 @@ for (const rel of required) {
   }
 }
 
+// Task capsule template files
+const taskTemplateDir = path.join(root, 'Harness', 'tasks', '_template');
+if (!fs.existsSync(taskTemplateDir)) {
+  errors.push('missing directory: Harness/tasks/_template/');
+} else {
+  for (const f of ['PROGRESS.md', 'PLAN.md']) {
+    if (!fs.existsSync(path.join(taskTemplateDir, f))) {
+      errors.push(`missing task template file: Harness/tasks/_template/${f}`);
+    }
+  }
+}
+
+// Cross-reference: DONE files in task PLAN.md must exist on disk
+const taskDirs = fs.existsSync(path.join(root, 'Harness', 'tasks'))
+  ? fs.readdirSync(path.join(root, 'Harness', 'tasks'), { withFileTypes: true })
+      .filter(e => e.isDirectory() && e.name !== '_template')
+      .map(e => e.name)
+  : [];
+for (const taskDir of taskDirs) {
+  const planPath = `Harness/tasks/${taskDir}/PLAN.md`;
+  const planText = read(planPath);
+  if (!planText) continue;
+  const donePattern = /`([^`]+\.(?:md|mjs|js|ts|json|html|css))`[^\n]*DONE/gi;
+  for (const match of planText.matchAll(donePattern)) {
+    const claimedFile = match[1];
+    if (!fs.existsSync(path.join(root, claimedFile))) {
+      errors.push(`${planPath} claims '${claimedFile}' is DONE but file does not exist`);
+    }
+  }
+}
+
 if (fs.existsSync(path.join(root, 'Harness/research/scaffolds.md'))) {
   errors.push('legacy research file should be renamed: Harness/research/scaffolds.md -> Harness/research/research-results.md');
 }
@@ -218,19 +260,22 @@ requireText('CLAUDE.md', 'Harness/MEMORY.md` is the memory/resource router', 'me
 requireText('CLAUDE.md', 'Harness/README.md#Load By Task', 'Harness task router');
 requireText('CLAUDE.md', 'Harness/SETUP.md` exists, follow it before normal project work', 'setup bootstrap contract');
 requireText('CLAUDE.md', 'subagent-orchestrator` and `Harness/subagents.md', 'subagent orchestrator entry trigger');
+requireText('CLAUDE.md', 'Harness/PROGRESS.md` is the global task index', 'PROGRESS global task index');
+requireText('CLAUDE.md', 'Harness/tasks/', 'task capsule directory reference');
+requireText('CLAUDE.md', 'Subagents are readers and reporters', 'subagent state committer rule');
 for (const heading of ['## 2. Think Before Coding', '## 3. Simplicity First', '## 4. Surgical Changes', '## 5. Goal-Driven Execution']) {
   requireText('CLAUDE.md', heading, `Karpathy-style rule heading: ${heading}`);
 }
 
-const plan = read('Harness/PLAN.md');
-if (plan) {
-  for (const heading of ['## Current Goal', '## Phase', '## Heartbeat', '## Success Criteria', '## Loaded Context', '## Tasks', '## Parallel Dispatch', '## Subagent Synthesis', '## Verification']) {
-    if (!plan.includes(heading)) errors.push(`Harness/PLAN.md missing heading: ${heading}`);
-  }
-  for (const marker of ['Next beat trigger', 'Recovery action']) {
-    if (!plan.includes(marker)) errors.push(`Harness/PLAN.md missing heartbeat marker: ${marker}`);
+// Root PROGRESS.md structure check
+const progress = read('Harness/PROGRESS.md');
+if (progress) {
+  for (const heading of ['## Active Task', '## Task Index', '## Cross-Task Decisions']) {
+    if (!progress.includes(heading)) errors.push(`Harness/PROGRESS.md missing heading: ${heading}`);
   }
 }
+
+// Legacy PLAN.md deprecation check (removed — stub only)
 
 const dispatch = read('Harness/dispatch.md');
 if (dispatch) {
@@ -304,7 +349,6 @@ function requireUiSelectorContract(rel) {
 
 requireUiSelectorContract('Harness/workflows/browser-e2e.md');
 requireUiSelectorContract('Harness/workflows/ts-react-frontend.md');
-requireUiSelectorContract('Harness/features/_template.md');
 
 for (const skill of commonSkills) {
   const rel = `.claude/skills/${skill}/SKILL.md`;
@@ -330,7 +374,7 @@ for (const agent of commonAgents) {
   const text = read(rel);
   if (!text) continue;
 
-  for (const field of ['name', 'description', 'tools', 'model', 'skills']) {
+  for (const field of ['name', 'description', 'tools', 'model']) {
     if (!frontmatterField(text, field)) errors.push(`${rel} missing frontmatter field: ${field}:`);
   }
 
@@ -349,22 +393,48 @@ for (const agent of commonAgents) {
 }
 
 requireText('Harness/extension.md', 'Skills should extend the harness');
-requireText('Harness/agent-workflow.md', 'Harness/PLAN.md');
+requireText('Harness/agent-workflow.md', 'Harness/tasks/<task-id>/PROGRESS.md');
 requireText('Harness/research/README.md', 'research-results.md');
 requireText('Harness/WF.md', 'Ralph-style harness loop', 'WF loop description');
 requireText('Harness/WF.md', 'Heartbeat Protocol', 'heartbeat protocol');
-requireText('.claude/skills/wf-mode/SKILL.md', 'Harness/WF.md', 'wf-mode loads WF document');
-requireText('.claude/skills/wf-mode/SKILL.md', 'Harness/subagents.md', 'wf-mode loads subagent orchestration');
+requireText('Harness/WF.md', 'WF mode requires multi-subagent orchestration by default', 'WF multi-subagent default');
+requireText('Harness/WF.md', 'Explicit `/wf`, `wf mode`, `workflow mode`, or `wk mode` MUST spawn at least 3 distinct subagents', 'explicit WF/WK subagent minimum');
+requireText('Harness/WF.md', '.claude/agents/', 'WF built-in agent roster path');
+requireText('Harness/WF.md', 'Collaboration decision tree', 'WF decision tree');
+requireText('Harness/WF.md', 'Harness/tasks/', 'WF task directory reference');
+requireText('Harness/README.md', '`wf mode`, `workflow mode`, or `wk mode`', 'WF/WK router aliases');
+requireText('Harness/README.md', 'explicit WF/WK loads subagent docs immediately', 'explicit WF/WK router output');
+// harness-* wrapper skills removed — routing table in README.md is the single source
+// wf-mode skill removed — WF rules now live directly in Harness/WF.md and .claude/commands/wf.md
 requireText('.claude/skills/subagent-orchestrator/SKILL.md', 'Harness/subagents.md', 'subagent-orchestrator loads subagents doc');
-requireText('.claude/skills/harness-context/SKILL.md', 'Harness/subagents.md', 'harness-context loads subagents doc');
-requireText('.claude/skills/readme-optimizer/SKILL.md', 'README.md', 'readme-optimizer loads README');
-requireText('.claude/skills/readme-optimizer/SKILL.md', 'Harness/architecture.md', 'readme-optimizer links architecture docs');
+requireText('.claude/skills/subagent-orchestrator/SKILL.md', '.claude/agents/', 'subagent-orchestrator built-in agent roster path');
+requireText('.claude/skills/subagent-orchestrator/SKILL.md', '`workflow mode`, `wk mode`', 'subagent-orchestrator WF/WK aliases');
+requireText('.claude/skills/wf-readme/SKILL.md', 'README.md', 'wf-readme loads README');
+requireText('.claude/skills/wf-readme/SKILL.md', 'Harness/architecture.md', 'wf-readme links architecture docs');
 requireText('Harness/subagents.md', '## Source Attribution', 'subagent source attribution');
 requireText('Harness/subagents.md', 'npx skills find', 'find-skills discovery attribution');
 requireText('Harness/subagents.md', 'superpowers:dispatching-parallel-agents', 'parallel-agent source attribution');
 requireText('Harness/subagents.md', 'superpowers:subagent-driven-development', 'subagent-driven source attribution');
+requireText('Harness/subagents.md', '## Built-in Agent Roster', 'built-in agent roster');
+requireText('Harness/subagents.md', '## WF Default Fan-Out', 'WF default fan-out');
+requireText('Harness/subagents.md', 'concrete conditions', 'subagent decision tree');
+requireText('Harness/subagents.md', 'parallel planner/researcher/docs-researcher/architect subagents', 'WF roster orchestration shape');
 requireText('Harness/subagents.md', '## Efficiency Ladder', 'subagent efficiency ladder');
 requireText('Harness/subagents.md', '## Review Gates', 'subagent review gates');
+requireText('Harness/architecture.md', '## 2. Interface Decoupling', 'architecture interface decoupling');
+requireText('Harness/architecture.md', '## 3. State Design', 'architecture state design');
+requireText('Harness/architecture.md', 'Avoid speculative abstraction', 'anti-overengineering architecture rule');
+requireText('CLAUDE.md', 'Use explicit interfaces or state models only when they protect a real boundary', 'CLAUDE interface/state simplicity rule');
+requireText('CLAUDE.md', '/wf-update', 'wf update startup instruction');
+requireText('Harness/README.md', 'Need harness update', 'update routing row');
+requireText('Harness/WF-MAX.md', 'write-set coloring', 'WF-MAX coloring algorithm');
+requireText('Harness/WF-MAX.md', 'wave dispatch', 'WF-MAX wave dispatch');
+requireText('Harness/README.md', '/wf-max', 'wf max router alias');
+requireText('Harness/README.md', 'WF-MAX.md', 'WF-MAX router reference');
+requireText('Harness/subagents.md', 'Max parallelism', 'subagents max parallelism row');
+requireText('Harness/dispatch.md', 'Concurrency group', 'dispatch concurrency group field');
+requireText('Harness/dispatch.md', 'File claim', 'dispatch file claim field');
+requireText('CLAUDE.md', '/wf-max', 'wf max startup instruction');
 
 if (errors.length) {
   console.error(`Harness validation failed${strict ? ' (strict)' : ''}:`);

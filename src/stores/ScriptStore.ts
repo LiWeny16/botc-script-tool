@@ -70,6 +70,9 @@ class ScriptStore {
       if ((script as any).textAlignment && (script as any).textAlignment !== 'center') {
         meta.text_alignment = (script as any).textAlignment;
       }
+      if ((script as any).authorAlignment && (script as any).authorAlignment !== 'center') {
+        meta.author_alignment = (script as any).authorAlignment;
+      }
       
       // Second page configuration
       if (script.secondPageTitle !== undefined) meta.second_page_title = script.secondPageTitle;
@@ -526,6 +529,7 @@ class ScriptStore {
     author?: string;
     playerCount?: string;
     textAlignment?: 'left' | 'center' | 'right';
+    authorAlignment?: 'left' | 'center' | 'right';
     secondPageTitleText?: string;
     secondPageTitleImage?: string;
     secondPageTitleFontSize?: number;
@@ -570,6 +574,7 @@ class ScriptStore {
     if (data.author !== undefined) updatedScript.author = data.author;
     if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
     if (data.textAlignment !== undefined) (updatedScript as any).textAlignment = data.textAlignment;
+    if (data.authorAlignment !== undefined) (updatedScript as any).authorAlignment = data.authorAlignment;
 
     if (data.storytellerFirstNight !== undefined) {
       updatedScript.storytellerFirstNight = data.storytellerFirstNight;
@@ -996,6 +1001,7 @@ class ScriptStore {
     author?: string;
     playerCount?: string;
     textAlignment?: 'left' | 'center' | 'right';
+    authorAlignment?: 'left' | 'center' | 'right';
     secondPageTitleText?: string;
     secondPageTitleImage?: string;
     secondPageTitleFontSize?: number;
@@ -1058,6 +1064,13 @@ class ScriptStore {
               updatedMeta.text_alignment = data.textAlignment;
             } else {
               delete updatedMeta.text_alignment;
+            }
+          }
+          if (data.authorAlignment !== undefined) {
+            if (data.authorAlignment && data.authorAlignment !== 'center') {
+              updatedMeta.author_alignment = data.authorAlignment;
+            } else {
+              delete updatedMeta.author_alignment;
             }
           }
           
@@ -1138,6 +1151,9 @@ class ScriptStore {
         }
         if (data.textAlignment && data.textAlignment !== 'center') {
           newMeta.text_alignment = data.textAlignment;
+        }
+        if (data.authorAlignment && data.authorAlignment !== 'center') {
+          newMeta.author_alignment = data.authorAlignment;
         }
         if (data.secondPageTitleText) {
           newMeta.second_page_title_text = data.secondPageTitleText;

@@ -59,6 +59,7 @@ export interface ScriptMeta {
   storyteller_other_night_title_image_size?: number;
   playerCount?: string;
   text_alignment?: 'left' | 'center' | 'right';
+  author_alignment?: 'left' | 'center' | 'right';
 }
 
 // Special rule card item

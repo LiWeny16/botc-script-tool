@@ -151,12 +151,12 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   enableTwoPageMode: false,
   enableStorytellerNightOrderSheet: false,
   storytellerNightSheet: {
-    iconSize: 2,
-    textSize: 1,
+    iconSize: 1.6,
+    textSize: 1.02,
     groupGap: 1,
     spacing: 1,
     reminderFontSize: 1,
-    titleContentSpacing: 50,
+    titleContentSpacing: 18,
   },
 
   titleHeightMd: 100,

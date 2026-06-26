@@ -306,6 +306,10 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       const rawAlign = (item as any).text_alignment;
       (script as any).textAlignment = (rawAlign === 'left' || rawAlign === 'center' || rawAlign === 'right') ? rawAlign : 'center';
 
+      // Parse author alignment — only allow valid CSS values
+      const rawAuthorAlign = (item as any).author_alignment;
+      (script as any).authorAlignment = (rawAuthorAlign === 'left' || rawAuthorAlign === 'center' || rawAuthorAlign === 'right') ? rawAuthorAlign : 'center';
+
       // Parse column left count (asymmetric 2-col layout)
       if (item.column_left_count && typeof item.column_left_count === 'object') {
         script.columnLeftCount = item.column_left_count;

@@ -34,7 +34,6 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import StorytellerNightOrderSheet from './StorytellerNightOrderSheet';
-import EditablePageTitle from './EditablePageTitle';
 
 
 const backgroundIndex = 2
@@ -329,6 +328,57 @@ const ScriptRenderer = observer(({
                 return null;
         }
     }, [script, readOnly, onSecondPageTitleEdit, onTitleEdit, onReorderCharacters, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, onAddCustomCharacter, onSpecialRuleEdit, onSpecialRuleDelete]);
+
+    const storytellerTitleContentSpacing = Math.min(
+        uiConfigStore.config.storytellerNightSheet.titleContentSpacing,
+        20,
+    );
+    const storytellerColumnTitleSx = {
+        fontFamily: uiConfigStore.scriptTitleFont,
+        fontWeight: 'bold',
+        fontSize: 'clamp(1.55rem, 2.4vw, 2.25rem)',
+        lineHeight: 1.05,
+        textAlign: 'center',
+        mb: 0.5,
+        letterSpacing: 0,
+        wordBreak: 'break-word',
+        color: THEME_COLORS.paper.primary,
+        textShadow: '0 1px 0 rgba(255, 255, 255, 0.45)',
+        cursor: readOnly ? 'default' : 'pointer',
+    };
+    const storytellerPageBackgroundImage = uiConfigStore.config.theme === 'sakura'
+        ? `url(${uiConfigStore.mainBackgroundUrl})`
+        : `url(/imgs/images/background/back_tower.png), url(/imgs/images/background/back_tower2.png), url(${uiConfigStore.mainBackgroundUrl})`;
+    const storytellerPageBackgroundSize = uiConfigStore.config.theme === 'sakura'
+        ? '100% 100%'
+        : '18% auto, 42% auto, 100% 100%';
+    const storytellerPageBackgroundPosition = uiConfigStore.config.theme === 'sakura'
+        ? 'center'
+        : 'left bottom, 58% bottom, center';
+    const storytellerPageBackgroundRepeat = uiConfigStore.config.theme === 'sakura'
+        ? 'no-repeat'
+        : 'no-repeat, no-repeat, no-repeat';
+    const storytellerNightPageSx = {
+        flex: 1,
+        minHeight: '100vh',
+        backgroundImage: storytellerPageBackgroundImage,
+        backgroundSize: storytellerPageBackgroundSize,
+        backgroundPosition: storytellerPageBackgroundPosition,
+        backgroundRepeat: storytellerPageBackgroundRepeat,
+        borderRadius: 0,
+        position: 'relative',
+        boxShadow: 'none',
+        display: 'flex',
+        flexDirection: 'column',
+        '& > *': {
+            position: 'relative',
+            zIndex: backgroundIndex + 3,
+        },
+        '@media print': {
+            height: '100vh !important',
+            minHeight: '100vh !important',
+        },
+    };
     
     return (
         <>
@@ -516,15 +566,21 @@ const ScriptRenderer = observer(({
                                 {/* 标题 */}
                                 <Box
                                     sx={{
-
                                         position: { xs: 'relative', md: 'absolute' },
                                         top: { xs: 'auto', md: '50%' },
-                                        left: { xs: 'auto', md: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%' },
-                                        transform: { xs: 'none', md: 'translate(-50%, -50%)' },
+                                        left: { xs: 'auto', md: (() => {
+                                            const align = (script as any).textAlignment || 'center';
+                                            if (align === 'right') return 'auto';
+                                            if (align === 'left') return '5%';
+                                            // center
+                                            return script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%';
+                                        })() },
+                                        right: { xs: 'auto', md: ((script as any).textAlignment || 'center') === 'right' ? '5%' : 'auto' },
+                                        transform: { xs: 'none', md: ((script as any).textAlignment || 'center') === 'center' ? 'translate(-50%, -50%)' : 'translate(0, -50%)' },
                                         zIndex: 1,
                                         maxWidth: {
                                             xs: '100%',
-                                            md: script?.specialRules && script.specialRules.length > 0 ? '32%' : '70%'
+                                            md: script?.specialRules && script.specialRules.length > 0 ? (script as any).textAlignment === 'center' ? '32%' : '100%' : '70%'
                                         },
                                         width: {
                                             xs: '100%',
@@ -746,7 +802,7 @@ const ScriptRenderer = observer(({
                                         color: THEME_COLORS.paper.secondary,
                                         fontSize: { xs: '0.75rem', sm: '0.95rem' },
                                         mt: 0.5,
-                                        textAlign: (script as any).textAlignment || 'center',
+                                        textAlign: (script as any).authorAlignment || 'center',
                                     }}
                                 >
                                     {script.author ? `${t('script.author2')}：${script.author}` : ''}
@@ -1252,6 +1308,7 @@ const ScriptRenderer = observer(({
                         minHeight: '100vh',
                         justifyContent: "center",
                         position: 'relative',
+                        isolation: 'isolate',
                     }}
                 >
 
@@ -1279,7 +1336,7 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
+                                    zIndex: backgroundIndex + 4,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
                                 }}
@@ -1295,7 +1352,7 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
+                                    zIndex: backgroundIndex + 4,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
                                 }}
@@ -1311,7 +1368,7 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '35%', sm: '20%', md: '20%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
+                                    zIndex: backgroundIndex + 4,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
                                 }}
@@ -1328,66 +1385,11 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
+                                    zIndex: backgroundIndex + 4,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
                                 }}
                             />
-                            {uiConfigStore.config.theme === 'sakura' ? (
-                              <CharacterImage
-                                component="img"
-                                src="/imgs/images/background/back_cherry.jpg"
-                                alt="back_cherry"
-                                sx={{
-                                  position: "absolute",
-                                  left: "0%",
-                                  bottom: "0",
-                                  width: "100%",
-                                  zIndex: backgroundIndex,
-                                  opacity: 0.5,
-                                  userSelect: 'none',
-                                  WebkitUserDrag: 'none',
-                                  pointerEvents: 'none',
-                                }}
-                              />
-                            ) : (
-                              <>
-                            <CharacterImage
-                                component="img"
-                                src={"/imgs/images/background/back_tower.png"}
-                                alt={"back_tower"}
-                                sx={{
-                                    position: "absolute",
-                                    left: "0%",
-                                    bottom: "0",
-                                    display: "flex",
-                                    width: "20%",
-                                    zIndex: backgroundIndex,
-                                    opacity: 0.4,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                    pointerEvents: 'none',
-                                }}
-                            />
-                            <CharacterImage
-                                component="img"
-                                src={"/imgs/images/background/back_tower2.png"}
-                                alt={"back_tower2"}
-                                sx={{
-                                    position: "absolute",
-                                    left: "36%",
-                                    bottom: "0%",
-                                    display: "flex",
-                                    width: "50%",
-                                    zIndex: backgroundIndex,
-                                    opacity: 0.8,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                    pointerEvents: 'none',
-                                }}
-                            />
-                              </>
-                            )}
                         </>
                         );
                     })()}
@@ -1400,7 +1402,7 @@ const ScriptRenderer = observer(({
                                 flexShrink: 0,
                                 position: 'relative',
                                 backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                                width: '75px',
+                                width: '56px',
                                 boxShadow: 'none',
                             }}
                         />
@@ -1409,40 +1411,82 @@ const ScriptRenderer = observer(({
                     {/* Mittlere Seite */}
                     <Paper
                         elevation={0}
-                        sx={{
-                            flex: 1,
-                            minHeight: '100vh',
-                            backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
-                            backgroundSize: '100% 100%',
-                            backgroundPosition: 'center',
-                            backgroundRepeat: 'no-repeat',
-                            borderRadius: 0,
-                            position: 'relative',
-                            boxShadow: 'none',
-                        }}
+                        sx={storytellerNightPageSx}
                     >
-                        
-                        <EditablePageTitle
-                            title={displayedFirstNightTitle}
-                            titleImage={script.storytellerFirstNightTitleImage}
-                            useImage={script.useStorytellerFirstNightTitleImage}
-                            imageSize={script.storytellerFirstNightTitleImageSize}
-                            fontSize={script.storytellerFirstNightTitleFontSize}
-                            readOnly={readOnly}
-                            onEdit={() => onTitleEdit?.('firstNight')}
-                            />
                         <Box
                             sx={{
-                                mt: `${uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px`,
+                                display: 'grid',
+                                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
+                                gap: { xs: 1.5, md: 2 },
+                                alignItems: 'start',
+                                px: { xs: 1.25, sm: 2.5, md: 3.5 },
+                                pt: { xs: 2, md: 2.5 },
+                                pb: { xs: 2, md: 2.5 },
                             }}
-                            >
-                            <StorytellerNightOrderSheet
-                                characters={allCharacters}
-                                mode="firstNight"
-                            />
+                        >
+                            <Box sx={{ minWidth: 0, pt: '40px' }}>
+                                {script.useStorytellerFirstNightTitleImage && script.storytellerFirstNightTitleImage ? (
+                                    <CharacterImage
+                                        src={script.storytellerFirstNightTitleImage}
+                                        alt={displayedFirstNightTitle}
+                                        sx={{
+                                            display: 'block',
+                                            maxWidth: '100%',
+                                            maxHeight: `${Math.min(script.storytellerFirstNightTitleImageSize || 120, 96)}px`,
+                                            objectFit: 'contain',
+                                            mx: 'auto',
+                                            mb: 0.5,
+                                            cursor: readOnly ? 'default' : 'pointer',
+                                        }}
+                                        onDoubleClick={() => !readOnly && onTitleEdit?.('firstNight')}
+                                    />
+                                ) : (
+                                    <Typography
+                                        sx={storytellerColumnTitleSx}
+                                        onDoubleClick={() => !readOnly && onTitleEdit?.('firstNight')}
+                                    >
+                                        {displayedFirstNightTitle}
+                                    </Typography>
+                                )}
+                                <Box sx={{ mt: `${storytellerTitleContentSpacing}px` }}>
+                                    <StorytellerNightOrderSheet
+                                        characters={allCharacters}
+                                        mode="firstNight"
+                                    />
+                                </Box>
                             </Box>
-                        <Box sx={{ pt: '2rem', pb: '4vh', px: '20px' }}>
-                            <JinxSection key="jinx" script={script} />
+
+                            <Box sx={{ minWidth: 0, pt: '5px' }}>
+                                {script.useStorytellerOtherNightTitleImage && script.storytellerOtherNightTitleImage ? (
+                                    <CharacterImage
+                                        src={script.storytellerOtherNightTitleImage}
+                                        alt={displayedOtherNightTitle}
+                                        sx={{
+                                            display: 'block',
+                                            maxWidth: '100%',
+                                            maxHeight: `${Math.min(script.storytellerOtherNightTitleImageSize || 120, 96)}px`,
+                                            objectFit: 'contain',
+                                            mx: 'auto',
+                                            mb: 0.5,
+                                            cursor: readOnly ? 'default' : 'pointer',
+                                        }}
+                                        onDoubleClick={() => !readOnly && onTitleEdit?.('otherNight')}
+                                    />
+                                ) : (
+                                    <Typography
+                                        sx={storytellerColumnTitleSx}
+                                        onDoubleClick={() => !readOnly && onTitleEdit?.('otherNight')}
+                                    >
+                                        {displayedOtherNightTitle}
+                                    </Typography>
+                                )}
+                                <Box sx={{ mt: `${storytellerTitleContentSpacing}px` }}>
+                                    <StorytellerNightOrderSheet
+                                        characters={allCharacters}
+                                        mode="otherNight"
+                                    />
+                                </Box>
+                            </Box>
                         </Box>
                     </Paper>
 
@@ -1454,249 +1498,11 @@ const ScriptRenderer = observer(({
                                 flexShrink: 0,
                                 position: 'relative',
                                 backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                                width: '75px',
+                                width: '56px',
                                 boxShadow: 'none',
                             }}
                         />
                     )}
-                </Box>
-            </Paper>
-            )}
-            {/* PAGE 4 */}
-            {uiConfigStore.config.enableStorytellerNightOrderSheet && (
-            <Paper
-                elevation={16}
-                id="script-preview-4"
-                sx={{
-                display: "flex",
-                zIndex: 1,
-                mt: 5,
-                mb: 5,
-                width: "100%",
-                '@media print': {
-                    mt: 0,
-                    boxShadow: 'none !important',
-                    height: '100vh !important',
-                    minHeight: '100vh !important',
-                },
-                }}
-            >
-                <Box
-                sx={{
-                    display: "flex",
-                    width: "100%",
-                    minHeight: "100vh",
-                    justifyContent: "center",
-                    position: "relative",
-                }}
-                >
-
-
-                {/* Corner flowers */}
-                {(() => {
-                    const cf = uiConfigStore.cornerFlowers;
-                    const blSrc = cf?.bl || '/imgs/images/sources/flowers/flower3_2.png';
-                    const brSrc = cf?.br || '/imgs/images/sources/flowers/flower4.png';
-                    const trSrc = cf?.tr || '/imgs/images/sources/flowers/flower7.png';
-                    const tlSrc = cf?.tl || '/imgs/images/sources/flowers/flower4_2.png';
-
-                    const blTransform = cf ? 'scaleX(-1)' : 'none';
-                    const tlTransform = cf ? 'scaleX(-1) scaleY(-1)' : 'rotate(180deg)';
-                    
-
-                    return (
-                        <>
-                            <CharacterImage
-                                src={blSrc}
-                                alt="左下角装饰花纹"
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    left: 0,
-                                    transform: blTransform,
-                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                                    opacity: 1,
-                                    pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                }}
-                            />
-
-                            <CharacterImage
-                                src={brSrc}
-                                alt="右下角装饰花纹"
-                                sx={{
-                                    position: 'absolute',
-                                    bottom: 0,
-                                    right: 0,
-                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                                    opacity: 1,
-                                    pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                }}
-                            />
-
-                            <CharacterImage
-                                src={trSrc}
-                                alt="右上角装饰花纹"
-                                sx={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    right: 0,
-                                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
-                                    opacity: 1,
-                                    pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                }}
-                            />
-
-                            <CharacterImage
-                                src={tlSrc}
-                                alt="左上角装饰花纹"
-                                sx={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    transform: tlTransform,
-                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
-                                    opacity: 1,
-                                    pointerEvents: 'none',
-                                    zIndex: backgroundIndex,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                }}
-                            />
-                            {uiConfigStore.config.theme === 'sakura' ? (
-                              <CharacterImage
-                                component="img"
-                                src="/imgs/images/background/back_cherry.jpg"
-                                alt="back_cherry"
-                                sx={{
-                                  position: "absolute",
-                                  left: "0%",
-                                  bottom: "0",
-                                  width: "100%",
-                                  zIndex: backgroundIndex,
-                                  opacity: 0.5,
-                                  userSelect: 'none',
-                                  WebkitUserDrag: 'none',
-                                  pointerEvents: 'none',
-                                }}
-                              />
-                            ) : (
-                              <>
-                            <CharacterImage
-                                component="img"
-                                src={"/imgs/images/background/back_tower.png"}
-                                alt={"back_tower"}
-                                sx={{
-                                    position: "absolute",
-                                    left: "0%",
-                                    bottom: "0",
-                                    display: "flex",
-                                    width: "20%",
-                                    zIndex: backgroundIndex,
-                                    opacity: 0.4,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                    pointerEvents: 'none',
-                                }}
-                            />
-                            <CharacterImage
-                                component="img"
-                                src={"/imgs/images/background/back_tower2.png"}
-                                alt={"back_tower2"}
-                                sx={{
-                                    position: "absolute",
-                                    left: "36%",
-                                    bottom: "0%",
-                                    display: "flex",
-                                    width: "50%",
-                                    zIndex: backgroundIndex,
-                                    opacity: 0.8,
-                                    userSelect: 'none',
-                                    WebkitUserDrag: 'none',
-                                    pointerEvents: 'none',
-                                }}
-                            />
-                              </>
-                            )}
-                        </>
-                        );
-                })()}
-
-                {/* linker Rand */}
-                {!isMobile && (
-                    <Box
-                    sx={{
-                        padding: 1.5,
-                        flexShrink: 0,
-                        position: 'relative',
-                        backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                        width: '75px',
-                        boxShadow: 'none',
-                    }}
-                    />
-                )}
-
-                {/* Mitte */}
-                <Paper
-                    elevation={0}
-                    sx={{
-                    flex: 1,
-                    minHeight: '100vh',
-                    backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
-                    backgroundSize: '100% 100%',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
-                    borderRadius: 0,
-                    position: 'relative',
-                    boxShadow: 'none',
-                    }}
-                >
-                    <EditablePageTitle
-                        title = {displayedOtherNightTitle}
-                        titleImage={script.storytellerOtherNightTitleImage}
-                        useImage={script.useStorytellerOtherNightTitleImage}
-                        imageSize={script.storytellerOtherNightTitleImageSize}
-                        fontSize={script.storytellerOtherNightTitleFontSize}
-                        readOnly={readOnly}
-                        onEdit={() => onTitleEdit?.('otherNight')}
-                    />
-                    
-                    <Box
-                        sx={{
-                            mt: `${uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px`,
-                        }}
-                        >
-                        <StorytellerNightOrderSheet
-                            characters={allCharacters}
-                            mode="otherNight"
-                        />
-                    </Box>
-                    <Box sx={{ pt: '2rem', pb: '4vh', px: '20px' }}>
-                        <JinxSection key="jinx" script={script} />
-                    </Box>
-                </Paper>
-
-                {/* rechter Rand */}
-                {!isMobile && (
-                    <Box
-                        sx={{
-                            padding: 1.5,
-                            flexShrink: 0,
-                            position: 'relative',
-                            backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                            width: '75px',
-                            boxShadow: 'none',
-                        }}
-                    />
-                )}
                 </Box>
             </Paper>
             )}

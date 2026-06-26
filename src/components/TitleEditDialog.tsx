@@ -36,6 +36,7 @@ interface TitleEditDialogProps {
   author: string;
   playerCount?: string;
   textAlignment?: 'left' | 'center' | 'right';
+  authorAlignment?: 'left' | 'center' | 'right';
   onClose: () => void;
   onSave: (data: {
     title: string;
@@ -46,6 +47,7 @@ interface TitleEditDialogProps {
     author: string;
     playerCount?: string;
     textAlignment?: 'left' | 'center' | 'right';
+    authorAlignment?: 'left' | 'center' | 'right';
   }) => void;
 }
 
@@ -59,6 +61,7 @@ const TitleEditDialog = ({
   author,
   playerCount,
   textAlignment,
+  authorAlignment,
   onClose,
   onSave,
 }: TitleEditDialogProps) => {
@@ -66,6 +69,7 @@ const TitleEditDialog = ({
   const [useImage, setUseImage] = useState(useTitleImage !== undefined ? useTitleImage : !!titleImage);
   const [showFlourish, setShowFlourish] = useState(showTitleFlourish !== undefined ? showTitleFlourish : true);
   const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>(textAlignment || 'center');
+  const [authorAlign, setAuthorAlign] = useState<'left' | 'center' | 'right'>(authorAlignment || 'center');
   const [formData, setFormData] = useState({
     title: title || '',
     titleImage: titleImage || '',
@@ -96,6 +100,7 @@ const TitleEditDialog = ({
     });
     setShowFlourish(showTitleFlourish !== undefined ? showTitleFlourish : true);
     setAlignment(textAlignment || 'center');
+    setAuthorAlign(authorAlignment || 'center');
     setFirstPageImageSize(titleImageSize || 160);
     setFontSizes({
       xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
@@ -158,6 +163,7 @@ const TitleEditDialog = ({
       useTitleImage: useImage,
       showTitleFlourish: showFlourish,
       textAlignment: alignment,
+      authorAlignment: authorAlign,
     };
     
     // 保存字体大小到 UIConfigStore
@@ -357,7 +363,7 @@ const TitleEditDialog = ({
             size="small"
           />
 
-          {/* Title + Author text alignment */}
+          {/* Title text alignment */}
           <Box>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
               {t('title.textAlignment')}
@@ -366,6 +372,30 @@ const TitleEditDialog = ({
               value={alignment}
               exclusive
               onChange={(_, val) => val && setAlignment(val)}
+              size="small"
+              fullWidth
+            >
+              <ToggleButton value="left">
+                <AlignLeftIcon sx={{ mr: 0.5 }} /> {t('title.alignLeft')}
+              </ToggleButton>
+              <ToggleButton value="center">
+                <AlignCenterIcon sx={{ mr: 0.5 }} /> {t('title.alignCenter')}
+              </ToggleButton>
+              <ToggleButton value="right">
+                <AlignRightIcon sx={{ mr: 0.5 }} /> {t('title.alignRight')}
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Box>
+
+          {/* Author text alignment */}
+          <Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+              {t('title.authorAlignment')}
+            </Typography>
+            <ToggleButtonGroup
+              value={authorAlign}
+              exclusive
+              onChange={(_, val) => val && setAuthorAlign(val)}
               size="small"
               fullWidth
             >

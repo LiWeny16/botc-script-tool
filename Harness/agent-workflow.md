@@ -5,23 +5,33 @@ Use when implementing, reviewing, debugging, or coordinating subagents.
 ## ReAct Loop
 
 ```text
-Observe -> Load minimal context -> Plan -> Act -> Verify -> Update Harness/PLAN.md
+Observe -> Load minimal context -> Plan -> Act -> Verify -> Update Harness/tasks/<task-id>/PROGRESS.md
 ```
 
 If context grows, load [context-loading.md](context-loading.md) and split the work. If more than one agent is useful, load [subagents.md](subagents.md) and [dispatch.md](dispatch.md).
 
 ## Feature Packet
 
-Every PRD scope item (`research/PRD.md` Section 2) must have its own feature doc at `Harness/features/<name>.md` created from `Harness/features/_template.md`. One feature = one doc = one implementation unit. Do not code without a feature doc.
+Every PRD scope item must be covered by a task plan at `Harness/tasks/<task-id>/PLAN.md`
+created from `Harness/tasks/_template/PLAN.md` (the primary work tracking system).
+**Cohesion rule**: if multiple PRD scope items share the same write set, the same
+test/verification path, and the same review boundary, group them into a single
+feature doc. The PRD owns scope decomposition; the feature doc owns the
+implementation unit. The number of feature docs should reflect the number of
+distinguishable implementation units, not the number of PRD checkboxes.
 
-Small scope is not an exception — a short feature doc is better than none. If the work is truly too small for a full feature doc (single-file fix, no behavior change), it is not a PRD scope item.
+**Minimum bar**: a task plan is required when the implementation touches more than one
+file or changes user-visible behavior. Record the plan in `Harness/tasks/<task-id>/PLAN.md`.
+For single-file fixes with no behavior change, a brief note in `PROGRESS.md` is enough.
 
-**New vs iterate**: if a PRD scope item has ≥85% overlap with an existing feature doc, open the existing doc, bump `Version`, and add a `## Changelog` entry. Only create a new file when the scope is substantially different. When unsure, ask.
+**New vs iterate**: if a PRD scope item overlaps with an existing task, reopen the existing
+task capsule and append to its `PROGRESS.md`. Only create a new task capsule when the
+scope is substantially different. When unsure, ask.
 
 ## Standard Build Loop
 
 ```text
-PRD/feature packet
+PRD/task plan
 -> failing test or manual check
 -> minimal implementation
 -> verification
@@ -58,16 +68,16 @@ Rules:
 
 ## Parallel Dispatch
 
-Use [subagents.md](subagents.md) and [dispatch.md](dispatch.md) for multi-agent work. Default to at most three active agents. Prefer parallel read-only work first, then serial writes.
+Use [subagents.md](subagents.md) and [dispatch.md](dispatch.md) for multi-agent work. Default to at most three active agents (WF mode overrides this; see [WF.md](WF.md)). In `/wf max`, the CEO/Manager/Worker hierarchy in [WF-MAX.md](WF-MAX.md) overrides this limit entirely with wave-based parallel dispatch. Prefer parallel read-only work first, then serial writes.
 
 Every dispatched agent returns the handoff format defined in [dispatch.md](dispatch.md).
 
 ## Conflict Rule
 
-If PRD, Harness/PLAN.md, architecture, ports, tests, or code disagree:
+If PRD, task PLAN.md, architecture, ports, tests, or code disagree:
 
 1. stop implementation
-2. record the conflict in `Harness/PLAN.md` or the feature doc
+2. record the conflict in `Harness/tasks/<task-id>/PROGRESS.md` or the feature doc
 3. choose the smallest reversible decision
 4. ask the maintainer when user-visible behavior or security is affected
 
@@ -77,6 +87,8 @@ Close only when:
 
 - acceptance criteria are satisfied
 - verification evidence is recorded
-- architecture, ports, data-flow, or state docs are synced if affected
+- architecture docs are synced if affected
 - no unresolved critical/high review findings remain
-- `Harness/PLAN.md` states the final status or next iteration
+- any optimistic UI mutation has a declared and verified rollback path
+- any file declared as DONE in PLAN.md or PROGRESS.md exists on disk (chat output is not durable evidence)
+- `Harness/tasks/<task-id>/PROGRESS.md` states the final status or next iteration

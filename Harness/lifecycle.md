@@ -1,58 +1,33 @@
-# Feature Contribution Lifecycle
+# 0-1 Product Lifecycle
 
-Use when starting a new feature, fixing a bug, or deciding the next step in a multi-step change.
+Use when starting a new product, clarifying a vague idea, or deciding the next phase.
 
 ## Phase Contract
 
 | Phase | Input | Output | Gate |
 | --- | --- | --- | --- |
-| **Idea** | user request or issue | clarified problem, affected files | unclear points asked or assumptions recorded in PLAN.md |
-| **Research** | problem + codebase | understanding of affected code paths, existing patterns | at least 3 relevant files read; existing conventions noted |
-| **Plan** | research findings | `PLAN.md` with tasks, write sets, verification | tasks have owners and verification commands |
-| **Build** | plan + tests | minimal implementation | `pnpm build` passes; lint clean |
-| **Verify** | implementation | review findings, test evidence | no unresolved issues; manual test on real script JSON |
-| **Review** | verified slice | PR or merge decision | PR checklist passed (see [PR_GUIDELINES.md](PR_GUIDELINES.md)) |
-| **Feedback** | merged/released | next iteration or close | learnings recorded |
+| Idea | user intent | problem, target user, non-goals | unclear points asked or assumptions recorded |
+| Research | problem and constraints | `research/research-results.md` | `research/README.md` followed; at least 3 references or explicit reason not possible |
+| PRD | research decision | `research/PRD.md` | MVP, non-goals, acceptance criteria are verifiable |
+| Architecture | PRD | `Harness/architecture.md` | boundaries and first ports are defined |
+| Plan | PRD and architecture | `Harness/tasks/<task-id>/PLAN.md`, optional `Harness/dispatch.md` | tasks have owners, write sets, verification |
+| Build | plan and tests | minimal vertical slice | tests or manual checks prove behavior |
+| Verify | implementation | review findings, test evidence | no unresolved critical/high findings |
+| Feedback | verified slice | next iteration or release decision | learnings recorded in PRD, PLAN, or MEMORY |
 
 ## Operating Rules
 
-- Move one phase at a time unless the task is a trivial single-file fix.
-- Start coding only after Plan gate passes.
+- Move one phase at a time unless the user explicitly asks for a fast lane.
+- Start coding only after PRD and minimum architecture gates pass.
 - Prefer one thin vertical slice over broad scaffolding.
-- If implementation reveals a boundary problem, update the plan before continuing.
-- If feedback changes scope, update PLAN.md before implementation.
+- If feedback changes scope, update PRD before implementation.
+- If implementation reveals a boundary problem, update architecture or ports before continuing.
 
 ## Fast Lane
 
-Small edits may skip full lifecycle when ALL are true:
+Small edits may skip full lifecycle when all are true:
+
 - user intent is clear
 - one file or one narrow behavior
-- no architecture, i18n, data-flow, or public API change
-- `pnpm build` + `pnpm lint` is enough verification
-- no new dependencies
-
-## Feature Packet
-
-For features touching 3+ files:
-1. Create a brief feature doc in `Harness/PLAN.md` (fill the ## Current Goal and ## Tasks)
-2. List every file in the write set
-3. Define verification before first commit
-
-For bug fixes:
-1. Write reproduction steps in `PLAN.md`
-2. Verify the bug exists before fixing
-3. Verify the fix + verify no regression
-
-## Completion Gate
-
-Close only when:
-- `pnpm build` passes with zero errors
-- `pnpm lint` passes with zero warnings
-- Manual test on at least one real script JSON passes
-- No `docs/` or `pnpm-lock.yaml` changes in diff (unless intentional)
-- `Harness/PLAN.md` states the final status
-
-## For External Contributors
-
-See [PR_GUIDELINES.md](PR_GUIDELINES.md) for the full PR checklist.
-See [AI_CONTRIBUTING.md](AI_CONTRIBUTING.md) for AI prompt templates.
+- no architecture, permission, or public API change
+- one verification command or one manual check is enough
