@@ -8,7 +8,7 @@ interface TowerImageOverlayProps {
   onUpdate: (id: string, partial: Partial<TowerImage>) => void;
   onDelete: (id: string) => void;
   onDoubleClick?: () => void;
-  containerRef: React.RefObject<HTMLElement>;
+  containerRef: React.RefObject<HTMLElement | null>;
 }
 
 export default function TowerImageOverlay({
