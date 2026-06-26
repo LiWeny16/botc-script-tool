@@ -42,6 +42,7 @@ import { SEOManager } from './components/SEOManager';
 import { scriptStore } from './stores/ScriptStore';
 import { configStore } from './stores/ConfigStore';
 import { getSpecialRuleTemplate } from './data/utils/specialRules';
+import { deepStripHtml } from './utils/richTextEditorUtils';
 import { getAllCharacterDictionaries, getCharacterDictionary, getCharacterInDictionary } from './data';
 import UISettingsDrawer from './components/UISettingsDrawer';
 import AboutDialog from './components/AboutDialog';
@@ -909,7 +910,8 @@ const App = observer(() => {
         }
       });
 
-      const jsonString = JSON.stringify(newJsonArray, null, 2);
+      const cleanedForExport = deepStripHtml(newJsonArray);
+      const jsonString = JSON.stringify(cleanedForExport, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -936,7 +938,10 @@ const App = observer(() => {
     if (!originalJson) return;
 
     try {
-      const blob = new Blob([originalJson], { type: 'application/json' });
+      const parsedJson = JSON.parse(originalJson);
+      const cleaned = deepStripHtml(parsedJson);
+      const jsonString = JSON.stringify(cleaned, null, 2);
+      const blob = new Blob([jsonString], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -1013,7 +1018,8 @@ const App = observer(() => {
         }
       });
 
-      const jsonString = JSON.stringify(idOnlyArray, null, 2);
+      const cleanedIdOnly = deepStripHtml(idOnlyArray);
+      const jsonString = JSON.stringify(cleanedIdOnly, null, 2);
       const blob = new Blob([jsonString], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');

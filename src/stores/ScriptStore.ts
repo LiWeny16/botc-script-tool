@@ -3,6 +3,7 @@ import type { Script, Character } from '../types';
 import { isSameCharacter } from '../data/utils/characterIdMapping';
 import { configStore } from './ConfigStore';
 import { loadCachedScriptData, safeJsonParse, saveCachedScriptData } from '../utils/jsonSafety';
+import { deepStripHtml } from '../utils/richTextEditorUtils';
 
 class ScriptStore {
   script: Script | null = null;
@@ -207,7 +208,8 @@ class ScriptStore {
         });
       }
 
-      this.normalizedJson = JSON.stringify(jsonArray, null, 2);
+      const cleanedArray = deepStripHtml(jsonArray);
+      this.normalizedJson = JSON.stringify(cleanedArray, null, 2);
       console.log('Normalized JSON generated');
     } catch (error) {
       console.error('Failed to generate normalized JSON:', error);

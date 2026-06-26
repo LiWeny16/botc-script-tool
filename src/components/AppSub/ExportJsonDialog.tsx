@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -7,8 +7,13 @@ import {
     Button,
     Box,
     Typography,
+    Snackbar,
+    Alert,
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { scriptStore } from '../../stores/ScriptStore';
+import { deepStripHtml } from '../../utils/richTextEditorUtils';
 
 // 1. 定义 props 的 TypeScript 接口
 interface ExportJsonDialogProps {
@@ -40,6 +45,24 @@ interface ExportJsonDialogProps {
 }
 
 /**
+ * Copy text to clipboard with fallback for environments without clipboard API.
+ */
+async function copyTextToClipboard(text: string): Promise<void> {
+    try {
+        await navigator.clipboard.writeText(text);
+    } catch {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+    }
+}
+
+/**
  * 导出JSON的通用对话框组件
  */
 const ExportJsonDialog: React.FC<ExportJsonDialogProps> = ({
@@ -50,6 +73,22 @@ const ExportJsonDialog: React.FC<ExportJsonDialogProps> = ({
     onExportIdOnly,
     t,
 }) => {
+    const [copySuccess, setCopySuccess] = useState(false);
+
+    const handleCopyOriginalJson = async () => {
+        try {
+            const rawJson = scriptStore.originalJson;
+            if (!rawJson) return;
+            const parsed = JSON.parse(rawJson);
+            const cleaned = deepStripHtml(parsed);
+            const jsonString = JSON.stringify(cleaned, null, 2);
+            await copyTextToClipboard(jsonString);
+            setCopySuccess(true);
+        } catch (error) {
+            console.error('Failed to copy original JSON:', error);
+        }
+    };
+
     return (
         <Dialog
             open={open}
@@ -158,7 +197,26 @@ const ExportJsonDialog: React.FC<ExportJsonDialogProps> = ({
                     </Typography>
                 </Box>
             </DialogContent>
-            <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa' }}>
+            <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa', justifyContent: 'space-between' }}>
+                <Button
+                    onClick={handleCopyOriginalJson}
+                    disabled={!scriptStore.originalJson}
+                    startIcon={<ContentCopyIcon />}
+                    sx={{
+                        px: 3,
+                        py: 1,
+                        fontWeight: 500,
+                        color: '#ff9800',
+                        borderColor: '#ff9800',
+                        '&:hover': {
+                            backgroundColor: '#fff3e0',
+                            borderColor: '#ff9800',
+                        },
+                    }}
+                    variant="outlined"
+                >
+                    {copySuccess ? 'Copied!' : 'Copy Original JSON'}
+                </Button>
                 <Button
                     onClick={onClose} // "取消"按钮也使用传入的onClose
                     sx={{
@@ -174,6 +232,21 @@ const ExportJsonDialog: React.FC<ExportJsonDialogProps> = ({
                     {t('common.cancel')}
                 </Button>
             </DialogActions>
+            <Snackbar
+                open={copySuccess}
+                autoHideDuration={2000}
+                onClose={() => setCopySuccess(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={() => setCopySuccess(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    {t('input.jsonCopied')}
+                </Alert>
+            </Snackbar>
         </Dialog>
     );
 };
