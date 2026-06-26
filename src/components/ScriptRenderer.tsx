@@ -481,6 +481,54 @@ const ScriptRenderer = observer(({
                     />
                     </>})()}
 
+                    {/* 美术设计盒子 - 仅在非只读模式下显示 */}
+                    {!readOnly && (
+                        <Box sx={{
+                            position: 'absolute',
+                            top: { xs: 12, sm: 16, md: 95 },
+                            left: { xs: 12, sm: 16, md: 140 },
+                            zIndex: 5,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            pointerEvents: 'none',
+                        }}>
+                            <Box
+                                component="img"
+                                src="/imgs/icons/fabled/onion.webp"
+                                alt="Onion Avatar"
+                                sx={{
+                                    width: { xs: 50, sm: 60, md: 70 },
+                                    height: { xs: 50, sm: 60, md: 70 },
+                                    borderRadius: '50%',
+                                    border: '2px solid #d4af37',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                    objectFit: 'cover',
+                                    mb: { xs: -1, sm: -1.5, md: -2 },
+                                    position: 'relative',
+                                    zIndex: 2,
+                                }}
+                            />
+                            <Box sx={{
+                                pt: { xs: 1.5, sm: 2, md: 2.5 },
+                                pb: { xs: 0.75, sm: 1, md: 1.25 },
+                                position: 'relative',
+                                zIndex: 1,
+                                minWidth: { xs: '80px', sm: '90px', md: '100px' },
+                            }}>
+                                <Typography sx={{
+                                    fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                                    color: '#404040ff',
+                                    fontWeight: 700,
+                                    textAlign: 'center',
+                                    whiteSpace: 'nowrap',
+                                }}>
+                                    {t('credits.designTitle')}: {t('credits.designers')}
+                                </Typography>
+                            </Box>
+                        </Box>
+                    )}
+
                     {/* 左侧 - 首个夜晚 */}
                     {!isMobile && (
                         <Box id="night-order-left" sx={{
