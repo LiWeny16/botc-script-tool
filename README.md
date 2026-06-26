@@ -27,7 +27,8 @@
   <a href="#-features">Features</a> ·
   <a href="#-how-it-compares">Comparisons</a> ·
   <a href="#-faq">FAQ</a> ·
-  <a href="#-tech-stack">Tech Stack</a>
+  <a href="#-tech-stack">Tech Stack</a> ·
+  <a href="#-contributing">Contributing</a>
 </p>
 
 ---
@@ -268,13 +269,61 @@ English role data is sourced from [bra1n/townsquare](https://github.com/bra1n/to
 
 ## Development
 
-```bash
-yarn                    # Install dependencies
-yarn dev                # Start dev server
-yarn build              # Build for production (outputs to docs/)
+```powershell
+pnpm dev                        # dev server
+pnpm build                      # prebuild -> tsc -> vite -> postbuild -> docs/
+node scripts/generate-seo-html.mjs  # postbuild: SEO, sitemap, script pages
 ```
 
-Build pipeline: `generate-manifest.mjs` → `tsc` → `vite build` → `generate-seo-html.mjs` (SSG, sitemap, structured data, llms.txt)
+Build output goes to `docs/`, served by GitHub Pages. Build pipeline: `generate-manifest.mjs` → `tsc` → `vite build` → `generate-seo-html.mjs`.
+
+> **⚠️ Contributors must NOT commit `docs/`.** Build to verify, then `git checkout -- docs/`.
+
+### Commit Convention
+
+`<emoji> <type>: <description>` (present tense, no period)
+
+| Emoji | Type | Use |
+|--------|------|-----|
+| ✨ | feat | New feature |
+| 🔨 | fix | Bug fix |
+| 📝 | docs | Documentation |
+| ♻️ | refactor | Restructure |
+| ⚡ | perf | Performance |
+| 🔨 | chore | Config, deps |
+| 🎨 | style | UI/styling |
+
+---
+
+## Contributing
+
+Community contributions are welcome! Please read the guidelines before opening a PR.
+
+| Guide | For |
+|:---|:---|
+| **[PR Guidelines](Harness/PR_GUIDELINES.md)** | PR checklist, commit format, branch naming, common mistakes |
+| **[AI Contribution Guide](Harness/AI_CONTRIBUTING.md)** | Copy-paste prompts + conventions for AI-assisted coding |
+
+### Quick Rules
+
+1. **Create a feature branch** — never PR from `main`
+2. **Don't commit `docs/`** — build artifacts are maintainer-only
+3. **One feature per PR** — keep it small and reviewable
+4. **Follow commit format** — `<emoji> <type>: <description>` (see table above)
+5. **Resolve conflicts before opening** — PR must show "Able to merge"
+6. **If using AI** — paste the [AI prompt](Harness/AI_CONTRIBUTING.md#quick-start-copy-paste-this-into-your-ai) first
+
+```bash
+# Standard contribution workflow
+git checkout -b feat/my-feature
+# ... make changes ...
+pnpm build                    # Verify it compiles
+git checkout -- docs/         # Discard build artifacts
+git add src/                  # Only add source files
+git commit -m "✨ feat: description"
+git push -u origin feat/my-feature
+# Open PR on GitHub
+```
 
 ---
 

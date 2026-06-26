@@ -1,99 +1,96 @@
-# BOTC Script Tool
+# BOTC Script Tool — CLAUDE.md
 
-Blood on the Clocktower script editor & layout beautifier. React 19 + Vite 7 + TypeScript SPA → GitHub Pages (`botc.letshare.fun`).
+## 1. Startup
 
-## Build
+- Every session: read `Harness/README.md` (the doc router). Never bulk-read `Harness/`.
+- If work spans more than one step, update `Harness/PLAN.md`.
+- All routing and per-task doc loads live in `Harness/README.md`. Not here.
 
-```powershell
-pnpm dev                        # dev server
-pnpm build                      # prebuild -> tsc -> vite -> postbuild -> docs/
-node scripts/generate-seo-html.mjs  # postbuild: SEO, sitemap, script pages
+---
+
+Behavioral guidelines to reduce common LLM coding mistakes. For trivial tasks, use judgment. These bias toward caution over speed.
+
+## 2. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs.**
+
+### 2.1 Confidence Threshold (Non-Negotiable)
+
+- You must have **≥95% confidence** in user intent before writing implementation code.
+- If confidence is below 95%, stop and ask. False confidence is worse than a question.
+- **Maximum 3 blocking questions per decision point.** Ask the highest-impact questions first.
+- If you catch yourself thinking *"this is probably what they want"* — that is a mandatory stop condition. Ask.
+- **Silent picks are forbidden.** When two valid approaches exist and you cannot decide with 95% confidence, present both trade-offs to the user.
+- Record every assumption explicitly in `Harness/PLAN.md` so the user can correct it.
+
+Before implementing:
+- State your assumptions explicitly. If uncertain, ask.
+- If multiple interpretations exist, present them — don't pick silently.
+- If a simpler approach exists, say so. Push back when warranted.
+- If something is unclear, stop. Name what's confusing. Ask.
+
+## 3. Simplicity First
+
+**Minimum code that solves the problem. Nothing speculative.**
+
+- No features beyond what was asked.
+- No abstractions for single-use code.
+- No "flexibility" or "configurability" that wasn't requested.
+- No error handling for impossible scenarios.
+- If you write 200 lines and it could be 50, rewrite it.
+
+Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+
+## 4. Surgical Changes
+
+**Touch only what you must. Clean up only your own mess.**
+
+When editing existing code:
+- Don't "improve" adjacent code, comments, or formatting.
+- Don't refactor things that aren't broken.
+- Match existing style, even if you'd do it differently.
+- If you notice unrelated dead code, mention it — don't delete it.
+
+When your changes create orphans:
+- Remove imports/variables/functions that YOUR changes made unused.
+- Don't remove pre-existing dead code unless asked.
+
+The test: Every changed line should trace directly to the user's request.
+
+## 5. Goal-Driven Execution
+
+**Define success criteria. Loop until verified.**
+
+Transform tasks into verifiable goals:
+- "Add validation" → "Write tests for invalid inputs, then make them pass"
+- "Fix the bug" → "Write a test that reproduces it, then make it pass"
+- "Refactor X" → "Ensure tests pass before and after"
+
+For multi-step tasks, state a brief plan:
 ```
-Build output goes to `docs/`, served by GitHub Pages. Committed.
+1. [Step] → verify: [check]
+2. [Step] → verify: [check]
+3. [Step] → verify: [check]
+```
 
-## Commit
+Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-`<emoji> <type>: <description>` (present tense, no period)
+---
 
-| Emoji | Type | Use |
-|--------|------|-----|
-| ✨ | feat | New feature |
-| 🔧 | fix | Bug fix |
-| 📝 | docs | Documentation |
-| ♻️ | refactor | Restructure |
-| ⚡ | perf | Performance |
-| 🔧 | chore | Config, deps |
-| 🎨 | style | UI/styling |
+**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
-## Architecture
+## 6. Memory & Self-Learning
 
-**State:** MobX stores (`mobx` + `mobx-react-lite`), all singletons, persisted to localStorage:
-- `src/stores/ScriptStore.ts` — core script data (characters, jinx, night order, JSON sync). 1600 lines.
-- `src/stores/ConfigStore.ts` — language, ID parse mode. Syncs `?lang=` URL param.
-- `src/stores/UIConfigStore.ts` — backgrounds, fonts, card dimensions, two-page mode. Custom fonts in IndexedDB.
+- `MEMORY.md` is the index. Detailed durable memory lives in `memory/`.
+- **Tool reflection trigger**: record a lightweight reflection when the same tool/use pattern fails 3+ times, or when a better command pattern/environment fix is found. Write it newest-first in `memory/tool-usage-reflections.md`.
+- **User correction trigger**: record a lightweight preference/correction when the user asks to remember it, or when the user corrects the same assumption/pattern 2+ times. Write it newest-first in `memory/user-corrections-preferences.md`.
+- **Agent lesson trigger**: record reusable lessons from review/debug loops in `memory/agent-lessons-patterns.md` when they would prevent recurrence.
+- Update old entries instead of duplicating them. Never record secrets, credentials, tokens, or private data. If a memory is ambiguous, ask before writing.
 
-**Data flow:** Components use `observer()` to read stores. `App.tsx` orchestrates mutations, passes data + callbacks down. Stores auto-sync every change to localStorage under keys `botc-script-data`, `botc-app-config`, `botc-ui-config`.
+---
 
-**No backend.** Fully client-side SPA. Data sources: JSON files in `public/scripts/`, character icons from `/imgs/icons/` and Gstone CDN. Built-in fonts in `public/font/`.
+## Project Context
 
-## Key Files
+Blood on the Clocktower script editor & layout beautifier. React 19 + Vite 7 + TypeScript SPA → GitHub Pages (`botc.letshare.fun`). No backend. Data in `public/scripts/`.
 
-| File | Role |
-|------|------|
-| `src/main.tsx` | Entry: GA4, service worker, HashRouter with 5 routes |
-| `src/App.tsx` | Root component (~1270 lines), all CRUD orchestration, 20+ dialog states |
-| `src/types/index.ts` | All interfaces: `Character`, `Script`, `ScriptMeta`, `JinxInfo`, `SpecialRule`, `Team` |
-| `src/utils/scriptGenerator.ts` | **Core engine.** JSON → `Script` object. Character matching, jinx detection, night order. 806 lines. |
-| `src/data/canonicalCharacters.ts` | Character dictionaries in cn/en/es from `sources/roles*.json` |
-| `src/data/jinx.ts` | Jinx relationship loader, trilingual lookup |
-| `src/data/characterBuilder.ts` | CanonicalCharacterBase → Character, with `es → en → zh-CN` fallback |
-| `src/utils/map.ts` | All i18n keys under `cn`, `en`, `es` (~1450 lines). ESLint: `no-restricted-exports` on this file. |
-| `src/utils/i18n.tsx` | React context: `useTranslation()` → `{ t, language, setLanguage }` |
-| `src/utils/languages.ts` | Language type: `'cn' | 'en' | 'es'` |
-| `src/utils/analytics.ts` | GA4 custom event tracking |
-| `src/utils/event.ts` | Global Ctrl+S handler for save/sync |
-| `src/utils/fontStorage.ts` | IndexedDB font persistence with migration from old localStorage format |
-| `src/utils/imagePathMap.ts` | Character icon filename → folder mapping |
-| `src/utils/alert.ts` | MUI toast wrapper |
-| `src/theme/colors.ts` | Color palette, font constants, `teamColorMap` with helpers |
-| `src/index.css` | Global styles, `@font-face` for 4 CJK fonts, custom scrollbars |
-| `src/print.css` | Print layout: A4, hides UI, forces `print-color-adjust: exact` |
-| `src/data/utils/characterIdMapping.ts` | CN/EN ID normalization (`fang_gu` → `fanggu`, `fortune_teller` ↔ `fortuneteller`) |
-| `src/data/utils/scriptRepository.ts` | Script repo metadata + JSON loader |
-| `src/data/utils/specialRules.ts` | Special rule templates |
-| `src/utils/seoConfig.js` | SEO metadata (500+ lines) |
-| `scripts/generate-seo-html.mjs` | Postbuild: static HTML pages per script for SEO |
-| `scripts/generate-manifest.mjs` | Prebuild: PWA manifest generation |
-
-## Component Map
-
-**Main editor:** `InputPanel` → JSON input + action toolbar. `ScriptRenderer` → `CharacterSection` → `CharacterCard` (team sections with drag-and-drop via `@dnd-kit`). `NightOrder`, `JinxSection`, `SpecialRulesSection`, `StateRulesSection` for other script parts.
-
-**Second page:** `SecondPageTitle`, `SecondPageSortableItem`, `SecondPageAddButton` — drag-and-drop layout for page 2.
-
-**Dialogs** (all managed from `App.tsx`): `CharacterEditDialog`, `CharacterLibraryCard`, `ShareDialog`, `UploadJsonDialog`, `PrintDialog`, `ExportJsonDialog`, `UISettingsDrawer`, `TitleEditDialog`, `SpecialRuleEditDialog`, `CustomJinxDialog`, `AboutDialog`, `FontUploader`.
-
-**Other pages:** `ScriptRepository` (browse scripts), `ScriptPreview` (read-only view), `Changelog`.
-
-## Routing
-
-HashRouter (`#/` prefix, required for GitHub Pages):
-- `#/` — main editor (App)
-- `#/repo` — script repository
-- `#/repo/preview`, `#/repo/:scriptName` — script preview
-- `#/changelog` — release notes
-
-Static HTML in `docs/scripts/` for SEO with meta refresh redirect.
-
-## i18n
-
-Keys in `src/utils/map.ts` under `cn`, `en`, `es` blocks. Component usage: `const { t } = useTranslation()`. Language type: `'cn' | 'en' | 'es'`. Spanish is partial override of cn/en base.
-
-## Common Modification Paths
-
-- **Add/edit character fields** → `src/types/index.ts`, then `src/data/characterBuilder.ts`, then `CharacterEditDialog`
-- **Change layout/styling** → `CharacterCard`, `ScriptRenderer`, `print.css`, `App.tsx` printStyles
-- **Add UI language** → `src/utils/map.ts` + `src/utils/languages.ts`
-- **Modify JSON parsing** → `src/utils/scriptGenerator.ts` (core engine)
-- **Add second-page component** → `src/types/index.ts` (SecondPageComponentType), `SecondPageAddButton`, `ScriptRenderer`
-- **Modify jinx logic** → `src/data/jinx.ts`, `src/data/sources/jinx*.json`
+**Build, commit convention, architecture, key files, component map, routing, i18n → read [`Harness/Arch.md`](Harness/Arch.md).**
