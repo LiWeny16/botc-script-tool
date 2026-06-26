@@ -6,7 +6,7 @@
  * @attribution
  *   English roles (roles.json): https://github.com/bra1n/townsquare
  *   Spanish roles (rolesEs.json): https://github.com/bra1n/townsquare
- *   German role text (jk_all_roles_de.json): local curated translation
+ *   German role text (rolesDe.json): local curated translation
  *   Chinese role text (ZH_CORE_CHARACTERS): https://clocktower.gstonegames.com/
  */
 
@@ -14,7 +14,7 @@ import type { Character } from '../types';
 import type { Language } from '../utils/languages';
 import rolesData from './sources/roles.json';
 import rolesEsData from './sources/rolesEs.json';
-import rolesDeData from './sources/jk_all_roles_de.json';
+import rolesDeData from './sources/rolesDe.json';
 import { ZH_CORE_CHARACTERS } from './characters/characters';
 import { buildDictionary, type CanonicalCharacterBase, type CharacterLocale } from './characterBuilder';
 import { normalizeCharacterId, toOfficialEnCharacterId, toZhCanonicalCharacterId } from './utils/characterIdMapping';
