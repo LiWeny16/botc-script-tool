@@ -6,6 +6,8 @@ import {
 } from '../utils/agentApiConfig';
 import { runAgentLoopStream } from '../utils/agentLoop';
 import { alertError, alertWarning } from '../utils/alert';
+import { translations, type TranslationKey } from '../utils/i18n';
+import { configStore } from './ConfigStore';
 
 export interface AgentToolCall {
   toolCallId: string;
@@ -68,6 +70,10 @@ class AgentStore {
     this.error = null;
   }
 
+  private t(key: TranslationKey): string {
+    return translations[configStore.language]?.[key] ?? translations.en[key] ?? key;
+  }
+
   /** Build ModelMessage[] for the LLM from display messages */
   get lastMessages(): ModelMessage[] {
     const modelMessages: ModelMessage[] = [];
@@ -128,7 +134,7 @@ class AgentStore {
       if (last?.streaming) {
         last.streaming = false;
         if (!last.content && !last.toolCalls?.length) {
-          last.content = '（已停止生成）';
+          last.content = this.t('agent.stoppedHint');
           last.isError = true;
         }
       }
@@ -142,7 +148,7 @@ class AgentStore {
     if (!trimmed) return false;
 
     if (!this.apiConfig.apiKey.trim()) {
-      const hint = '请先在右上角齿轮中填写 API Key，并点击「保存本地」。';
+      const hint = this.t('agent.apiKeyRequiredHint');
       runInAction(() => { this.error = hint; });
       alertWarning(hint, 3500);
       return false;
@@ -206,7 +212,7 @@ class AgentStore {
           !streamingMsg.content.trim()
           && (!streamingMsg.toolCalls || streamingMsg.toolCalls.length === 0)
         ) {
-          const emptyHint = '模型未返回内容，请检查 API Key、Base URL 与模型是否可用。';
+          const emptyHint = this.t('agent.errorEmptyResponse');
           streamingMsg.content = emptyHint;
           streamingMsg.isError = true;
           this.error = emptyHint;
@@ -226,7 +232,7 @@ class AgentStore {
         streamingMsg.streaming = false;
         streamingMsg.content = streamingMsg.content.trim()
           ? streamingMsg.content
-          : `请求失败：${msg}`;
+          : `${this.t('agent.errorRequestFailed')}${msg}`;
         streamingMsg.isError = true;
         this.error = msg;
         this.status = 'error';
@@ -239,7 +245,7 @@ class AgentStore {
         if (streamingMsg.streaming) {
           streamingMsg.streaming = false;
           if (!streamingMsg.content.trim() && (!streamingMsg.toolCalls?.length)) {
-            streamingMsg.content = '请求未完成，请重试或检查网络与 API 配置。';
+            streamingMsg.content = this.t('agent.errorRequestIncomplete');
             streamingMsg.isError = true;
             this.status = 'error';
           } else if (this.status === 'thinking') {

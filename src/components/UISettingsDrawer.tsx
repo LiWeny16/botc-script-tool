@@ -125,7 +125,7 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
   };
 
   const handleReset = () => {
-    if (window.confirm(t('dialog.resetUIMessage') || '确定要重置所有UI设置吗？')) {
+    if (window.confirm(t('dialog.resetUIMessage'))) {
       uiConfigStore.resetToDefault();
     }
   };
@@ -297,9 +297,6 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                     <Typography variant="caption" color="info.dark" sx={{ display: 'block', mb: 0.5 }}>
                       {t('ui.backgroundTip')}
                     </Typography>
-                    {/* <Typography variant="caption" color="text.secondary">
-                      {t('ui.backgroundSizeWarning')}
-                    </Typography> */}
                   </Box>
 
                   {/* 夜晚顺序背景图 */}
@@ -362,7 +359,7 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                             if (file) {
                               // 检查文件大小
                               if (file.size > 2 * 1024 * 1024) {
-                                alert('图片大小不能超过 2MB');
+                                alert(t('ui.imageTooLarge'));
                                 return;
                               }
                               
@@ -480,7 +477,7 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                             if (file) {
                               // 检查文件大小
                               if (file.size > 2 * 1024 * 1024) {
-                                alert('图片大小不能超过 2MB');
+                                alert(t('ui.imageTooLarge'));
                                 return;
                               }
                               

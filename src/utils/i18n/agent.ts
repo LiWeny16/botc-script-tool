@@ -8,6 +8,7 @@ export const cn = {
   'agent.openaiCompatible': 'OpenAI 兼容',
   'agent.currentlyActive': '（当前使用中）',
   'agent.apiKey': 'API Key',
+  'agent.apiKeyRequiredHint': '请先在右上角齿轮中填写 API Key，并点击「保存本地」。',
   'agent.model': '模型',
   'agent.baseUrl': 'Base URL',
   'agent.advanced': '高级参数',
@@ -33,6 +34,7 @@ export const cn = {
   'agent.streamingHint': '正在思考…',
   'agent.errorRequestFailed': '请求失败：',
   'agent.errorEmptyResponse': '模型未返回内容，请检查 API Key、Base URL 与模型是否可用。',
+  'agent.errorRequestIncomplete': '请求未完成，请重试或检查网络与 API 配置。',
   'agent.stoppedHint': '（已停止生成）',
 } as const;
 
@@ -46,6 +48,7 @@ export const en = {
   'agent.openaiCompatible': 'OpenAI Compatible',
   'agent.currentlyActive': ' (Active)',
   'agent.apiKey': 'API Key',
+  'agent.apiKeyRequiredHint': 'Please fill in your API Key in the gear icon (top-right) and click "Save Locally".',
   'agent.model': 'Model',
   'agent.baseUrl': 'Base URL',
   'agent.advanced': 'Advanced',
@@ -71,6 +74,7 @@ export const en = {
   'agent.streamingHint': 'Thinking…',
   'agent.errorRequestFailed': 'Request failed: ',
   'agent.errorEmptyResponse': 'Model returned empty response. Check your API Key, Base URL, and model.',
+  'agent.errorRequestIncomplete': 'Request incomplete. Please retry or check your network and API configuration.',
   'agent.stoppedHint': '(Stopped)',
 } as const;
 
@@ -84,6 +88,7 @@ export const es = {
   'agent.openaiCompatible': 'Compatible OpenAI',
   'agent.currentlyActive': ' (Activo)',
   'agent.apiKey': 'API Key',
+  'agent.apiKeyRequiredHint': 'Primero complete su API Key en el ícono de engranaje y haga clic en "Guardar local".',
   'agent.model': 'Modelo',
   'agent.baseUrl': 'Base URL',
   'agent.advanced': 'Avanzado',
@@ -109,5 +114,6 @@ export const es = {
   'agent.streamingHint': 'Pensando…',
   'agent.errorRequestFailed': 'Error de solicitud: ',
   'agent.errorEmptyResponse': 'El modelo no devolvió contenido. Revisa tu API Key, Base URL y modelo.',
+  'agent.errorRequestIncomplete': 'Solicitud incompleta. Reintente o revise su red y configuración API.',
   'agent.stoppedHint': '(Detenido)',
 } as const;

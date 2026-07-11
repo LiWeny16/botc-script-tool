@@ -41,6 +41,7 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'app.emptyState': 'Introduce el JSON del guion y pulsa «Generar guion»',
   'allChars.title': 'Todos los Personajes Oficiales',
   'allChars.subtitle': '213 personajes oficiales de Blood on the Clocktower',
+  'allChars.description': 'Todos son Amnesiac. El Narrador elige personajes de este grupo de referencia para construir el guion real, y los jugadores deducen sus propias habilidades durante la partida.',
   'allChars.totalCount': 'personajes',
   'seo.title': 'Herramienta BOTC gratuita — Generador y maquetador de guiones Blood on the Clocktower',
   'seo.description': 'Generador de guiones y maquetador gratuito para Blood on the Clocktower. Importa JSON oficial, edita personajes, interacciones jinx y reglas especiales, y exporta PDF, flujo de imagen y JSON multilingue.',

@@ -37,13 +37,13 @@ const TowerImageDialog = observer(({ open, onClose }: TowerImageDialogProps) => 
 
     // Validate image type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file.');
+      alert(t('towerImage.invalidFileType'));
       return;
     }
 
     // 2MB size check
     if (file.size > 2 * 1024 * 1024) {
-      alert('Image size must be less than 2MB.');
+      alert(t('towerImage.fileTooLarge'));
       return;
     }
 

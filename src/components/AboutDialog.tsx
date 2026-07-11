@@ -21,7 +21,7 @@ import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { useState, useCallback, type ReactNode } from 'react';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
-import type { TranslationKey } from '../utils/map';
+import type { TranslationKey } from '../utils/i18n';
 
 interface AboutDialogProps {
   open: boolean;

@@ -1,6 +1,6 @@
 import { Box, Typography, Container, Chip, Stack } from '@mui/material';
 import { useTranslation } from '../utils/i18n';
-import type { TranslationKey } from '../utils/map';
+import type { TranslationKey } from '../utils/i18n';
 
 interface ChangeEntry {
   date: string;

@@ -375,7 +375,7 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
       }, 500);
     } catch (error) {
       console.error('Error during reset:', error);
-      alert('重置失败，请刷新页面后重试');
+      alert(t('dialog.resetFailed'));
       setResetDialogOpen(false);
     }
   };
