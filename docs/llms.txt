@@ -15,7 +15,7 @@ Key capabilities:
 - Beautify layouts with two-page mode, backgrounds and fonts
 - Export PDF, image workflow and multilingual JSON
 - Chinese, English and Spanish interface
-- Built-in script repository with 21+ community-shared scripts
+- Built-in script repository with 22+ community-shared scripts
 
 ## How to use (4 steps)
 
@@ -26,7 +26,7 @@ Key capabilities:
 
 Total time: approximately 5 minutes from open to exported PDF.
 
-## Script Repository (21 scripts)
+## Script Repository (22 scripts)
 
 ### Official Scripts
 
@@ -54,6 +54,16 @@ Total time: approximately 5 minutes from open to exported PDF.
 - [彩虹派对V3](https://botc.letshare.fun/scripts/custom-lgbt-s-party-v3-add11000.html) by 左影 & 小完能大雷子 — 彩虹派对V3.0.1
 - [放飞理想](https://botc.letshare.fun/scripts/custom-script-781d9d6f.html) by 阿源
 - [飞跃疯人院2](https://botc.letshare.fun/scripts/custom-crazy-house-2-171b97fa.html) by 太一
+- [疯 哑 急](https://botc.letshare.fun/scripts/custom-script-6215b2d2.html) by 庸医 — 正经介绍一下，24年一月的老剧本，有不少人都听闻过玩过，当时我是STV原教旨信徒。之前设计的理念就是，没有毒醉干扰的情况下仅靠认识覆盖和疯狂构建一个有逻辑，有信息，又无比让人印象深刻的这个概念，之前尝试了很多卫星角色但效果均不理想，到官方实验性角色更新鹰身女妖，山雨华灯变脸师等更多疯狂角色的出现时，逐渐完善了这个剧本，设计初衷是坚持使用纯官方角色，遵循stv的设计理念，风格多变，信息多且杂乱，逻辑线收束，强阵营对抗，剧本随不同配置玩法体验各不相同，随机发出角色，事情就是平衡的，当他们变得不平衡时，那是因为一个阵营打得很好。这正是它应该的样子，过程经历了一年多的几次修改，双盲发牌测试百余次，最后敲定了这个最终版，我认为一个说书人创作的剧本就应当见本如见人，疯哑急有我浓厚的个人风格，给玩家带来一个独特的，新奇的体验，疯狂却又合理，某些角色组合在一起虽然是一个问题，但往往会创造出有趣的游戏，经验表明，最有趣和最令人难忘的正是这些，享受过程的一切，在游戏中表现的疯狂，出于某些原因的哑口无言，信息上的交锋，阵营间的对抗，逻辑线总会收束，混乱中归于秩序，在两套魔典当中选择，急得不可开交，邪恶急不可耐，善良面红耳赤，最终，又一切归于平静。
+
+
+玩家们常说：“挺累的，一把顶别的两把，下次不玩儿了”
+
+但明天他们又会说：“这疯哑急真有意思，再玩一次吧，上次印象很深刻”
+
+最多的想法是，找到了之前最初玩血染时的新奇，期待下一局我会拿到哪些角色，我该如何游玩，会发生哪些事情？还会不会有四红声称哥布林？有人跳中毒舞蛇说被舞走小怪宝了？共情第一天没跳，发现外面有4个共情3造谣？哈迪圈自己和报丧装好人，报丧真就选活给哈迪杀了？还会不会有，会不会让我能爽到？对此抱有期待，并乐此不疲的进行一次又一次的对局，留下了许多回忆。
+
+我很自豪做出了一个这样的剧本，过程很久但值得，到现在定稿离不开大家的帮助与支持，感谢苏通染老师同意我用原名投稿，虽然剧本是同一时期但显然风雅集投稿时间更早，知名度更高，不免有些玩梗嫌疑，感谢我叔小公主，特别感谢我老婆遥荇，我爱她。
 - [复活庆典v3.0](https://botc.letshare.fun/scripts/custom-v3-0-d2482f19.html) by Zets
 - [开心快乐猴](https://botc.letshare.fun/scripts/custom-script-ce2d3b8f.html) by 开心猴·祥东&开心猴·小赤
 - [一夜鱼龙舞](https://botc.letshare.fun/scripts/custom-script-c8d7cb91.html) by 驯鹿&痴愚 — 凤箫声动,玉壶光转,一夜鱼龙舞。

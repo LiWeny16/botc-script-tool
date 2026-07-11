@@ -14,6 +14,7 @@ export const cn = {
   'decorative.page2Text': '相克规则 · 传奇角色 · 旅行者',
   'credits.designTitle': '美术设计',
   'credits.designers': '大聪花',
+  'credits.author': '作者',
 } as const;
 
 export const en = {
@@ -32,6 +33,7 @@ export const en = {
   'decorative.page2Text': 'Jinx Rules · Fabled · Travelers',
   'credits.designTitle': 'Design',
   'credits.designers': 'Onion',
+  'credits.author': 'Author',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
@@ -50,4 +52,5 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'decorative.page2Text': 'Interacciones · Legendarios · Viajeros',
   'credits.designTitle': 'Diseño gráfico',
   'credits.designers': 'Onion',
+  'credits.author': 'Autor',
 };

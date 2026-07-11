@@ -231,6 +231,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
     title: 'Custom Script',
     titleImage: undefined,
     author: '',
+    authorImage: undefined,
     playerCount: undefined,
     characters: {
       townsfolk: [],
@@ -301,6 +302,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       script.useTitleImage = item.use_title_image !== false ? !!script.titleImage : false;  // Default based on whether image exists
       script.showTitleFlourish = item.show_title_flourish;  // Parse flourish visibility
       script.author = item.author || '';
+      script.authorImage = item.authorImage || undefined;  // Parse author avatar (base64)
       script.playerCount = item.playerCount;  // Parse player count
       // Parse title alignment — only allow valid CSS values
       const rawAlign = (item as any).text_alignment;
