@@ -1,4 +1,4 @@
-import { makeAutoObservable } from 'mobx';
+import { makeAutoObservable, runInAction } from 'mobx';
 import { fontStorage } from '../utils/fontStorage';
 import { towerImageStorage } from '../utils/towerImageStorage';
 
@@ -513,15 +513,17 @@ class UIConfigStore {
     try {
       const images = await towerImageStorage.getAllImages();
       if (images.length > 0) {
-        this.config.towerImages = images.map(img => ({
-          id: img.id,
-          url: img.url,
-          x: img.x,
-          y: img.y,
-          scale: img.scale,
-          opacity: img.opacity,
-          isDefault: img.isDefault,
-        }));
+        runInAction(() => {
+          this.config.towerImages = images.map(img => ({
+            id: img.id,
+            url: img.url,
+            x: img.x,
+            y: img.y,
+            scale: img.scale,
+            opacity: img.opacity,
+            isDefault: img.isDefault,
+          }));
+        });
       }
       console.log('Loaded', images.length, 'tower images from IndexedDB');
     } catch (error) {
