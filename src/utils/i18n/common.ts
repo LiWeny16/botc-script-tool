@@ -14,6 +14,11 @@ export const cn = {
   'addCustomRule.templateHint': '选择一个模板开始，或直接添加空白规则',
   'addCustomRule.blankRule': '空白规则',
   'addCustomRule.blankRuleDesc': '从头开始创建自定义规则',
+  'dialog.resetFailed': '重置失败，请刷新页面后重试',
+  'upload.browserNotSupported': '您的浏览器不支持文件同步功能，请使用最新版 Chrome/Edge 浏览器',
+  'upload.syncStartFailed': '文件同步启动失败，请重试',
+  'towerImage.invalidFileType': '请选择图片文件',
+  'towerImage.fileTooLarge': '图片大小不能超过 2MB',
 } as const;
 
 export const en = {
@@ -32,6 +37,11 @@ export const en = {
   'addCustomRule.templateHint': 'Choose a template or add a blank rule',
   'addCustomRule.blankRule': 'Blank Rule',
   'addCustomRule.blankRuleDesc': 'Start from scratch',
+  'dialog.resetFailed': 'Reset failed, please refresh the page and try again',
+  'upload.browserNotSupported': 'Your browser does not support the File Sync feature. Please use the latest Chrome/Edge browser',
+  'upload.syncStartFailed': 'File sync failed to start, please try again',
+  'towerImage.invalidFileType': 'Please select an image file',
+  'towerImage.fileTooLarge': 'Image size cannot exceed 2MB',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
@@ -50,4 +60,9 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'addCustomRule.templateHint': 'Elige una plantilla o añade una regla en blanco',
   'addCustomRule.blankRule': 'Regla en blanco',
   'addCustomRule.blankRuleDesc': 'Crear desde cero',
+  'dialog.resetFailed': 'Error al restablecer, actualiza la página e inténtalo de nuevo',
+  'upload.browserNotSupported': 'Tu navegador no admite la sincronización de archivos. Usa la última versión de Chrome/Edge',
+  'upload.syncStartFailed': 'Error al iniciar la sincronización de archivos, inténtalo de nuevo',
+  'towerImage.invalidFileType': 'Selecciona un archivo de imagen',
+  'towerImage.fileTooLarge': 'El tamaño de la imagen no puede superar 2 MB',
 };

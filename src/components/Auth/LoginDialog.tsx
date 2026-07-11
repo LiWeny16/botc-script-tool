@@ -18,8 +18,8 @@ const fadeUp = {
   }),
 };
 
-const MotionBox = motion(Box);
-const MotionButton = motion(Button);
+const MotionBox = motion.create(Box);
+const MotionButton = motion.create(Button);
 
 export default observer(function LoginDialog() {
   const { t } = useTranslation();

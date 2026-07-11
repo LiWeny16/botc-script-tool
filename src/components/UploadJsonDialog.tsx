@@ -43,7 +43,7 @@ const UploadJsonDialog = ({
     try {
       // 检查浏览器支持
       if (!('showOpenFilePicker' in window)) {
-        alert('您的浏览器不支持文件同步功能，请使用最新版 Chrome/Edge 浏览器');
+        alert(t('upload.browserNotSupported'));
         return;
       }
 
@@ -70,7 +70,7 @@ const UploadJsonDialog = ({
     } catch (error: any) {
       if (error.name !== 'AbortError') {
         console.error('文件同步启动失败:', error);
-        alert('文件同步启动失败，请重试');
+        alert(t('upload.syncStartFailed'));
       }
     }
   };

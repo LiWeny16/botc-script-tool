@@ -1232,6 +1232,7 @@ const App = observer(() => {
 
       {/* Floating add button */}
       <FloatingAddButton
+        key="floating-add-button"
         onClick={() => setLibraryCardOpen(!libraryCardOpen)}
         show={!!script || !!originalJson} // Show when script exists or JSON input is present
       />
@@ -1246,6 +1247,7 @@ const App = observer(() => {
       )}
 
       <TowerImageDialog
+        key="tower-image"
         open={towerImageDialogOpen}
         onClose={handleCloseTowerImageDialog}
       />

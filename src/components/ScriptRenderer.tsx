@@ -90,8 +90,22 @@ const ScriptRenderer = observer(({
     const scriptRef = useRef<HTMLDivElement>(null);
     const page2ContainerRef = useRef<HTMLDivElement>(null);
     const page3ContainerRef = useRef<HTMLDivElement>(null);
+    const authorImageInputRef = useRef<HTMLInputElement>(null);
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [titleHovered, setTitleHovered] = useState<boolean>(false);
+
+    // 上传作者头像（base64 存入 _meta.authorImage）
+    const handleAuthorImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            const dataUrl = ev.target?.result as string;
+            if (dataUrl) scriptStore.setAuthorImage(dataUrl);
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+    };
 
     // 按语言选择展示标题：英文优先使用 titleEn；否则回退到第二页标题文本或主标题
     const displayedTitle = useMemo(() => {
@@ -477,7 +491,7 @@ const ScriptRenderer = observer(({
                     />
                     </>})()}
 
-                    {/* 美术设计盒子 - 仅在非只读模式下显示 */}
+                    {/* 美术设计 + 作者 头像盒子 - 仅在非只读模式下显示 */}
                     {!readOnly && (
                         <Box sx={{
                             position: 'absolute',
@@ -485,43 +499,170 @@ const ScriptRenderer = observer(({
                             left: { xs: 12, sm: 16, md: 140 },
                             zIndex: 5,
                             display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
+                            flexDirection: 'row',
+                            alignItems: 'flex-start',
+                            gap: { xs: 0.5, sm: 0.8, md: 1 },
                             pointerEvents: 'none',
                         }}>
-                            <Box
-                                component="img"
-                                src="/imgs/icons/fabled/onion.webp"
-                                alt="Onion Avatar"
-                                sx={{
-                                    width: { xs: 50, sm: 60, md: 70 },
-                                    height: { xs: 50, sm: 60, md: 70 },
-                                    borderRadius: '50%',
-                                    border: '2px solid #d4af37',
-                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                                    objectFit: 'cover',
-                                    mb: { xs: -1, sm: -1.5, md: -2 },
-                                    position: 'relative',
-                                    zIndex: 2,
-                                }}
-                            />
+                            {/* A 列：Onion（Design） */}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+                                <Box
+                                    component="img"
+                                    src="/imgs/icons/fabled/onion.webp"
+                                    alt="Onion Avatar"
+                                    sx={{
+                                        width: { xs: 50, sm: 60, md: 70 },
+                                        height: { xs: 50, sm: 60, md: 70 },
+                                        borderRadius: '50%',
+                                        border: '2px solid #d4af37',
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                        objectFit: 'cover',
+                                        position: 'relative',
+                                        zIndex: 2,
+                                    }}
+                                />
+                                <Box sx={{
+                                    pt: { xs: 0.75, sm: 1, md: 1.25 },
+                                    pb: { xs: 0.5, sm: 0.75, md: 1 },
+                                    minWidth: { xs: '80px', sm: '90px', md: '100px' },
+                                }}>
+                                    {script.authorImage ? (
+                                        <>
+                                            <Typography sx={{
+                                                fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                                                color: '#404040ff',
+                                                fontWeight: 700,
+                                                textAlign: 'center',
+                                                whiteSpace: 'nowrap',
+                                            }}>
+                                                {t('credits.designers')}
+                                            </Typography>
+                                            <Typography sx={{
+                                                fontSize: { xs: '0.6rem', sm: '0.68rem', md: '0.75rem' },
+                                                color: '#666',
+                                                textAlign: 'center',
+                                                whiteSpace: 'nowrap',
+                                            }}>
+                                                {t('credits.designTitle')}
+                                            </Typography>
+                                        </>
+                                    ) : (
+                                        <Typography sx={{
+                                            fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                                            color: '#404040ff',
+                                            fontWeight: 700,
+                                            textAlign: 'center',
+                                            whiteSpace: 'nowrap',
+                                        }}>
+                                            {t('credits.designTitle')}: {t('credits.designers')}
+                                        </Typography>
+                                    )}
+                                </Box>
+                            </Box>
+
+                            {/* × 符号 (A × B) — 与头像圆心平齐，无图时隐藏 */}
                             <Box sx={{
-                                pt: { xs: 1.5, sm: 2, md: 2.5 },
-                                pb: { xs: 0.75, sm: 1, md: 1.25 },
-                                position: 'relative',
-                                zIndex: 1,
-                                minWidth: { xs: '80px', sm: '90px', md: '100px' },
+                                display: script.authorImage ? 'flex' : 'none',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 2,
+                                flexShrink: 0,
+                                // 头像高 50/60/70，× 字号 1.2/1.5/1.8rem(≈19/24/29px 高)，
+                                // 圆心 ≈ 25/30/35 → pt = 圆心 - 半字高
+                                pt: { xs: '16px', sm: '18px', md: '21px' },
+                                '@media print': { display: script.authorImage ? 'flex' : 'none' },
                             }}>
                                 <Typography sx={{
-                                    fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                                    fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.8rem' },
+                                    fontWeight: 300,
                                     color: '#404040ff',
-                                    fontWeight: 700,
-                                    textAlign: 'center',
-                                    whiteSpace: 'nowrap',
+                                    userSelect: 'none',
                                 }}>
-                                    {t('credits.designTitle')}: {t('credits.designers')}
+                                    ×
                                 </Typography>
                             </Box>
+
+                            {/* B 列：作者头像（Author）- 默认灰圆+加号，点击上传；无图时打印隐藏 */}
+                            <Box sx={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                position: 'relative',
+                                zIndex: 1,
+                                '@media print': { display: script.authorImage ? 'flex' : 'none' },
+                            }}>
+                                {script.authorImage ? (
+                                    <Box
+                                        component="img"
+                                        src={script.authorImage}
+                                        alt={script.author || t('credits.author')}
+                                        onClick={() => authorImageInputRef.current?.click()}
+                                        sx={{
+                                            width: { xs: 50, sm: 60, md: 70 },
+                                            height: { xs: 50, sm: 60, md: 70 },
+                                            borderRadius: '50%',
+                                            border: '2px solid #d4af37',
+                                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                            objectFit: 'cover',
+                                            position: 'relative',
+                                            zIndex: 2,
+                                            cursor: 'pointer',
+                                            pointerEvents: 'auto',
+                                        }}
+                                    />
+                                ) : (
+                                    <Box
+                                        onClick={() => authorImageInputRef.current?.click()}
+                                        sx={{
+                                            width: { xs: 50, sm: 60, md: 70 },
+                                            height: { xs: 50, sm: 60, md: 70 },
+                                            borderRadius: '50%',
+                                            border: '2px dashed #bbb',
+                                            backgroundColor: 'rgba(200,200,200,0.35)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            position: 'relative',
+                                            zIndex: 2,
+                                            cursor: 'pointer',
+                                            pointerEvents: 'auto',
+                                        }}
+                                    >
+                                        <AddIcon sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#999' }} />
+                                    </Box>
+                                )}
+                                <Box sx={{
+                                    pt: { xs: 1.5, sm: 2, md: 2.5 },
+                                    pb: { xs: 0.75, sm: 1, md: 1.25 },
+                                    minWidth: { xs: '80px', sm: '90px', md: '100px' },
+                                }}>
+                                    <Typography sx={{
+                                        fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                                        color: '#404040ff',
+                                        fontWeight: 700,
+                                        textAlign: 'center',
+                                        whiteSpace: 'nowrap',
+                                    }}>
+                                        {script.author || t('credits.author')}
+                                    </Typography>
+                                    <Typography sx={{
+                                        fontSize: { xs: '0.6rem', sm: '0.68rem', md: '0.75rem' },
+                                        color: '#666',
+                                        textAlign: 'center',
+                                        whiteSpace: 'nowrap',
+                                    }}>
+                                        {t('credits.author')}
+                                    </Typography>
+                                </Box>
+                            </Box>
+
+                            <input
+                                ref={authorImageInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleAuthorImageUpload}
+                                style={{ display: 'none' }}
+                            />
                         </Box>
                     )}
 

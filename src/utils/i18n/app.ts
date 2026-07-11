@@ -14,6 +14,7 @@ export const cn = {
   'decorative.page2Text': '相克规则 · 传奇角色 · 旅行者',
   'credits.designTitle': '美术设计',
   'credits.designers': '大聪花',
+  'credits.author': '作者',
 } as const;
 
 export const en = {
@@ -32,6 +33,7 @@ export const en = {
   'decorative.page2Text': 'Jinx Rules · Fabled · Travelers',
   'credits.designTitle': 'Design',
   'credits.designers': 'Onion',
+  'credits.author': 'Author',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
@@ -41,6 +43,7 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'app.emptyState': 'Introduce el JSON del guion y pulsa «Generar guion»',
   'allChars.title': 'Todos los Personajes Oficiales',
   'allChars.subtitle': '213 personajes oficiales de Blood on the Clocktower',
+  'allChars.description': 'Todos son Amnesiac. El Narrador elige personajes de este grupo de referencia para construir el guion real, y los jugadores deducen sus propias habilidades durante la partida.',
   'allChars.totalCount': 'personajes',
   'seo.title': 'Herramienta BOTC gratuita — Generador y maquetador de guiones Blood on the Clocktower',
   'seo.description': 'Generador de guiones y maquetador gratuito para Blood on the Clocktower. Importa JSON oficial, edita personajes, interacciones jinx y reglas especiales, y exporta PDF, flujo de imagen y JSON multilingue.',
@@ -49,4 +52,5 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'decorative.page2Text': 'Interacciones · Legendarios · Viajeros',
   'credits.designTitle': 'Diseño gráfico',
   'credits.designers': 'Onion',
+  'credits.author': 'Autor',
 };

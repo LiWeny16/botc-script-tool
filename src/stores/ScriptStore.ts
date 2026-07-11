@@ -62,6 +62,7 @@ class ScriptStore {
         name: script.title,
         author: script.author || '',
       };
+      if (script.authorImage) meta.authorImage = script.authorImage;
       if ((script as any).titleEn) meta.name_en = (script as any).titleEn;
       if (script.titleImage) meta.titleImage = script.titleImage;
       if (script.titleImageSize) meta.titleImageSize = script.titleImageSize;
@@ -400,6 +401,12 @@ class ScriptStore {
       },
     };
     this.setScript(updatedScript);
+  }
+
+  // Set author avatar image (base64 data URL)
+  setAuthorImage(image: string) {
+    if (!this.script) return;
+    this.setScript({ ...this.script, authorImage: image });
   }
 
   // Add character to script

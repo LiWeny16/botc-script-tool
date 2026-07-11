@@ -1,10 +1,10 @@
-/* 打印样式 - 只打印剧本内容，全屏无白边 
+/* 打印样式 - 只打印剧本内容，全屏无白边
  * 使用说明：
  * 1. 按 Ctrl+P 打开打印对话框
  * 2. 纸张大小：A4
- * 3. 缩放：60%
+ * 3. 缩放：若缩放框变灰，先将模式从"适应页面"切换为"默认"（自定义），再输入 53%
  * 4. 每张纸打印的页数：1
- * 5. 边距：默认
+ * 5. 边距：无
  * 6. 选项：勾选"背景图形"
  */
 
@@ -35,6 +35,8 @@
   /* 只显示剧本预览区域及其子元素 */
   #script-preview,
   #script-preview *,
+  #main_script,
+  #main_script *,
   #script-preview-2,
   #script-preview-2 *,
   #script-preview-3,
@@ -44,21 +46,81 @@
     visibility: visible !important;
   }
 
-  /* 让剧本预览区域作为唯一可见内容 */
-  #script-preview {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-    width: 100% !important;
-    margin: 0 !important;
+  /* 移除MUI Container的限制 */
+  .MuiContainer-root {
     padding: 0 !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: flex-start !important;
+    margin: 0 !important;
+    max-width: 100% !important;
   }
 
-  /* 确保内部容器占满宽度并保持原始布局 - 针对60%缩放优化 */
+  /* 第一页容器 */
+  #script-preview {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
 
+  /* 当存在第二页时，第一页后强制分页 */
+  #script-preview:has(~ #script-preview-2) {
+    page-break-after: always !important;
+  }
+
+  /* 第二页容器 */
+  #script-preview-2 {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    page-break-before: always !important;
+    page-break-inside: avoid !important;
+    margin-top: 0 !important;
+  }
+
+  /* 第三页容器（说书人夜晚顺序表） */
+  #script-preview-3 {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    page-break-before: always !important;
+    page-break-inside: avoid !important;
+    margin-top: 0 !important;
+  }
+
+  /* 第四页容器 */
+  #script-preview-4 {
+    position: relative !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    page-break-before: always !important;
+    page-break-inside: avoid !important;
+    margin-top: 0 !important;
+  }
+
+  /* 确保底部头像和文本框在打印时可见 */
+  #main_script .MuiBox-root {
+    visibility: visible !important;
+  }
 
   /* 确保背景图片和颜色正确显示 */
   * {
@@ -66,24 +128,6 @@
     print-color-adjust: exact !important;
     color-adjust: exact !important;
   }
-
-  /* 避免内容被分页打断 */
-  #script-preview {
-    page-break-inside: avoid !important;
-    break-inside: avoid !important;
-  }
-
-  /* 确保图片清晰显示 */
-  /* img {
-    image-rendering: -webkit-optimize-contrast !important;
-  } */
-
-  /* 移除MUI Container的限制 */
-  /* .MuiContainer-root {
-    max-width: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  } */
 
   /* 移除所有不必要的阴影效果 */
   .MuiPaper-root {
@@ -96,7 +140,7 @@
     box-shadow: none !important;
   }
 
-  /* 隐藏所有工具组件 */
+  /* 隐藏所有浮动工具组件 */
   .MuiFab-root,
   .floating-add-button,
   [role="dialog"],
@@ -115,5 +159,20 @@
   .MuiButton-root:not(#script-preview .MuiButton-root) {
     display: none !important;
     visibility: hidden !important;
+  }
+
+  /* 隐藏标题编辑按钮 */
+  .MuiIconButton-root {
+    display: none !important;
+  }
+
+  /* 隐藏第二页添加组件按钮 */
+  .second-page-add-component {
+    display: none !important;
+  }
+
+  /* 隐藏预览控制栏 */
+  #preview-control-box {
+    display: none !important;
   }
 }

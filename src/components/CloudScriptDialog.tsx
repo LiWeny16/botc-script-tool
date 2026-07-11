@@ -14,7 +14,7 @@ import { alertSuccess } from '../utils/alert';
 import { useTranslation } from '../utils/i18n';
 
 const PAGE_SIZE = 10;
-const MotionPaper = motion(Paper);
+const MotionPaper = motion.create(Paper);
 
 const cardVariant: Record<string, any> = {
   hidden: { opacity: 0, y: 12 },

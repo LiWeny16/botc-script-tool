@@ -96,6 +96,7 @@ export interface Script {
   useTitleImage?: boolean;  // whether to use an image title on the first page
   showTitleFlourish?: boolean;  // whether to show the decorative pattern behind the title
   author: string;
+  authorImage?: string;  // author avatar (base64 data URL)
   playerCount?: string;  // player count range, e.g. "7-15"
   characters: {
     [key: string]: Character[];  // supports dynamic team types, including standard teams
