@@ -632,8 +632,8 @@ const ScriptRenderer = observer(({
                                     </Box>
                                 )}
                                 <Box sx={{
-                                    pt: { xs: 1.5, sm: 2, md: 2.5 },
-                                    pb: { xs: 0.75, sm: 1, md: 1.25 },
+                                    pt: { xs: 0.75, sm: 1, md: 1.25 },
+                                    pb: { xs: 0.5, sm: 0.75, md: 1 },
                                     minWidth: { xs: '80px', sm: '90px', md: '100px' },
                                 }}>
                                     <Typography sx={{
