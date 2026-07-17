@@ -25,7 +25,8 @@ export const CN_TO_EN_ID_MAP: Record<string, string> = {
   'high_priestess': 'highpriestess',
   'village_idiot': 'villageidiot',
   'plague_doctor': 'plaguedoctor',
-  'organ_grinder': 'organgrinder'
+  'organ_grinder': 'organgrinder',
+  'spirit_of_ivory': 'spiritofivory'
 };
 
 // 英文ID -> 中文ID 的映射（反向映射）

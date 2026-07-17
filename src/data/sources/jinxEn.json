@@ -641,10 +641,6 @@
                 "reasonLegacy": "If the Plague Doctor dies, a living Minion gains the Spy ability in addition to their own ability, and learns this."
             },
             {
-                "id": "witch",
-                "reason": "If the Storyteller would gain the Witch's ability, a Minion player gains it instead, and learns this."
-            },
-            {
                 "id": "wraith",
                 "reason": "If the Storyteller would gain the Wraith's ability, a Minion player gains it instead, and learns this.",
                 "reasonLegacy": "If the Plague Doctor dies, a living Minion gains the Wraith ability in addition to their own ability, and learns this."

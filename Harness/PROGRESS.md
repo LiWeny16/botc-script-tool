@@ -10,6 +10,7 @@ None — create a new task from `Harness/tasks/_template/` when work spans more 
 
 | ID | Goal | Phase | Closed |
 |----|------|-------|--------|
+| botc-role-jinx-regression | Check `spiritofivory` JSON recognition and Plague Doctor/Witch jinx data | Verify | Yes |
 
 ## Cross-Task Decisions
 

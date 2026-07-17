@@ -699,11 +699,6 @@
             {
                 "id": "humeiniang",
                 "reason": "Si el Narrador fuera a obtener la habilidad de Hu Meiniang, en su lugar un jugador Esbirro obtiene esta habilidad y lo aprende."
-            },
-            {
-                "id": "witch",
-                "reason": "Si el Narrador fuera a obtener la habilidad de la Bruja, en su lugar un jugador Esbirro la obtiene y lo aprende.",
-                "reasonLegacy": "Si el Doctor de plaga muere, un Esbirro vivo obtiene la habilidad de la Bruja ademas de la suya, y lo aprende."
             }
         ]
     },
