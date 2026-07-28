@@ -1,6 +1,6 @@
 import { useRef, useState, useMemo, useCallback } from 'react';
 import { Box, Paper, Typography, IconButton, useMediaQuery } from '@mui/material';
-import { Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
+import { Edit as EditIcon } from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
 import type { Script, Character, SecondPageComponentType } from '../types';
 import CharacterSection from './CharacterSection';
@@ -9,7 +9,6 @@ import SpecialRulesSection from './SpecialRulesSection';
 import StateRulesSection from './StateRulesSection';
 import JinxSection from './JinxSection';
 import CharacterImage from './CharacterImage';
-import TowerImageOverlay from './TowerImageOverlay';
 import { SecondPageTitle } from './SecondPageTitle';
 import { PlayerCountTable } from './PlayerCountTable';
 import { SecondPageAddButton } from './SecondPageAddButton';
@@ -35,6 +34,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import StorytellerNightOrderSheet from './StorytellerNightOrderSheet';
+import EditablePageTitle from './EditablePageTitle';
 
 
 const backgroundIndex = 2
@@ -58,7 +58,6 @@ export interface ScriptRendererProps {
     onSpecialRuleEdit?: (rule: any) => void;
     onSpecialRuleDelete?: (rule: any) => void;
     onNightOrderReorder?: (nightType: 'first' | 'other', oldIndex: number, newIndex: number) => void;
-    onOpenTowerImageDialog?: () => void;
 
 }
 
@@ -82,30 +81,14 @@ const ScriptRenderer = observer(({
     onSpecialRuleEdit = () => { },
     onSpecialRuleDelete = () => { },
     onNightOrderReorder = () => { },
-    onOpenTowerImageDialog,
+    
 
 }: ScriptRendererProps) => {
     const COMPACT_SCALE = compact ? 0.47 : 1;
     const { t, language } = useTranslation();
     const scriptRef = useRef<HTMLDivElement>(null);
-    const page2ContainerRef = useRef<HTMLDivElement>(null);
-    const page3ContainerRef = useRef<HTMLDivElement>(null);
-    const authorImageInputRef = useRef<HTMLInputElement>(null);
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [titleHovered, setTitleHovered] = useState<boolean>(false);
-
-    // 上传作者头像（base64 存入 _meta.authorImage）
-    const handleAuthorImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !file.type.startsWith('image/')) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const dataUrl = ev.target?.result as string;
-            if (dataUrl) scriptStore.setAuthorImage(dataUrl);
-        };
-        reader.readAsDataURL(file);
-        e.target.value = '';
-    };
 
     // 按语言选择展示标题：英文优先使用 titleEn；否则回退到第二页标题文本或主标题
     const displayedTitle = useMemo(() => {
@@ -346,49 +329,6 @@ const ScriptRenderer = observer(({
                 return null;
         }
     }, [script, readOnly, onSecondPageTitleEdit, onTitleEdit, onReorderCharacters, onUpdateCharacter, onEditCharacter, onDeleteCharacter, onReplaceCharacter, onAddCustomCharacter, onSpecialRuleEdit, onSpecialRuleDelete]);
-
-    const storytellerTitleContentSpacing = Math.min(
-        uiConfigStore.config.storytellerNightSheet.titleContentSpacing,
-        20,
-    );
-    const storytellerColumnTitleSx = {
-        fontFamily: uiConfigStore.scriptTitleFont,
-        fontWeight: 'bold',
-        fontSize: 'clamp(1.55rem, 2.4vw, 2.25rem)',
-        lineHeight: 1.05,
-        textAlign: 'center',
-        mb: 0.5,
-        letterSpacing: 0,
-        wordBreak: 'break-word',
-        color: THEME_COLORS.paper.primary,
-        textShadow: '0 1px 0 rgba(255, 255, 255, 0.45)',
-        cursor: readOnly ? 'default' : 'pointer',
-    };
-    const storytellerPageBackgroundImage = `url(${uiConfigStore.mainBackgroundUrl})`;
-    const storytellerPageBackgroundSize = `100% 100%`;
-    const storytellerPageBackgroundPosition = `center`;
-    const storytellerPageBackgroundRepeat = `no-repeat`;
-    const storytellerNightPageSx = {
-        flex: 1,
-        minHeight: '100vh',
-        backgroundImage: storytellerPageBackgroundImage,
-        backgroundSize: storytellerPageBackgroundSize,
-        backgroundPosition: storytellerPageBackgroundPosition,
-        backgroundRepeat: storytellerPageBackgroundRepeat,
-        borderRadius: 0,
-        position: 'relative',
-        boxShadow: 'none',
-        display: 'flex',
-        flexDirection: 'column',
-        '& > *': {
-            position: 'relative',
-            zIndex: backgroundIndex + 3,
-        },
-        '@media print': {
-            height: '100vh !important',
-            minHeight: '100vh !important',
-        },
-    };
     
     return (
         <>
@@ -491,178 +431,59 @@ const ScriptRenderer = observer(({
                     />
                     </>})()}
 
-                    {/* 美术设计 + 作者 头像盒子 - 仅在非只读模式下显示 */}
-                    {!readOnly && (
+                    {/* 美术设计盒子 - 仅在非只读模式下显示 */}
+                    {!readOnly && uiConfigStore.config.avatarIcon.enableDesignerBadge && (
                         <Box sx={{
                             position: 'absolute',
-                            top: { xs: 12, sm: 16, md: 95 },
-                            left: { xs: 12, sm: 16, md: 140 },
+                            top: {
+                                xs: 12,
+                                sm: 16,
+                                md: uiConfigStore.config.avatarIcon.designerPosY,
+                                },
+                            left: {
+                                xs: 12,
+                                sm: 16,
+                                md: uiConfigStore.config.avatarIcon.designerPosX,
+                                },
                             zIndex: 5,
                             display: 'flex',
-                            flexDirection: 'row',
-                            alignItems: 'flex-start',
-                            gap: { xs: 0.5, sm: 0.8, md: 1 },
+                            flexDirection: 'column',
+                            alignItems: 'center',
                             pointerEvents: 'none',
                         }}>
-                            {/* A 列：Onion（Design） */}
-                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
-                                <Box
-                                    component="img"
-                                    src="/imgs/icons/fabled/onion.webp"
-                                    alt="Onion Avatar"
-                                    sx={{
-                                        width: { xs: 50, sm: 60, md: 70 },
-                                        height: { xs: 50, sm: 60, md: 70 },
-                                        borderRadius: '50%',
-                                        border: '2px solid #d4af37',
-                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                                        objectFit: 'cover',
-                                        position: 'relative',
-                                        zIndex: 2,
-                                    }}
-                                />
-                                <Box sx={{
-                                    pt: { xs: 0.75, sm: 1, md: 1.25 },
-                                    pb: { xs: 0.5, sm: 0.75, md: 1 },
-                                    minWidth: { xs: '80px', sm: '90px', md: '100px' },
-                                }}>
-                                    {script.authorImage ? (
-                                        <>
-                                            <Typography sx={{
-                                                fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
-                                                color: '#404040ff',
-                                                fontWeight: 700,
-                                                textAlign: 'center',
-                                                whiteSpace: 'nowrap',
-                                            }}>
-                                                {t('credits.designers')}
-                                            </Typography>
-                                            <Typography sx={{
-                                                fontSize: { xs: '0.6rem', sm: '0.68rem', md: '0.75rem' },
-                                                color: '#666',
-                                                textAlign: 'center',
-                                                whiteSpace: 'nowrap',
-                                            }}>
-                                                {t('credits.designTitle')}
-                                            </Typography>
-                                        </>
-                                    ) : (
-                                        <Typography sx={{
-                                            fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
-                                            color: '#404040ff',
-                                            fontWeight: 700,
-                                            textAlign: 'center',
-                                            whiteSpace: 'nowrap',
-                                        }}>
-                                            {t('credits.designTitle')}: {t('credits.designers')}
-                                        </Typography>
-                                    )}
-                                </Box>
-                            </Box>
-
-                            {/* × 符号 (A × B) — 与头像圆心平齐，无图时隐藏 */}
+                            <Box
+                                component="img"
+                                src={uiConfigStore.config.avatarIcon.designerAvatarUrl}
+                                alt="Onion Avatar"
+                                sx={{
+                                    width: { xs: 50, sm: 60, md: 70 },
+                                    height: { xs: 50, sm: 60, md: 70 },
+                                    borderRadius: '50%',
+                                    border: '2px solid #d4af37',
+                                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                    objectFit: 'cover',
+                                    mb: { xs: -1, sm: -1.5, md: -2 },
+                                    position: 'relative',
+                                    zIndex: 2,
+                                }}
+                            />
                             <Box sx={{
-                                display: script.authorImage ? 'flex' : 'none',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                zIndex: 2,
-                                flexShrink: 0,
-                                // 头像高 50/60/70，× 字号 1.2/1.5/1.8rem(≈19/24/29px 高)，
-                                // 圆心 ≈ 25/30/35 → pt = 圆心 - 半字高
-                                pt: { xs: '16px', sm: '18px', md: '21px' },
-                                '@media print': { display: script.authorImage ? 'flex' : 'none' },
-                            }}>
-                                <Typography sx={{
-                                    fontSize: { xs: '1.2rem', sm: '1.5rem', md: '1.8rem' },
-                                    fontWeight: 300,
-                                    color: '#404040ff',
-                                    userSelect: 'none',
-                                }}>
-                                    ×
-                                </Typography>
-                            </Box>
-
-                            {/* B 列：作者头像（Author）- 默认灰圆+加号，点击上传；无图时打印隐藏 */}
-                            <Box sx={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
+                                pt: { xs: 1.5, sm: 2, md: 2.5 },
+                                pb: { xs: 0.75, sm: 1, md: 1.25 },
                                 position: 'relative',
                                 zIndex: 1,
-                                '@media print': { display: script.authorImage ? 'flex' : 'none' },
+                                minWidth: { xs: '80px', sm: '90px', md: '100px' },
                             }}>
-                                {script.authorImage ? (
-                                    <Box
-                                        component="img"
-                                        src={script.authorImage}
-                                        alt={script.author || t('credits.author')}
-                                        onClick={() => authorImageInputRef.current?.click()}
-                                        sx={{
-                                            width: { xs: 50, sm: 60, md: 70 },
-                                            height: { xs: 50, sm: 60, md: 70 },
-                                            borderRadius: '50%',
-                                            border: '2px solid #d4af37',
-                                            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
-                                            objectFit: 'cover',
-                                            position: 'relative',
-                                            zIndex: 2,
-                                            cursor: 'pointer',
-                                            pointerEvents: 'auto',
-                                        }}
-                                    />
-                                ) : (
-                                    <Box
-                                        onClick={() => authorImageInputRef.current?.click()}
-                                        sx={{
-                                            width: { xs: 50, sm: 60, md: 70 },
-                                            height: { xs: 50, sm: 60, md: 70 },
-                                            borderRadius: '50%',
-                                            border: '2px dashed #bbb',
-                                            backgroundColor: 'rgba(200,200,200,0.35)',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            position: 'relative',
-                                            zIndex: 2,
-                                            cursor: 'pointer',
-                                            pointerEvents: 'auto',
-                                        }}
-                                    >
-                                        <AddIcon sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: '#999' }} />
-                                    </Box>
-                                )}
-                                <Box sx={{
-                                    pt: { xs: 0.75, sm: 1, md: 1.25 },
-                                    pb: { xs: 0.5, sm: 0.75, md: 1 },
-                                    minWidth: { xs: '80px', sm: '90px', md: '100px' },
+                                <Typography sx={{
+                                    fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                                    color: '#404040ff',
+                                    fontWeight: 700,
+                                    textAlign: 'center',
+                                    whiteSpace: 'nowrap',
                                 }}>
-                                    <Typography sx={{
-                                        fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
-                                        color: '#404040ff',
-                                        fontWeight: 700,
-                                        textAlign: 'center',
-                                        whiteSpace: 'nowrap',
-                                    }}>
-                                        {script.author || t('credits.author')}
-                                    </Typography>
-                                    <Typography sx={{
-                                        fontSize: { xs: '0.6rem', sm: '0.68rem', md: '0.75rem' },
-                                        color: '#666',
-                                        textAlign: 'center',
-                                        whiteSpace: 'nowrap',
-                                    }}>
-                                        {t('credits.author')}
-                                    </Typography>
-                                </Box>
+                                    {t('credits.designTitle')}: {uiConfigStore.config.avatarIcon.designerName}
+                                </Typography>
                             </Box>
-
-                            <input
-                                ref={authorImageInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={handleAuthorImageUpload}
-                                style={{ display: 'none' }}
-                            />
                         </Box>
                     )}
 
@@ -696,7 +517,6 @@ const ScriptRenderer = observer(({
                     {/* 中间 - 主要内容区域 */}
                     <Paper
                         id="main_script"
-                        ref={page2ContainerRef}
                         elevation={0}
                         sx={{
                             pt: compact ? 0 : 2,
@@ -752,21 +572,15 @@ const ScriptRenderer = observer(({
                                 {/* 标题 */}
                                 <Box
                                     sx={{
+
                                         position: { xs: 'relative', md: 'absolute' },
                                         top: { xs: 'auto', md: '50%' },
-                                        left: { xs: 'auto', md: (() => {
-                                            const align = (script as any).textAlignment || 'center';
-                                            if (align === 'right') return 'auto';
-                                            if (align === 'left') return '5%';
-                                            // center
-                                            return script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%';
-                                        })() },
-                                        right: { xs: 'auto', md: ((script as any).textAlignment || 'center') === 'right' ? '5%' : 'auto' },
-                                        transform: { xs: 'none', md: ((script as any).textAlignment || 'center') === 'center' ? 'translate(-50%, -50%)' : 'translate(0, -50%)' },
+                                        left: { xs: 'auto', md: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%' },
+                                        transform: { xs: 'none', md: 'translate(-50%, -50%)' },
                                         zIndex: 1,
                                         maxWidth: {
                                             xs: '100%',
-                                            md: script?.specialRules && script.specialRules.length > 0 ? (script as any).textAlignment === 'center' ? '32%' : '100%' : '70%'
+                                            md: script?.specialRules && script.specialRules.length > 0 ? '32%' : '70%'
                                         },
                                         width: {
                                             xs: '100%',
@@ -988,7 +802,7 @@ const ScriptRenderer = observer(({
                                         color: THEME_COLORS.paper.secondary,
                                         fontSize: { xs: '0.75rem', sm: '0.95rem' },
                                         mt: 0.5,
-                                        textAlign: (script as any).authorAlignment || 'center',
+                                        textAlign: (script as any).textAlignment || 'center',
                                     }}
                                 >
                                     {script.author ? `${t('script.author2')}：${script.author}` : ''}
@@ -1122,56 +936,61 @@ const ScriptRenderer = observer(({
                             </Paper>
                         )}
 
-                        {/* Background decoration - Tower Image Overlays */}
-                        {!compact && (
+                        {/* 背景装饰（紧凑模式隐藏） */}
+                        {!compact && <>
+                        {uiConfigStore.config.theme === 'sakura' ? (
+                          <CharacterImage
+                            component="img"
+                            src="/imgs/images/background/back_cherry.jpg"
+                            alt="back_cherry"
+                            sx={{
+                              position: "absolute",
+                              left: "0%",
+                              bottom: "0",
+                              width: "100%",
+                              zIndex: backgroundIndex,
+                              opacity: 0.5,
+                              userSelect: 'none',
+                              WebkitUserDrag: 'none',
+                            }}
+                          />
+                        ) : (
                           <>
-                            {uiConfigStore.config.theme === 'sakura' ? (
-                              <CharacterImage
-                                component="img"
-                                src="/imgs/images/background/back_cherry.jpg"
-                                alt="back_cherry"
-                                sx={{
-                                  position: "absolute",
-                                  left: "0%",
-                                  bottom: "0",
-                                  width: "100%",
-                                  zIndex: backgroundIndex,
-                                  opacity: 0.5,
-                                  userSelect: 'none',
-                                  WebkitUserDrag: 'none',
-                                }}
-                              />
-                            ) : (
-                              uiConfigStore.activeTowerImages.map(img => (
-                                <TowerImageOverlay
-                                  key={img.id}
-                                  image={img}
-                                  onUpdate={(id, partial) => uiConfigStore.updateTowerImage(id, partial)}
-                                  onDelete={(id) => uiConfigStore.removeTowerImage(id)}
-                                  onDoubleClick={onOpenTowerImageDialog}
-                                  containerRef={page2ContainerRef}
-                                />
-                              ))
-                            )}
-                            {/* Add tower image button */}
-                            {!readOnly && (
-                              <Box sx={{ position: 'absolute', bottom: 8, right: 8, zIndex: 10 }}>
-                                <IconButton
-                                  size="small"
-                                  onClick={onOpenTowerImageDialog}
-                                  sx={{
-                                    backgroundColor: 'rgba(255,255,255,0.85)',
-                                    border: '1px dashed',
-                                    borderColor: 'divider',
-                                    '&:hover': { backgroundColor: 'action.hover' },
-                                  }}
-                                >
-                                  <AddIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
-                            )}
+                        <CharacterImage
+                            component="img"
+                            src={"/imgs/images/background/back_tower.png"}
+                            alt={"back_tower"}
+                            sx={{
+                                position: "absolute",
+                                left: "0%",
+                                bottom: "0",
+                                display: "flex",
+                                width: "20%",
+                                zIndex: backgroundIndex,
+                                opacity: 0.4,
+                                userSelect: 'none',
+                                WebkitUserDrag: 'none',
+                            }}
+                        />
+                        <CharacterImage
+                            component="img"
+                            src={"/imgs/images/background/onion_tower_transparent.png"}
+                            alt={"onion_tower_transparent"}
+                            sx={{
+                                position: "absolute",
+                                left: "26%",
+                                bottom: "0%",
+                                display: "flex",
+                                width: "50%",
+                                zIndex: backgroundIndex,
+                                opacity: 0.8,
+                                userSelect: 'none',
+                                WebkitUserDrag: 'none',
+                            }}
+                        />
                           </>
                         )}
+                        </>}
 
                         <Box sx={{ height: compact ? "5vh" : "20vh" }}></Box>
                     </Paper>
@@ -1329,7 +1148,6 @@ const ScriptRenderer = observer(({
                         {/* 中间 - 第二页内容区域 */}
                         <Paper
                             elevation={0}
-                            ref={page3ContainerRef}
                             sx={{
                                 pt: 2,
                                 flex: 1,
@@ -1391,7 +1209,7 @@ const ScriptRenderer = observer(({
                                 </SortableContext>
                             </DndContext>
 
-                            {/* Background decoration - Tower Image Overlays */}
+                            {/* 背景装饰 - 放在 Paper 容器内，DndContext 外 */}
                             {uiConfigStore.config.theme === 'sakura' ? (
                               <CharacterImage
                                 component="img"
@@ -1410,33 +1228,42 @@ const ScriptRenderer = observer(({
                                 }}
                               />
                             ) : (
-                              uiConfigStore.activeTowerImages.map(img => (
-                                <TowerImageOverlay
-                                  key={img.id}
-                                  image={img}
-                                  onUpdate={(id, partial) => uiConfigStore.updateTowerImage(id, partial)}
-                                  onDelete={(id) => uiConfigStore.removeTowerImage(id)}
-                                  onDoubleClick={onOpenTowerImageDialog}
-                                  containerRef={page3ContainerRef}
-                                />
-                              ))
-                            )}
-                            {/* Add tower image button */}
-                            {!readOnly && (
-                              <Box sx={{ position: 'absolute', bottom: 8, right: 8, zIndex: 10 }}>
-                                <IconButton
-                                  size="small"
-                                  onClick={onOpenTowerImageDialog}
-                                  sx={{
-                                    backgroundColor: 'rgba(255,255,255,0.85)',
-                                    border: '1px dashed',
-                                    borderColor: 'divider',
-                                    '&:hover': { backgroundColor: 'action.hover' },
-                                  }}
-                                >
-                                  <AddIcon fontSize="small" />
-                                </IconButton>
-                              </Box>
+                              <>
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/back_tower.png"}
+                                alt={"back_tower"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "0%",
+                                    bottom: "0",
+                                    display: "flex",
+                                    width: "20%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.4,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/onion_tower_transparent.png"}
+                                alt={"onion_tower_transparent"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "26%",
+                                    bottom: "0%",
+                                    display: "flex",
+                                    width: "50%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.8,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                              </>
                             )}
                         </Paper>
 
@@ -1481,7 +1308,6 @@ const ScriptRenderer = observer(({
                         minHeight: '100vh',
                         justifyContent: "center",
                         position: 'relative',
-                        isolation: 'isolate',
                     }}
                 >
 
@@ -1509,7 +1335,7 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex + 4,
+                                    zIndex: backgroundIndex,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
                                 }}
@@ -1525,7 +1351,7 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex + 4,
+                                    zIndex: backgroundIndex,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
                                 }}
@@ -1541,7 +1367,7 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '35%', sm: '20%', md: '20%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex + 4,
+                                    zIndex: backgroundIndex,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
                                 }}
@@ -1558,9 +1384,43 @@ const ScriptRenderer = observer(({
                                     maxWidth: { xs: '25%', sm: '20%', md: '15%' },
                                     opacity: 1,
                                     pointerEvents: 'none',
-                                    zIndex: backgroundIndex + 4,
+                                    zIndex: backgroundIndex,
                                     userSelect: 'none',
                                     WebkitUserDrag: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/back_tower.png"}
+                                alt={"back_tower"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "0%",
+                                    bottom: "0",
+                                    display: "flex",
+                                    width: "20%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.4,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/onion_tower_transparent.png"}
+                                alt={"onion_tower_transparent"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "26%",
+                                    bottom: "0%",
+                                    display: "flex",
+                                    width: "50%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.8,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
                                 }}
                             />
                         </>
@@ -1575,7 +1435,7 @@ const ScriptRenderer = observer(({
                                 flexShrink: 0,
                                 position: 'relative',
                                 backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                                width: '56px',
+                                width: '75px',
                                 boxShadow: 'none',
                             }}
                         />
@@ -1584,82 +1444,40 @@ const ScriptRenderer = observer(({
                     {/* Mittlere Seite */}
                     <Paper
                         elevation={0}
-                        sx={storytellerNightPageSx}
+                        sx={{
+                            flex: 1,
+                            minHeight: '100vh',
+                            backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
+                            backgroundSize: '100% 100%',
+                            backgroundPosition: 'center',
+                            backgroundRepeat: 'no-repeat',
+                            borderRadius: 0,
+                            position: 'relative',
+                            boxShadow: 'none',
+                        }}
                     >
+                        
+                        <EditablePageTitle
+                            title={displayedFirstNightTitle}
+                            titleImage={script.storytellerFirstNightTitleImage}
+                            useImage={script.useStorytellerFirstNightTitleImage}
+                            imageSize={script.storytellerFirstNightTitleImageSize}
+                            fontSize={script.storytellerFirstNightTitleFontSize}
+                            readOnly={readOnly}
+                            onEdit={() => onTitleEdit?.('firstNight')}
+                            />
                         <Box
                             sx={{
-                                display: 'grid',
-                                gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                                gap: { xs: 1.5, md: 2 },
-                                alignItems: 'start',
-                                px: { xs: 1.25, sm: 2.5, md: 3.5 },
-                                pt: { xs: 2, md: 2.5 },
-                                pb: { xs: 2, md: 2.5 },
+                                mt: `${uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px`,
                             }}
-                        >
-                            <Box sx={{ minWidth: 0, pt: '40px' }}>
-                                {script.useStorytellerFirstNightTitleImage && script.storytellerFirstNightTitleImage ? (
-                                    <CharacterImage
-                                        src={script.storytellerFirstNightTitleImage}
-                                        alt={displayedFirstNightTitle}
-                                        sx={{
-                                            display: 'block',
-                                            maxWidth: '100%',
-                                            maxHeight: `${Math.min(script.storytellerFirstNightTitleImageSize || 120, 96)}px`,
-                                            objectFit: 'contain',
-                                            mx: 'auto',
-                                            mb: 0.5,
-                                            cursor: readOnly ? 'default' : 'pointer',
-                                        }}
-                                        onDoubleClick={() => !readOnly && onTitleEdit?.('firstNight')}
-                                    />
-                                ) : (
-                                    <Typography
-                                        sx={storytellerColumnTitleSx}
-                                        onDoubleClick={() => !readOnly && onTitleEdit?.('firstNight')}
-                                    >
-                                        {displayedFirstNightTitle}
-                                    </Typography>
-                                )}
-                                <Box sx={{ mt: `${storytellerTitleContentSpacing}px` }}>
-                                    <StorytellerNightOrderSheet
-                                        characters={allCharacters}
-                                        mode="firstNight"
-                                    />
-                                </Box>
+                            >
+                            <StorytellerNightOrderSheet
+                                characters={allCharacters}
+                                mode="firstNight"
+                            />
                             </Box>
-
-                            <Box sx={{ minWidth: 0, pt: '5px' }}>
-                                {script.useStorytellerOtherNightTitleImage && script.storytellerOtherNightTitleImage ? (
-                                    <CharacterImage
-                                        src={script.storytellerOtherNightTitleImage}
-                                        alt={displayedOtherNightTitle}
-                                        sx={{
-                                            display: 'block',
-                                            maxWidth: '100%',
-                                            maxHeight: `${Math.min(script.storytellerOtherNightTitleImageSize || 120, 96)}px`,
-                                            objectFit: 'contain',
-                                            mx: 'auto',
-                                            mb: 0.5,
-                                            cursor: readOnly ? 'default' : 'pointer',
-                                        }}
-                                        onDoubleClick={() => !readOnly && onTitleEdit?.('otherNight')}
-                                    />
-                                ) : (
-                                    <Typography
-                                        sx={storytellerColumnTitleSx}
-                                        onDoubleClick={() => !readOnly && onTitleEdit?.('otherNight')}
-                                    >
-                                        {displayedOtherNightTitle}
-                                    </Typography>
-                                )}
-                                <Box sx={{ mt: `${storytellerTitleContentSpacing}px` }}>
-                                    <StorytellerNightOrderSheet
-                                        characters={allCharacters}
-                                        mode="otherNight"
-                                    />
-                                </Box>
-                            </Box>
+                        <Box sx={{ pb: '14vh' }}>
+                            <JinxSection key="jinx" script={script} />
                         </Box>
                     </Paper>
 
@@ -1671,11 +1489,228 @@ const ScriptRenderer = observer(({
                                 flexShrink: 0,
                                 position: 'relative',
                                 backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
-                                width: '56px',
+                                width: '75px',
                                 boxShadow: 'none',
                             }}
                         />
                     )}
+                </Box>
+            </Paper>
+            )}
+            {/* PAGE 4 */}
+            {uiConfigStore.config.enableStorytellerNightOrderSheet && (
+            <Paper
+                elevation={16}
+                id="script-preview-4"
+                sx={{
+                display: "flex",
+                zIndex: 1,
+                mt: 5,
+                mb: 5,
+                width: "100%",
+                '@media print': {
+                    mt: 0,
+                    boxShadow: 'none !important',
+                    height: '100vh !important',
+                    minHeight: '100vh !important',
+                },
+                }}
+            >
+                <Box
+                sx={{
+                    display: "flex",
+                    width: "100%",
+                    minHeight: "100vh",
+                    justifyContent: "center",
+                    position: "relative",
+                }}
+                >
+
+
+                {/* Corner flowers */}
+                {(() => {
+                    const cf = uiConfigStore.cornerFlowers;
+                    const blSrc = cf?.bl || '/imgs/images/sources/flowers/flower3_2.png';
+                    const brSrc = cf?.br || '/imgs/images/sources/flowers/flower4.png';
+                    const trSrc = cf?.tr || '/imgs/images/sources/flowers/flower7.png';
+                    const tlSrc = cf?.tl || '/imgs/images/sources/flowers/flower4_2.png';
+
+                    const blTransform = cf ? 'scaleX(-1)' : 'none';
+                    const tlTransform = cf ? 'scaleX(-1) scaleY(-1)' : 'rotate(180deg)';
+                    
+
+                    return (
+                        <>
+                            <CharacterImage
+                                src={blSrc}
+                                alt="左下角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0,
+                                    transform: blTransform,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={brSrc}
+                                alt="右下角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    right: 0,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={trSrc}
+                                alt="右上角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    maxWidth: { xs: '35%', sm: '20%', md: '20%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+
+                            <CharacterImage
+                                src={tlSrc}
+                                alt="左上角装饰花纹"
+                                sx={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    left: 0,
+                                    transform: tlTransform,
+                                    maxWidth: { xs: '25%', sm: '20%', md: '15%' },
+                                    opacity: 1,
+                                    pointerEvents: 'none',
+                                    zIndex: backgroundIndex,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/back_tower.png"}
+                                alt={"back_tower"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "0%",
+                                    bottom: "0",
+                                    display: "flex",
+                                    width: "20%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.4,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                            />
+                            <CharacterImage
+                                component="img"
+                                src={"/imgs/images/background/onion_tower_transparent.png"}
+                                alt={"onion_tower_transparent"}
+                                sx={{
+                                    position: "absolute",
+                                    left: "26%",
+                                    bottom: "0%",
+                                    display: "flex",
+                                    width: "50%",
+                                    zIndex: backgroundIndex,
+                                    opacity: 0.8,
+                                    userSelect: 'none',
+                                    WebkitUserDrag: 'none',
+                                    pointerEvents: 'none',
+                                }}
+                        />
+                        </>
+                        );
+                })()}
+
+                {/* linker Rand */}
+                {!isMobile && (
+                    <Box
+                    sx={{
+                        padding: 1.5,
+                        flexShrink: 0,
+                        position: 'relative',
+                        backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                        width: '75px',
+                        boxShadow: 'none',
+                    }}
+                    />
+                )}
+
+                {/* Mitte */}
+                <Paper
+                    elevation={0}
+                    sx={{
+                    flex: 1,
+                    minHeight: '100vh',
+                    backgroundImage: `url(${uiConfigStore.mainBackgroundUrl})`,
+                    backgroundSize: '100% 100%',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat',
+                    borderRadius: 0,
+                    position: 'relative',
+                    boxShadow: 'none',
+                    }}
+                >
+                    <EditablePageTitle
+                        title = {displayedOtherNightTitle}
+                        titleImage={script.storytellerOtherNightTitleImage}
+                        useImage={script.useStorytellerOtherNightTitleImage}
+                        imageSize={script.storytellerOtherNightTitleImageSize}
+                        fontSize={script.storytellerOtherNightTitleFontSize}
+                        readOnly={readOnly}
+                        onEdit={() => onTitleEdit?.('otherNight')}
+                    />
+                    
+                    <Box
+                        sx={{
+                            mt: `${uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px`,
+                        }}
+                        >
+                        <StorytellerNightOrderSheet
+                            characters={allCharacters}
+                            mode="otherNight"
+                        />
+                    </Box>
+                    <Box sx={{ pb: '14vh' }}>
+                        <JinxSection key="jinx" script={script} />
+                    </Box>
+                </Paper>
+
+                {/* rechter Rand */}
+                {!isMobile && (
+                    <Box
+                    sx={{
+                        padding: 1.5,
+                        flexShrink: 0,
+                        position: 'relative',
+                        backgroundImage: `url(${uiConfigStore.nightOrderBackgroundUrl})`,
+                        width: '75px',
+                        boxShadow: 'none',
+                    }}
+                    />
+                )}
                 </Box>
             </Paper>
             )}

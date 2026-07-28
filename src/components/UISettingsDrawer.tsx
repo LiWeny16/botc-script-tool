@@ -32,16 +32,16 @@ import {
   Lock as LockIcon,
   Search as SearchIcon,
   FontDownload as FontDownloadIcon,
-  Add as AddIcon,
 } from '@mui/icons-material';
 import { uiConfigStore } from '../stores/UIConfigStore';
+import { configStore } from '../stores/ConfigStore';
 import { useTranslation } from '../utils/i18n';
+import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES, type Language } from '../utils/languages';
 import FontUploader from './FontUploader';
 
 interface UISettingsDrawerProps {
   open: boolean;
   onClose: () => void;
-  onOpenTowerImageDialog?: () => void;
 }
 
 // 配置项分类
@@ -51,7 +51,7 @@ interface SettingCategory {
   keywords: string[]; // 用于搜索的关键词（中英文）
 }
 
-const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UISettingsDrawerProps) => {
+const UISettingsDrawer = observer(({ open, onClose }: UISettingsDrawerProps) => {
   const { t } = useTranslation();
   const [isPinned, setIsPinned] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -59,13 +59,6 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
 
   // 定义配置分类及其关键词（中英文）
   const categories: SettingCategory[] = [
-    {
-      id: 'towerImages',
-      title: 'Tower Images',
-      keywords: [
-        'tower', 'image', 'background', 'decoration', 'upload', 'opacity', 'scale', 'position',
-      ],
-    },
     {
       id: 'backgroundSettings',
       title: t('ui.category.backgroundSettings'),
@@ -75,13 +68,20 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
       ],
     },
     {
+      id: 'avatarIcon',
+      title: 'Avatar Icon',
+      keywords: [
+        'avatar', 'icon', 'upload', 'custom',
+        '头像', '图标', '上传', '自定义'
+      ]
+    },
+    {
       id: 'pageLayout',
       title: t('ui.category.pageLayout'),
       keywords: [
         '页面', '布局', '双页', '背景', '夜晚', '顺序', '标题', '高度', '模式',
-        '相克', '隐藏', '图标', '位置',
-        'page', 'layout', 'two-page', 'two page', 'background', 'night', 'order', 'title', 'height', 'mode',
-        'jinx', 'hidden', 'icon', 'position'
+        'jinx', 'hidden', 'icon', 'position',
+        'page', 'layout', 'two-page', 'two page', 'background', 'night', 'order', 'title', 'height', 'mode'
       ],
     },
     {
@@ -96,8 +96,8 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
       id: 'storytellerNightSheet',
       title: t('ui.category.storytellerNightSheet'),
       keywords: [
-        'night', 'order', 'storyteller', 'sheet', 'reminder',
-        'page', 'title', 'spacing', 'icon', 'text'
+        'night', 'order', 'storyteller', 'sheet', 'icon', 'reminder',
+        'nacht', 'reihenfolge', 'symbol'
       ],
     },
     {
@@ -125,7 +125,7 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
   };
 
   const handleReset = () => {
-    if (window.confirm(t('dialog.resetUIMessage'))) {
+    if (window.confirm(t('dialog.resetUIMessage') || '确定要重置所有UI设置吗？')) {
       uiConfigStore.resetToDefault();
     }
   };
@@ -133,6 +133,26 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
   const handlePinToggle = () => {
     setIsPinned(!isPinned);
   };
+
+  const handleAvatarUpload = (
+  e: React.ChangeEvent<HTMLInputElement>
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    uiConfigStore.updateConfig({
+      avatarIcon: {
+        ...uiConfigStore.config.avatarIcon,
+        designerAvatarUrl: reader.result as string,
+      }
+    });
+  };
+
+  reader.readAsDataURL(file);
+};
 
   // 搜索过滤逻辑
   const filteredCategories = useMemo(() => {
@@ -177,7 +197,7 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
   return (
     <>
       <Drawer
-        anchor="left"
+        anchor="right"
         open={open}
         onClose={handleClose}
         hideBackdrop={isPinned} // 固定时隐藏背景，未固定时显示背景
@@ -297,6 +317,9 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                     <Typography variant="caption" color="info.dark" sx={{ display: 'block', mb: 0.5 }}>
                       {t('ui.backgroundTip')}
                     </Typography>
+                    {/* <Typography variant="caption" color="text.secondary">
+                      {t('ui.backgroundSizeWarning')}
+                    </Typography> */}
                   </Box>
 
                   {/* 夜晚顺序背景图 */}
@@ -359,7 +382,7 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                             if (file) {
                               // 检查文件大小
                               if (file.size > 2 * 1024 * 1024) {
-                                alert(t('ui.imageTooLarge'));
+                                alert('图片大小不能超过 2MB');
                                 return;
                               }
                               
@@ -477,7 +500,7 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                             if (file) {
                               // 检查文件大小
                               if (file.size > 2 * 1024 * 1024) {
-                                alert(t('ui.imageTooLarge'));
+                                alert('图片大小不能超过 2MB');
                                 return;
                               }
                               
@@ -550,26 +573,6 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
             </Accordion>
             )}
 
-            {/* Tower Images */}
-            {filteredCategories.find(c => c.id === 'towerImages')?.show && (
-            <Accordion defaultExpanded={false}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                  Tower Images
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Button
-                  variant="outlined"
-                  fullWidth
-                  startIcon={<AddIcon />}
-                  onClick={onOpenTowerImageDialog}
-                >
-                  Manage Tower Images
-                </Button>
-              </AccordionDetails>
-            </Accordion>
-            )}
 
             {/* 1. 页面布局 */}
             {filteredCategories.find(c => c.id === 'pageLayout')?.show && (
@@ -598,31 +601,38 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                       />
                     </Box>
                   </FormControl>
-
+                  {/* Storyteller Night Order Sheet */}
                   <FormControl component="fieldset" fullWidth>
                     <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                       <Box>
                         <FormLabel component="legend">
                           {t('ui.enableStorytellerNightOrderSheet')}
                         </FormLabel>
-                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ display: 'block', mt: 0.5 }}
+                        >
                           {t('ui.enableStorytellerNightOrderSheetDesc')}
                         </Typography>
                       </Box>
+
                       <Switch
                         checked={uiConfigStore.config.enableStorytellerNightOrderSheet}
-                        onChange={(e) => uiConfigStore.updateConfig({ enableStorytellerNightOrderSheet: e.target.checked })}
+                        onChange={(e) =>
+                          uiConfigStore.updateConfig({
+                            enableStorytellerNightOrderSheet: e.target.checked,
+                          })
+                        }
                       />
                     </Box>
                   </FormControl>
 
-                  {/* 隐藏方相克图标位置 */}
-                  <FormControl component="fieldset" fullWidth>
-                    <FormLabel component="legend">
-                      <Typography variant="caption" sx={{ fontWeight: 'medium' }}>
-                        {t('ui.jinxIconPosition')}
-                      </Typography>
-                    </FormLabel>
+                  {/* 标题区域高度 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.jinxIconPosition')}
+                    </Typography>
                     <RadioGroup
                       row
                       value={uiConfigStore.config.characterCard.iconOnlyJinxPosition}
@@ -631,9 +641,8 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                       <FormControlLabel value="next-to-name" control={<Radio size="small" />} label={t('ui.jinxIconPositionNextToName')} />
                       <FormControlLabel value="below-description" control={<Radio size="small" />} label={t('ui.jinxIconPositionBelowDesc')} />
                     </RadioGroup>
-                  </FormControl>
+                  </Box>
 
-                  {/* 标题区域高度 */}
                   <Box>
                     <Typography variant="caption" gutterBottom>
                       {t('ui.titleHeight')}: {uiConfigStore.config.titleHeightMd}px
@@ -774,64 +783,78 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
               </AccordionDetails>
             </Accordion>
             )}
-
-            {/* 3. 图标大小配置 */}
-
+            {/* Storyteller Night Sheet Layout */}
             {filteredCategories.find(c => c.id === 'storytellerNightSheet')?.show && (
-            <Accordion defaultExpanded={!searchQuery}>
-              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                  {t('ui.category.storytellerNightSheet')}
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Stack spacing={2}>
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      Icon Size: {uiConfigStore.config.storytellerNightSheet.iconSize}
-                    </Typography>
-                    <Slider
-                      value={uiConfigStore.config.storytellerNightSheet.iconSize}
-                      onChange={(_, value) => uiConfigStore.updateStorytellerNightSheetConfig({ iconSize: value as number })}
-                      min={0.5}
-                      max={4}
-                      step={0.1}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
+              <Accordion defaultExpanded={!searchQuery}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                  <Typography variant="subtitle1">
+                    {t('ui.category.storytellerNightSheet')}
+                  </Typography>
+                </AccordionSummary>
 
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      Text Size: {uiConfigStore.config.storytellerNightSheet.textSize}
-                    </Typography>
-                    <Slider
-                      value={uiConfigStore.config.storytellerNightSheet.textSize}
-                      onChange={(_, value) => uiConfigStore.updateStorytellerNightSheetConfig({ textSize: value as number })}
-                      min={0.5}
-                      max={2}
-                      step={0.1}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
+                <AccordionDetails>
+                  <Stack spacing={2}>
 
-                  <Box>
-                    <Typography variant="caption" gutterBottom>
-                      Title Spacing: {uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px
-                    </Typography>
-                    <Slider
-                      value={uiConfigStore.config.storytellerNightSheet.titleContentSpacing}
-                      onChange={(_, value) => uiConfigStore.updateStorytellerNightSheetConfig({ titleContentSpacing: value as number })}
-                      min={-200}
-                      max={200}
-                      step={1}
-                      valueLabelDisplay="auto"
-                    />
-                  </Box>
-                </Stack>
-              </AccordionDetails>
-            </Accordion>
+                    {/* Icon size */}
+                    <Box>
+                      <Typography variant="caption">
+                        Icon Size: {uiConfigStore.config.storytellerNightSheet.iconSize}
+                      </Typography>
+                      <Slider
+                        value={uiConfigStore.config.storytellerNightSheet.iconSize}
+                        onChange={(_, v) =>
+                          uiConfigStore.updateStorytellerNightSheetConfig({
+                            iconSize: v as number
+                          })
+                        }
+                        min={0.5}
+                        max={4}
+                        step={0.1}
+                      />
+                    </Box>
+
+                    {/* Text size */}
+                    <Box>
+                      <Typography variant="caption">
+                        Text Size: {uiConfigStore.config.storytellerNightSheet.textSize}
+                      </Typography>
+                      <Slider
+                        value={uiConfigStore.config.storytellerNightSheet.textSize}
+                        onChange={(_, v) =>
+                          uiConfigStore.updateStorytellerNightSheetConfig({
+                            textSize: v as number
+                          })
+                        }
+                        min={0.5}
+                        max={2}
+                        step={0.1}
+                      />
+                    </Box>
+
+                    {/* Title to content spacing */}
+                    <Box>
+                      <Typography variant="caption">
+                        Abstand Überschrift zu Inhalt: {uiConfigStore.config.storytellerNightSheet.titleContentSpacing}px
+                      </Typography>
+                      <Slider
+                        value={uiConfigStore.config.storytellerNightSheet.titleContentSpacing}
+                        onChange={(_, v) =>
+                          uiConfigStore.updateStorytellerNightSheetConfig({
+                            titleContentSpacing: v as number
+                          })
+                        }
+                        min={-200}
+                        max={200}
+                        step={1}
+                        valueLabelDisplay="auto"
+                      />
+                    </Box>
+
+                  </Stack>
+                </AccordionDetails>
+              </Accordion>
             )}
-
+            {/* 3. 图标大小配置 */}
             {filteredCategories.find(c => c.id === 'iconSize')?.show && (
             <Accordion defaultExpanded={!searchQuery}>
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -1065,6 +1088,90 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                 </Typography>
               </Box>
             )}
+
+            
+            {/* Avatar Control*/}
+            {filteredCategories.find(c => c.id === 'avatarIcon')?.show && (
+            <Accordion>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography>Avatar Icon</Typography>
+              </AccordionSummary>
+
+              <AccordionDetails>
+
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={uiConfigStore.config.avatarIcon.enableDesignerBadge}
+                      onChange={(e) =>
+                        uiConfigStore.updateConfig({
+                          avatarIcon: {
+                            ...uiConfigStore.config.avatarIcon,
+                            enableDesignerBadge: e.target.checked
+                          }
+                        })
+                      }
+                    />
+                  }
+                  label="Designer Badge"
+                />
+                <TextField
+                  label="Designer Name"
+                  value={uiConfigStore.config.avatarIcon.designerName}
+                  onChange={(e) =>
+                    uiConfigStore.updateConfig({
+                      avatarIcon: {
+                        ...uiConfigStore.config.avatarIcon,
+                        designerName: e.target.value
+                      }
+                    })
+                  }
+                />
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Position X: {uiConfigStore.config.avatarIcon.designerPosX}
+                </Typography>
+                <Slider
+                  min={0}
+                  max={1560}
+                  value={uiConfigStore.config.avatarIcon.designerPosX}
+                  onChange={(_, value) =>
+                    uiConfigStore.updateConfig({
+                      avatarIcon: {
+                        ...uiConfigStore.config.avatarIcon,
+                        designerPosX: value as number
+                      }
+                    })
+                  }
+                />
+                <Typography variant="body2" sx={{ mb: 1 }}>
+                  Position Y: {uiConfigStore.config.avatarIcon.designerPosY}
+                </Typography>
+                <Slider
+                  min={0}
+                  max={1800}
+                  value={uiConfigStore.config.avatarIcon.designerPosY}
+                  onChange={(_, value) =>
+                    uiConfigStore.updateConfig({
+                      avatarIcon: {
+                        ...uiConfigStore.config.avatarIcon,
+                        designerPosY: value as number
+                      }
+                    })
+                  }
+                />
+                <Button component="label">
+                  Upload Avatar
+                  <input
+                    hidden
+                    type="file"
+                    accept="image/*"
+                    onChange={handleAvatarUpload}
+                  />
+                </Button>
+
+              </AccordionDetails>
+            </Accordion>
+          )}
           </Stack>
         </Box>
 
