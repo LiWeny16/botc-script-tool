@@ -153,6 +153,13 @@ export interface UIConfig {
     iconOnlyJinxPosition: 'below-description' | 'next-to-name';
   };
 
+  avatarIcon: {
+    enableDesignerBadge: boolean;
+    designerAvatarUrl: string;
+    designerName: string;
+    designerPosX: number;
+    designerPosY: number;
+  };
 }
 
 const DEFAULT_UI_CONFIG: UIConfig = {
@@ -249,6 +256,14 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     jinxTextLineHeight: 1.4,
 
     iconOnlyJinxPosition: 'next-to-name',
+  },
+
+  avatarIcon: {
+    enableDesignerBadge: true,
+    designerAvatarUrl: '/imgs/icons/fabled/onion.webp',
+    designerName: '',
+    designerPosX: 140,
+    designerPosY: 95,
   },
 };
 

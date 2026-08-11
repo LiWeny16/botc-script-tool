@@ -492,6 +492,54 @@ const ScriptRenderer = observer(({
                     </>})()}
 
                     {/* 美术设计 + 作者 头像盒子 - 仅在非只读模式下显示 */}
+                    {!readOnly && uiConfigStore.config.avatarIcon.enableDesignerBadge && (
+                        <Box sx={{
+                            position: 'absolute',
+                            top: { xs: 12, sm: 16, md: uiConfigStore.config.avatarIcon.designerPosY },
+                            left: { xs: 12, sm: 16, md: uiConfigStore.config.avatarIcon.designerPosX },
+                            zIndex: 5,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            pointerEvents: 'none',
+                        }}>
+                            {/* A 列：Onion（Design） */}
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
+                                <Box
+                                    component="img"
+                                    src={uiConfigStore.config.avatarIcon.designerAvatarUrl}
+                                    alt="Onion Avatar"
+                                    sx={{
+                                        width: { xs: 50, sm: 60, md: 70 },
+                                        height: { xs: 50, sm: 60, md: 70 },
+                                        borderRadius: '50%',
+                                        border: '2px solid #d4af37',
+                                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                                        objectFit: 'cover',
+                                        position: 'relative',
+                                        zIndex: 2,
+                                    }}
+                                />
+                                <Box sx={{
+                                    pt: { xs: 0.75, sm: 1, md: 1.25 },
+                                    pb: { xs: 0.5, sm: 0.75, md: 1 },
+                                    minWidth: { xs: '80px', sm: '90px', md: '100px' },
+                                }}>
+                                    <Typography sx={{
+                                        fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                                        color: '#404040ff',
+                                        fontWeight: 700,
+                                        textAlign: 'center',
+                                        whiteSpace: 'nowrap',
+                                    }}>
+                                        {t('credits.designTitle')}: {uiConfigStore.config.avatarIcon.designerName || t('credits.designers')}
+                                    </Typography>
+                                </Box>
+                            </Box>
+                        </Box>
+                    )}
+
+                    {/* 美术设计 + 作者 头像盒子 - 仅在非只读模式下显示 */}
                     {!readOnly && (
                         <Box sx={{
                             position: 'absolute',
