@@ -10,13 +10,14 @@ import StateRulesSection from './StateRulesSection';
 import JinxSection from './JinxSection';
 import CharacterImage from './CharacterImage';
 import TowerImageOverlay from './TowerImageOverlay';
+import PrintHeaderAdjustableBlock, { PrintHeaderGapHandle } from './PrintHeaderAdjustableBlock';
 import { SecondPageTitle } from './SecondPageTitle';
 import { PlayerCountTable } from './PlayerCountTable';
 import { SecondPageAddButton } from './SecondPageAddButton';
 import { SecondPageSortableItem } from './SecondPageSortableItem';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
-import { uiConfigStore } from '../stores/UIConfigStore';
+import { uiConfigStore, type PrintHeaderBlockId, type PrintHeaderLayout } from '../stores/UIConfigStore';
 import { configStore } from '../stores/ConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import {
@@ -90,9 +91,23 @@ const ScriptRenderer = observer(({
     const scriptRef = useRef<HTMLDivElement>(null);
     const page2ContainerRef = useRef<HTMLDivElement>(null);
     const page3ContainerRef = useRef<HTMLDivElement>(null);
+    const titleAreaRef = useRef<HTMLDivElement>(null);
     const authorImageInputRef = useRef<HTMLInputElement>(null);
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const [titleHovered, setTitleHovered] = useState<boolean>(false);
+    const headerLayout = uiConfigStore.config.printHeaderLayout;
+    const pageWidth = headerLayout.pageWidthPx || 1358;
+    const pageHeight = headerLayout.pageHeightPx || 960;
+    const headerLayoutActive = !compact && !isMobile;
+    const headerLayoutEditable = headerLayoutActive && !readOnly;
+    const roleHeaderTopPx = headerLayout.mainTopPaddingPx + uiConfigStore.titleHeight + headerLayout.titleToContentGapPx;
+    const roleDividerLineTopPx = roleHeaderTopPx + 18;
+    const updateHeaderBlockLayout = useCallback((id: PrintHeaderBlockId, updates: Partial<PrintHeaderLayout['blocks'][PrintHeaderBlockId]>) => {
+        uiConfigStore.updatePrintHeaderBlockLayout(id, updates);
+    }, []);
+    const updateHeaderGap = useCallback((field: 'mainTopPaddingPx' | 'titleToContentGapPx', value: number) => {
+        uiConfigStore.updatePrintHeaderLayout({ [field]: value } as Pick<PrintHeaderLayout, 'mainTopPaddingPx' | 'titleToContentGapPx'>);
+    }, []);
 
     // 上传作者头像（base64 存入 _meta.authorImage）
     const handleAuthorImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -400,12 +415,21 @@ const ScriptRenderer = observer(({
                 sx={{
                     '@media print': {
                         boxShadow: 'none !important',
-                        height: '100vh !important',
-                        minHeight: '100vh !important',
+                        maxHeight: 'none !important',
+                        aspectRatio: 'auto !important',
+                        width: '297mm !important',
+                        height: '210mm !important',
+                        minWidth: '297mm !important',
+                        minHeight: '210mm !important',
                     },
                     display: "flex",
                     userSelect: "none",
-                    width: "100%",
+                    width: `${pageWidth}px`,
+                    height: `${pageHeight}px`,
+                    minWidth: `${pageWidth}px`,
+                    minHeight: `${pageHeight}px`,
+                    mx: 'auto',
+                    overflow: 'hidden',
                 }}
             >
                 <Box
@@ -493,16 +517,23 @@ const ScriptRenderer = observer(({
 
                     {/* 美术设计 + 作者 头像盒子 - 仅在非只读模式下显示 */}
                     {!readOnly && (
+                        <PrintHeaderAdjustableBlock
+                            id="credits"
+                            layout={headerLayout.blocks.credits}
+                            boundaryRef={scriptRef}
+                            active={headerLayoutActive}
+                            editable={headerLayoutEditable}
+                            label={t('ui.headerBlockCredits')}
+                            onChange={(updates) => updateHeaderBlockLayout('credits', updates)}
+                        >
                         <Box sx={{
-                            position: 'absolute',
-                            top: { xs: 12, sm: 16, md: 95 },
-                            left: { xs: 12, sm: 16, md: 140 },
-                            zIndex: 5,
                             display: 'flex',
                             flexDirection: 'row',
                             alignItems: 'flex-start',
                             gap: { xs: 0.5, sm: 0.8, md: 1 },
                             pointerEvents: 'none',
+                            width: '100%',
+                            height: '100%',
                         }}>
                             {/* A 列：Onion（Design） */}
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative', zIndex: 1 }}>
@@ -664,6 +695,7 @@ const ScriptRenderer = observer(({
                                 style={{ display: 'none' }}
                             />
                         </Box>
+                        </PrintHeaderAdjustableBlock>
                     )}
 
                     {/* 左侧 - 首个夜晚 */}
@@ -699,7 +731,7 @@ const ScriptRenderer = observer(({
                         ref={page2ContainerRef}
                         elevation={0}
                         sx={{
-                            pt: compact ? 0 : 2,
+                            pt: compact ? 0 : `${headerLayout.mainTopPaddingPx}px`,
                             flex: 1,
                             backgroundImage: compact ? 'none' : `url(${uiConfigStore.mainBackgroundUrl})`,
                             backgroundColor: compact ? '#EDE4D5' : 'transparent',
@@ -712,16 +744,37 @@ const ScriptRenderer = observer(({
                             boxShadow: 'none',
                         }}
                     >
+                        {headerLayoutEditable && (
+                            <>
+                                <PrintHeaderGapHandle
+                                    topPx={Math.max(8, headerLayout.mainTopPaddingPx / 2)}
+                                    value={headerLayout.mainTopPaddingPx}
+                                    label={t('ui.headerTopGap')}
+                                    max={180}
+                                    onChange={(value) => updateHeaderGap('mainTopPaddingPx', value)}
+                                    testId="print-header-top-gap-handle"
+                                />
+                                <PrintHeaderGapHandle
+                                    topPx={roleDividerLineTopPx}
+                                    value={headerLayout.titleToContentGapPx}
+                                    label={t('ui.headerContentGap')}
+                                    max={180}
+                                    onChange={(value) => updateHeaderGap('titleToContentGapPx', value)}
+                                    testId="print-header-content-gap-handle"
+                                />
+                            </>
+                        )}
                         {/* 标题区域 */}
                         <Box sx={{
                             textAlign: 'center',
-                            mb: 0,
-                            mt: compact ? 0.3 : 8,
+                            mb: compact ? 0 : `${headerLayout.titleToContentGapPx}px`,
+                            mt: compact ? 0.3 : 0,
                             position: 'relative',
                             zIndex: 1,
                             px: { xs: 2, sm: 3, md: 4 },
                         }}>
                             <Box
+                                ref={titleAreaRef}
                                 sx={{
                                     position: 'relative',
                                     height: { xs: 'auto', md: compact ? 90 : uiConfigStore.titleHeight },
@@ -732,50 +785,45 @@ const ScriptRenderer = observer(({
                                     alignItems: { xs: 'center', md: 'unset' },
                                     gap: { xs: 2, md: 0 },
                                     py: { xs: compact ? 0.5 : 2, md: 0 },
-                                    '&::before': (compact || scriptStore.script?.showTitleFlourish === false) ? { display: 'none' } : {
-                                        content: '""',
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        width: { xs: "80%", md: "48%" },
-                                        height: '100%',
-                                        backgroundImage: "url(/imgs/images/sources/pattern.png)",
-                                        backgroundSize: 'contain',
-                                        backgroundPosition: "center",
-                                        backgroundRepeat: "no-repeat",
-                                        opacity: 0.6,
-                                        zIndex: 0,
-                                    },
+                                    '&::before': { display: 'none' },
                                 }}
                             >
                                 {/* 标题 */}
-                                <Box
-                                    sx={{
-                                        position: { xs: 'relative', md: 'absolute' },
-                                        top: { xs: 'auto', md: '50%' },
-                                        left: { xs: 'auto', md: (() => {
-                                            const align = (script as any).textAlignment || 'center';
-                                            if (align === 'right') return 'auto';
-                                            if (align === 'left') return '5%';
-                                            // center
-                                            return script?.specialRules && script.specialRules.length > 0 ? '33.33%' : '50%';
-                                        })() },
-                                        right: { xs: 'auto', md: ((script as any).textAlignment || 'center') === 'right' ? '5%' : 'auto' },
-                                        transform: { xs: 'none', md: ((script as any).textAlignment || 'center') === 'center' ? 'translate(-50%, -50%)' : 'translate(0, -50%)' },
-                                        zIndex: 1,
-                                        maxWidth: {
-                                            xs: '100%',
-                                            md: script?.specialRules && script.specialRules.length > 0 ? (script as any).textAlignment === 'center' ? '32%' : '100%' : '70%'
-                                        },
-                                        width: {
-                                            xs: '100%',
-                                            md: script?.specialRules && script.specialRules.length > 0 ? 'auto' : '100%'
-                                        },
+                                <PrintHeaderAdjustableBlock
+                                    id="title"
+                                    layout={headerLayout.blocks.title}
+                                    boundaryRef={titleAreaRef}
+                                    active={headerLayoutActive}
+                                    editable={headerLayoutEditable}
+                                    label={t('ui.headerBlockTitle')}
+                                    onChange={(updates) => updateHeaderBlockLayout('title', updates)}
+                                    verticalBleedPct={90}
+                                >
+                                    <Box
+                                        sx={{
+                                        position: 'relative',
+                                        width: '100%',
+                                        height: '100%',
                                         display: 'flex',
+                                        alignItems: 'center',
                                         justifyContent: (script as any).textAlignment === 'left' ? 'flex-start' : (script as any).textAlignment === 'right' ? 'flex-end' : 'center',
                                     }}
-                                >
+                                    >
+                                    {(!compact && scriptStore.script?.showTitleFlourish !== false) && (
+                                        <Box
+                                            sx={{
+                                                position: 'absolute',
+                                                inset: 0,
+                                                backgroundImage: "url(/imgs/images/sources/pattern.png)",
+                                                backgroundSize: 'contain',
+                                                backgroundPosition: 'center',
+                                                backgroundRepeat: 'no-repeat',
+                                                opacity: 0.6,
+                                                zIndex: 0,
+                                                pointerEvents: 'none',
+                                            }}
+                                        />
+                                    )}
                                     {script.useTitleImage && script.titleImage ? (
                                         <Box
                                             onMouseEnter={() => !readOnly && setTitleHovered(true)}
@@ -789,6 +837,8 @@ const ScriptRenderer = observer(({
                                                 justifyContent: 'center',
                                                 userSelect: 'none',
                                                 width: '100%',
+                                                height: '100%',
+                                                zIndex: 1,
                                             }}
                                         >
                                             <CharacterImage
@@ -796,11 +846,7 @@ const ScriptRenderer = observer(({
                                                 alt={displayedTitle}
                                                 sx={{
                                                     maxWidth: '100%',
-                                                    maxHeight: {
-                                                        xs: `${(script.titleImageSize || 160) * 0.75 * COMPACT_SCALE}px`,
-                                                        sm: `${(script.titleImageSize || 160) * 0.875 * COMPACT_SCALE}px`,
-                                                        md: `${(script.titleImageSize || 160) * COMPACT_SCALE}px`
-                                                    },
+                                                    maxHeight: '100%',
                                                     width: 'auto',
                                                     height: 'auto',
                                                     objectFit: 'contain',
@@ -832,6 +878,9 @@ const ScriptRenderer = observer(({
                                                 borderRadius: 2,
                                                 userSelect: 'none',
                                                 width: '100%',
+                                                height: '100%',
+                                                alignItems: 'center',
+                                                zIndex: 1,
                                                 justifyContent: (script as any).textAlignment === 'left' ? 'flex-start' : (script as any).textAlignment === 'right' ? 'flex-end' : 'center'
                                             }}
                                         >
@@ -879,26 +928,37 @@ const ScriptRenderer = observer(({
                                         </Box>
                                     )}
                                 </Box>
+                                </PrintHeaderAdjustableBlock>
 
                                 {/* 特殊规则 */}
                                 {script?.specialRules && script.specialRules.length > 0 && (
+                                    <PrintHeaderAdjustableBlock
+                                        id="specialRules"
+                                        layout={headerLayout.blocks.specialRules}
+                                        boundaryRef={titleAreaRef}
+                                        active={headerLayoutActive}
+                                        editable={headerLayoutEditable}
+                                        label={t('ui.headerBlockSpecialRules')}
+                                        onChange={(updates) => updateHeaderBlockLayout('specialRules', updates)}
+                                        verticalBleedPct={90}
+                                    >
                                     <Box sx={{
-                                        position: { xs: 'relative', md: 'absolute' },
-                                        top: { xs: 'auto', md: '50%' },
-                                        left: { xs: 'auto', md: '66.67%' },
-                                        transform: { xs: 'none', md: 'translate(-50%, -50%)' },
-                                        zIndex: 1,
                                         overflow: 'hidden',
-                                        width: { xs: '100%', md: 'auto' },
-                                        maxWidth: { xs: '100%', md: '32%' },
+                                        width: '100%',
+                                        height: '100%',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}>
                                         <SpecialRulesSection
                                             rules={script.specialRules}
                                             onDelete={readOnly ? () => { } : onSpecialRuleDelete}
                                             onEdit={readOnly ? () => { } : onSpecialRuleEdit}
                                             isMobile={isMobile}
+                                            fitContainer
                                         />
                                     </Box>
+                                    </PrintHeaderAdjustableBlock>
                                 )}
 
                                 {/* Description + Author credit in compact mode */}
@@ -981,22 +1041,48 @@ const ScriptRenderer = observer(({
                                 )}
                             </Box>
 
-                            {/* 标题下方作者与支持人数 */}
-                            {(script?.author || script?.playerCount) && (
-                                <Typography
-                                    sx={{
-                                        color: THEME_COLORS.paper.secondary,
-                                        fontSize: { xs: '0.75rem', sm: '0.95rem' },
-                                        mt: 0.5,
-                                        textAlign: (script as any).authorAlignment || 'center',
-                                    }}
-                                >
-                                    {script.author ? `${t('script.author2')}：${script.author}` : ''}
-                                    {script.author && script.playerCount ? ' · ' : ''}
-                                    {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : ''}
-                                </Typography>
-                            )}
                         </Box>
+
+                        {/* 作者署名贴近首个阵营分割线 */}
+                        {(script?.author || script?.playerCount) && !compact && (
+                            <Typography
+                                sx={{
+                                    position: 'absolute',
+                                    top: `${roleDividerLineTopPx - 2}px`,
+                                    right: { xs: 16, md: 38 },
+                                    transform: 'translateY(-100%)',
+                                    color: THEME_COLORS.paper.secondary,
+                                    fontSize: { xs: '0.75rem', sm: '0.9rem' },
+                                    lineHeight: 1.1,
+                                    zIndex: 3,
+                                    px: 1,
+                                    py: 0.1,
+                                    backgroundColor: 'rgba(255, 249, 232, 0.82)',
+                                    borderRadius: 1,
+                                    textAlign: (script as any).authorAlignment || 'right',
+                                    pointerEvents: 'none',
+                                }}
+                            >
+                                {script.author ? `${t('script.author2')}：${script.author}` : ''}
+                                {script.author && script.playerCount ? ' · ' : ''}
+                                {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : ''}
+                            </Typography>
+                        )}
+
+                        {(script?.author || script?.playerCount) && compact && (
+                            <Typography
+                                sx={{
+                                    color: THEME_COLORS.paper.secondary,
+                                    fontSize: { xs: '0.75rem', sm: '0.95rem' },
+                                    mt: 0.5,
+                                    textAlign: (script as any).authorAlignment || 'center',
+                                }}
+                            >
+                                {script.author ? `${t('script.author2')}：${script.author}` : ''}
+                                {script.author && script.playerCount ? ' · ' : ''}
+                                {script.playerCount ? `${t('script.playerCount')}：${script.playerCount}` : ''}
+                            </Typography>
+                        )}
 
                         {/* 角色区域 */}
                         <Box sx={{ width: "100%" }}>

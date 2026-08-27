@@ -68,7 +68,7 @@ const printStyles = {
   '@media print': {
     // 1. Define print page, remove browser default margins
     '@page': {
-      size: 'A4 portrait', // Recommended: A4 portrait
+      size: 'A4 landscape',
       margin: 0,           // Set page margin to 0, we control margins inside the container
     },
 
@@ -95,8 +95,8 @@ const printStyles = {
       position: 'relative !important',
       left: '0 !important',
       top: '0 !important',
-      width: '100vw !important',  // 100% print viewport width
-      height: '100vh !important', // 100% print viewport height
+      width: '297mm !important',
+      height: '210mm !important',
       margin: '0 !important',
       padding: '0 !important',
 
@@ -118,8 +118,8 @@ const printStyles = {
       position: 'relative !important',
       left: '0 !important',
       top: '0 !important',
-      width: '100vw !important',
-      height: '100vh !important',
+      width: '297mm !important',
+      height: '210mm !important',
       margin: '0 !important',
       padding: '0 !important',
       overflow: 'hidden !important',
@@ -132,8 +132,8 @@ const printStyles = {
       position: 'relative !important',
       left: '0 !important',
       top: '0 !important',
-      width: '100vw !important',
-      height: '100vh !important',
+      width: '297mm !important',
+      height: '210mm !important',
       margin: '0 !important',
       padding: '0 !important',
       overflow: 'hidden !important',
@@ -146,8 +146,8 @@ const printStyles = {
       position: 'relative !important',
       left: '0 !important',
       top: '0 !important',
-      width: '100vw !important',
-      height: '100vh !important',
+      width: '297mm !important',
+      height: '210mm !important',
       margin: '0 !important',
       padding: '0 !important',
       overflow: 'hidden !important',
@@ -164,6 +164,11 @@ const printStyles = {
     // 7. Hide edit button when hovering on title
     '.MuiIconButton-root': {
       display: 'none !important',
+    },
+
+    '.print-layout-control': {
+      display: 'none !important',
+      visibility: 'hidden !important',
     },
 
     // 8. Hide second page add component button

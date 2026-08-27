@@ -34,7 +34,7 @@ import {
   FontDownload as FontDownloadIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
-import { uiConfigStore } from '../stores/UIConfigStore';
+import { getA4LandscapeWidthFromHeight, uiConfigStore } from '../stores/UIConfigStore';
 import { useTranslation } from '../utils/i18n';
 import FontUploader from './FontUploader';
 
@@ -79,9 +79,9 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
       title: t('ui.category.pageLayout'),
       keywords: [
         '页面', '布局', '双页', '背景', '夜晚', '顺序', '标题', '高度', '模式',
-        '相克', '隐藏', '图标', '位置',
+        '相克', '隐藏', '图标', '位置', '预览', '作者', '头像', '拖拽', '缩放',
         'page', 'layout', 'two-page', 'two page', 'background', 'night', 'order', 'title', 'height', 'mode',
-        'jinx', 'hidden', 'icon', 'position'
+        'jinx', 'hidden', 'icon', 'position', 'preview', 'author', 'avatar', 'drag', 'scale', 'header'
       ],
     },
     {
@@ -645,6 +645,101 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                       max={250}
                       valueLabelDisplay="auto"
                     />
+                  </Box>
+
+                  {/* Header layout */}
+                  <Box>
+                    <Typography variant="caption" sx={{ fontWeight: 'medium', display: 'block', mb: 1 }}>
+                      {t('ui.headerLayoutSettings')}
+                    </Typography>
+
+                    <Stack spacing={1.5}>
+                      <Box>
+                        <Typography variant="caption" gutterBottom>
+                          {t('ui.pageCanvasSize')}: {uiConfigStore.config.printHeaderLayout.pageWidthPx} x {uiConfigStore.config.printHeaderLayout.pageHeightPx}px
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                          {t('ui.pageCanvasSizeDesc')}
+                        </Typography>
+                      </Box>
+
+                      <Box>
+                        <Typography variant="caption" gutterBottom>
+                          {t('ui.previewHeight')}: {uiConfigStore.config.printHeaderLayout.pageHeightPx}px
+                        </Typography>
+                        <Slider
+                          value={uiConfigStore.config.printHeaderLayout.pageHeightPx}
+                          onChange={(_, value) => {
+                            const pageHeightPx = value as number;
+                            uiConfigStore.updatePrintHeaderLayout({
+                              pageHeightPx,
+                              pageWidthPx: getA4LandscapeWidthFromHeight(pageHeightPx),
+                            });
+                          }}
+                          min={760}
+                          max={1200}
+                          step={1}
+                          valueLabelDisplay="auto"
+                        />
+                      </Box>
+
+                      <Box>
+                        <Typography variant="caption" gutterBottom>
+                          {t('ui.headerTopGap')}: {uiConfigStore.config.printHeaderLayout.mainTopPaddingPx}px
+                        </Typography>
+                        <Slider
+                          value={uiConfigStore.config.printHeaderLayout.mainTopPaddingPx}
+                          onChange={(_, value) => uiConfigStore.updatePrintHeaderLayout({ mainTopPaddingPx: value as number })}
+                          min={0}
+                          max={180}
+                          step={1}
+                          valueLabelDisplay="auto"
+                        />
+                      </Box>
+
+                      <Box>
+                        <Typography variant="caption" gutterBottom>
+                          {t('ui.headerContentGap')}: {uiConfigStore.config.printHeaderLayout.titleToContentGapPx}px
+                        </Typography>
+                        <Slider
+                          value={uiConfigStore.config.printHeaderLayout.titleToContentGapPx}
+                          onChange={(_, value) => uiConfigStore.updatePrintHeaderLayout({ titleToContentGapPx: value as number })}
+                          min={0}
+                          max={180}
+                          step={1}
+                          valueLabelDisplay="auto"
+                        />
+                      </Box>
+
+                      {[
+                        { id: 'credits' as const, label: t('ui.headerBlockCredits') },
+                        { id: 'title' as const, label: t('ui.headerBlockTitle') },
+                        { id: 'specialRules' as const, label: t('ui.headerBlockSpecialRules') },
+                      ].map((block) => (
+                        <Box key={block.id}>
+                          <Typography variant="caption" gutterBottom>
+                            {block.label} {t('ui.headerBlockScale')}: {uiConfigStore.config.printHeaderLayout.blocks[block.id].scale.toFixed(2)}
+                          </Typography>
+                          <Slider
+                            value={uiConfigStore.config.printHeaderLayout.blocks[block.id].scale}
+                            onChange={(_, value) => uiConfigStore.updatePrintHeaderBlockLayout(block.id, { scale: value as number })}
+                            min={0.4}
+                            max={2}
+                            step={0.01}
+                            valueLabelDisplay="auto"
+                          />
+                        </Box>
+                      ))}
+
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        startIcon={<RestartAltIcon />}
+                        onClick={() => uiConfigStore.resetPrintHeaderLayout()}
+                      >
+                        {t('ui.resetHeaderLayout')}
+                      </Button>
+                    </Stack>
                   </Box>
 
                   {/* Night Order top spacing */}

@@ -15,10 +15,77 @@ export interface TowerImage {
   isDefault: boolean;
 }
 
+export type PrintHeaderBlockId = 'credits' | 'title' | 'specialRules';
+
+export interface PrintHeaderBlockLayout {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  scale: number;
+  zIndex: number;
+}
+
+export interface PrintHeaderLayout {
+  pageWidthPx: number;
+  pageHeightPx: number;
+  mainTopPaddingPx: number;
+  titleToContentGapPx: number;
+  blocks: Record<PrintHeaderBlockId, PrintHeaderBlockLayout>;
+}
+
+type PartialPrintHeaderLayout = Partial<Omit<PrintHeaderLayout, 'blocks'>> & {
+  blocks?: Partial<Record<PrintHeaderBlockId, Partial<PrintHeaderBlockLayout>>>;
+  pageAspectRatio?: number;
+  previewHeightPx?: number;
+};
+
 export const DEFAULT_TOWERS: TowerImage[] = [
   { id: 'back_tower', url: '/imgs/images/background/back_tower.png', x: 0, y: 0, scale: 1.0, opacity: 0.4, isDefault: true },
   { id: 'back_tower2', url: '/imgs/images/background/back_tower2.png', x: 36, y: 0, scale: 1.0, opacity: 0.8, isDefault: true },
 ];
+
+const A4_LANDSCAPE_RATIO = 297 / 210;
+const DEFAULT_PREVIEW_HEIGHT_PX = 960;
+const LEGACY_PREVIEW_WIDTH_PX = 1123;
+const LEGACY_PREVIEW_HEIGHT_PX = 794;
+
+export const getA4LandscapeWidthFromHeight = (height: number) => Math.round(height * A4_LANDSCAPE_RATIO);
+
+const createDefaultPrintHeaderLayout = (): PrintHeaderLayout => ({
+  pageWidthPx: getA4LandscapeWidthFromHeight(DEFAULT_PREVIEW_HEIGHT_PX),
+  pageHeightPx: DEFAULT_PREVIEW_HEIGHT_PX,
+  mainTopPaddingPx: 0,
+  titleToContentGapPx: 12,
+  blocks: {
+    credits: { x: 7, y: 11, width: 18, height: 24, scale: 1, zIndex: 7 },
+    title: { x: 17, y: 5, width: 38, height: 72, scale: 1, zIndex: 8 },
+    specialRules: { x: 61, y: 13, width: 34, height: 62, scale: 1, zIndex: 9 },
+  },
+});
+
+const mergePrintHeaderLayout = (layout?: PartialPrintHeaderLayout): PrintHeaderLayout => {
+  const defaults = createDefaultPrintHeaderLayout();
+  const blocks: Partial<Record<PrintHeaderBlockId, Partial<PrintHeaderBlockLayout>>> = layout?.blocks || {};
+  const legacyHeight = layout?.previewHeightPx;
+  const savedHeight = layout?.pageHeightPx || legacyHeight;
+  const shouldUpgradeLegacyCanvas = layout?.pageWidthPx === LEGACY_PREVIEW_WIDTH_PX && layout?.pageHeightPx === LEGACY_PREVIEW_HEIGHT_PX;
+  const pageHeightPx = shouldUpgradeLegacyCanvas ? defaults.pageHeightPx : savedHeight || defaults.pageHeightPx;
+  const pageWidthPx = shouldUpgradeLegacyCanvas
+    ? defaults.pageWidthPx
+    : layout?.pageWidthPx || getA4LandscapeWidthFromHeight(pageHeightPx);
+  return {
+    ...defaults,
+    ...(layout || {}),
+    pageWidthPx,
+    pageHeightPx,
+    blocks: {
+      credits: { ...defaults.blocks.credits, ...(blocks.credits || {}) },
+      title: { ...defaults.blocks.title, ...(blocks.title || {}) },
+      specialRules: { ...defaults.blocks.specialRules, ...(blocks.specialRules || {}) },
+    },
+  };
+};
 
 export interface CustomFont {
   id: string;
@@ -60,6 +127,9 @@ export interface UIConfig {
 
   // Title area height
   titleHeightMd: number;
+
+  // First page preview/header layout
+  printHeaderLayout: PrintHeaderLayout;
 
   // Night order top spacing
   nightOrderTopSpacingAuto: boolean;  // AUTO centering
@@ -180,7 +250,8 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     titleContentSpacing: 18,
   },
 
-  titleHeightMd: 100,
+  titleHeightMd: 167,
+  printHeaderLayout: createDefaultPrintHeaderLayout(),
 
   nightOrderTopSpacingAuto: true,
   nightOrderTopSpacing: 20,   // vh, default 20vh
@@ -255,7 +326,10 @@ const DEFAULT_UI_CONFIG: UIConfig = {
 const STORAGE_KEY = 'botc-ui-config';
 
 class UIConfigStore {
-  config: UIConfig = DEFAULT_UI_CONFIG;
+  config: UIConfig = {
+    ...DEFAULT_UI_CONFIG,
+    printHeaderLayout: createDefaultPrintHeaderLayout(),
+  };
 
   constructor() {
     makeAutoObservable(this);
@@ -279,6 +353,7 @@ class UIConfigStore {
             ...DEFAULT_UI_CONFIG.storytellerNightSheet,
             ...(restConfig.storytellerNightSheet || {}),
           },
+          printHeaderLayout: mergePrintHeaderLayout(restConfig.printHeaderLayout),
         };
 
         // If localStorage has old font data, migrate to IndexedDB
@@ -347,6 +422,37 @@ class UIConfigStore {
       ...this.config.storytellerNightSheet,
       ...updates,
     };
+    this.saveConfig();
+  }
+
+  updatePrintHeaderLayout(updates: PartialPrintHeaderLayout) {
+    this.config.printHeaderLayout = mergePrintHeaderLayout({
+      ...this.config.printHeaderLayout,
+      ...updates,
+      blocks: updates.blocks
+        ? { ...this.config.printHeaderLayout.blocks, ...updates.blocks }
+        : this.config.printHeaderLayout.blocks,
+    });
+    this.saveConfig();
+  }
+
+  updatePrintHeaderBlockLayout(id: PrintHeaderBlockId, updates: Partial<PrintHeaderBlockLayout>) {
+    this.config.printHeaderLayout = {
+      ...this.config.printHeaderLayout,
+      blocks: {
+        ...this.config.printHeaderLayout.blocks,
+        [id]: {
+          ...this.config.printHeaderLayout.blocks[id],
+          ...updates,
+        },
+      },
+    };
+    this.saveConfig();
+  }
+
+  resetPrintHeaderLayout() {
+    this.config.printHeaderLayout = createDefaultPrintHeaderLayout();
+    this.config.titleHeightMd = 167;
     this.saveConfig();
   }
 
@@ -466,7 +572,10 @@ class UIConfigStore {
   // Reset to defaults
   async resetToDefault() {
     // 1. Reset config
-    this.config = { ...DEFAULT_UI_CONFIG };
+    this.config = {
+      ...DEFAULT_UI_CONFIG,
+      printHeaderLayout: createDefaultPrintHeaderLayout(),
+    };
 
     // 2. Clean up all custom fonts (from IndexedDB)
     try {

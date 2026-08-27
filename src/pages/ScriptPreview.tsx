@@ -257,7 +257,7 @@ const ScriptPreview = observer(() => {
         styles={{
           '@media print': {
             '@page': {
-              size: 'A4 portrait',
+              size: 'A4 landscape',
               margin: 0,
             },
             'body *': {
@@ -275,8 +275,8 @@ const ScriptPreview = observer(() => {
               position: 'relative !important',
               left: '0 !important',
               top: '0 !important',
-              width: '100vw !important',
-              height: '100vh !important',
+              width: '297mm !important',
+              height: '210mm !important',
               margin: '0 !important',
               padding: '0 !important',
               overflow: 'hidden !important',
@@ -289,8 +289,8 @@ const ScriptPreview = observer(() => {
               position: 'relative !important',
               left: '0 !important',
               top: '0 !important',
-              width: '100vw !important',
-              height: '100vh !important',
+              width: '297mm !important',
+              height: '210mm !important',
               margin: '0 !important',
               padding: '0 !important',
               overflow: 'hidden !important',
@@ -303,6 +303,10 @@ const ScriptPreview = observer(() => {
             },
             '.MuiIconButton-root': {
               display: 'none !important',
+            },
+            '.print-layout-control': {
+              display: 'none !important',
+              visibility: 'hidden !important',
             },
             '#preview-control-box': {
               display: 'none !important',

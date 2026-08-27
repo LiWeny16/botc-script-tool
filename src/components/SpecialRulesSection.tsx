@@ -11,9 +11,10 @@ interface SpecialRulesSectionProps {
   onDelete?: (rule: SpecialRule) => void;
   onEdit?: (rule: SpecialRule) => void;
   isMobile?: boolean;
+  fitContainer?: boolean;
 }
 
-const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile }: SpecialRulesSectionProps) => {
+const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile, fitContainer = false }: SpecialRulesSectionProps) => {
   const { t, language } = useTranslation();
   const [hoveredRuleId, setHoveredRuleId] = useState<string | null>(null);
 
@@ -47,7 +48,7 @@ const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile }: SpecialRules
         height: isMobile ? 'auto' : '100%',
         display: 'flex',
         flexDirection: 'column',
-        minWidth: "350px",
+        minWidth: fitContainer ? 0 : "350px",
         overflow: isMobile ? 'visible' : 'auto',
         gap: isMobile ? 2 : 0,
         '&::-webkit-scrollbar': {
@@ -68,7 +69,8 @@ const SpecialRulesSection = ({ rules, onDelete, onEdit, isMobile }: SpecialRules
           sx={{
             position: 'relative',
             width: '100%',
-            minHeight: isMobile ? 120 : 150,
+            minHeight: fitContainer ? 0 : (isMobile ? 120 : 150),
+            height: fitContainer ? '100%' : 'auto',
             cursor: onEdit ? 'pointer' : 'default',
             userSelect: 'none',
             flexShrink: 0,
