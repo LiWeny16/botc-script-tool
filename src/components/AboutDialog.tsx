@@ -11,6 +11,7 @@ import {
   Avatar,
   Snackbar,
   Alert,
+  Collapse,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -18,6 +19,7 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import HistoryIcon from '@mui/icons-material/History';
 import EmailOutlinedIcon from '@mui/icons-material/EmailOutlined';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useState, useCallback, type ReactNode } from 'react';
 import { THEME_COLORS } from '../theme/colors';
 import { useTranslation } from '../utils/i18n';
@@ -318,6 +320,29 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
           {/* Special thanks card */}
           <TkxBox title={t('about.specialThanks')} content={t('about.nusClub')} theme="blue" />
 
+          {/* More thanks (collapsible list) */}
+          <TkxBox
+            title={t('about.moreThanks')}
+            theme="green"
+            collapsible
+            content={
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                <Box component="span">{t('about.thxYoheiName')}</Box>
+                <Box
+                  component="span"
+                  sx={{
+                    fontSize: '0.78rem',
+                    fontWeight: 500,
+                    opacity: 0.85,
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  {t('about.thxYoheiReason')}
+                </Box>
+              </Box>
+            }
+          />
+
           {/* Closing signature */}
           <Typography
             sx={{
@@ -387,20 +412,23 @@ type TkxBoxProps = {
   title: string;
   content: ReactNode;
   theme?: TkxTheme;
+  collapsible?: boolean;
 };
 
-const TkxBox = ({ title, content, theme = 'blue' }: TkxBoxProps) => {
-  const t = TKX_THEMES[theme];
+const TkxBox = ({ title, content, theme = 'blue', collapsible = false }: TkxBoxProps) => {
+  const themeCfg = TKX_THEMES[theme];
+  const [expanded, setExpanded] = useState(false);
+  const translation = useTranslation();
   return (
     <Box
       sx={{
-        background: t.bgGradient,
+        background: themeCfg.bgGradient,
         borderRadius: 3,
         px: 2.5,
         pt: 2,
         mb: 2,
         border: '2px solid',
-        borderColor: t.borderColor,
+        borderColor: themeCfg.borderColor,
         boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
         position: 'relative',
         overflow: 'hidden',
@@ -411,33 +439,77 @@ const TkxBox = ({ title, content, theme = 'blue' }: TkxBoxProps) => {
           left: 0,
           right: 0,
           height: '4px',
-          background: t.barGradient,
+          background: themeCfg.barGradient,
         },
       }}
     >
       <Box sx={{ mb: 1.5 }}>
-        <Typography
-          sx={{
-            fontWeight: 'bold',
-            fontSize: '0.95rem',
-            color: t.titleColor,
-            mb: 0.5,
-            letterSpacing: '0.5px',
-          }}
-        >
-          {title}
-        </Typography>
         <Box
+          onClick={collapsible ? () => setExpanded(!expanded) : undefined}
           sx={{
-            fontSize: '1.05rem',
-            color: t.contentColor,
-            fontWeight: 600,
-            pl: 2,
-            whiteSpace: 'pre-line',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            cursor: collapsible ? 'pointer' : 'default',
+            userSelect: 'none',
           }}
         >
-          {content}
+          <Typography
+            sx={{
+              fontWeight: 'bold',
+              fontSize: '0.95rem',
+              color: themeCfg.titleColor,
+              mb: 0.5,
+              letterSpacing: '0.5px',
+            }}
+          >
+            {title}
+          </Typography>
+          {collapsible && (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                mb: 0.5,
+                color: themeCfg.titleColor,
+              }}
+            >
+              {!expanded && (
+                <Box
+                  component="span"
+                  sx={{
+                    fontSize: '0.68rem',
+                    opacity: 0.65,
+                    letterSpacing: '0.3px',
+                  }}
+                >
+                  {translation.t('about.moreThanksHint')}
+                </Box>
+              )}
+              <ExpandMoreIcon
+                sx={{
+                  fontSize: 20,
+                  transform: expanded ? 'rotate(180deg)' : 'none',
+                  transition: 'transform 0.2s',
+                }}
+              />
+            </Box>
+          )}
         </Box>
+        <Collapse in={!collapsible || expanded} unmountOnExit={false}>
+          <Box
+            sx={{
+              fontSize: '1.05rem',
+              color: themeCfg.contentColor,
+              fontWeight: 600,
+              pl: 2,
+              whiteSpace: 'pre-line',
+            }}
+          >
+            {content}
+          </Box>
+        </Collapse>
       </Box>
     </Box>
   );

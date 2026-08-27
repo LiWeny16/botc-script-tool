@@ -307,9 +307,29 @@ const AgentBubble = observer(({ message }: AgentBubbleProps) => {
           }}
         >
           {isUser ? (
-            <Typography variant="body2" sx={{ fontSize: '0.85rem', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
-              {message.content}
-            </Typography>
+            <>
+              {message.image && (
+                <Box
+                  component="img"
+                  src={message.image}
+                  alt={t('agent.attachImage')}
+                  sx={{
+                    display: 'block',
+                    maxWidth: '100%',
+                    maxHeight: 180,
+                    borderRadius: 1.5,
+                    border: '1px solid rgba(255,255,255,0.28)',
+                    mb: message.content ? 1 : 0,
+                    objectFit: 'cover',
+                  }}
+                />
+              )}
+              {message.content && (
+                <Typography variant="body2" sx={{ fontSize: '0.85rem', lineHeight: 1.55, whiteSpace: 'pre-wrap' }}>
+                  {message.content}
+                </Typography>
+              )}
+            </>
           ) : message.content ? (
             <Box
               className="agent-markdown"

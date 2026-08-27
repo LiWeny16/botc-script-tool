@@ -1,37 +1,56 @@
 import { useState, useRef, useCallback } from 'react';
 import {
   Box, TextField, IconButton, alpha, Typography, Select, MenuItem,
-  FormControl,
+  FormControl, Tooltip,
 } from '@mui/material';
 import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import StopIcon from '@mui/icons-material/Stop';
+import ImageOutlinedIcon from '@mui/icons-material/ImageOutlined';
+import CloseIcon from '@mui/icons-material/Close';
 import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { agentStore } from '../../stores/AgentStore';
-import { PROVIDER_PRESETS } from '../../utils/agentApiConfig';
+import { PROVIDER_PRESETS, modelSupportsVision } from '../../utils/agentApiConfig';
 import { useTranslation } from '../../utils/i18n';
 import { agentAccent, agentBg, agentBgElevated, agentPanelSurface } from './agentStyles';
 
 const INPUT_RADIUS = '20px';
+const MAX_IMAGE_BYTES = 8 * 1024 * 1024; // 8 MiB inline limit keeps us well below the 48 MiB body cap
 
 const AgentInput = observer(() => {
   const { t } = useTranslation();
   const [input, setInput] = useState('');
+  const [image, setImage] = useState<string | null>(null);
   const [focused, setFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const isThinking = agentStore.status === 'thinking';
   const isConfigured = agentStore.isConfigured;
   const provider = PROVIDER_PRESETS.find(p => p.id === agentStore.selectedProvider);
-  const providerId = agentStore.selectedProvider;
   const models = provider?.models ?? [];
   const currentModel = agentStore.apiConfig.model;
+  const canVision = modelSupportsVision(currentModel);
+
+  const handlePickImage = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > MAX_IMAGE_BYTES) return;
+    const reader = new FileReader();
+    reader.onload = () => setImage(String(reader.result));
+    reader.readAsDataURL(file);
+  }, []);
 
   const handleSend = useCallback(async () => {
     const text = input.trim();
-    if (!text || isThinking) return;
-    const sent = await agentStore.sendMessage(text);
-    if (sent) setInput('');
-  }, [input, isThinking]);
+    if ((!text && !image) || isThinking) return;
+    const sent = await agentStore.sendMessage(text, image ?? undefined);
+    if (sent) {
+      setInput('');
+      setImage(null);
+    }
+  }, [input, image, isThinking]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -112,6 +131,57 @@ const AgentInput = observer(() => {
               {t('agent.configureApiKeyHint')}
             </Typography>
           )}
+          {canVision && currentModel && (
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: '0.6rem',
+                color: alpha('#7b1fa2', 0.7),
+                lineHeight: 1,
+                ml: 'auto',
+                fontWeight: 600,
+              }}
+            >
+              Vision
+            </Typography>
+          )}
+        </Box>
+      )}
+
+      {/* Image preview */}
+      {image && (
+        <Box
+          sx={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 0.75,
+            px: 0.75,
+            py: 0.75,
+            mb: 0.75,
+            borderRadius: 2,
+            bgcolor: agentBgElevated,
+            border: `1px solid ${alpha(agentAccent, 0.18)}`,
+          }}
+        >
+          <Box
+            component="img"
+            src={image}
+            alt={t('agent.attachImage')}
+            sx={{
+              width: 44,
+              height: 44,
+              borderRadius: 1.5,
+              objectFit: 'cover',
+              border: `1px solid ${alpha('#000', 0.08)}`,
+            }}
+          />
+          <IconButton
+            size="small"
+            onClick={() => setImage(null)}
+            sx={{ p: 0.4, color: alpha('#000', 0.45), '&:hover': { color: '#c62828' } }}
+          >
+            <CloseIcon sx={{ fontSize: 16 }} />
+          </IconButton>
         </Box>
       )}
 
@@ -134,6 +204,31 @@ const AgentInput = observer(() => {
           bgcolor: agentBgElevated,
         }}
       >
+        {/* Image attach (vision models only) */}
+        {isConfigured && canVision && !isThinking && (
+          <Tooltip title={t('agent.attachImage')} placement="top">
+            <IconButton
+              size="small"
+              onClick={() => fileInputRef.current?.click()}
+              sx={{
+                flexShrink: 0,
+                width: 30,
+                height: 30,
+                color: image ? agentAccent : alpha('#000', 0.4),
+                '&:hover': { color: agentAccent, bgcolor: alpha(agentAccent, 0.08) },
+              }}
+            >
+              <ImageOutlinedIcon sx={{ fontSize: 17 }} />
+            </IconButton>
+          </Tooltip>
+        )}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/gif,image/webp"
+          onChange={handlePickImage}
+          style={{ display: 'none' }}
+        />
         <TextField
           inputRef={inputRef}
           fullWidth
@@ -189,7 +284,7 @@ const AgentInput = observer(() => {
           <IconButton
             onClick={handleSend}
             size="small"
-            disabled={!isConfigured || !input.trim()}
+            disabled={!isConfigured || (!input.trim() && !image)}
             sx={{
               flexShrink: 0,
               width: 34,

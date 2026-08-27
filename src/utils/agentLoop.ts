@@ -94,6 +94,12 @@ function messageContentToText(content: ModelMessage['content']): string {
   return '';
 }
 
+/** True when a message carries an image part (used by vision models) */
+function hasImageContent(content: ModelMessage['content']): boolean {
+  if (!Array.isArray(content)) return false;
+  return content.some(part => part && typeof part === 'object' && 'type' in part && (part as { type?: string }).type === 'image');
+}
+
 /** 将 system 角色消息合并为 streamText 的 system 参数，避免 SDK 安全警告 */
 function splitSystemMessages(messages: ModelMessage[]): {
   system: string;
@@ -250,8 +256,8 @@ function buildOpenAITools(): Array<{
 function toOpenAIChatMessages(
   system: string,
   conversation: ModelMessage[],
-): Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string; tool_call_id?: string; tool_calls?: unknown }> {
-  const out: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string; tool_call_id?: string; tool_calls?: unknown }> = [
+): Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string | Array<unknown>; tool_call_id?: string; tool_calls?: unknown }> {
+  const out: Array<{ role: 'system' | 'user' | 'assistant' | 'tool'; content: string | Array<unknown>; tool_call_id?: string; tool_calls?: unknown }> = [
     { role: 'system', content: system },
   ];
   for (const m of conversation) {
@@ -294,8 +300,36 @@ function toOpenAIChatMessages(
       }
       out.push(msg);
     } else if (m.role === 'user') {
-      const content = messageContentToText(m.content);
-      if (content) out.push({ role: m.role as 'user', content });
+      if (Array.isArray(m.content)) {
+        // Split message parts into OpenAI content blocks (text + image_url)
+        const blocks: Array<{ type: string; text?: string; image_url?: { url: string; detail?: string } }> = [];
+        const textParts: string[] = [];
+        let hasImage = false;
+        for (const part of m.content) {
+          if (typeof part === 'string') {
+            textParts.push(part);
+          } else if (part && typeof part === 'object' && 'type' in part) {
+            const p = part as { type?: string; text?: string; image?: string };
+            if (p.type === 'text' && p.text) {
+              textParts.push(p.text);
+            } else if (p.type === 'image' && p.image) {
+              hasImage = true;
+              blocks.push({
+                type: 'image_url',
+                image_url: { url: p.image, detail: 'high' },
+              });
+            }
+          }
+        }
+        if (textParts.length > 0) blocks.unshift({ type: 'text', text: textParts.join('\n') });
+        out.push({
+          role: 'user',
+          content: hasImage ? blocks : (textParts.join('\n') || ''),
+        });
+      } else {
+        const content = messageContentToText(m.content);
+        if (content) out.push({ role: m.role as 'user', content });
+      }
     }
   }
   return out;
@@ -490,7 +524,10 @@ async function runAgentLoopWithStream(input: AgentLoopInput): Promise<AgentLoopO
 }
 
 export async function runAgentLoopStream(input: AgentLoopInput): Promise<AgentLoopOutput> {
-  if (AGENT_USE_STREAMING) {
+  // Vision requests must go through the raw OpenAI-compatible endpoint:
+  // the installed @ai-sdk/deepseek v2 provider silently drops image parts.
+  const hasImage = input.messages.some(m => hasImageContent(m.content));
+  if (AGENT_USE_STREAMING && !hasImage) {
     return runAgentLoopWithStream(input);
   }
   return runAgentLoopNonStream(input);

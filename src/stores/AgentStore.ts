@@ -20,6 +20,7 @@ export interface AgentMessage {
   id: string;
   role: 'user' | 'assistant';
   content: string;
+  image?: string;  // data URL attached to a user message (vision models)
   toolCalls?: AgentToolCall[];
   streaming?: boolean;
   isError?: boolean;
@@ -81,7 +82,18 @@ class AgentStore {
       // Skip streaming messages — they're incomplete
       if (msg.streaming) continue;
       if (msg.role === 'user') {
-        modelMessages.push({ role: 'user', content: msg.content });
+        // Image messages send content parts (text + image) so vision models can read the picture
+        if (msg.image) {
+          modelMessages.push({
+            role: 'user',
+            content: [
+              { type: 'text', text: msg.content },
+              { type: 'image', image: msg.image },
+            ],
+          });
+        } else {
+          modelMessages.push({ role: 'user', content: msg.content });
+        }
       } else if (msg.role === 'assistant') {
         // Only include text content when rebuilding history for the next API call.
         // Tool call/result pairs are not sent back — they're internal implementation
@@ -143,9 +155,9 @@ class AgentStore {
     });
   }
 
-  async sendMessage(text: string): Promise<boolean> {
+  async sendMessage(text: string, image?: string): Promise<boolean> {
     const trimmed = text.trim();
-    if (!trimmed) return false;
+    if (!trimmed && !image) return false;
 
     if (!this.apiConfig.apiKey.trim()) {
       const hint = this.t('agent.apiKeyRequiredHint');
@@ -154,7 +166,7 @@ class AgentStore {
       return false;
     }
 
-    this.addMessage({ role: 'user', content: trimmed });
+    this.addMessage({ role: 'user', content: trimmed, image });
 
     this.abortController?.abort();
     this.abortController = new AbortController();
@@ -265,6 +277,7 @@ class AgentStore {
         .map(m => ({
           role: m.role,
           content: m.content,
+          // Images are base64 data URLs — too large for localStorage, dropped on reload
           toolCalls: m.toolCalls,
           timestamp: m.timestamp,
         }));

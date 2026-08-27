@@ -36,6 +36,9 @@ export const cn = {
   'agent.errorEmptyResponse': '模型未返回内容，请检查 API Key、Base URL 与模型是否可用。',
   'agent.errorRequestIncomplete': '请求未完成，请重试或检查网络与 API 配置。',
   'agent.stoppedHint': '（已停止生成）',
+  'agent.attachImage': '附加图片',
+  'agent.removeImage': '移除图片',
+  'agent.imageVisionHint': '仅视觉模型支持图片识别，请选择带 vision 的模型',
 } as const;
 
 export const en = {
@@ -76,6 +79,9 @@ export const en = {
   'agent.errorEmptyResponse': 'Model returned empty response. Check your API Key, Base URL, and model.',
   'agent.errorRequestIncomplete': 'Request incomplete. Please retry or check your network and API configuration.',
   'agent.stoppedHint': '(Stopped)',
+  'agent.attachImage': 'Attach Image',
+  'agent.removeImage': 'Remove Image',
+  'agent.imageVisionHint': 'Image recognition requires a vision model — pick a model with \u201cvision\u201d',
 } as const;
 
 export const es = {
@@ -116,4 +122,7 @@ export const es = {
   'agent.errorEmptyResponse': 'El modelo no devolvió contenido. Revisa tu API Key, Base URL y modelo.',
   'agent.errorRequestIncomplete': 'Solicitud incompleta. Reintente o revise su red y configuración API.',
   'agent.stoppedHint': '(Detenido)',
+  'agent.attachImage': 'Adjuntar imagen',
+  'agent.removeImage': 'Quitar imagen',
+  'agent.imageVisionHint': 'El reconocimiento de imágenes requiere un modelo de visión: elija uno con \u201cvision\u201d',
 } as const;

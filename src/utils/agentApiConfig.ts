@@ -25,7 +25,7 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     icon: '/imgs/icons/brands/deepseek-color.svg',
     format: 'openai',
     baseURL: 'https://api.deepseek.com',
-    models: ['deepseek-v4-pro', 'deepseek-v4-flash'],
+    models: ['deepseek-v4-pro', 'deepseek-v4-flash', 'deepseek-v4-flash-vision-exp'],
   },
   {
     id: 'openai',
@@ -52,6 +52,20 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     models: ['gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash', 'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'],
   },
 ];
+
+// ── Vision Support ──
+
+/** Models that accept image inputs (per provider docs) */
+const VISION_MODEL_IDS = new Set([
+  'deepseek-v4-flash-vision-exp',
+  'gpt-5.5', 'gpt-5.5-pro', 'gpt-4.1', 'gpt-4.1-mini', 'gpt-4.1-nano', 'gpt-4o', 'o4-mini', 'o3',
+  'claude-opus-4-8', 'claude-opus-4-7', 'claude-opus-4-6', 'claude-sonnet-4-6', 'claude-sonnet-4-5', 'claude-haiku-4-5',
+  'gemini-3.5-flash', 'gemini-3.1-pro-preview', 'gemini-3-flash', 'gemini-2.5-pro', 'gemini-2.5-flash', 'gemini-2.5-flash-lite',
+]);
+
+export function modelSupportsVision(model: string): boolean {
+  return VISION_MODEL_IDS.has(model.trim()) || /vision|vision-exp/i.test(model);
+}
 
 // ── Per-Provider Storage ──
 
