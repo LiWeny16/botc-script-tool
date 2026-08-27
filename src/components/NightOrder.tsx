@@ -2,7 +2,8 @@ import { Box, Typography, Paper } from '@mui/material';
 import {
   DndContext,
   closestCenter,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -115,9 +116,16 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
   const safeTitle = typeof title === 'string' ? title : '';
   const COMPACT_SCALE = compact ? 0.65 : 1;
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
         distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      // Long-press (300ms) to drag; quick swipes keep page scrolling
+      activationConstraint: {
+        delay: 300,
+        tolerance: 8,
       },
     })
   );

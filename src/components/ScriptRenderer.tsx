@@ -23,7 +23,8 @@ import {
     DndContext,
     closestCenter,
     KeyboardSensor,
-    PointerSensor,
+    MouseSensor,
+    TouchSensor,
     useSensor,
     useSensors,
     type DragEndEvent,
@@ -119,8 +120,12 @@ const ScriptRenderer = observer(({
     }, [script.characters]);
     // 第二页拖拽传感器
     const secondPageSensors = useSensors(
-        useSensor(PointerSensor, {
+        useSensor(MouseSensor, {
             activationConstraint: readOnly ? { distance: 999999 } : { distance: 5 },
+        }),
+        useSensor(TouchSensor, {
+            // Long-press (300ms) to drag; quick swipes keep page scrolling
+            activationConstraint: readOnly ? { distance: 999999 } : { delay: 300, tolerance: 8 },
         }),
         useSensor(KeyboardSensor, {
             coordinateGetter: sortableKeyboardCoordinates,

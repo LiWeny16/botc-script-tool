@@ -13,7 +13,8 @@ import {
   DndContext,
   closestCorners,
   KeyboardSensor,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   pointerWithin,
   useSensor,
   useSensors,
@@ -144,8 +145,12 @@ const CharacterSection = observer(({
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: disableDrag ? { distance: 999999 } : { distance: 5 },
+    }),
+    useSensor(TouchSensor, {
+      // Long-press (300ms) to drag; quick swipes keep normal page scrolling
+      activationConstraint: disableDrag ? { distance: 999999 } : { delay: 300, tolerance: 8 },
     }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );

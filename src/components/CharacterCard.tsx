@@ -366,9 +366,10 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, o
             py: CONFIG.card.paddingY,
             backgroundColor: 'transparent',
             borderRadius: CONFIG.card.borderRadius,
-            transition: 'background-color 0.2s, box-shadow 0.2s',
+transition: 'background-color 0.2s, box-shadow 0.2s',
             cursor: isDragging ? 'grabbing' : 'grab',
-            touchAction: 'none',
+            // Allow native vertical scrolling to win over drag on touch devices
+            touchAction: 'pan-y',
             userSelect: 'none',
             WebkitUserSelect: 'none',
             MozUserSelect: 'none',

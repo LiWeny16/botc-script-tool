@@ -1,9 +1,10 @@
 import { makeAutoObservable } from 'mobx';
-import type { Script, Character } from '../types';
+import type { Script, Character, NightAction } from '../types';
 import { isSameCharacter } from '../data/utils/characterIdMapping';
 import { configStore } from './ConfigStore';
 import { loadCachedScriptData, safeJsonParse, saveCachedScriptData } from '../utils/jsonSafety';
 import { deepStripHtml } from '../utils/richTextEditorUtils';
+import { NIGHT_ICON_IMAGES, OTHER_NIGHT_ICON_IMAGES } from '../utils/scriptGenerator';
 
 class ScriptStore {
   script: Script | null = null;
@@ -99,6 +100,16 @@ class ScriptStore {
       if (script.columnLeftCount && Object.keys(script.columnLeftCount).length > 0) {
         meta.column_left_count = script.columnLeftCount;
       }
+
+      // Night order icon indexes (NIGHT / MINION INFO / DEMON INFO) — persist drag positions
+      const getIconIndexes = (images: string[], source: NightAction[]) => {
+        const indexes = images.map(img => source.find(a => a.image === img)?.index);
+        return indexes.some(v => v !== undefined) ? indexes : undefined;
+      };
+      const firstnightIcons = getIconIndexes(NIGHT_ICON_IMAGES, script.firstnight || []);
+      if (firstnightIcons) meta.firstnight_icons = firstnightIcons;
+      const othernightIcons = getIconIndexes(OTHER_NIGHT_ICON_IMAGES, script.othernight || []);
+      if (othernightIcons) meta.othernight_icons = othernightIcons;
 
       // state and status (extracted from specialRules)
       const stateRules: any[] = [];
@@ -346,6 +357,46 @@ class ScriptStore {
       this.updateCharacterInJson(characterId, updates);
     } else {
       console.log('Character to update not found:', characterId);
+    }
+  }
+
+  // Update night order icon (NIGHT / MINION INFO / DEMON INFO) index directly.
+  // These special icons are not characters, so they are stored in the night action array.
+  updateNightOrderIconIndex(nightType: 'first' | 'other', image: string, index: number) {
+    if (!this.script) return;
+    const key = nightType === 'first' ? 'firstnight' : 'othernight';
+    const actions = [...this.script[key]].map(a =>
+      a.image === image ? { ...a, index } : a
+    );
+    actions.sort((a, b) => a.index - b.index);
+    const updatedScript = {
+      ...this.script,
+      [key]: actions,
+    };
+    this.setScript(updatedScript);
+    this.updateNightOrderIconsInJson(nightType);
+  }
+
+  // Persist night-order icon indexes to _meta so they survive regeneration / reload
+  private updateNightOrderIconsInJson(nightType: 'first' | 'other') {
+    try {
+      const jsonArray = this.safeParseOriginalJsonArray();
+      const meta = jsonArray.find((it: any) => it && it.id === '_meta');
+      if (!meta) return;
+
+      const key = nightType === 'first' ? 'firstnight' : 'othernight';
+      const iconImages = nightType === 'first' ? NIGHT_ICON_IMAGES : OTHER_NIGHT_ICON_IMAGES;
+      const field = nightType === 'first' ? 'firstnight_icons' : 'othernight_icons';
+      const actions = this.script?.[key] || [];
+
+      meta[field] = iconImages.map(img => {
+        const action = actions.find(a => a.image === img);
+        return action ? action.index : 0;
+      });
+
+      this.setOriginalJson(JSON.stringify(jsonArray, null, 2));
+    } catch (error) {
+      console.error('Failed to persist night order icon indexes:', error);
     }
   }
 

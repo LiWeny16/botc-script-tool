@@ -22,7 +22,9 @@ function groupByNightOrder(
   characters
     .filter(
       (c) =>
-        c[type] > 0 &&
+        c[type] !== undefined &&
+        c[type] !== null &&
+        c[type] !== 0 &&
         c[reminderField] &&
         c[reminderField].trim() !== '',
     )

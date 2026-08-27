@@ -676,77 +676,51 @@ const App = observer(() => {
     if (!script) return;
 
     const actions = nightType === 'first' ? [...script.firstnight] : [...script.othernight];
+    if (oldIndex === newIndex || oldIndex < 0 || oldIndex >= actions.length || newIndex < 0 || newIndex > actions.length) return;
 
-    // Remove first fixed icons (Dusk, Mi, Di or Dusk)
-    const fixedCount = nightType === 'first' ? 3 : 1;
-    if (oldIndex < fixedCount || newIndex < fixedCount) return;
-
-    // Get the dragged character
+    // Get the dragged action (may be a character or a special icon: NIGHT/MINION INFO/DEMON INFO)
     const draggedAction = actions[oldIndex];
 
-    // Get max index value among fixed icons, ensure all characters follow them
-    const minAllowedIndex = Math.max(...actions.slice(0, fixedCount).map(a => a.index));
+    // New position neighbors: remove dragged item, then insert at newIndex
+    const without = actions.filter((_, i) => i !== oldIndex);
+    const insertAt = Math.min(newIndex, without.length);
+    const prevIndex = insertAt > 0 ? without[insertAt - 1].index : undefined;
+    const nextIndex = insertAt < without.length ? without[insertAt].index : undefined;
 
-    // Calculate new order value
+    // Midpoint insertion — arbitrary items can now be placed anywhere, including before the special icons
     let newOrderValue: number;
-
-    if (newIndex === fixedCount) {
-      // Drag to first position after fixed icons
-      const nextAction = actions[fixedCount];
-      if (nextAction) {
-        // Ensure new value is after fixed icons and before next character
-        const baseValue = Math.max(minAllowedIndex + 0.1, nextAction.index - 0.5);
-        newOrderValue = Math.max(minAllowedIndex + 0.1, baseValue);
-      } else {
-        newOrderValue = minAllowedIndex + 0.5;
+    if (prevIndex !== undefined && nextIndex !== undefined) {
+      newOrderValue = (prevIndex + nextIndex) / 2;
+      // Guard: if neighbors are (near) identical, nudge forward to avoid float collisions
+      if (newOrderValue <= prevIndex || newOrderValue >= nextIndex) {
+        newOrderValue = prevIndex + 0.5;
       }
-    } else if (newIndex === actions.length - 1) {
-      // Drag to end
-      const prevAction = actions[actions.length - 2];
-      newOrderValue = prevAction ? Math.max(prevAction.index + 0.5, minAllowedIndex + 0.5) : minAllowedIndex + 0.5;
+    } else if (prevIndex !== undefined) {
+      newOrderValue = prevIndex + 0.5;
+    } else if (nextIndex !== undefined) {
+      newOrderValue = nextIndex - 0.5;
     } else {
-      // Drag to middle
-      const prevAction = actions[newIndex - 1];
-      const nextAction = actions[newIndex + (oldIndex < newIndex ? 1 : 0)];
-
-      if (prevAction && nextAction) {
-        // Calculate middle value
-        newOrderValue = (prevAction.index + nextAction.index) / 2;
-
-        // If two values are identical or too close, use +0.5 strategy
-        if (Math.abs(newOrderValue - prevAction.index) < 0.01) {
-          newOrderValue = prevAction.index + 0.5;
-        }
-
-        // Ensure not less than minimum allowed value
-        newOrderValue = Math.max(newOrderValue, minAllowedIndex + 0.1);
-      } else if (prevAction) {
-        newOrderValue = Math.max(prevAction.index + 0.5, minAllowedIndex + 0.5);
-      } else if (nextAction) {
-        newOrderValue = Math.max(nextAction.index - 0.5, minAllowedIndex + 0.5);
-      } else {
-        newOrderValue = minAllowedIndex + 0.5;
-      }
+      newOrderValue = 1;
     }
 
-    // Final check: ensure new value is not less than minimum allowed
-    newOrderValue = Math.max(newOrderValue, minAllowedIndex + 0.1);
-
-    // Update character's night order
     const characterImage = draggedAction.image;
+
+    // Special icons (Dusk/Mi/Di) are not characters — update their index directly
     const character = script.all.find(c => c.image === characterImage);
-
-    if (character) {
-      const updates: Partial<Character> = {};
-      if (nightType === 'first') {
-        updates.firstNight = newOrderValue;
-      } else {
-        updates.otherNight = newOrderValue;
-      }
-
-      // Update character and sync to JSON
-      handleUpdateCharacter(character.id, updates);
+    if (!character) {
+      scriptStore.updateNightOrderIconIndex(nightType, characterImage, newOrderValue);
+      return;
     }
+
+    const updates: Partial<Character> = {};
+    if (nightType === 'first') {
+      updates.firstNight = newOrderValue;
+    } else {
+      updates.otherNight = newOrderValue;
+    }
+
+    // Update character and sync to JSON
+    handleUpdateCharacter(character.id, updates);
   };
 
   // Handle adding new rule

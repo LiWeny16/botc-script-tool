@@ -1,4 +1,14 @@
 import type { Character, Script } from '../types';
+
+/** Special night-order icons (NIGHT / MINION INFO / DEMON INFO) that are draggable like normal actions */
+export const NIGHT_ICON_IMAGES = [
+  '/imgs/icons/75px-Dusk.png',
+  '/imgs/icons/75px-Mi.png',
+  '/imgs/icons/75px-Di.png',
+];
+export const OTHER_NIGHT_ICON_IMAGES = ['/imgs/icons/75px-Dusk.png'];
+export const DEFAULT_FIRSTNIGHT_ICON_INDEXES = [0.001, 0.002, 0.003];
+export const DEFAULT_OTHERNIGHT_ICON_INDEXES = [0.001];
 import {
   CHARACTERS,
   getAllCharacterDictionaries,
@@ -227,6 +237,17 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
   // Get official ID parse mode config
   const officialIdParseMode = configStore.config.officialIdParseMode;
 
+  // Optional custom night-order icon indexes read from _meta (persisted drag positions)
+  const metaItem = Array.isArray(json)
+    ? json.find((it: any) => it && it.id === '_meta')
+    : undefined;
+  const metaFirstnightIcons: unknown[] = Array.isArray(metaItem?.firstnight_icons)
+    ? metaItem.firstnight_icons
+    : [];
+  const metaOthernightIcons: unknown[] = Array.isArray(metaItem?.othernight_icons)
+    ? metaItem.othernight_icons
+    : [];
+
   const script: Script = {
     title: 'Custom Script',
     titleImage: undefined,
@@ -242,26 +263,14 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       traveler: [],
       loric: [],
     },
-    firstnight: [
-      {
-        image: '/imgs/icons/75px-Dusk.png',
-        index: 0,
-      },
-      {
-        image: '/imgs/icons/75px-Mi.png',
-        index: 0.0001,
-      },
-      {
-        image: '/imgs/icons/75px-Di.png',
-        index: 0.0002,
-      },
-    ],
-    othernight: [
-      {
-        image: '/imgs/icons/75px-Dusk.png',
-        index: 0,
-      },
-    ],
+    firstnight: NIGHT_ICON_IMAGES.map((image, i) => ({
+      image,
+      index: typeof metaFirstnightIcons[i] === 'number' ? (metaFirstnightIcons[i] as number) : DEFAULT_FIRSTNIGHT_ICON_INDEXES[i],
+    })),
+    othernight: OTHER_NIGHT_ICON_IMAGES.map((image, i) => ({
+      image,
+      index: typeof metaOthernightIcons[i] === 'number' ? (metaOthernightIcons[i] as number) : DEFAULT_OTHERNIGHT_ICON_INDEXES[i],
+    })),
     jinx: {},
     all: [],
     specialRules: [],
@@ -526,8 +535,9 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       // Unknown team types default to not participating in night order
       const standardTeams: string[] = ['townsfolk', 'outsider', 'minion', 'demon'];
       if (standardTeams.includes(finalCharacter.team)) {
-        // Add first night action: use values obtained from Chinese dictionary
-        if (nightOrder.firstNight && nightOrder.firstNight > 0) {
+        // Add first night action: values can now be fractional or negative
+        // (drag before special icons), so only 0 / undefined means "no action"
+        if (nightOrder.firstNight != null && nightOrder.firstNight !== 0) {
           script.firstnight.push({
             image: finalCharacter.image,
             index: nightOrder.firstNight,
@@ -535,7 +545,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
         }
 
         // Add other night action: use values obtained from Chinese dictionary
-        if (nightOrder.otherNight && nightOrder.otherNight > 0) {
+        if (nightOrder.otherNight != null && nightOrder.otherNight !== 0) {
           script.othernight.push({
             image: finalCharacter.image,
             index: nightOrder.otherNight,
