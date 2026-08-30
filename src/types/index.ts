@@ -21,6 +21,7 @@ export interface Character {
   remindersGlobal?: string[];  // global reminder markers (optional)
   setup?: boolean;
   author?: string;  // character author (optional)
+  series?: string;  // 角色所属剧本系列(optional),如"奥德赛"
 }
 
 export interface NightAction {

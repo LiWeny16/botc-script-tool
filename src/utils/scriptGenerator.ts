@@ -492,6 +492,8 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
             reminders: item.reminders !== undefined ? item.reminders : officialChar.reminders,
             remindersGlobal: item.remindersGlobal !== undefined ? item.remindersGlobal : officialChar.remindersGlobal,
             setup: item.setup !== undefined ? item.setup : officialChar.setup,
+            author: officialChar.author,
+            series: officialChar.series,
             // Add firstNight and otherNight (populated from nightOrder later, placeholder 0 here)
             firstNight: 0,
             otherNight: 0,
@@ -529,6 +531,8 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
         reminders: finalCharacter.reminders,
         remindersGlobal: finalCharacter.remindersGlobal,  // Save global reminder flag
         setup: finalCharacter.setup,
+        author: finalCharacter.author,
+        series: finalCharacter.series,
       });
 
       // Fabled and Traveler do not participate in standard teams' night order
@@ -730,6 +734,14 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
   // Sort by night order
   script.firstnight.sort((a, b) => a.index - b.index);
   script.othernight.sort((a, b) => a.index - b.index);
+
+  // 每个阵营内部:自定义(有作者)角色稳定置底,官方在前
+  Object.keys(script.characters).forEach(teamKey => {
+    const arr = script.characters[teamKey];
+    if (arr.length > 1) {
+      script.characters[teamKey] = [...arr.filter(c => !c.author), ...arr.filter(c => c.author)];
+    }
+  });
 
   return script;
 }

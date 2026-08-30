@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { observer } from 'mobx-react-lite';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useVirtualizer } from '@tanstack/react-virtual';
 import MarkdownRenderer from './MarkdownRenderer';
 import {
     Card,
     CardContent,
     Box,
+    Button,
+    Menu,
+    MenuItem,
     Typography,
     IconButton,
     TextField,
@@ -23,6 +25,8 @@ import {
     Search as SearchIcon,
     PushPin as PushPinIcon,
     PushPinOutlined as PushPinOutlinedIcon,
+    KeyboardArrowDown as KeyboardArrowDownIcon,
+    Check as CheckIcon,
 } from '@mui/icons-material';
 import { getCharacterDictionary } from '../data';
 import { useTranslation } from '../utils/i18n';
@@ -33,6 +37,11 @@ import { getFabledCharacters } from '../data/extras/fabled';
 import { getLoricCharacters } from '../data/extras/loric';
 import { configStore } from '../stores/ConfigStore';
 import { PINYIN_MAP } from '../data/utils/pinyinMap';
+
+// 剧本系列 → 颜色组合(背景色/前景色)
+const SERIES_COLORS: Record<string, { bg: string; fg: string }> = {
+    '奥德赛': { bg: '#B8860B', fg: '#ffffff' },
+};
 
 // 懒加载图片组件 - 使用统一的CharacterImage组件
 const LazyAvatar = React.memo(({ character, teamColor }: { character: Character; teamColor: string }) => {
@@ -84,11 +93,7 @@ const CharacterItem = React.memo(({
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.1 }}
-        >
+        <>
             <ListItem
                 component="div"
                 onClick={handleClick}
@@ -110,6 +115,7 @@ const CharacterItem = React.memo(({
                     <LazyAvatar character={character} teamColor={teamColor} />
                 </ListItemAvatar>
                 <ListItemText
+                    secondaryTypographyProps={{ component: 'div' }}
                     primary={
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                             <Typography
@@ -169,6 +175,25 @@ const CharacterItem = React.memo(({
                                     }}
                                 />
                             )}
+                            {/* 系列标签(如"奥德赛") */}
+                            {character.series && (() => {
+                                const sc = SERIES_COLORS[character.series] || { bg: '#B8860B', fg: '#ffffff' };
+                                return (
+                                    <Chip
+                                        label={`@${character.series}`}
+                                        size="small"
+                                        sx={{
+                                            height: 16,
+                                            fontSize: '0.55rem',
+                                            backgroundColor: sc.bg,
+                                            color: sc.fg,
+                                            '& .MuiChip-label': {
+                                                px: 0.5,
+                                            },
+                                        }}
+                                    />
+                                );
+                            })()}
                         </Box>
                     }
                     secondary={
@@ -191,7 +216,7 @@ const CharacterItem = React.memo(({
                 />
             </ListItem>
             <Divider />
-        </motion.div>
+        </>
     );
 });
 
@@ -219,12 +244,15 @@ const CharacterLibraryCard = observer(({
     const { t, language } = useTranslation();
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedTab, setSelectedTab] = useState(0);
+    const [seriesFilter, setSeriesFilter] = useState(''); // 系列筛选('' = 全部)
+    const [seriesMenuAnchor, setSeriesMenuAnchor] = useState<null | HTMLElement>(null); // 系列下拉锚点
+    const [renderCount, setRenderCount] = useState(-1); // 分3段渐进渲染,最终=全部
     const [isPinned, setIsPinned] = useState(false); // 是否固定
     const [isDragging, setIsDragging] = useState(false); // 是否正在拖拽
     const dragOffsetRef = React.useRef({ x: 0, y: 0 }); // 使用 ref 存储拖拽偏移量,避免频繁渲染
     const dragStartRef = React.useRef({ x: 0, y: 0 }); // 拖拽起始位置
     const cardRef = React.useRef<HTMLDivElement>(null);
-    const listRef = React.useRef<HTMLDivElement>(null); // 虚拟列表滚动容器
+    const listRef = React.useRef<HTMLDivElement>(null); // 滚动容器(分段加载)
     const rafRef = React.useRef<number | null>(null); // requestAnimationFrame ID
     const searchInputRef = React.useRef<HTMLInputElement>(null); // 搜索框引用
 
@@ -274,8 +302,23 @@ const CharacterLibraryCard = observer(({
             }
         });
 
+        // 每个阵营内部:自定义(有作者)角色稳定置底,官方在前
+        Object.keys(teams).forEach((teamKey) => {
+            const arr = teams[teamKey as keyof typeof teams];
+            if (arr.length > 1) {
+                teams[teamKey as keyof typeof teams] = [...arr.filter(c => !c.author), ...arr.filter(c => c.author)];
+            }
+        });
+
         return teams;
     }, [currentCharacterData, language, open]);
+
+    // 可用系列列表(去重,后续可多系列)
+    const availableSeries = useMemo(() => {
+        const set = new Set<string>();
+        Object.values(charactersByTeam).forEach(arr => arr.forEach(c => { if (c.series) set.add(c.series); }));
+        return Array.from(set);
+    }, [charactersByTeam]);
 
     // 搜索过滤 - 只在组件可见时计算
     const filteredCharacters = useMemo(() => {
@@ -314,8 +357,9 @@ const CharacterLibraryCard = observer(({
                 const abilityMatch = char.ability.toLowerCase().includes(term);
                 const pinyinMatch = PINYIN_MAP[char.name]?.includes(term);
                 const idMatch = char.id.toLowerCase().includes(term);
+                const seriesMatch = (char.series || '').toLowerCase().includes(term);
 
-                return nameMatch || abilityMatch || pinyinMatch || idMatch;
+                return nameMatch || abilityMatch || pinyinMatch || idMatch || seriesMatch;
             });
         });
 
@@ -338,40 +382,50 @@ const CharacterLibraryCard = observer(({
 
     // 获取当前显示的角色列表
     const currentCharacters = useMemo(() => {
+        let chars: Character[] = [];
         if (currentTeam.key === 'selected') {
             // 显示已选角色
             if (!searchTerm.trim()) {
-                return selectedCharacters;
+                chars = selectedCharacters;
+            } else {
+                // 对已选角色进行搜索过滤
+                const term = searchTerm.toLowerCase();
+                chars = selectedCharacters.filter((char) => {
+                    const nameMatch = char.name.toLowerCase().includes(term);
+                    const abilityMatch = char.ability.toLowerCase().includes(term);
+                    const pinyinMatch = PINYIN_MAP[char.name]?.includes(term);
+                    const idMatch = char.id.toLowerCase().includes(term);
+                    const seriesMatch = (char.series || '').toLowerCase().includes(term);
+                    return nameMatch || abilityMatch || pinyinMatch || idMatch || seriesMatch;
+                });
             }
-            // 对已选角色进行搜索过滤
-            const term = searchTerm.toLowerCase();
-            return selectedCharacters.filter((char) => {
-                const nameMatch = char.name.toLowerCase().includes(term);
-                const abilityMatch = char.ability.toLowerCase().includes(term);
-                const pinyinMatch = PINYIN_MAP[char.name]?.includes(term);
-                const idMatch = char.id.toLowerCase().includes(term);
-
-                return nameMatch || abilityMatch || pinyinMatch || idMatch;
-            });
-        }
-
-        if (currentTeam.key === 'all') {
+        } else if (currentTeam.key === 'all') {
             // 显示所有角色
-            return Object.values(filteredCharacters).flat();
+            chars = Object.values(filteredCharacters).flat();
+        } else {
+            // 确保只返回当前选中团队的角色
+            const teamCharacters = filteredCharacters[currentTeam.key as keyof typeof filteredCharacters];
+            chars = teamCharacters ? teamCharacters.filter(char => char.team === currentTeam.key) : [];
         }
-        // 确保只返回当前选中团队的角色
-        const teamCharacters = filteredCharacters[currentTeam.key as keyof typeof filteredCharacters];
-        return teamCharacters ? teamCharacters.filter(char => char.team === currentTeam.key) : [];
-    }, [currentTeam.key, filteredCharacters, selectedCharacters, searchTerm]);
+        if (seriesFilter) {
+            chars = chars.filter(c => c.series === seriesFilter);
+        }
+        return chars;
+    }, [currentTeam.key, filteredCharacters, selectedCharacters, searchTerm, seriesFilter]);
 
-    // 虚拟列表
-    const virtualizer = useVirtualizer({
-        count: currentCharacters.length,
-        getScrollElement: () => listRef.current,
-        estimateSize: () => 74,
-        overscan: 8,
-    });
+    // 团队/系列/搜索变化时,回第1段;随后每帧补一段,共3段展开到全量
+    useEffect(() => {
+        setRenderCount(currentCharacters.length ? Math.max(1, Math.ceil(currentCharacters.length / 3)) : 0);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentTeam.key, seriesFilter, searchTerm]);
+    useEffect(() => {
+        if (renderCount < 0 || renderCount >= currentCharacters.length) return;
+        const step = Math.max(1, Math.ceil(currentCharacters.length / 3));
+        const id = requestAnimationFrame(() => setRenderCount(prev => Math.min(currentCharacters.length, prev + step)));
+        return () => cancelAnimationFrame(id);
+    }, [renderCount, currentCharacters.length]);
 
+    // 滚动接近底部时追加下一批(原生渲染 + 增量,避免每帧重渲染)
     // 处理打开时重置状态
     useEffect(() => {
         if (open) {
@@ -708,6 +762,45 @@ const CharacterLibraryCard = observer(({
                                                 />
                                             </Box>
                                         ))}
+                                        {availableSeries.length > 0 && (
+                                            <Button
+                                                size="small"
+                                                variant="outlined"
+                                                onClick={(e) => setSeriesMenuAnchor(e.currentTarget)}
+                                                endIcon={<KeyboardArrowDownIcon />}
+                                                sx={{
+                                                    fontSize: '0.75rem', textTransform: 'none', ml: 0.5,
+                                                    borderColor: seriesFilter ? (SERIES_COLORS[seriesFilter]?.bg ?? '#bbb') : '#bbb',
+                                                    color: seriesFilter ? (SERIES_COLORS[seriesFilter]?.bg ?? '#666') : '#666',
+                                                }}
+                                            >
+                                                {seriesFilter ? seriesFilter : t('all')}
+                                            </Button>
+                                        )}
+                                        <Menu
+                                            anchorEl={seriesMenuAnchor}
+                                            open={Boolean(seriesMenuAnchor)}
+                                            onClose={() => setSeriesMenuAnchor(null)}
+                                            slotProps={{ paper: { style: { maxHeight: 260, width: 180 } } }}
+                                        >
+                                            <MenuItem onClick={() => { setSeriesFilter(''); setSeriesMenuAnchor(null); }}>
+                                                <Box sx={{ width: 10, height: 10, borderRadius: 1, mr: 1, bgcolor: '#bbbbbb' }} />
+                                                {t('all')}
+                                            </MenuItem>
+                                            {availableSeries.map((seriesName) => {
+                                                const sc = SERIES_COLORS[seriesName] || { bg: '#9e9e9e', fg: '#ffffff' };
+                                                return (
+                                                    <MenuItem
+                                                        key={seriesName}
+                                                        onClick={() => { setSeriesFilter(seriesFilter === seriesName ? '' : seriesName); setSeriesMenuAnchor(null); }}
+                                                    >
+                                                        <Box sx={{ width: 10, height: 10, borderRadius: 1, mr: 1, bgcolor: sc.bg, border: `1px solid ${sc.fg}` }} />
+                                                        {seriesName}
+                                                        {seriesFilter === seriesName && <CheckIcon sx={{ ml: 'auto', fontSize: 16 }} />}
+                                                    </MenuItem>
+                                                );
+                                            })}
+                                        </Menu>
                                     </Box>
                                 </Box>
 
@@ -716,15 +809,7 @@ const CharacterLibraryCard = observer(({
                                     ref={listRef}
                                     sx={{ flex: 1, overflow: 'auto', p: 0, position: 'relative' }}
                                 >
-                                    <AnimatePresence mode="wait" initial={false}>
-                                        <motion.div
-                                            key={`${currentTeam.key}|${searchTerm}`}
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            exit={{ opacity: 0 }}
-                                            transition={{ duration: 0.12 }}
-                                            style={{ height: '100%' }}
-                                        >
+                                    <Box sx={{ height: '100%' }}>
                                             {currentCharacters.length === 0 ? (
                                                 <Box sx={{
                                                     display: 'flex',
@@ -738,9 +823,8 @@ const CharacterLibraryCard = observer(({
                                                     </Typography>
                                                 </Box>
                                             ) : (
-                                                <List sx={{ p: 0, height: virtualizer.getTotalSize(), position: 'relative' }}>
-                                                    {virtualizer.getVirtualItems().map((virtualRow) => {
-                                                        const character = currentCharacters[virtualRow.index];
+                                                <List sx={{ p: 0 }}>
+                                                    {currentCharacters.slice(0, renderCount).map((character, index) => {
                                                         const characterTeamColor =
                                                             currentTeam.key === 'all' || currentTeam.key === 'selected'
                                                                 ? teamTabs.find(t => t.key === character.team)?.color || THEME_COLORS.text.primary
@@ -748,35 +832,22 @@ const CharacterLibraryCard = observer(({
                                                         const isSelected = selectedCharacters.some(c => c.id === character.id);
 
                                                         return (
-                                                            <Box
-                                                                key={virtualRow.key}
-                                                                data-index={virtualRow.index}
-                                                                ref={virtualizer.measureElement}
-                                                                style={{
-                                                                    position: 'absolute',
-                                                                    top: 0,
-                                                                    left: 0,
-                                                                    width: '100%',
-                                                                    transform: `translateY(${virtualRow.start}px)`,
-                                                                }}
-                                                            >
-                                                                <CharacterItem
-                                                                    character={character}
-                                                                    index={virtualRow.index}
-                                                                    teamColor={characterTeamColor}
-                                                                    showTeamChip={currentTeam.key === 'all' || currentTeam.key === 'selected'}
-                                                                    isSelected={isSelected}
-                                                                    teamTabs={teamTabs}
-                                                                    onAddCharacter={handleAddCharacter}
-                                                                    onRemoveCharacter={handleRemoveCharacter}
-                                                                />
-                                                            </Box>
+                                                            <CharacterItem
+                                                                key={character.id}
+                                                                character={character}
+                                                                index={index}
+                                                                teamColor={characterTeamColor}
+                                                                showTeamChip={currentTeam.key === 'all' || currentTeam.key === 'selected'}
+                                                                isSelected={isSelected}
+                                                                teamTabs={teamTabs}
+                                                                onAddCharacter={handleAddCharacter}
+                                                                onRemoveCharacter={handleRemoveCharacter}
+                                                            />
                                                         );
                                                     })}
                                                 </List>
                                             )}
-                                        </motion.div>
-                                    </AnimatePresence>
+                                    </Box>
                                 </CardContent>
                             </Card>
                         </Box>

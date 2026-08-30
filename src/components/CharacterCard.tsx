@@ -1,8 +1,9 @@
 import { Box, Typography, Paper, Menu, MenuItem, ListItemIcon, ListItemText, IconButton, useMediaQuery, useTheme } from '@mui/material';
 import { Edit as EditIcon, Delete as DeleteIcon, ContentCopy as CopyIcon, SwapHoriz as SwapIcon } from '@mui/icons-material';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { observer } from 'mobx-react-lite';
 import type { Character, JinxInfo } from '../types';
+import { getCharacterDictionary, getCharacterInDictionary } from '../data';
 import MarkdownRenderer from './MarkdownRenderer';
 import { THEME_COLORS, getTeamColor } from '../theme/colors';
 import { useSortable } from '@dnd-kit/sortable';
@@ -53,7 +54,33 @@ function shouldShowFullText(
 
 const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, onUpdate, onEdit, onDelete, onReplace, readOnly = false, compact = false }: CharacterCardProps) => {
   const COMPACT_SCALE = compact ? 0.47 : 1;
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
+
+  // 原创角色在中文界面下,中文名右侧显示加粗淡金英文原名(仅中文显示);用 useMemo 避免每次渲染重复查库
+  const enName = useMemo(
+    () =>
+      language === 'cn' && !!character.author
+        ? getCharacterInDictionary(getCharacterDictionary('en'), character.id)?.name || ''
+        : '',
+    [language, character.id, character.author],
+  );
+  const englishNameNode = enName ? (
+    <span
+      style={{
+        fontStyle: 'normal',
+        fontFamily: '"Georgia", "Times New Roman", serif',
+        fontWeight: 'bold',
+        color: '#ac9d89',
+        fontSize: '0.72em',
+        marginLeft: '0.45em',
+        whiteSpace: 'nowrap',
+        position: 'relative',
+        top: '-0.08em',
+      }}
+    >
+      {enName}
+    </span>
+  ) : null;
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [contextMenu, setContextMenu] = useState<{
@@ -388,21 +415,52 @@ transition: 'background-color 0.2s, box-shadow 0.2s',
             alignItems: 'center',
             zIndex: 10,
           }}>
-            {/* Character avatar */}
-            <CharacterImage
-              src={character.image}
-              alt={character.name}
+            {/* Character avatar — 奥德赛花纹（太一角色专用，位于头像正下方） */}
+            <Box
               sx={{
+                position: 'relative',
                 width: CONFIG.avatar.width,
                 height: CONFIG.avatar.height,
-                borderRadius: CONFIG.avatar.borderRadius,
-                objectFit: 'cover',
                 flexShrink: 0,
-                userDrag: 'none',
-                WebkitUserDrag: 'none',
-                pointerEvents: 'none',
               }}
-            />
+            >
+              {character.author === '太一' && (
+                <Box
+                  component="img"
+                  src="/imgs/ornaments/奥德赛花纹.png"
+                  alt=""
+                  draggable={false}
+                  sx={{
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    width: Math.max(CONFIG.avatar.width, CONFIG.avatar.height) * 1.1,
+                    height: Math.max(CONFIG.avatar.width, CONFIG.avatar.height) * 1.1,
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 0,
+                    pointerEvents: 'none',
+                    userSelect: 'none',
+                    objectFit: 'contain',
+                  }}
+                />
+              )}
+              <CharacterImage
+                src={character.image}
+                alt={character.name}
+                sx={{
+                  position: 'relative',
+                  zIndex: 1,
+                  width: CONFIG.avatar.width,
+                  height: CONFIG.avatar.height,
+                  borderRadius: CONFIG.avatar.borderRadius,
+                  objectFit: 'cover',
+                  flexShrink: 0,
+                  userDrag: 'none',
+                  WebkitUserDrag: 'none',
+                  pointerEvents: 'none',
+                }}
+              />
+            </Box>
 
             {/* Character info: name + description + jinx rules */}
             {compact ? (
@@ -422,6 +480,7 @@ transition: 'background-color 0.2s, box-shadow 0.2s',
                     }}
                   >
                     {character.name}
+                    {englishNameNode}
                   </Typography>
                   {jinxInfo && allJinx && (() => {
                     const entries = Object.entries(jinxInfo).filter(([_, d]) => d.display !== false);
@@ -501,6 +560,7 @@ transition: 'background-color 0.2s, box-shadow 0.2s',
                     }}
                   >
                     {character.name}
+                    {englishNameNode}
                   </Typography>
                   {(showIconOnlyNextToName || showAllJinxNextToNameTwoPage) && (
                     <>
