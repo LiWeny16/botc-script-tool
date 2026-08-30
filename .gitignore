@@ -38,3 +38,4 @@ server/
 
 # Lock files (using pnpm)
 package-lock.json
+docs/
