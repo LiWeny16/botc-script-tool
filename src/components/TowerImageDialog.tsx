@@ -142,94 +142,100 @@ const TowerImageDialog = observer(({ open, onClose }: TowerImageDialogProps) => 
           )}
 
           {/* Image list */}
-          {images.map((img) => (
-            <Box
-              key={img.id}
-              sx={{
-                p: 1.5,
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
-                <Box
-                  component="img"
-                  src={img.url}
-                  alt={img.id}
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    objectFit: 'contain',
-                    borderRadius: 1,
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    backgroundColor: 'rgba(0,0,0,0.05)',
-                  }}
-                />
-                <Box sx={{ flex: 1, minWidth: 0 }}>
-                  <Typography variant="caption" sx={{ display: 'block', fontWeight: 'medium' }}>
-                    {img.isDefault ? 'Default' : 'Custom'}
-                  </Typography>
-                  <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
-                    {img.id.length > 25 ? img.id.substring(0, 25) + '...' : img.id}
-                  </Typography>
+          {images.map((img) => {
+            const isProtected = img.id === 'onion_tower_transparent';
+
+            return (
+              <Box
+                key={img.id}
+                sx={{
+                  p: 1.5,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 1,
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5 }}>
+                  <Box
+                    component="img"
+                    src={img.url}
+                    alt={img.id}
+                    sx={{
+                      width: 64,
+                      height: 64,
+                      objectFit: 'contain',
+                      borderRadius: 1,
+                      border: '1px solid',
+                      borderColor: 'divider',
+                      backgroundColor: 'rgba(0,0,0,0.05)',
+                    }}
+                  />
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="caption" sx={{ display: 'block', fontWeight: 'medium' }}>
+                      {img.isDefault ? 'Default' : 'Custom'}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" sx={{ wordBreak: 'break-all' }}>
+                      {img.id.length > 25 ? img.id.substring(0, 25) + '...' : img.id}
+                    </Typography>
+                  </Box>
+                  {!isProtected && (
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => uiConfigStore.removeTowerImage(img.id)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  )}
                 </Box>
-                <IconButton
-                  size="small"
-                  color="error"
-                  onClick={() => uiConfigStore.removeTowerImage(img.id)}
-                >
-                  <DeleteIcon fontSize="small" />
-                </IconButton>
-              </Box>
 
-              <Box>
-                <Typography variant="caption" gutterBottom>
-                  Position X: {img.x}%
-                </Typography>
-                <Slider
-                  value={img.x}
-                  onChange={(_, value) => uiConfigStore.updateTowerImage(img.id, { x: value as number })}
-                  min={0}
-                  max={100}
-                  step={1}
-                  size="small"
-                  valueLabelDisplay="auto"
-                />
-              </Box>
+                <Box>
+                  <Typography variant="caption" gutterBottom>
+                    Position X: {img.x}%
+                  </Typography>
+                  <Slider
+                    value={img.x}
+                    onChange={(_, value) => uiConfigStore.updateTowerImage(img.id, { x: value as number })}
+                    min={0}
+                    max={isProtected ? 50 : 100}
+                    step={1}
+                    size="small"
+                    valueLabelDisplay="auto"
+                  />
+                </Box>
 
-              <Box>
-                <Typography variant="caption" gutterBottom>
-                  Opacity: {img.opacity.toFixed(2)}
-                </Typography>
-                <Slider
-                  value={img.opacity}
-                  onChange={(_, value) => uiConfigStore.updateTowerImage(img.id, { opacity: value as number })}
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  size="small"
-                  valueLabelDisplay="auto"
-                />
-              </Box>
+                <Box>
+                  <Typography variant="caption" gutterBottom>
+                    Opacity: {img.opacity.toFixed(2)}
+                  </Typography>
+                  <Slider
+                    value={img.opacity}
+                    onChange={(_, value) => uiConfigStore.updateTowerImage(img.id, { opacity: value as number })}
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    size="small"
+                    valueLabelDisplay="auto"
+                  />
+                </Box>
 
-              <Box>
-                <Typography variant="caption" gutterBottom>
-                  Scale: {img.scale.toFixed(2)}
-                </Typography>
-                <Slider
-                  value={img.scale}
-                  onChange={(_, value) => uiConfigStore.updateTowerImage(img.id, { scale: value as number })}
-                  min={0.2}
-                  max={2}
-                  step={0.05}
-                  size="small"
-                  valueLabelDisplay="auto"
-                />
+                <Box>
+                  <Typography variant="caption" gutterBottom>
+                    Scale: {img.scale.toFixed(2)}
+                  </Typography>
+                  <Slider
+                    value={img.scale}
+                    onChange={(_, value) => uiConfigStore.updateTowerImage(img.id, { scale: value as number })}
+                    min={isProtected ? 0.3 : 0.2}
+                    max={2}
+                    step={0.05}
+                    size="small"
+                    valueLabelDisplay="auto"
+                  />
+                </Box>
               </Box>
-            </Box>
-          ))}
+            );
+          })}
         </Stack>
       </DialogContent>
 

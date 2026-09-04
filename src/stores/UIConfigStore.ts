@@ -17,8 +17,10 @@ export interface TowerImage {
 
 export const DEFAULT_TOWERS: TowerImage[] = [
   { id: 'back_tower', url: '/imgs/images/background/back_tower.png', x: 0, y: 0, scale: 1.0, opacity: 0.4, isDefault: true },
-  { id: 'back_tower2', url: '/imgs/images/background/back_tower2.png', x: 36, y: 0, scale: 1.0, opacity: 0.8, isDefault: true },
+  { id: 'onion_tower_transparent', url: '/imgs/images/background/onion_tower_transparent.png', x: 0, y: 0, scale: 0.5, opacity: 0.9, isDefault: true },
 ];
+
+const isProtectedTowerImage = (id: string) => id === 'onion_tower_transparent';
 
 export interface CustomFont {
   id: string;
@@ -153,6 +155,13 @@ export interface UIConfig {
     iconOnlyJinxPosition: 'below-description' | 'next-to-name';
   };
 
+  avatarIcon: {
+    enableDesignerBadge: boolean;
+    designerAvatarUrl: string;
+    designerName: string;
+    designerPosX: number;
+    designerPosY: number;
+  };
 }
 
 const DEFAULT_UI_CONFIG: UIConfig = {
@@ -249,6 +258,14 @@ const DEFAULT_UI_CONFIG: UIConfig = {
     jinxTextLineHeight: 1.4,
 
     iconOnlyJinxPosition: 'next-to-name',
+  },
+
+  avatarIcon: {
+    enableDesignerBadge: true,
+    designerAvatarUrl: '',
+    designerName: '',
+    designerPosX: 140,
+    designerPosY: 95,
   },
 };
 
@@ -549,6 +566,11 @@ class UIConfigStore {
 
   // Remove tower image
   async removeTowerImage(id: string) {
+    if (isProtectedTowerImage(id)) {
+      console.log('Protected tower image cannot be removed:', id);
+      return;
+    }
+
     try {
       await towerImageStorage.deleteImage(id);
       this.config.towerImages = this.config.towerImages.filter(img => img.id !== id);
@@ -566,7 +588,23 @@ class UIConfigStore {
       console.warn('Tower image not found:', id);
       return;
     }
-    const updated = { ...this.config.towerImages[index], ...updates };
+
+    const isProtected = isProtectedTowerImage(id);
+    const current = this.config.towerImages[index];
+    const updated = {
+      ...current,
+      ...updates,
+    };
+
+    if (isProtected) {
+      if (typeof updated.x === 'number') {
+        updated.x = Math.min(50, Math.max(0, updated.x));
+      }
+      if (typeof updated.scale === 'number') {
+        updated.scale = Math.max(0.3, updated.scale);
+      }
+    }
+
     this.config.towerImages[index] = updated;
     // Persist url-bearing images to IndexedDB
     if (updated.url) {

@@ -101,6 +101,14 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
       ],
     },
     {
+      id: 'avatarIcon',
+      title: 'Avatar Icon',
+      keywords: [
+        'avatar', 'icon', 'upload', 'custom', 'designer', 'badge',
+        'position', 'image'
+      ],
+    },
+    {
       id: 'iconSize',
       title: t('ui.category.iconSize'),
       keywords: [
@@ -132,6 +140,22 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
 
   const handlePinToggle = () => {
     setIsPinned(!isPinned);
+  };
+
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      uiConfigStore.updateConfig({
+        avatarIcon: {
+          ...uiConfigStore.config.avatarIcon,
+          designerAvatarUrl: reader.result as string,
+        },
+      });
+    };
+    reader.readAsDataURL(file);
   };
 
   // 搜索过滤逻辑
@@ -927,6 +951,95 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                       valueLabelDisplay="auto"
                     />
                   </Box>
+                </Stack>
+              </AccordionDetails>
+            </Accordion>
+            )}
+
+            {filteredCategories.find(c => c.id === 'avatarIcon')?.show && (
+            <Accordion defaultExpanded={!searchQuery}>
+              <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
+                  Avatar Icon
+                </Typography>
+              </AccordionSummary>
+              <AccordionDetails>
+                <Stack spacing={2}>
+                  <FormControlLabel
+                    control={
+                      <Switch
+                        checked={uiConfigStore.config.avatarIcon.enableDesignerBadge}
+                        onChange={(event) =>
+                          uiConfigStore.updateConfig({
+                            avatarIcon: {
+                              ...uiConfigStore.config.avatarIcon,
+                              enableDesignerBadge: event.target.checked,
+                            },
+                          })
+                        }
+                      />
+                    }
+                    label="Designer Badge"
+                  />
+
+                  <TextField
+                    label="Designer Name"
+                    size="small"
+                    value={uiConfigStore.config.avatarIcon.designerName}
+                    onChange={(event) =>
+                      uiConfigStore.updateConfig({
+                        avatarIcon: {
+                          ...uiConfigStore.config.avatarIcon,
+                          designerName: event.target.value,
+                        },
+                      })
+                    }
+                  />
+
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      Position X: {uiConfigStore.config.avatarIcon.designerPosX}
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={1560}
+                      value={uiConfigStore.config.avatarIcon.designerPosX}
+                      onChange={(_, value) =>
+                        uiConfigStore.updateConfig({
+                          avatarIcon: {
+                            ...uiConfigStore.config.avatarIcon,
+                            designerPosX: value as number,
+                          },
+                        })
+                      }
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      Position Y: {uiConfigStore.config.avatarIcon.designerPosY}
+                    </Typography>
+                    <Slider
+                      min={0}
+                      max={1800}
+                      value={uiConfigStore.config.avatarIcon.designerPosY}
+                      onChange={(_, value) =>
+                        uiConfigStore.updateConfig({
+                          avatarIcon: {
+                            ...uiConfigStore.config.avatarIcon,
+                            designerPosY: value as number,
+                          },
+                        })
+                      }
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+
+                  <Button component="label" variant="outlined">
+                    Upload Avatar
+                    <input hidden type="file" accept="image/*" onChange={handleAvatarUpload} />
+                  </Button>
                 </Stack>
               </AccordionDetails>
             </Accordion>
