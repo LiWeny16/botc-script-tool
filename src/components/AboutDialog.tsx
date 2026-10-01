@@ -326,19 +326,22 @@ const AboutDialog = ({ open, onClose }: AboutDialogProps) => {
             theme="green"
             collapsible
             content={
-              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
-                <Box component="span">{t('about.thxYoheiName')}</Box>
-                <Box
-                  component="span"
-                  sx={{
-                    fontSize: '0.78rem',
-                    fontWeight: 500,
-                    opacity: 0.85,
-                    letterSpacing: '0.3px',
-                  }}
-                >
-                  {t('about.thxYoheiReason')}
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 0.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+                  <Box component="span">{t('about.thxYoheiName')}</Box>
+                  <Box
+                    component="span"
+                    sx={{
+                      fontSize: '0.78rem',
+                      fontWeight: 500,
+                      opacity: 0.85,
+                      letterSpacing: '0.3px',
+                    }}
+                  >
+                    {t('about.thxYoheiReason')}
+                  </Box>
                 </Box>
+                <Box component="span">{t('about.thxMerlinName')}</Box>
               </Box>
             }
           />
