@@ -404,7 +404,19 @@ class ScriptStore {
   reorderCharacters(team: string, newOrder: string[], columnLeftCount?: number) {
     if (!this.script) return;
 
-    const reorderedTeamCharacters = newOrder.map(id => this.script!.characters[team].find(c => isSameCharacter(c.id, id))!);
+    const teamCharacters = this.script.characters[team] || [];
+    // Match exact ids first, then fall back to normalized ids (fang_gu <-> fanggu).
+    // Consume each character once so duplicate/normalized ids can't clone or drop entries.
+    const pool = [...teamCharacters];
+    const reorderedTeamCharacters: Character[] = [];
+    for (const id of newOrder) {
+      let index = pool.findIndex(c => c.id === id);
+      if (index === -1) index = pool.findIndex(c => isSameCharacter(c.id, id));
+      if (index === -1) return; // unknown id — leave the script untouched
+      reorderedTeamCharacters.push(pool.splice(index, 1)[0]);
+    }
+    if (reorderedTeamCharacters.length !== teamCharacters.length) return;
+
     const updatedScript: Script = {
       ...this.script,
       characters: {

@@ -21,6 +21,7 @@ import {
   useDroppable,
   type CollisionDetection,
   type DragEndEvent,
+  type UniqueIdentifier,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -149,8 +150,10 @@ const CharacterSection = observer(({
       activationConstraint: disableDrag ? { distance: 999999 } : { distance: 5 },
     }),
     useSensor(TouchSensor, {
-      // Long-press (300ms) to drag; quick swipes keep normal page scrolling
-      activationConstraint: disableDrag ? { distance: 999999 } : { delay: 300, tolerance: 8 },
+      // Long-press to drag; quick swipes keep normal page scrolling.
+      // The tolerance is deliberately generous: a normal thumb-hold drifts a few pixels,
+      // and the old 8px threshold silently cancelled the pending drag on real devices.
+      activationConstraint: disableDrag ? { distance: 999999 } : { delay: 250, tolerance: 12 },
     }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
@@ -192,13 +195,29 @@ const CharacterSection = observer(({
   const leftCharacters = characters.slice(0, leftCount);
   const rightCharacters = characters.slice(leftCount);
 
+  // dnd-kit requires truthy, unique ids. A character id can be missing or duplicated in
+  // hand-authored script JSON, and a falsy id silently breaks dragging for the whole team
+  // section (dnd-kit caches the active id, then refuses every later drag in that context).
+  const sortableIds = (() => {
+    const used = new Set<string>();
+    return characters.map((c, index) => {
+      const base = c.id ? String(c.id) : `__missing_id_${index}`;
+      let id = base;
+      for (let dup = 2; used.has(id); dup += 1) id = `${base}#${dup}`;
+      used.add(id);
+      return id;
+    });
+  })();
+
+  const indexOfSortableId = (id: UniqueIdentifier) => sortableIds.indexOf(String(id));
+
   const handleDragEnd = (event: DragEndEvent) => {
     if (disableDrag) return;
     setIsDraggingSection(false);
     const { active, over } = event;
     if (!over) return;
 
-    const oldIndex = characters.findIndex(c => c.id === active.id);
+    const oldIndex = indexOfSortableId(active.id);
     if (oldIndex === -1) return;
 
     const overId = String(over.id);
@@ -227,7 +246,7 @@ const CharacterSection = observer(({
 
     if (active.id === over.id) return;
 
-    const newIndex = characters.findIndex(c => c.id === over.id);
+    const newIndex = indexOfSortableId(over.id);
     if (newIndex === -1) return;
 
     const reorderedIds = arrayMove(characters, oldIndex, newIndex).map(c => c.id);
@@ -261,11 +280,11 @@ const CharacterSection = observer(({
           onDragEnd={handleDragEnd}
         >
           <Box>
-            <SortableContext items={characters.map(c => c.id)} strategy={rectSortingStrategy}>
+            <SortableContext items={sortableIds} strategy={rectSortingStrategy}>
               {characters.length === 1 ? (
                 <Box sx={{ display: 'flex', justifyContent: 'center', px: { xs: 0, sm: 2, md: 4 } }}>
                   <Box sx={{ width: { xs: '100%', sm: compact ? '100%' : '50%' }, display: 'flex' }}>
-                    <CharacterCard character={characters[0]} jinxInfo={script.jinx[characters[0].name]}
+                    <CharacterCard sortableId={sortableIds[0]} character={characters[0]} jinxInfo={script.jinx[characters[0].name]}
                       allCharacters={script.all} allJinx={script.jinx}
                       onUpdate={onUpdateCharacter} onEdit={onEditCharacter} onDelete={onDeleteCharacter}
                       onReplace={onReplaceCharacter} readOnly={readOnly} compact={compact} />
@@ -273,9 +292,9 @@ const CharacterSection = observer(({
                 </Box>
               ) : compact ? (
                 <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(3, 1fr)', sm: 'repeat(5, 1fr)' }, gap: 0.15, alignItems: 'start' }}>
-                  {characters.map(c => (
-                    <Box key={c.id} sx={{ display: 'flex', minWidth: 0 }}>
-                      <CharacterCard character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
+                  {characters.map((c, index) => (
+                    <Box key={sortableIds[index]} sx={{ display: 'flex', minWidth: 0 }}>
+                      <CharacterCard sortableId={sortableIds[index]} character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
                         allJinx={script.jinx} onUpdate={onUpdateCharacter} onEdit={onEditCharacter}
                         onDelete={onDeleteCharacter} onReplace={onReplaceCharacter} readOnly={readOnly} compact={compact} />
                     </Box>
@@ -284,18 +303,18 @@ const CharacterSection = observer(({
               ) : (
                 <Box sx={{ position: 'relative', display: 'flex', gap: 1, flexDirection: { xs: 'column', sm: 'row' }, overflow: 'visible' }}>
                   <CharacterColumn side="left" isEmpty={leftCharacters.length === 0}>
-                    {leftCharacters.map((c) => (
-                      <Box key={c.id} sx={{ flex: useNaturalCardHeight ? '0 0 auto' : 1, width: '100%', minWidth: 0, display: 'flex' }}>
-                        <CharacterCard character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
+                    {leftCharacters.map((c, index) => (
+                      <Box key={sortableIds[index]} sx={{ flex: useNaturalCardHeight ? '0 0 auto' : 1, width: '100%', minWidth: 0, display: 'flex' }}>
+                        <CharacterCard sortableId={sortableIds[index]} character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
                           allJinx={script.jinx} onUpdate={onUpdateCharacter} onEdit={onEditCharacter}
                           onDelete={onDeleteCharacter} onReplace={onReplaceCharacter} readOnly={readOnly} />
                       </Box>
                     ))}
                   </CharacterColumn>
                   <CharacterColumn side="right" isEmpty={rightCharacters.length === 0}>
-                    {rightCharacters.map((c) => (
-                      <Box key={c.id} sx={{ flex: useNaturalCardHeight ? '0 0 auto' : 1, width: '100%', minWidth: 0, display: 'flex' }}>
-                        <CharacterCard character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
+                    {rightCharacters.map((c, index) => (
+                      <Box key={sortableIds[leftCount + index]} sx={{ flex: useNaturalCardHeight ? '0 0 auto' : 1, width: '100%', minWidth: 0, display: 'flex' }}>
+                        <CharacterCard sortableId={sortableIds[leftCount + index]} character={c} jinxInfo={script.jinx[c.name]} allCharacters={script.all}
                           allJinx={script.jinx} onUpdate={onUpdateCharacter} onEdit={onEditCharacter}
                           onDelete={onDeleteCharacter} onReplace={onReplaceCharacter} readOnly={readOnly} />
                       </Box>

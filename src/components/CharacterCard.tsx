@@ -16,6 +16,8 @@ import { alertSuccess, alertError } from '../utils/alert';
 
 interface CharacterCardProps {
   character: Character;
+  /** dnd-kit sortable id; falls back to character.id. Section-level ids are kept unique/truthy. */
+  sortableId?: string;
   jinxInfo?: Record<string, JinxInfo>;
   allCharacters?: Character[];
   allJinx?: Record<string, Record<string, JinxInfo>>;
@@ -52,7 +54,7 @@ function shouldShowFullText(
   return charA.id < charB.id;
 }
 
-const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, onUpdate, onEdit, onDelete, onReplace, readOnly = false, compact = false }: CharacterCardProps) => {
+const CharacterCard = observer(({ character, sortableId, jinxInfo, allCharacters, allJinx, onUpdate, onEdit, onDelete, onReplace, readOnly = false, compact = false }: CharacterCardProps) => {
   const COMPACT_SCALE = compact ? 0.47 : 1;
   const { t, language } = useTranslation();
 
@@ -218,7 +220,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, o
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: character.id });
+  } = useSortable({ id: sortableId ?? character.id, disabled: isReadOnly });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -394,7 +396,7 @@ const CharacterCard = observer(({ character, jinxInfo, allCharacters, allJinx, o
             backgroundColor: 'transparent',
             borderRadius: CONFIG.card.borderRadius,
 transition: 'background-color 0.2s, box-shadow 0.2s',
-            cursor: isDragging ? 'grabbing' : 'grab',
+            cursor: isReadOnly ? 'default' : isDragging ? 'grabbing' : 'grab',
             // Allow native vertical scrolling to win over drag on touch devices
             touchAction: 'pan-y',
             userSelect: 'none',
