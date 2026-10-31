@@ -704,7 +704,6 @@ const ScriptRenderer = observer(({
                         ref={page2ContainerRef}
                         elevation={0}
                         sx={{
-                            pt: compact ? 0 : 2,
                             flex: 1,
                             backgroundImage: compact ? 'none' : `url(${uiConfigStore.mainBackgroundUrl})`,
                             backgroundColor: compact ? '#EDE4D5' : 'transparent',
