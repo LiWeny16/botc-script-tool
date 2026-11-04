@@ -1,6 +1,8 @@
 export const cn = {
   'editCharacter': '编辑角色',
   'basicInfo': '基本信息',
+  'characterId': '角色 ID',
+  'characterIdHelper': '用于匹配官方角色数据（头像、夜晚顺序、相克）。留空表示没有 ID；改动等于给角色改名。',
   'characterName': '角色名称',
   'team': '阵营',
   'ability': '能力描述',
@@ -115,11 +117,16 @@ export const cn = {
   'jsonEditor': 'JSON 编辑',
   'jsonApply': '应用 JSON',
   'jsonInvalidObject': 'JSON 必须是对象',
+  'jsonIdEmpty': '角色 id 不能为空',
+  'jsonIdInvalid': '角色 id 只能包含字母、数字、下划线、冒号、点或连字符',
+  'jsonIdDuplicate': '这个 id 已经被剧本中的其他角色占用了',
 } as const;
 
 export const en = {
   'editCharacter': 'Edit Character',
   'basicInfo': 'Basic Information',
+  'characterId': 'Character ID',
+  'characterIdHelper': 'Used to match the official character data (image, night order, jinxes). Leave empty for no id; editing it renames the character.',
   'characterName': 'Character Name',
   'team': 'Team',
   'ability': 'Ability Description',
@@ -234,11 +241,16 @@ export const en = {
   'jsonEditor': 'JSON Editor',
   'jsonApply': 'Apply JSON',
   'jsonInvalidObject': 'JSON must be an object',
+  'jsonIdEmpty': 'Character id cannot be empty',
+  'jsonIdInvalid': 'Character id may only contain letters, digits, "_", ":", "." or "-"',
+  'jsonIdDuplicate': 'This id is already used by another character in the script',
 } as const;
 
 export const es: Partial<Record<keyof typeof cn, string>> = {
   'editCharacter': 'Editar personaje',
   'basicInfo': 'Información básica',
+  'characterId': 'ID del personaje',
+  'characterIdHelper': 'Se usa para emparejar los datos oficiales (imagen, orden nocturno, jinxes). Vacío = sin id; cambiarlo renombra el personaje.',
   'characterName': 'Nombre del personaje',
   'team': 'Bando',
   'ability': 'Descripción de la habilidad',
@@ -353,11 +365,16 @@ export const es: Partial<Record<keyof typeof cn, string>> = {
   'jsonEditor': 'Editor JSON',
   'jsonApply': 'Aplicar JSON',
   'jsonInvalidObject': 'JSON debe ser un objeto',
+  'jsonIdEmpty': 'El id del personaje no puede estar vacío',
+  'jsonIdInvalid': 'El id solo puede contener letras, números, "_", ":", "." o "-"',
+  'jsonIdDuplicate': 'Este id ya lo usa otro personaje del guion',
 };
 
 export const de = {
   'editCharacter': 'Charakter bearbeiten',
   'basicInfo': 'Grundinformationen',
+  'characterId': 'Charakter-ID',
+  'characterIdHelper': 'Wird für die offiziellen Charakterdaten (Bild, Nacht-Reihenfolge, Jinxe) verwendet. Leer = keine ID; Ändern benennt den Charakter um.',
   'characterName': 'Charaktername',
   'team': 'Team',
   'ability': 'Fähigkeit',
@@ -477,4 +494,7 @@ export const de = {
   'jsonEditor': 'JSON-Editor',
   'jsonApply': 'JSON anwenden',
   'jsonInvalidObject': 'JSON muss ein Objekt sein',
+  'jsonIdEmpty': 'Die Charakter-ID darf nicht leer sein',
+  'jsonIdInvalid': 'Die ID darf nur Buchstaben, Ziffern, "_", ":", "." oder "-" enthalten',
+  'jsonIdDuplicate': 'Diese ID wird bereits von einem anderen Charakter verwendet',
 } as const;

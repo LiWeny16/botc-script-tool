@@ -1,6 +1,7 @@
 import { makeAutoObservable } from 'mobx';
 import type { Script, Character, NightAction } from '../types';
 import { isSameCharacter } from '../data/utils/characterIdMapping';
+import { findCharacterIndex, hasCharacterId, jsonEntryIds, matchesCharacterId } from '../data/utils/characterIdentity';
 import { configStore } from './ConfigStore';
 import { loadCachedScriptData, safeJsonParse, saveCachedScriptData } from '../utils/jsonSafety';
 import { deepStripHtml } from '../utils/richTextEditorUtils';
@@ -263,14 +264,20 @@ class ScriptStore {
   }
 
   // Update character info
-  updateCharacter(characterId: string, updates: Partial<Character>) {
+  updateCharacter(characterId: string, updates: Partial<Character>, targetHint?: Character | null) {
     if (!this.script) return;
+
+    // The id is the identity key for everything else (official dictionary lookup,
+    // drag & drop, jinx/night-order matching, JSON round-trip). A rename is allowed,
+    // but an empty id or a collision would make every later lookup ambiguous, so such
+    // a change is dropped while the rest of the edit is still applied.
+    const effectiveUpdates = this.sanitizeCharacterIdChange(characterId, updates);
 
     console.log('ScriptStore.updateCharacter called:', {
       characterId,
-      updates,
-      hasReminders: 'reminders' in updates,
-      remindersValue: updates.reminders,
+      updates: effectiveUpdates,
+      hasReminders: 'reminders' in effectiveUpdates,
+      remindersValue: effectiveUpdates.reminders,
     });
 
     // Create new script object to avoid directly modifying observable
@@ -279,9 +286,12 @@ class ScriptStore {
     let targetCharacter: Character | null = null;
     let foundTeam: string | null = null;
 
-    // Find the character to update (should only exist in one team)
+    // Find the character to update (should only exist in one team).
+    // `findCharacterIndex` matches the live object first, then the exact id, then the
+    // normalized id, and never falls back to `undefined === undefined`.
     for (const team of Object.keys(updatedScript.characters)) {
-      const charIndex = updatedScript.characters[team].findIndex(c => isSameCharacter(c.id, characterId));
+      const teamCharacters = updatedScript.characters[team];
+      const charIndex = findCharacterIndex(teamCharacters, targetHint ?? characterId);
       if (charIndex !== -1) {
         if (targetCharacter) {
           // If a character was already found, duplicate ID detected — this is a problem
@@ -295,11 +305,11 @@ class ScriptStore {
         // Create updated character
         const updatedCharacter = {
           ...targetCharacter,
-          ...updates,
+          ...effectiveUpdates,
         };
 
         // Check if character needs to move to a different team
-        if (updates.team && updates.team !== team) {
+        if (effectiveUpdates.team && effectiveUpdates.team !== team) {
           // Remove from original team
           updatedScript.characters = {
             ...updatedScript.characters,
@@ -313,12 +323,12 @@ class ScriptStore {
           }
 
           // Add to new team
-          if (!updatedScript.characters[updates.team]) {
-            updatedScript.characters[updates.team] = [];
+          if (!updatedScript.characters[effectiveUpdates.team]) {
+            updatedScript.characters[effectiveUpdates.team] = [];
           }
           updatedScript.characters = {
             ...updatedScript.characters,
-            [updates.team]: [...updatedScript.characters[updates.team], updatedCharacter]
+            [effectiveUpdates.team]: [...updatedScript.characters[effectiveUpdates.team], updatedCharacter]
           };
         } else {
           // Update within the same team
@@ -337,12 +347,12 @@ class ScriptStore {
 
     // Update character in all array
     if (targetCharacter && updated) {
-      const allIndex = updatedScript.all.findIndex(c => isSameCharacter(c.id, characterId));
+      const allIndex = findCharacterIndex(updatedScript.all, targetHint ?? characterId);
       if (allIndex !== -1) {
         updatedScript.all = [...updatedScript.all];
         updatedScript.all[allIndex] = {
           ...targetCharacter,
-          ...updates,
+          ...effectiveUpdates,
         };
       }
     }
@@ -354,10 +364,46 @@ class ScriptStore {
         updatedCharacter: updatedScript.all.find(c => isSameCharacter(c.id, characterId)),
       });
       // Use the new precise update method
-      this.updateCharacterInJson(characterId, updates);
+      this.updateCharacterInJson(characterId, effectiveUpdates, targetCharacter);
     } else {
       console.log('Character to update not found:', characterId);
     }
+  }
+
+  /**
+   * Predicate for "this entry is the character the user acted on".
+   * With an id: exact/normalized id match (covers duplicated + known id aliases).
+   * Without an id: object reference, then the unique (name, team) pair — because
+   * `undefined === undefined` would otherwise match every id-less character at once.
+   */
+  private isSameCharacterEntry(candidate: Character, character: Character): boolean {
+    if (hasCharacterId(character.id)) return matchesCharacterId(candidate.id, character.id);
+    return candidate === character ||
+      (candidate.name === character.name && candidate.team === character.team);
+  }
+
+  /**
+   * Validates a requested character-id change (rename). Returns updates without `id`
+   * when the new id is empty, malformed, or already taken by another character.
+   */
+  private sanitizeCharacterIdChange(characterId: string, updates: Partial<Character>): Partial<Character> {
+    if (updates.id === undefined) return updates;
+
+    const requested = typeof updates.id === 'string' ? updates.id.trim() : '';
+    const { id: _ignoredId, ...rest } = updates;
+
+    if (requested === characterId) return rest;
+
+    const others = (this.script?.all ?? []).filter(c => c.id !== characterId);
+    const collides = !requested || !/^[\w:.-]+$/.test(requested) ||
+      others.some(c => String(c.id) === requested || isSameCharacter(String(c.id), requested));
+
+    if (collides) {
+      console.warn('Rejected character id change:', { from: characterId, to: updates.id });
+      return rest;
+    }
+
+    return { ...rest, id: requested };
   }
 
   // Update night order icon (NIGHT / MINION INFO / DEMON INFO) index directly.
@@ -400,22 +446,28 @@ class ScriptStore {
     }
   }
 
-  // Reorder characters
-  reorderCharacters(team: string, newOrder: string[], columnLeftCount?: number) {
+  /**
+   * Reorder one team from the ordered character objects.
+   *
+   * Taking the live objects (instead of ids) keeps the operation exact for characters
+   * that have no id or share a duplicated/normalized id: ids cannot distinguish them,
+   * so routing the new order through ids used to swap or drop the wrong card.
+   */
+  reorderCharacters(team: string, newOrder: readonly Character[], columnLeftCount?: number) {
     if (!this.script) return;
 
     const teamCharacters = this.script.characters[team] || [];
-    // Match exact ids first, then fall back to normalized ids (fang_gu <-> fanggu).
-    // Consume each character once so duplicate/normalized ids can't clone or drop entries.
+    if (newOrder.length !== teamCharacters.length) return;
+
     const pool = [...teamCharacters];
     const reorderedTeamCharacters: Character[] = [];
-    for (const id of newOrder) {
-      let index = pool.findIndex(c => c.id === id);
-      if (index === -1) index = pool.findIndex(c => isSameCharacter(c.id, id));
-      if (index === -1) return; // unknown id — leave the script untouched
+    for (const character of newOrder) {
+      let index = pool.indexOf(character);
+      if (index === -1) index = findCharacterIndex(pool, character?.id);
+      if (index === -1) return; // unknown character — leave the script untouched
       reorderedTeamCharacters.push(pool.splice(index, 1)[0]);
     }
-    if (reorderedTeamCharacters.length !== teamCharacters.length) return;
+    if (pool.length > 0) return;
 
     const updatedScript: Script = {
       ...this.script,
@@ -449,8 +501,7 @@ class ScriptStore {
 
     this.setScript(updatedScript);
     // Use the new reorder method (preserves original format)
-    const allIds = updatedScript.all.map(c => c.id);
-    this.reorderCharactersInJson(allIds, updatedScript.columnLeftCount);
+    this.reorderCharactersInJson(updatedScript.all, updatedScript.columnLeftCount);
   }
 
   // Set per-team left column character count for asymmetric 2-col layout
@@ -478,8 +529,9 @@ class ScriptStore {
 
     const updatedScript = { ...this.script };
 
-    // Check if character already exists
-    const exists = updatedScript.all.some(c => isSameCharacter(c.id, character.id));
+    // Check if character already exists (an id-less character is never a duplicate)
+    const exists = hasCharacterId(character.id) &&
+      updatedScript.all.some(c => matchesCharacterId(c.id, character.id));
     if (exists) {
       return false; // Return false to indicate character already exists
     }
@@ -512,7 +564,7 @@ class ScriptStore {
     if (updatedScript.characters[character.team]) {
       updatedScript.characters = {
         ...updatedScript.characters,
-        [character.team]: updatedScript.characters[character.team].filter(c => !isSameCharacter(c.id, character.id))
+        [character.team]: updatedScript.characters[character.team].filter(c => !this.isSameCharacterEntry(c, character))
       };
 
       // If team is empty, delete the team
@@ -523,11 +575,11 @@ class ScriptStore {
     }
 
     // Remove from all array
-    updatedScript.all = updatedScript.all.filter(c => !isSameCharacter(c.id, character.id));
+    updatedScript.all = updatedScript.all.filter(c => !this.isSameCharacterEntry(c, character));
 
     this.setScript(updatedScript);
     // Use the new precise delete method
-    this.removeCharacterFromJson(character.id);
+    this.removeCharacterFromJson(character);
   }
 
   // Replace character (preserving original position)
@@ -536,16 +588,17 @@ class ScriptStore {
 
     const updatedScript = { ...this.script };
     
-    // Check if new character already exists (unless it's the one being replaced)
-    const exists = updatedScript.all.some(
-      c => isSameCharacter(c.id, newCharacter.id) && !isSameCharacter(c.id, oldCharacter.id),
+    // Check if new character already exists (unless it's the one being replaced).
+    // A character without an id can never collide.
+    const exists = hasCharacterId(newCharacter.id) && updatedScript.all.some(
+      c => matchesCharacterId(c.id, newCharacter.id) && !this.isSameCharacterEntry(c, oldCharacter),
     );
     if (exists) {
       return false; // Return false to indicate new character already exists
     }
 
     // Find old character's index in all array
-    const allIndex = updatedScript.all.findIndex(c => isSameCharacter(c.id, oldCharacter.id));
+    const allIndex = findCharacterIndex(updatedScript.all, oldCharacter);
     if (allIndex === -1) {
       return false; // Old character does not exist
     }
@@ -557,14 +610,12 @@ class ScriptStore {
     // Process team arrays
     // 1. Remove old character from old team
     if (updatedScript.characters[oldCharacter.team]) {
-      const oldTeamIndex = updatedScript.characters[oldCharacter.team].findIndex(c =>
-        isSameCharacter(c.id, oldCharacter.id),
-      );
+      const oldTeamIndex = findCharacterIndex(updatedScript.characters[oldCharacter.team], oldCharacter);
       if (oldTeamIndex !== -1) {
         updatedScript.characters = {
           ...updatedScript.characters,
           [oldCharacter.team]: updatedScript.characters[oldCharacter.team].filter(
-            c => !isSameCharacter(c.id, oldCharacter.id),
+            c => !this.isSameCharacterEntry(c, oldCharacter),
           ),
         };
         
@@ -587,7 +638,7 @@ class ScriptStore {
 
     this.setScript(updatedScript);
     // Use the new precise replace method
-    this.replaceCharacterInJson(oldCharacter.id, newCharacter);
+    this.replaceCharacterInJson(oldCharacter, newCharacter);
     return true; // Return true to indicate replace succeeded
   }
 
@@ -1521,34 +1572,45 @@ class ScriptStore {
   // ===== New precise JSON update methods =====
 
   // Update a single character's JSON (only modify that character, preserving original format)
-  private updateCharacterInJson(characterId: string, updates: Partial<Character>) {
+  private updateCharacterInJson(characterId: string, updates: Partial<Character>, targetCharacter?: Character | null) {
     console.log('updateCharacterInJson:', { characterId, updates });
     try {
       const jsonArray = this.safeParseOriginalJsonArray();
       
       let updated = false;
+      let matchedIdlessItem = false;
       const newJsonArray = jsonArray.map((item: any) => {
-        const itemObj = typeof item === 'string' ? { id: item } : item;
-        
+        const itemObj = typeof item === 'string' ? { id: item } : (item || {});
+        const itemId = itemObj.id;
+        const hasItemId = hasCharacterId(itemId);
+
+        const matchesById = matchesCharacterId(itemId, characterId);
+        // A JSON entry with no id can still be the edited character: claim the first
+        // one whose name matches, so giving an id-less character an id round-trips.
+        const matchesIdlessByName = !hasItemId && !hasCharacterId(characterId) && !matchedIdlessItem &&
+          !!targetCharacter?.name && itemObj.name === targetCharacter.name;
+
         if (
-          isSameCharacter(String(itemObj.id), characterId) &&
-          itemObj.id !== '_meta' &&
+          (matchesById || matchesIdlessByName) &&
+          itemId !== '_meta' &&
           itemObj.team !== 'a jinxed' &&
           itemObj.team !== 'special_rule'
         ) {
           updated = true;
+          if (!hasItemId) matchedIdlessItem = true;
           
           // If simple format (only ID string)
           if (typeof item === 'string') {
-            // In official ID mode, keep simple format (don't save custom info to JSON)
+            // In official ID mode, keep simple format (don't save custom info to JSON),
+            // but a rename still has to be written back.
             if (configStore.config.officialIdParseMode) {
               // Official ID mode: keep simple format, don't modify JSON
               console.log('Official ID mode: keeping simple format, not saving custom data to JSON');
-              return item;
+              return updates.id ? updates.id : item;
             } else {
               // Normal mode: upgrade to full format, preserving all character fields (avoid losing name/ability/team)
               console.log('Normal mode: upgrading to full format, adding custom fields');
-              const fullCharacter = this.script?.all.find(c => isSameCharacter(c.id, characterId));
+              const fullCharacter = targetCharacter ?? this.script?.all.find(c => isSameCharacter(c.id, characterId));
               const base = fullCharacter
                 ? { id: characterId, name: fullCharacter.name, ability: fullCharacter.ability, team: fullCharacter.team, image: fullCharacter.image }
                 : { id: characterId };
@@ -1605,10 +1667,10 @@ class ScriptStore {
     try {
       const jsonArray = this.safeParseOriginalJsonArray();
 
-      // Check if already exists
-      const exists = jsonArray.some((item: any) => {
-        const id = typeof item === 'string' ? item : item.id;
-        return id === character.id;
+      // Check if already exists (a character without an id can never collide)
+      const exists = hasCharacterId(character.id) && jsonArray.some((item: any) => {
+        const id = typeof item === 'string' ? item : (item || {}).id;
+        return matchesCharacterId(id, character.id);
       });
 
       if (exists) {
@@ -1628,8 +1690,8 @@ class ScriptStore {
         }
       }
       
-      // Official ID mode: only add ID
-      if (configStore.config.officialIdParseMode) {
+      // Official ID mode: only add ID (a character without one needs the object form)
+      if (configStore.config.officialIdParseMode && hasCharacterId(character.id)) {
         jsonArray.splice(insertIndex, 0, character.id);
       } else {
         // Normal mode: add full info
@@ -1661,14 +1723,25 @@ class ScriptStore {
   }
 
   // Remove character from JSON
-  private removeCharacterFromJson(characterId: string) {
-    console.log('removeCharacterFromJson:', characterId);
+  private removeCharacterFromJson(character: Character) {
+    console.log('removeCharacterFromJson:', character.id);
     try {
       const jsonArray = this.safeParseOriginalJsonArray();
-      
+      const hasId = hasCharacterId(character.id);
+      let removedOnce = false;
+
       const newJsonArray = jsonArray.filter((item: any) => {
-        const id = typeof item === 'string' ? item : item.id;
-        return id !== characterId;
+        const itemObj = typeof item === 'string' ? { id: item } : (item || {});
+
+        if (hasId) return !matchesCharacterId(itemObj.id, character.id);
+
+        // No id to match on: remove exactly one entry — the one with the same name.
+        if (removedOnce) return true;
+        if (character.name && itemObj.name === character.name) {
+          removedOnce = true;
+          return false;
+        }
+        return true;
       });
       
       this.setOriginalJson(JSON.stringify(newJsonArray, null, 2));
@@ -1679,18 +1752,20 @@ class ScriptStore {
   }
   
   // Replace character in JSON (preserving format and position)
-  private replaceCharacterInJson(oldId: string, newCharacter: Character) {
-    console.log('replaceCharacterInJson:', { oldId, newId: newCharacter.id });
+  private replaceCharacterInJson(oldCharacter: Character, newCharacter: Character) {
+    console.log('replaceCharacterInJson:', { oldId: oldCharacter.id, newId: newCharacter.id });
     try {
       const jsonArray = this.safeParseOriginalJsonArray();
 
-      const index = jsonArray.findIndex((item: any) => {
-        const id = typeof item === 'string' ? item : item.id;
-        return id === oldId;
-      });
+      const entryIds = jsonEntryIds(jsonArray);
+      let index = findCharacterIndex(entryIds, oldCharacter);
+      const matchedById = index !== -1;
+      if (!matchedById && !hasCharacterId(oldCharacter.id)) {
+        index = jsonArray.findIndex((item: any) => (item || {}).name === oldCharacter.name);
+      }
 
       if (index === -1) {
-        console.warn('Character to replace not found:', oldId);
+        console.warn('Character to replace not found:', oldCharacter.id);
         return;
       }
       
@@ -1698,7 +1773,7 @@ class ScriptStore {
       const wasSimple = typeof oldItem === 'string';
       
       // Official ID mode and original was simple format: keep simple format
-      if (wasSimple && configStore.config.officialIdParseMode) {
+      if (wasSimple && configStore.config.officialIdParseMode && hasCharacterId(newCharacter.id)) {
         jsonArray[index] = newCharacter.id;
       } else {
         // Otherwise use full format
@@ -1730,19 +1805,21 @@ class ScriptStore {
   }
 
   // Reorder characters (preserving original format, only changing order)
-  private reorderCharactersInJson(newOrder: string[], columnLeftCount?: Record<string, number>) {
-    console.log('reorderCharactersInJson:', newOrder);
+  private reorderCharactersInJson(orderedCharacters: readonly Character[], columnLeftCount?: Record<string, number>) {
+    console.log('reorderCharactersInJson:', orderedCharacters.map(c => c.id));
     try {
       const jsonArray = this.safeParseOriginalJsonArray();
       
-      // Categorize: meta, characters, jinxed, special_rule
+      // Categorize: meta, characters, jinxed, special_rule.
+      // Character entries stay a list (not a Map keyed by id) so entries without an id,
+      // or with the same id, can never collapse into each other.
       let metaItem: any = null;
-      const characterItems = new Map<string, any>();
+      const characterItems: any[] = [];
       const jinxedItems: any[] = [];
       const specialRuleItems: any[] = [];
       
       jsonArray.forEach((item: any) => {
-        const itemObj = typeof item === 'string' ? { id: item } : item;
+        const itemObj = typeof item === 'string' ? { id: item } : (item || {});
         
         if (itemObj.id === '_meta') {
           metaItem = item;
@@ -1751,7 +1828,7 @@ class ScriptStore {
         } else if (itemObj.team === 'special_rule') {
           specialRuleItems.push(item);
         } else {
-          characterItems.set(itemObj.id, item); // Preserve original format
+          characterItems.push(item); // Preserve original format
         }
       });
       
@@ -1776,13 +1853,46 @@ class ScriptStore {
       }
 
       if (metaItem) newJsonArray.push(metaItem);
-      
-      newOrder.forEach(id => {
-        if (characterItems.has(id)) {
-          newJsonArray.push(characterItems.get(id));
+
+      // Match entries one by one: exact id -> normalized id -> (for characters without an
+      // id) the same name -> any remaining entry. Each entry is used at most once and
+      // nothing is ever dropped, so reordering can't lose a hand-written character.
+      const entryIds = jsonEntryIds(characterItems);
+      const used = new Set<number>();
+      const orderedItems: any[] = [];
+
+      const take = (index: number) => {
+        if (index === -1 || used.has(index)) return false;
+        used.add(index);
+        orderedItems.push(characterItems[index]);
+        return true;
+      };
+
+      for (const character of orderedCharacters) {
+        const byIdentity = findCharacterIndex(
+          entryIds.map((entry, index) => (used.has(index) ? { id: undefined } : entry)),
+          character,
+        );
+        if (take(byIdentity)) continue;
+
+        if (!hasCharacterId(character.id)) {
+          const byName = characterItems.findIndex((item: any, index) => {
+            if (used.has(index)) return false;
+            const itemObj = typeof item === 'string' ? { id: item } : (item || {});
+            return itemObj.name === character.name;
+          });
+          if (take(byName)) continue;
         }
+
+        // Never drop an entry: fall back to the next unmatched character entry.
+        take(characterItems.findIndex((_item, index) => !used.has(index)));
+      }
+
+      characterItems.forEach((item, index) => {
+        if (!used.has(index)) orderedItems.push(item);
       });
-      
+
+      newJsonArray.push(...orderedItems);
       newJsonArray.push(...jinxedItems);
       newJsonArray.push(...specialRuleItems);
       

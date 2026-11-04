@@ -18,6 +18,7 @@ import {
   getJinx,
 } from '../data';
 import { THEME_COLORS } from '../theme/colors';
+import { hasCharacterId } from '../data/utils/characterIdentity';
 import { isSameCharacter, normalizeCharacterId } from '../data/utils/characterIdMapping';
 import { configStore } from '../stores/ConfigStore';
 import type { Language } from './languages';
@@ -429,8 +430,11 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
 
     // Process all characters (including unknown team types)
     if (character.team) {
-      // Check if a character with the same ID already exists
-      const existsInAll = script.all.some(c => c.id === character.id);
+      // Check if a character with the same ID already exists.
+      // An empty id is not an identity: several hand-written custom characters may have
+      // none, and treating them as duplicates silently deleted all but the first.
+      const characterHasId = hasCharacterId(character.id);
+      const existsInAll = characterHasId && script.all.some(c => c.id === character.id);
       if (existsInAll) {
         console.warn(`Skipping duplicate character ID: ${character.id}`);
         continue;
@@ -442,7 +446,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       }
 
       // Check if a character with the same ID already exists in this team
-      const existsInTeam = script.characters[character.team].some(c => c.id === character.id);
+      const existsInTeam = characterHasId && script.characters[character.team].some(c => c.id === character.id);
       if (existsInTeam) {
         console.warn(`Skipping duplicate character ID: ${character.id} in team ${character.team}`);
         continue;

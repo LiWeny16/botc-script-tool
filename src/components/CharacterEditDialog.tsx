@@ -45,18 +45,20 @@ import { useTranslation } from '../utils/i18n';
 import CharacterImage from './CharacterImage';
 import MarkdownEditor from './MarkdownEditor';
 import MarkdownRenderer from './MarkdownRenderer';
+import JsonEditor from './JsonEditor';
 import { configStore } from '../stores/ConfigStore';
 import { scriptStore } from '../stores/ScriptStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import { observer } from 'mobx-react-lite';
 import type { JinxInfo } from '../types';
 import { getTeamColor } from '../theme/colors';
+import { isSameCharacter } from '../data/utils/characterIdMapping';
 
 interface CharacterEditDialogProps {
   open: boolean;
   character: Character | null;
   onClose: () => void;
-  onSave: (characterId: string, updates: Partial<Character>) => void;
+  onSave: (characterId: string, updates: Partial<Character>, target?: Character | null) => void;
   onJinxVersionChange?: () => void;
 }
 
@@ -97,6 +99,7 @@ export default observer(function CharacterEditDialog({
   const [jsonText, setJsonText] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
   const [isJsonDirty, setIsJsonDirty] = useState(false);
+  const [jsonSyntaxError, setJsonSyntaxError] = useState(false);
 
   const handleChange = (field: keyof Character, value: any) => {
     setEditData(prev => ({
@@ -209,15 +212,41 @@ export default observer(function CharacterEditDialog({
         setJsonError(t('jsonInvalidObject'));
         return;
       }
+
+      // `id` is the identity key (official dictionary lookup, drag & drop, JSON round-trip),
+      // so a rename is supported here — but validated instead of being silently dropped.
+      const rawId = (parsed as Record<string, unknown>).id;
+      const nextId = typeof rawId === 'string' ? rawId.trim() : rawId === undefined ? undefined : '';
+      if (nextId !== undefined && nextId !== character?.id) {
+        if (!nextId) {
+          setJsonError(t('jsonIdEmpty'));
+          return;
+        }
+        if (!/^[\w:.-]+$/.test(nextId)) {
+          setJsonError(t('jsonIdInvalid'));
+          return;
+        }
+        const clashes = scriptStore.script?.all.some(c =>
+          c.id !== character?.id &&
+          (String(c.id) === nextId || isSameCharacter(String(c.id), nextId)),
+        );
+        if (clashes) {
+          setJsonError(t('jsonIdDuplicate'));
+          return;
+        }
+      }
+
       const editableFields: (keyof Character)[] = [
-        'name', 'ability', 'team', 'teamColor', 'image',
+        'id', 'name', 'ability', 'team', 'teamColor', 'image',
         'firstNight', 'otherNight', 'firstNightReminder', 'otherNightReminder',
         'reminders', 'remindersGlobal', 'setup', 'author',
       ];
       const updates: Partial<Character> = {};
       for (const field of editableFields) {
         if (field in parsed) {
-          (updates as Record<string, unknown>)[field] = (parsed as Record<string, unknown>)[field];
+          (updates as Record<string, unknown>)[field] = field === 'id'
+            ? (nextId ?? (parsed as Record<string, unknown>)[field])
+            : (parsed as Record<string, unknown>)[field];
         }
       }
       setEditData(prev => ({ ...prev, ...updates }));
@@ -366,7 +395,8 @@ export default observer(function CharacterEditDialog({
 
       // 如果有任何更改，则保存
       if (Object.keys(updates).length > 0) {
-        onSave(character.id, updates);
+        // Pass the live object so an id-less character can be located without an id.
+        onSave(character.id, updates, character);
       }
       onClose();
     }
@@ -383,6 +413,21 @@ export default observer(function CharacterEditDialog({
     { value: 'loric', label: t('loric') },
     { value: 'traveler', label: t('traveler') },
   ];
+
+  // The id is the identity key used by the official dictionary, drag & drop and the JSON
+  // round-trip, so it is validated here instead of being allowed to corrupt the script.
+  const idDraft = String(editData.id ?? character.id ?? '').trim();
+  const idError = (() => {
+    if (!idDraft) return character.id ? t('jsonIdEmpty') : null;
+    if (!/^[\w:.-]+$/.test(idDraft)) return t('jsonIdInvalid');
+    const isSelf = (candidate: Character) =>
+      candidate === character ||
+      (!!character.id && isSameCharacter(String(candidate.id), String(character.id)));
+    const taken = scriptStore.script?.all.some(candidate =>
+      !isSelf(candidate) && (String(candidate.id) === idDraft || isSameCharacter(String(candidate.id), idDraft)),
+    );
+    return taken ? t('jsonIdDuplicate') : null;
+  })();
 
   const displayName = editData.name || character.name;
   const displayImage = editData.image || character.image || '';
@@ -736,6 +781,20 @@ export default observer(function CharacterEditDialog({
                       </Select>
                     </FormControl>
                   </Box>
+                </Box>
+                <Box>
+                  <Typography sx={formLabelSx}>{t('characterId')}</Typography>
+                  <TextField
+                    fullWidth
+                    value={editData.id ?? character.id ?? ''}
+                    onChange={(e) => handleChange('id', e.target.value)}
+                    disabled={isEditDisabled}
+                    size="small"
+                    error={!!idError}
+                    helperText={idError || t('characterIdHelper')}
+                    sx={fieldSx}
+                    slotProps={{ htmlInput: { 'aria-label': t('characterId') } }}
+                  />
                 </Box>
                 <Box>
                   <MarkdownEditor
@@ -1316,34 +1375,28 @@ export default observer(function CharacterEditDialog({
               }}
             >
               <Typography sx={{ ...sectionTitleSx, mb: 1.5 }}>{t('jsonEditor')}</Typography>
-              <TextField
-                fullWidth
-                multiline
-                minRows={8}
-                maxRows={16}
+              <JsonEditor
                 value={jsonText}
-                onChange={(e) => {
-                  setJsonText(e.target.value);
+                onChange={(next) => {
+                  setJsonText(next);
                   setIsJsonDirty(true);
                   setJsonError(null);
                 }}
-                error={!!jsonError}
-                helperText={jsonError}
                 disabled={isEditDisabled}
-                sx={{
-                  ...fieldSx,
-                  '& .MuiInputBase-input': {
-                    fontFamily: '"Cascadia Code", "Fira Code", "JetBrains Mono", "SF Mono", Menlo, monospace',
-                    fontSize: 12,
-                    lineHeight: 1.65,
-                  },
-                }}
+                ariaLabel={t('jsonEditor')}
+                minHeight={180}
+                maxHeight={320}
+                accentColor={teamColor}
+                onChangeValidity={(failure) => setJsonSyntaxError(!!failure)}
               />
+              {jsonError && (
+                <Typography sx={{ mt: 0.75, fontSize: 11.5, color: '#b3261e' }}>{jsonError}</Typography>
+              )}
               <Button
                 variant="contained"
                 size="small"
                 onClick={handleJsonApply}
-                disabled={!isJsonDirty || isEditDisabled}
+                disabled={!isJsonDirty || isEditDisabled || jsonSyntaxError}
                 sx={{
                   mt: 1.5,
                   borderRadius: 1.5,
@@ -1378,7 +1431,7 @@ export default observer(function CharacterEditDialog({
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={isEditDisabled}
+          disabled={isEditDisabled || !!idError}
           sx={{
             borderRadius: 1.5,
             px: 2.5,

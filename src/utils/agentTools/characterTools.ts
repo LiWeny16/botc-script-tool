@@ -274,7 +274,17 @@ export const reorderCharacters = tool({
     const extra = teamChars.filter(c => !character_ids.find(id => isSameCharacter(c.id, id)));
     if (extra.length > 0) return { error: `Missing character IDs from list: ${extra.map(c => `${c.name}(${c.id})`).join(', ')}` };
 
-    scriptStore.reorderCharacters(team, character_ids);
+    // Resolve ids to the live character objects (the store reorders by identity, which
+    // keeps characters without an id — or with duplicated ids — in the right slots).
+    const ordered: typeof teamChars = [];
+    const pool = [...teamChars];
+    for (const id of character_ids) {
+      let index = pool.findIndex(c => c.id === id);
+      if (index === -1) index = pool.findIndex(c => isSameCharacter(c.id, id));
+      if (index === -1) return { error: `IDs not in team ${team}: ${id}` };
+      ordered.push(pool.splice(index, 1)[0]);
+    }
+    scriptStore.reorderCharacters(team, ordered);
     const newOrder = scriptStore.script?.characters[team].map(c => c.name);
     return { team, newOrder, message: `Reordered ${team}: ${newOrder?.join(', ')}` };
   },

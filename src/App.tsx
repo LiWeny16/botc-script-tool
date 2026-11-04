@@ -470,13 +470,13 @@ const App = observer(() => {
   }, [language, originalJson, customTitle, customAuthor, isInitialized]);
 
   // Update character order and sync to JSON
-  const handleReorderCharacters = (team: string, newOrder: string[], columnLeftCount?: number) => {
+  const handleReorderCharacters = (team: string, newOrder: Character[], columnLeftCount?: number) => {
     scriptStore.reorderCharacters(team, newOrder, columnLeftCount);
   };
 
   // Update character info and sync to JSON
-  const handleUpdateCharacter = useCallback((characterId: string, updates: Partial<Character>) => {
-    scriptStore.updateCharacter(characterId, updates);
+  const handleUpdateCharacter = useCallback((characterId: string, updates: Partial<Character>, target?: Character | null) => {
+    scriptStore.updateCharacter(characterId, updates, target);
   }, []);
 
   // Handle editing character

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -47,6 +47,8 @@ import { authStore } from '../stores/AuthStore';
 import IOSSwitch from './IOSSwitch';
 import UploadJsonDialog from './UploadJsonDialog';
 import FileSyncBanner from './FileSyncBanner';
+import JsonEditor from './JsonEditor';
+import { analyzeJsonCharacterIds } from '../data/utils/characterIdentity';
 
 interface InputPanelProps {
   onGenerate: (json: string, title?: string, author?: string) => void;
@@ -68,6 +70,22 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [jsonInput, setJsonInput] = useState('');
+
+  /**
+   * Identity problems in the JSON currently being edited (duplicated / missing ids).
+   * Generation silently drops duplicates, so the warning must show up before that.
+   */
+  const idIssues = useMemo(() => {
+    if (!jsonInput.trim()) return null;
+    try {
+      const parsed = JSON.parse(jsonInput);
+      if (!Array.isArray(parsed)) return null;
+      const issues = analyzeJsonCharacterIds(parsed);
+      return issues.duplicates.length > 0 || issues.missing.length > 0 ? issues : null;
+    } catch {
+      return null;
+    }
+  }, [jsonInput]);
   const [titleInput, setTitleInput] = useState('');
   const [authorInput, setAuthorInput] = useState('');
   const [error, setError] = useState('');
@@ -689,28 +707,16 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
 
         {/* JSON 输入框 */}
         <Box sx={{ position: 'relative' }}>
-          <TextField
-            multiline
-            fullWidth
-            label={t('input.jsonLabel')}
-            placeholder={t('input.jsonPlaceholder')}
+          <Typography sx={{ fontSize: 12.5, fontWeight: 700, color: 'rgba(16,24,40,0.6)', mb: 0.75 }}>
+            {t('input.jsonLabel')}
+          </Typography>
+          <JsonEditor
             value={jsonInput}
-            onChange={(e) => handleJsonInputChange(e.target.value)}
-            variant="outlined"
-            sx={{
-              '& .MuiOutlinedInput-root': {
-                fontFamily: 'monospace',
-                fontSize: { xs: '0.8rem', sm: '0.9rem' },
-                height: `${textareaHeight}px`,
-                alignItems: 'flex-start',
-                borderTopLeftRadius: fileSyncEnabled ? 0 : 1,
-                borderTopRightRadius: fileSyncEnabled ? 0 : 1,
-              },
-              '& .MuiInputBase-input': {
-                height: '100% !important',
-                overflow: 'auto !important',
-              },
-            }}
+            onChange={handleJsonInputChange}
+            ariaLabel={t('input.jsonLabel')}
+            placeholder={t('input.jsonPlaceholder')}
+            minHeight={textareaHeight}
+            maxHeight={textareaHeight}
           />
           {/* 拖动手柄 */}
           <Box
@@ -749,6 +755,33 @@ const InputPanel = observer(({ onGenerate, onExportPDF, onExportImage, onExportJ
         {(error || jsonParseError) && (
           <Alert severity="error" onClose={() => setError('')}>
             {error || jsonParseError}
+          </Alert>
+        )}
+
+        {/* 角色 id 身份问题提醒（重复 / 缺失） */}
+        {idIssues && (idIssues.duplicates.length > 0 || idIssues.missing.length > 0) && (
+          <Alert severity="warning">
+            <Typography sx={{ fontWeight: 700, fontSize: 13.5 }}>{t('jsonIssueTitle')}</Typography>
+            {idIssues.duplicates.length > 0 && (
+              <Box sx={{ mt: 0.5 }}>
+                <Typography sx={{ fontSize: 12.5 }}>
+                  {t('jsonIssueDuplicate').replace('{ids}', idIssues.duplicates.map((d: { id: string }) => `"${d.id}"`).join('、'))}
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>{t('jsonIssueDuplicateHint')}</Typography>
+              </Box>
+            )}
+            {idIssues.missing.length > 0 && (
+              <Box sx={{ mt: 0.5 }}>
+                <Typography sx={{ fontSize: 12.5 }}>
+                  {t('jsonIssueMissing').replace(
+                    '{names}',
+                    idIssues.missing.slice(0, 6).map((m: { name: string }) => m.name).join('、') +
+                      (idIssues.missing.length > 6 ? ` 等 ${idIssues.missing.length} 个` : ''),
+                  )}
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: 'text.secondary' }}>{t('jsonIssueMissingHint')}</Typography>
+              </Box>
+            )}
           </Alert>
         )}
 

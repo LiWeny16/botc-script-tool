@@ -9,6 +9,7 @@ import { useTranslation } from '../utils/i18n';
 import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import CharacterCard from './CharacterCard';
+import { useDragAutoScroll } from '../hooks/useDragAutoScroll';
 import {
   DndContext,
   closestCorners,
@@ -34,7 +35,7 @@ interface CharacterSectionProps {
   team: string;
   characters: Character[];
   script: Script;
-  onReorder: (team: string, newOrder: string[], columnLeftCount?: number) => void;
+  onReorder: (team: string, newOrder: Character[], columnLeftCount?: number) => void;
   onUpdateCharacter?: (characterId: string, updates: Partial<Character>) => void;
   onEditCharacter?: (character: Character) => void;
   onDeleteCharacter?: (character: Character) => void;
@@ -189,6 +190,10 @@ const CharacterSection = observer(({
     ? Math.max(0, Math.min(characters.length, rawLeft))
     : Math.ceil(characters.length / 2);
   const [isDraggingSection, setIsDraggingSection] = useState(false);
+  // dnd-kit's own autoscroller scrolls the page to the very top when the pointer
+  // passes the top ~20% of the window, and can keep scrolling after the drop.
+  // It is disabled below in favour of this bounded, self-terminating controller.
+  const dragAutoScroll = useDragAutoScroll();
   const useNaturalCardHeight = hasManualColumnLayout;
   const leftBreakZoneId = `${team}__left_break_zone`;
   const rightBreakZoneId = `${team}__right_break_zone`;
@@ -212,6 +217,7 @@ const CharacterSection = observer(({
   const indexOfSortableId = (id: UniqueIdentifier) => sortableIds.indexOf(String(id));
 
   const handleDragEnd = (event: DragEndEvent) => {
+    dragAutoScroll.stop();
     if (disableDrag) return;
     setIsDraggingSection(false);
     const { active, over } = event;
@@ -239,7 +245,7 @@ const CharacterSection = observer(({
       const orderChanged = newOrder.some((c, index) => c.id !== characters[index]?.id);
       const splitChanged = newLeftCount !== leftCount;
       if (orderChanged || splitChanged) {
-        onReorder(team, newOrder.map(c => c.id), splitChanged ? newLeftCount : undefined);
+        onReorder(team, newOrder, splitChanged ? newLeftCount : undefined);
       }
       return;
     }
@@ -249,8 +255,10 @@ const CharacterSection = observer(({
     const newIndex = indexOfSortableId(over.id);
     if (newIndex === -1) return;
 
-    const reorderedIds = arrayMove(characters, oldIndex, newIndex).map(c => c.id);
-    onReorder(team, reorderedIds);
+    // Pass the ordered objects: ids cannot distinguish characters that have no id or
+    // share a duplicated/normalized id, which used to swap or drop the wrong card.
+    const reorderedCharacters = arrayMove(characters, oldIndex, newIndex);
+    onReorder(team, reorderedCharacters);
   };
 
   return (
@@ -274,9 +282,16 @@ const CharacterSection = observer(({
       <Box sx={{ px: compact ? 0.2 : 2 }}>
         <DndContext
           sensors={sensors}
+          autoScroll={false}
           collisionDetection={pointerFirstCollisionDetection}
-          onDragStart={() => setIsDraggingSection(true)}
-          onDragCancel={() => setIsDraggingSection(false)}
+          onDragStart={(event) => {
+            setIsDraggingSection(true);
+            dragAutoScroll.start(event.activatorEvent as unknown as PointerEvent);
+          }}
+          onDragCancel={() => {
+            setIsDraggingSection(false);
+            dragAutoScroll.stop();
+          }}
           onDragEnd={handleDragEnd}
         >
           <Box>
