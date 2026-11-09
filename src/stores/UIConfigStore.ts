@@ -32,7 +32,7 @@ export const DEFAULT_TOWERS: TowerImage[] = AVAILABLE_TOWERS.filter(image => ima
 const CURRENT_LAYOUT_VERSION = 1;
 const CURRENT_CREDIT_DEFAULTS_VERSION = 2;
 const CURRENT_TOWER_DEFAULTS_VERSION = 2;
-const CURRENT_PAGE_DEFAULTS_VERSION = 1;
+const CURRENT_PAGE_DEFAULTS_VERSION = 2;
 
 export interface CustomFont {
   id: string;
@@ -261,7 +261,7 @@ const DEFAULT_UI_CONFIG: UIConfig = {
 
   characterCard: {
     cardPaddingX: 0.5,
-    cardPaddingY: 0.2,
+    cardPaddingY: 0.1,
     cardBorderRadius: 1,
     cardGap: 1,
 
@@ -326,7 +326,8 @@ class UIConfigStore {
         const upgradeCredits = !Number.isFinite(restConfig.creditDefaultsVersion) || restConfig.creditDefaultsVersion < CURRENT_CREDIT_DEFAULTS_VERSION;
         const upgradePageDefaults = !Number.isFinite(restConfig.pageDefaultsVersion) || restConfig.pageDefaultsVersion < CURRENT_PAGE_DEFAULTS_VERSION;
         const headerLayout = normalizeHeaderLayout(upgradeLayout ? undefined : restConfig.headerLayout);
-        const legacyCenteredAuthorLineTargets: HeaderLayoutTarget[] = upgradePageDefaults
+        const migrateAuthorOrigins = !Number.isFinite(restConfig.pageDefaultsVersion) || restConfig.pageDefaultsVersion < 1;
+        const legacyCenteredAuthorLineTargets: HeaderLayoutTarget[] = migrateAuthorOrigins
           ? (upgradeLayout ? [] : (['authorLine', 'authorLineMobile'] as const).filter(target => headerLayout[target].x !== 0))
           : (Array.isArray(restConfig.legacyCenteredAuthorLineTargets) ? restConfig.legacyCenteredAuthorLineTargets.filter((target: unknown) => target === 'authorLine' || target === 'authorLineMobile') : []);
         if (upgradeCredits && !upgradeLayout) {
@@ -367,7 +368,8 @@ class UIConfigStore {
           characterCard: {
             ...DEFAULT_UI_CONFIG.characterCard,
             ...(restConfig.characterCard || {}),
-            ...(upgradePageDefaults && (restConfig.characterCard?.cardPaddingY === 0.5 || restConfig.characterCard?.cardPaddingY === undefined)
+            ...(upgradePageDefaults && (restConfig.characterCard?.cardPaddingY === 0.5 || restConfig.characterCard?.cardPaddingY === undefined
+              || (restConfig.pageDefaultsVersion === 1 && restConfig.characterCard?.cardPaddingY === 0.2))
               ? { cardPaddingY: DEFAULT_UI_CONFIG.characterCard.cardPaddingY } : {}),
           },
         };

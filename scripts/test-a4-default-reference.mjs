@@ -45,8 +45,15 @@ try {
   assert.equal(await page.locator('#script-preview [data-header-layout-item="author"]').count(), 0, 'empty author avatar is not displayed by default');
 
   // The second reference: title on the left, special rules and designer on the right.
-  const special = [...sample, { id: 'special-test', team: 'special_rule', title: 'God in Play', content: 'God announces they will be on the same team as a player.' }];
+  const special = [...sample, { id: 'special-test', team: 'special_rule', title: 'God in Play', content: "God announces they will be on the same team as a player. If the Storyteller is executed, that player's team loses." }];
   await generate(special);
+  await page.waitForFunction(() => {
+    const frame = document.querySelector('[data-a4-guide-preview] iframe');
+    return frame?.dataset.a4Status === 'ready' && frame.contentDocument?.querySelector('[data-header-layout-item="rule"]')?.textContent.includes('God in Play');
+  }, null, { timeout: 60000 });
+  assert.equal(await page.locator('[data-a4-page-status]').first().getAttribute('data-a4-page-status'), 'fit', 'the example with its special rule also fits A4');
+  const separation = await guide.evaluate(() => document.querySelector('[data-footer-kind="nightLegend"]').getBoundingClientRect().top - document.querySelector('.inline-state-rules').getBoundingClientRect().bottom);
+  assert.ok(separation >= 12, 'special-rule layout keeps the explanation clear of the cloud');
   const positions = await page.locator('#script-preview').evaluate(root => {
     const rect = selector => root.querySelector(selector).getBoundingClientRect();
     const title = rect('[data-header-layout-item="title"]'), rule = rect('[data-header-layout-item="rule"]');
@@ -80,7 +87,7 @@ try {
   });
   await page.reload(); await page.locator('#script-preview').waitFor();
   let config = await page.evaluate(() => JSON.parse(localStorage.getItem('botc-ui-config')));
-  assert.equal(config.characterCard.cardPaddingY, 0.2);
+  assert.equal(config.characterCard.cardPaddingY, 0.1);
   assert.equal(config.headerLayout.authorLine.x, 250);
   assert.ok(config.legacyCenteredAuthorLineTargets.includes('authorLine'));
   await page.evaluate(() => {
