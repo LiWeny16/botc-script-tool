@@ -77,7 +77,7 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **Author:** Official
 - **Category:** Official Scripts
 - **English Name:** Supreme Pleasure
-- **URL:** https://botc.letshare.fun/scripts/official-script-b0e294c2.html
+- **URL:** https://botc.letshare.fun/scripts/official-script-98785aa2.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E6%97%A0%E4%B8%8A%E6%84%89%E6%82%A6
 
 ### 暗流涌动
@@ -91,13 +91,14 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 
 ## Official Mix Scripts
 
-### 上帝缺席
+### 裁缝vs暴乱
 
-- **Author:** Richard Black
+- **Author:** Sui染钟楼
 - **Category:** Official Mix Scripts
-- **English Name:** God Absent
-- **URL:** https://botc.letshare.fun/scripts/official-mix-script-79974c01.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E4%B8%8A%E5%B8%9D%E7%BC%BA%E5%B8%AD
+- **Description:** 一个短平快的玩法
+- **English Name:** Seamstress vs Riot
+- **URL:** https://botc.letshare.fun/scripts/official-mix-seamstress-vs-riot-ef7c4c71.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E8%A3%81%E7%BC%9Dvs%E6%9A%B4%E4%B9%B1
 
 ### 仇海溺行
 
@@ -106,15 +107,6 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **English Name:** Harold Holt's Revenge
 - **URL:** https://botc.letshare.fun/scripts/official-mix-script-b342cfde.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E4%BB%87%E6%B5%B7%E6%BA%BA%E8%A1%8C
-
-### 夜半狂欢
-
-- **Author:** Zets
-- **Category:** Official Mix Scripts
-- **Description:** 快速上手剧本
-- **English Name:** Midnight Carnival
-- **URL:** https://botc.letshare.fun/scripts/official-mix-script-4d491d82.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E5%A4%9C%E5%8D%8A%E7%8B%82%E6%AC%A2
 
 ### 大师之夜
 
@@ -125,6 +117,15 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **URL:** https://botc.letshare.fun/scripts/official-mix-script-72fd768e.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E5%A4%A7%E5%B8%88%E4%B9%8B%E5%A4%9C
 
+### 灵异蜂蜜
+
+- **Author:** 星火乐
+- **Category:** Official Mix Scripts
+- **Description:** 灵异蜂蜜~星火乐激战洗衣机
+- **English Name:** Supernatural Honey
+- **URL:** https://botc.letshare.fun/scripts/official-mix-script-62985d50.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E7%81%B5%E5%BC%82%E8%9C%82%E8%9C%9C
+
 ### 奇异人生
 
 - **Author:** 海雾&奇异人生推理馆
@@ -132,6 +133,22 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **English Name:** Strange Life
 - **URL:** https://botc.letshare.fun/scripts/official-mix-script-5c89ac22.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E5%A5%87%E5%BC%82%E4%BA%BA%E7%94%9F
+
+### 上帝缺席
+
+- **Author:** Richard Black
+- **Category:** Official Mix Scripts
+- **English Name:** God Absent
+- **URL:** https://botc.letshare.fun/scripts/official-mix-script-79974c01.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E4%B8%8A%E5%B8%9D%E7%BC%BA%E5%B8%AD
+
+### 说书人之怒
+
+- **Author:** Richard Black
+- **Category:** Official Mix Scripts
+- **English Name:** The Storyteller's Rage
+- **URL:** https://botc.letshare.fun/scripts/official-mix-script-ba38d221.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E8%AF%B4%E4%B9%A6%E4%BA%BA%E4%B9%8B%E6%80%92
 
 ### 心理博弈XI
 
@@ -141,14 +158,14 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **URL:** https://botc.letshare.fun/scripts/official-mix-psychological-game-x-d6b592a4.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E5%BF%83%E7%90%86%E5%8D%9A%E5%BC%88XI
 
-### 灵异蜂蜜
+### 夜半狂欢
 
-- **Author:** 星火乐
+- **Author:** Zets
 - **Category:** Official Mix Scripts
-- **Description:** 灵异蜂蜜~星火乐激战洗衣机
-- **English Name:** Supernatural Honey
-- **URL:** https://botc.letshare.fun/scripts/official-mix-script-62985d50.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E7%81%B5%E5%BC%82%E8%9C%82%E8%9C%9C
+- **Description:** 快速上手剧本
+- **English Name:** Midnight Carnival
+- **URL:** https://botc.letshare.fun/scripts/official-mix-script-4d491d82.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E5%A4%9C%E5%8D%8A%E7%8B%82%E6%AC%A2
 
 ### 爪牙大乱斗
 
@@ -159,49 +176,8 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **URL:** https://botc.letshare.fun/scripts/official-mix-script-8268319a.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E7%88%AA%E7%89%99%E5%A4%A7%E4%B9%B1%E6%96%97
 
-### 裁缝vs暴乱
-
-- **Author:** Sui染钟楼
-- **Category:** Official Mix Scripts
-- **Description:** 一个短平快的玩法
-- **English Name:** Seamstress vs Riot
-- **URL:** https://botc.letshare.fun/scripts/official-mix-seamstress-vs-riot-ef7c4c71.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E8%A3%81%E7%BC%9Dvs%E6%9A%B4%E4%B9%B1
-
-### 说书人之怒
-
-- **Author:** Richard Black
-- **Category:** Official Mix Scripts
-- **English Name:** The Storyteller's Rage
-- **URL:** https://botc.letshare.fun/scripts/official-mix-script-ba38d221.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E8%AF%B4%E4%B9%A6%E4%BA%BA%E4%B9%8B%E6%80%92
-
 
 ## Community Custom Scripts
-
-### 一夜鱼龙舞
-
-- **Author:** 驯鹿&痴愚
-- **Category:** Community Custom Scripts
-- **Description:** 凤箫声动,玉壶光转,一夜鱼龙舞。
-- **URL:** https://botc.letshare.fun/scripts/custom-script-c8d7cb91.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E4%B8%80%E5%A4%9C%E9%B1%BC%E9%BE%99%E8%88%9E
-
-### 复活庆典v3.0
-
-- **Author:** Zets
-- **Category:** Community Custom Scripts
-- **English Name:** Heathens vs Easters
-- **URL:** https://botc.letshare.fun/scripts/custom-v3-0-d2482f19.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E5%A4%8D%E6%B4%BB%E5%BA%86%E5%85%B8v3.0
-
-### 开心快乐猴
-
-- **Author:** 开心猴·祥东&开心猴·小赤
-- **Category:** Community Custom Scripts
-- **English Name:** Happy Happy Monkey
-- **URL:** https://botc.letshare.fun/scripts/custom-script-ce2d3b8f.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E5%BC%80%E5%BF%83%E5%BF%AB%E4%B9%90%E7%8C%B4
 
 ### 彩虹派对V3
 
@@ -220,6 +196,14 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **URL:** https://botc.letshare.fun/scripts/custom-script-781d9d6f.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E6%94%BE%E9%A3%9E%E7%90%86%E6%83%B3
 
+### 飞跃疯人院2
+
+- **Author:** 太一
+- **Category:** Community Custom Scripts
+- **English Name:** Crazy House 2
+- **URL:** https://botc.letshare.fun/scripts/custom-crazy-house-2-171b97fa.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E9%A3%9E%E8%B7%83%E7%96%AF%E4%BA%BA%E9%99%A22
+
 ### 疯 哑 急
 
 - **Author:** 庸医
@@ -237,13 +221,29 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **URL:** https://botc.letshare.fun/scripts/custom-script-6215b2d2.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E7%96%AF%20%E5%93%91%20%E6%80%A5
 
-### 飞跃疯人院2
+### 复活庆典v3.0
 
-- **Author:** 太一
+- **Author:** Zets
 - **Category:** Community Custom Scripts
-- **English Name:** Crazy House 2
-- **URL:** https://botc.letshare.fun/scripts/custom-crazy-house-2-171b97fa.html
-- **SPA URL:** https://botc.letshare.fun/#/repo/%E9%A3%9E%E8%B7%83%E7%96%AF%E4%BA%BA%E9%99%A22
+- **English Name:** Heathens vs Easters
+- **URL:** https://botc.letshare.fun/scripts/custom-v3-0-d2482f19.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E5%A4%8D%E6%B4%BB%E5%BA%86%E5%85%B8v3.0
+
+### 开心快乐猴
+
+- **Author:** 开心猴·祥东&开心猴·小赤
+- **Category:** Community Custom Scripts
+- **English Name:** Happy Happy Monkey
+- **URL:** https://botc.letshare.fun/scripts/custom-script-ce2d3b8f.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E5%BC%80%E5%BF%83%E5%BF%AB%E4%B9%90%E7%8C%B4
+
+### 一夜鱼龙舞
+
+- **Author:** 驯鹿&痴愚
+- **Category:** Community Custom Scripts
+- **Description:** 凤箫声动,玉壶光转,一夜鱼龙舞。
+- **URL:** https://botc.letshare.fun/scripts/custom-script-c8d7cb91.html
+- **SPA URL:** https://botc.letshare.fun/#/repo/%E4%B8%80%E5%A4%9C%E9%B1%BC%E9%BE%99%E8%88%9E
 
 
 
