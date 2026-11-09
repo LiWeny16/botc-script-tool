@@ -1,6 +1,14 @@
 import { makeAutoObservable, runInAction } from 'mobx';
 import { fontStorage } from '../utils/fontStorage';
 import { towerImageStorage } from '../utils/towerImageStorage';
+import { DEFAULT_SPECIAL_RULE_CONTENT_SIZE, DEFAULT_SPECIAL_RULE_TITLE_SIZE, SPECIAL_RULE_TYPOGRAPHY_VERSION, upgradeSpecialRuleTypography } from '../utils/specialRuleTypography';
+import { defaultHeaderAdjustment, normalizeHeaderAdjustment, normalizeHeaderLayout } from '../utils/headerLayout';
+import type { HeaderLayout, HeaderLayoutAdjustment, HeaderLayoutTarget } from '../utils/headerLayout';
+import { DEFAULT_A4_SCALE, normalizeA4Scale } from '../utils/a4Layout';
+
+export const MIN_TITLE_CONTENT_GAP = 0;
+export const MAX_TITLE_CONTENT_GAP = 240;
+export const DEFAULT_TITLE_FONT_SIZE_MD = '6rem';
 
 // Custom font interface
 
@@ -15,10 +23,16 @@ export interface TowerImage {
   isDefault: boolean;
 }
 
-export const DEFAULT_TOWERS: TowerImage[] = [
-  { id: 'back_tower', url: '/imgs/images/background/back_tower.png', x: 0, y: 0, scale: 1.0, opacity: 0.4, isDefault: true },
+export const AVAILABLE_TOWERS: TowerImage[] = [
+  { id: 'back_tower', url: '/imgs/images/background/back_tower.png', x: 0, y: 0, scale: 0.8, opacity: 0.4, isDefault: true },
   { id: 'back_tower2', url: '/imgs/images/background/back_tower2.png', x: 36, y: 0, scale: 1.0, opacity: 0.8, isDefault: true },
+  { id: 'back_town', url: '/imgs/images/background/back_town.png', x: 100, y: 0, scale: 1.0, opacity: 0.45, isDefault: true },
 ];
+export const DEFAULT_TOWERS: TowerImage[] = AVAILABLE_TOWERS.filter(image => image.id !== 'back_tower2');
+const CURRENT_LAYOUT_VERSION = 1;
+const CURRENT_CREDIT_DEFAULTS_VERSION = 2;
+const CURRENT_TOWER_DEFAULTS_VERSION = 2;
+const CURRENT_PAGE_DEFAULTS_VERSION = 1;
 
 export interface CustomFont {
   id: string;
@@ -28,6 +42,8 @@ export interface CustomFont {
 }
 
 export interface UIConfig {
+  // Browser-only preference for A4 image export, not part of a script.
+  a4ExportScale: number;
   // Night Order background
   nightOrderBackground: 'purple' | 'yellow' | 'green' | 'pink';
   nightOrderBackgroundMode: 'official' | 'custom';
@@ -60,10 +76,21 @@ export interface UIConfig {
 
   // Title area height
   titleHeightMd: number;
+  // Extra height distributed within the title area.
+  titleContentGap: number;
+  headerLayout: HeaderLayout;
+  layoutVersion: number;
+  creditDefaultsVersion: number;
+  towerLayoutVersion: number;
+  showDesignCredit: boolean;
+  showAuthorCredit: boolean | null; // null automatically shows an avatar only when supplied
+  pageDefaultsVersion: number;
+  legacyCenteredAuthorLineTargets: HeaderLayoutTarget[];
 
   // Night order top spacing
   nightOrderTopSpacingAuto: boolean;  // AUTO centering
   nightOrderTopSpacing: number;       // manual px (used when AUTO is off)
+  nightOrderOffsets: { first: number; other: number };
 
   // Title font size
   titleFontSize: {
@@ -71,6 +98,7 @@ export interface UIConfig {
     sm: string;
     md: string;
   };
+  titleLineHeight: number;
 
   // Font settings
   fonts: {
@@ -97,12 +125,15 @@ export interface UIConfig {
   // Page 1 special rule font size
   specialRuleTitleFontSize: string;
   specialRuleContentFontSize: string;
+  specialRuleTypographyVersion: number;
 
   // Custom font list
   customFonts: CustomFont[];
 
   // Tower images
   towerImages: TowerImage[];
+  towerImagesInitialized: boolean;
+  townSilhouetteRestored: boolean;
 
   // Character card configuration
   characterCard: {
@@ -156,6 +187,7 @@ export interface UIConfig {
 }
 
 const DEFAULT_UI_CONFIG: UIConfig = {
+  a4ExportScale: DEFAULT_A4_SCALE,
   nightOrderBackground: 'green',
   nightOrderBackgroundMode: 'official',
   customNightOrderBackground: '',
@@ -181,15 +213,26 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   },
 
   titleHeightMd: 100,
+  titleContentGap: 72,
+  headerLayout: normalizeHeaderLayout(),
+  layoutVersion: CURRENT_LAYOUT_VERSION,
+  creditDefaultsVersion: CURRENT_CREDIT_DEFAULTS_VERSION,
+  towerLayoutVersion: CURRENT_TOWER_DEFAULTS_VERSION,
+  showDesignCredit: true,
+  showAuthorCredit: null,
+  pageDefaultsVersion: CURRENT_PAGE_DEFAULTS_VERSION,
+  legacyCenteredAuthorLineTargets: [],
 
   nightOrderTopSpacingAuto: true,
   nightOrderTopSpacing: 20,   // vh, default 20vh
+  nightOrderOffsets: { first: 0, other: 0 },
 
   titleFontSize: {
     xs: '1.2rem',
     sm: '1.6rem',
-    md: '4.5rem',
+    md: DEFAULT_TITLE_FONT_SIZE_MD,
   },
+  titleLineHeight: 1.05,
 
   // Font settings - default to existing fonts
   fonts: {
@@ -205,17 +248,20 @@ const DEFAULT_UI_CONFIG: UIConfig = {
   },
 
   // Page 1 special rule font size
-  specialRuleTitleFontSize: '1rem',
-  specialRuleContentFontSize: '0.85rem',
+  specialRuleTitleFontSize: DEFAULT_SPECIAL_RULE_TITLE_SIZE,
+  specialRuleContentFontSize: DEFAULT_SPECIAL_RULE_CONTENT_SIZE,
+  specialRuleTypographyVersion: SPECIAL_RULE_TYPOGRAPHY_VERSION,
 
   // Custom font list
   customFonts: [],
 
   towerImages: [...DEFAULT_TOWERS],
+  towerImagesInitialized: false,
+  townSilhouetteRestored: false,
 
   characterCard: {
     cardPaddingX: 0.5,
-    cardPaddingY: 0.5,
+    cardPaddingY: 0.2,
     cardBorderRadius: 1,
     cardGap: 1,
 
@@ -256,9 +302,13 @@ const STORAGE_KEY = 'botc-ui-config';
 
 class UIConfigStore {
   config: UIConfig = DEFAULT_UI_CONFIG;
+  headerAlignmentGuides: { vertical: number | null; horizontal: number | null } = { vertical: null, horizontal: null };
 
   constructor() {
     makeAutoObservable(this);
+    // The isolated export renderer receives a snapshot from its parent. It
+    // must not migrate, load asynchronously, or write the user's settings.
+    if (typeof window !== 'undefined' && window.location.pathname.endsWith('/export-render.html')) return;
     this.loadConfig();
     this.loadCustomFontsFromIndexedDB(); // Load custom fonts from IndexedDB
     this.loadTowerImagesFromIndexedDB(); // Load tower images from IndexedDB
@@ -272,19 +322,64 @@ class UIConfigStore {
         const parsed = JSON.parse(savedConfig);
         // Do not load customFonts from localStorage, use IndexedDB instead
         const { customFonts, towerImages, ...restConfig } = parsed;
+        const upgradeLayout = !Number.isFinite(restConfig.layoutVersion) || restConfig.layoutVersion < CURRENT_LAYOUT_VERSION;
+        const upgradeCredits = !Number.isFinite(restConfig.creditDefaultsVersion) || restConfig.creditDefaultsVersion < CURRENT_CREDIT_DEFAULTS_VERSION;
+        const upgradePageDefaults = !Number.isFinite(restConfig.pageDefaultsVersion) || restConfig.pageDefaultsVersion < CURRENT_PAGE_DEFAULTS_VERSION;
+        const headerLayout = normalizeHeaderLayout(upgradeLayout ? undefined : restConfig.headerLayout);
+        const legacyCenteredAuthorLineTargets: HeaderLayoutTarget[] = upgradePageDefaults
+          ? (upgradeLayout ? [] : (['authorLine', 'authorLineMobile'] as const).filter(target => headerLayout[target].x !== 0))
+          : (Array.isArray(restConfig.legacyCenteredAuthorLineTargets) ? restConfig.legacyCenteredAuthorLineTargets.filter((target: unknown) => target === 'authorLine' || target === 'authorLineMobile') : []);
+        if (upgradeCredits && !upgradeLayout) {
+          const previousDefaultY = restConfig.creditDefaultsVersion === 1 ? 16 : 0;
+          for (const target of ['design', 'author'] as const) {
+            const old = normalizeHeaderAdjustment(restConfig.headerLayout?.[target]);
+            if (old.x === 0 && old.y === previousDefaultY && old.widthDelta === 0 && old.minHeight === 0 && old.scale === 1) {
+              headerLayout[target] = defaultHeaderAdjustment(target);
+            }
+          }
+        }
         this.config = {
           ...DEFAULT_UI_CONFIG,
           ...restConfig,
+          a4ExportScale: normalizeA4Scale(restConfig.a4ExportScale),
+          // Upgrade the old defaults once; preserve deliberately adjusted sizes.
+          ...upgradeSpecialRuleTypography(restConfig),
+          layoutVersion: CURRENT_LAYOUT_VERSION,
+          creditDefaultsVersion: CURRENT_CREDIT_DEFAULTS_VERSION,
+          pageDefaultsVersion: CURRENT_PAGE_DEFAULTS_VERSION,
+          legacyCenteredAuthorLineTargets,
+          towerLayoutVersion: upgradeLayout ? 0 : (restConfig.towerLayoutVersion ?? CURRENT_LAYOUT_VERSION),
+          headerLayout,
+          titleContentGap: !upgradeLayout && Number.isFinite(restConfig.titleContentGap)
+            ? Math.max(MIN_TITLE_CONTENT_GAP, Math.min(MAX_TITLE_CONTENT_GAP, Math.round(restConfig.titleContentGap)))
+            : DEFAULT_UI_CONFIG.titleContentGap,
+          titleFontSize: { ...DEFAULT_UI_CONFIG.titleFontSize, ...restConfig.titleFontSize,
+            ...(upgradeLayout && restConfig.titleFontSize?.md === '4.5rem' ? { md: DEFAULT_TITLE_FONT_SIZE_MD } : {}) },
+          ...(upgradeLayout ? { nightOrderTopSpacingAuto: true, nightOrderTopSpacing: DEFAULT_UI_CONFIG.nightOrderTopSpacing } : {}),
+          nightOrderOffsets: upgradeLayout ? { first: 0, other: 0 } : { ...DEFAULT_UI_CONFIG.nightOrderOffsets, ...restConfig.nightOrderOffsets },
+          titleLineHeight: Number.isFinite(restConfig.titleLineHeight)
+            ? Math.max(0.8, Math.min(1.8, restConfig.titleLineHeight))
+            : DEFAULT_UI_CONFIG.titleLineHeight,
           storytellerNightSheet: {
             ...DEFAULT_UI_CONFIG.storytellerNightSheet,
             ...(restConfig.storytellerNightSheet || {}),
           },
+          characterCard: {
+            ...DEFAULT_UI_CONFIG.characterCard,
+            ...(restConfig.characterCard || {}),
+            ...(upgradePageDefaults && (restConfig.characterCard?.cardPaddingY === 0.5 || restConfig.characterCard?.cardPaddingY === undefined)
+              ? { cardPaddingY: DEFAULT_UI_CONFIG.characterCard.cardPaddingY } : {}),
+          },
         };
+        if (upgradeLayout || upgradeCredits || upgradePageDefaults) this.saveConfig();
 
         // If localStorage has old font data, migrate to IndexedDB
         if (customFonts && Array.isArray(customFonts) && customFonts.length > 0) {
           this.migrateFontsToIndexedDB(customFonts);
         }
+      } else {
+        // IndexedDB can outlive localStorage; inspect and upgrade any old decorations once.
+        this.config = { ...DEFAULT_UI_CONFIG, towerLayoutVersion: 0 };
       }
     } catch (error) {
       console.error('Failed to load UI config from localStorage:', error);
@@ -329,6 +424,30 @@ class UIConfigStore {
   updateConfig(updates: Partial<UIConfig>) {
     this.config = { ...this.config, ...updates };
     this.saveConfig();
+  }
+
+  setTitleContentGap(value: number, options: { persist?: boolean } = {}) {
+    const safeValue = Number.isFinite(value)
+      ? Math.round(Math.max(MIN_TITLE_CONTENT_GAP, Math.min(MAX_TITLE_CONTENT_GAP, value)))
+      : DEFAULT_UI_CONFIG.titleContentGap;
+    this.config = { ...this.config, titleContentGap: safeValue };
+    if (options.persist !== false) this.saveConfig();
+  }
+
+  setHeaderLayout(target: HeaderLayoutTarget, updates: Partial<HeaderLayoutAdjustment>, options: { persist?: boolean; resetAnchor?: boolean } = {}) {
+    this.config = {
+      ...this.config,
+      headerLayout: {
+        ...this.config.headerLayout,
+        [target]: normalizeHeaderAdjustment({ ...this.config.headerLayout[target], ...updates }),
+      },
+      ...(options.resetAnchor ? { legacyCenteredAuthorLineTargets: this.config.legacyCenteredAuthorLineTargets.filter(item => item !== target) } : {}),
+    };
+    if (options.persist !== false) this.saveConfig();
+  }
+
+  setHeaderAlignmentGuides(guides: { vertical: number | null; horizontal: number | null }) {
+    this.headerAlignmentGuides = guides;
   }
 
   // Update character card config
@@ -512,7 +631,7 @@ class UIConfigStore {
   async loadTowerImagesFromIndexedDB() {
     try {
       const images = await towerImageStorage.getAllImages();
-      if (images.length > 0) {
+      if (images.length > 0 || this.config.towerImagesInitialized) {
         runInAction(() => {
           this.config.towerImages = images.map(img => ({
             id: img.id,
@@ -525,6 +644,43 @@ class UIConfigStore {
           }));
         });
       }
+      if (this.config.towerLayoutVersion < CURRENT_LAYOUT_VERSION) {
+        const migrated: TowerImage[] = [];
+        for (const image of this.config.towerImages) {
+          if (image.id === 'back_tower2' && image.isDefault) {
+            await towerImageStorage.deleteImage(image.id);
+            continue;
+          }
+          const original = DEFAULT_TOWERS.find(item => item.id === image.id && image.isDefault);
+          const next = original ? { ...image, x: original.x, y: original.y, scale: original.scale } : image;
+          migrated.push(next);
+          if (original && images.some(item => item.id === image.id)) await towerImageStorage.saveImage({ ...next, createdAt: Date.now() });
+        }
+        runInAction(() => { this.config.towerImages = migrated; this.config.towerLayoutVersion = CURRENT_LAYOUT_VERSION; });
+        this.saveConfig();
+      }
+      if (this.config.towerLayoutVersion < CURRENT_TOWER_DEFAULTS_VERSION) {
+        const migrated = this.config.towerImages.map(image => {
+          if (!image.isDefault) return image;
+          if (image.id === 'back_tower' && image.scale === 1) return { ...image, scale: 0.8 };
+          if (image.id === 'back_town' && image.opacity === 0.8) return { ...image, opacity: 0.45 };
+          return image;
+        });
+        for (const image of migrated) {
+          if (images.some(item => item.id === image.id)) await towerImageStorage.saveImage({ ...image, createdAt: Date.now() });
+        }
+        runInAction(() => { this.config.towerImages = migrated; this.config.towerLayoutVersion = CURRENT_TOWER_DEFAULTS_VERSION; });
+        this.saveConfig();
+      }
+      if (!this.config.townSilhouetteRestored) {
+        const town = DEFAULT_TOWERS.find(image => image.id === 'back_town')!;
+        if (!this.config.towerImages.some(image => image.id === town.id)) {
+          await towerImageStorage.saveImage({ ...town, createdAt: Date.now() });
+          runInAction(() => { this.config.towerImages = [...this.config.towerImages, town]; });
+        }
+        runInAction(() => { this.config.townSilhouetteRestored = true; });
+        this.saveConfig();
+      }
       console.log('Loaded', images.length, 'tower images from IndexedDB');
     } catch (error) {
       console.error('Failed to load tower images from IndexedDB:', error);
@@ -532,14 +688,29 @@ class UIConfigStore {
     }
   }
 
+  private async initializeTowerImagesForEditing() {
+    if (this.config.towerImagesInitialized) return;
+    for (const image of this.config.towerImages) {
+      await towerImageStorage.saveImage({ ...image, createdAt: Date.now() });
+    }
+    runInAction(() => { this.config.towerImagesInitialized = true; });
+    this.saveConfig();
+  }
+
   // Add tower image
   async addTowerImage(image: TowerImage) {
     try {
+      if (this.config.towerImages.some(existing => existing.id === image.id)) return;
+      await this.initializeTowerImagesForEditing();
       await towerImageStorage.saveImage({
         ...image,
         createdAt: Date.now(),
       });
-      this.config.towerImages = [...this.config.towerImages, image];
+      runInAction(() => {
+        if (!this.config.towerImages.some(existing => existing.id === image.id)) this.config.towerImages = [...this.config.towerImages, image];
+        this.config.towerImagesInitialized = true;
+      });
+      this.saveConfig();
       console.log('Tower image saved to IndexedDB:', image.id);
     } catch (error) {
       console.error('Failed to save tower image:', error);
@@ -550,8 +721,10 @@ class UIConfigStore {
   // Remove tower image
   async removeTowerImage(id: string) {
     try {
+      await this.initializeTowerImagesForEditing();
       await towerImageStorage.deleteImage(id);
-      this.config.towerImages = this.config.towerImages.filter(img => img.id !== id);
+      runInAction(() => { this.config.towerImages = this.config.towerImages.filter(img => img.id !== id); this.config.towerImagesInitialized = true; });
+      this.saveConfig();
       console.log('Tower image removed:', id);
     } catch (error) {
       console.error('Failed to remove tower image:', error);
@@ -561,13 +734,15 @@ class UIConfigStore {
 
   // Update tower image
   async updateTowerImage(id: string, updates: Partial<TowerImage>) {
+    await this.initializeTowerImagesForEditing();
     const index = this.config.towerImages.findIndex(img => img.id === id);
     if (index === -1) {
       console.warn('Tower image not found:', id);
       return;
     }
     const updated = { ...this.config.towerImages[index], ...updates };
-    this.config.towerImages[index] = updated;
+    runInAction(() => { this.config.towerImages[index] = updated; this.config.towerImagesInitialized = true; });
+    this.saveConfig();
     // Persist url-bearing images to IndexedDB
     if (updated.url) {
       try {
@@ -586,7 +761,8 @@ class UIConfigStore {
   async resetTowerImages() {
     try {
       await towerImageStorage.clearAllImages();
-      this.config.towerImages = [...DEFAULT_TOWERS];
+      runInAction(() => { this.config.towerImages = [...DEFAULT_TOWERS]; this.config.towerImagesInitialized = true; this.config.townSilhouetteRestored = true; });
+      this.saveConfig();
       // Re-save defaults to IndexedDB
       for (const img of DEFAULT_TOWERS) {
         await towerImageStorage.saveImage({
@@ -597,7 +773,7 @@ class UIConfigStore {
       console.log('Tower images reset to defaults');
     } catch (error) {
       console.error('Failed to reset tower images:', error);
-      this.config.towerImages = [...DEFAULT_TOWERS];
+      runInAction(() => { this.config.towerImages = [...DEFAULT_TOWERS]; });
     }
   }
 

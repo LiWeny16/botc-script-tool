@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -21,6 +22,10 @@ export default defineConfig({
     outDir: 'docs', // 打包输出目录改为 docs（适合 GitHub Pages）
     // 其他优化选项
     rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        exportRender: fileURLToPath(new URL('./export-render.html', import.meta.url)),
+      },
       output: {
         // 分包策略 - 使用函数形式
         manualChunks(id) {

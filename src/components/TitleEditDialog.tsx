@@ -33,10 +33,13 @@ interface TitleEditDialogProps {
   titleImageSize?: number;
   useTitleImage?: boolean;
   showTitleFlourish?: boolean;
+  titleFlourishScale?: number;
   author: string;
   playerCount?: string;
   textAlignment?: 'left' | 'center' | 'right';
   authorAlignment?: 'left' | 'center' | 'right';
+  defaultAuthorAlignment?: 'left' | 'center' | 'right';
+  isMainTitle?: boolean;
   onClose: () => void;
   onSave: (data: {
     title: string;
@@ -44,6 +47,7 @@ interface TitleEditDialogProps {
     titleImageSize?: number;
     useTitleImage: boolean;
     showTitleFlourish?: boolean;
+    titleFlourishScale?: number;
     author: string;
     playerCount?: string;
     textAlignment?: 'left' | 'center' | 'right';
@@ -58,18 +62,23 @@ const TitleEditDialog = ({
   titleImageSize,
   useTitleImage,
   showTitleFlourish,
+  titleFlourishScale,
   author,
   playerCount,
   textAlignment,
   authorAlignment,
+  defaultAuthorAlignment = 'center',
+  isMainTitle = true,
   onClose,
   onSave,
 }: TitleEditDialogProps) => {
   const { t, language } = useTranslation();
   const [useImage, setUseImage] = useState(useTitleImage !== undefined ? useTitleImage : !!titleImage);
   const [showFlourish, setShowFlourish] = useState(showTitleFlourish !== undefined ? showTitleFlourish : true);
+  const [flourishScale, setFlourishScale] = useState(titleFlourishScale ?? 1);
   const [alignment, setAlignment] = useState<'left' | 'center' | 'right'>(textAlignment || 'center');
-  const [authorAlign, setAuthorAlign] = useState<'left' | 'center' | 'right'>(authorAlignment || 'center');
+  const [authorAlign, setAuthorAlign] = useState<'left' | 'center' | 'right'>(authorAlignment || defaultAuthorAlignment);
+  const [authorAlignDirty, setAuthorAlignDirty] = useState(false);
   const [formData, setFormData] = useState({
     title: title || '',
     titleImage: titleImage || '',
@@ -83,6 +92,7 @@ const TitleEditDialog = ({
     sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
     md: parseFloat(uiConfigStore.config.titleFontSize.md),
   });
+  const [lineHeight, setLineHeight] = useState(uiConfigStore.config.titleLineHeight);
 
   // 判断是否是base64图片
   const isBase64Image = (str: string) => {
@@ -99,15 +109,18 @@ const TitleEditDialog = ({
       playerCount: playerCount || '',
     });
     setShowFlourish(showTitleFlourish !== undefined ? showTitleFlourish : true);
+    setFlourishScale(titleFlourishScale ?? 1);
     setAlignment(textAlignment || 'center');
-    setAuthorAlign(authorAlignment || 'center');
+    setAuthorAlign(authorAlignment || defaultAuthorAlignment);
+    setAuthorAlignDirty(false);
     setFirstPageImageSize(titleImageSize || 160);
     setFontSizes({
       xs: parseFloat(uiConfigStore.config.titleFontSize.xs),
       sm: parseFloat(uiConfigStore.config.titleFontSize.sm),
       md: parseFloat(uiConfigStore.config.titleFontSize.md),
     });
-  }, [open, title, titleImage, titleImageSize, useTitleImage, showTitleFlourish, author, playerCount, textAlignment]);
+    setLineHeight(uiConfigStore.config.titleLineHeight);
+  }, [open, title, titleImage, titleImageSize, useTitleImage, showTitleFlourish, titleFlourishScale, author, playerCount, textAlignment, authorAlignment, defaultAuthorAlignment]);
 
   const handleDrag = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -162,8 +175,9 @@ const TitleEditDialog = ({
       titleImageSize: firstPageImageSize,
       useTitleImage: useImage,
       showTitleFlourish: showFlourish,
+      titleFlourishScale: flourishScale,
       textAlignment: alignment,
-      authorAlignment: authorAlign,
+      authorAlignment: authorAlignDirty || authorAlignment ? authorAlign : undefined,
     };
     
     // 保存字体大小到 UIConfigStore
@@ -173,10 +187,23 @@ const TitleEditDialog = ({
         sm: `${fontSizes.sm}rem`,
         md: `${fontSizes.md}rem`,
       },
+      ...(isMainTitle ? { titleLineHeight: lineHeight } : {}),
     });
     
     onSave(dataToSave);
     onClose();
+  };
+
+  const handleTitleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Enter' || event.nativeEvent.isComposing || event.ctrlKey || event.metaKey) return;
+    const input = event.target as HTMLTextAreaElement;
+    if (typeof input.selectionStart !== 'number') return;
+    event.preventDefault();
+    event.stopPropagation();
+    const start = input.selectionStart;
+    const end = input.selectionEnd;
+    setFormData((previous) => ({ ...previous, title: `${previous.title.slice(0, start)}\n${previous.title.slice(end)}` }));
+    requestAnimationFrame(() => { input.focus(); input.setSelectionRange(start + 1, start + 1); });
   };
 
   return (
@@ -215,6 +242,11 @@ const TitleEditDialog = ({
               label={t('title.showFlourish')}
             />
           )}
+          {!useImage && isMainTitle && showFlourish && <Box>
+            <Typography variant="caption" gutterBottom>{t('title.flourishSize')}: {Math.round(flourishScale * 100)}%</Typography>
+            <Slider aria-label={t('title.flourishSize')} value={flourishScale} min={0.5} max={2} step={0.05}
+              onChange={(_, value) => setFlourishScale(value as number)} valueLabelDisplay="auto" />
+          </Box>}
 
           {useImage ? (
             /* 图片上传区域 */
@@ -294,12 +326,7 @@ const TitleEditDialog = ({
                 setFormData((prev) => ({ ...prev, title: e.target.value }))
               }
               placeholder={t('input.titlePlaceholder')}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }
-              }}
+              onKeyDown={handleTitleKeyDown}
             />
           )}
 
@@ -338,6 +365,23 @@ const TitleEditDialog = ({
               </Box>
             )}
           </Box>
+
+          {!useImage && isMainTitle && (
+            <Box>
+              <Typography variant="caption" gutterBottom>
+                {t('title.lineHeight')}: {lineHeight.toFixed(2)}
+              </Typography>
+              <Slider
+                aria-label={t('title.lineHeight')}
+                value={lineHeight}
+                onChange={(_, value) => setLineHeight(value as number)}
+                min={0.8}
+                max={1.8}
+                step={0.05}
+                valueLabelDisplay="auto"
+              />
+            </Box>
+          )}
 
           {/* 作者 */}
           <TextField
@@ -395,7 +439,7 @@ const TitleEditDialog = ({
             <ToggleButtonGroup
               value={authorAlign}
               exclusive
-              onChange={(_, val) => val && setAuthorAlign(val)}
+              onChange={(_, val) => { if (val) { setAuthorAlign(val); setAuthorAlignDirty(true); } }}
               size="small"
               fullWidth
             >

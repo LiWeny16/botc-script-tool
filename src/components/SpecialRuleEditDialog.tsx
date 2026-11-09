@@ -38,6 +38,7 @@ const SpecialRuleEditDialog = ({
   const [contentZh, setContentZh] = useState('');
   const [contentEn, setContentEn] = useState('');
   const [contentEs, setContentEs] = useState('');
+  const [contentDe, setContentDe] = useState('');
 
   // 辅助函数：从 string | I18nText 提取当前语言的文本
   const extractText = (text: string | I18nText | undefined): string => {
@@ -59,11 +60,13 @@ const SpecialRuleEditDialog = ({
         setContentZh(content['cn'] ?? '');
         setContentEn(content['en'] ?? '');
         setContentEs(content.es ?? '');
+        setContentDe(content.de ?? '');
       } else {
         const fallback = typeof content === 'string' ? content : '';
         setContentZh(fallback);
         setContentEn(fallback);
         setContentEs(fallback);
+        setContentDe(fallback);
       }
     }
   }, [rule, language]);
@@ -91,7 +94,7 @@ const SpecialRuleEditDialog = ({
         result[language] = newValue;
 
         // 如果只有一个语言有值，简化为字符串（向后兼容）
-        if (result['cn'] && !result['en'] && !result.es) {
+        if (result['cn'] && !result['en'] && !result.es && !result.de) {
           return result['cn'];
         }
 
@@ -105,6 +108,7 @@ const SpecialRuleEditDialog = ({
           'cn': contentZh,
           'en': contentEn,
           'es': contentEs,
+          'de': contentDe,
         },
       });
       onClose();
@@ -172,6 +176,8 @@ const SpecialRuleEditDialog = ({
                 setContentEn(value);
               } else if (language === 'es') {
                 setContentEs(value);
+              } else if (language === 'de') {
+                setContentDe(value);
               }
             }}
             placeholder={t('specialRules.contentPlaceholder')}

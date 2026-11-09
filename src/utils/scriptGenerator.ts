@@ -286,6 +286,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
     rules?: any[];
     sourceType: 'state' | 'status' | 'special_rule';
     sourceIndex: number;
+    footerPage?: 1 | 2;
   }> = [];
 
   // Collect all jinx rule items for deferred processing
@@ -311,16 +312,27 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
       script.titleImageSize = item.titleImageSize;  // Parse first page title image size
       script.useTitleImage = item.use_title_image !== false ? !!script.titleImage : false;  // Default based on whether image exists
       script.showTitleFlourish = item.show_title_flourish;  // Parse flourish visibility
+      if (typeof item.title_flourish_scale === 'number' && Number.isFinite(item.title_flourish_scale)) {
+        script.titleFlourishScale = Math.max(0.5, Math.min(2, item.title_flourish_scale));
+      }
       script.author = item.author || '';
       script.authorImage = item.authorImage || undefined;  // Parse author avatar (base64)
       script.playerCount = item.playerCount;  // Parse player count
+      if (item.footer_defaults_version === 1) script.footerDefaultsVersion = 1;
+      if (item.footer_layout_version === 1) script.footerLayoutVersion = 1;
+      if (typeof item.side_first_night_title === 'string') script.sideFirstNightTitle = item.side_first_night_title;
+      if (typeof item.side_other_night_title === 'string') script.sideOtherNightTitle = item.side_other_night_title;
+      if (Array.isArray(item.footer_components)) {
+        script.footerComponents = item.footer_components.filter((entry: any) => entry && typeof entry.id === 'string'
+          && ['nightLegend', 'list', 'image', 'stateLayout'].includes(entry.type));
+      }
       // Parse title alignment — only allow valid CSS values
       const rawAlign = (item as any).text_alignment;
       (script as any).textAlignment = (rawAlign === 'left' || rawAlign === 'center' || rawAlign === 'right') ? rawAlign : 'center';
 
       // Parse author alignment — only allow valid CSS values
       const rawAuthorAlign = (item as any).author_alignment;
-      (script as any).authorAlignment = (rawAuthorAlign === 'left' || rawAuthorAlign === 'center' || rawAuthorAlign === 'right') ? rawAuthorAlign : 'center';
+      if (rawAuthorAlign === 'left' || rawAuthorAlign === 'center' || rawAuthorAlign === 'right') script.authorAlignment = rawAuthorAlign;
 
       // Parse column left count (asymmetric 2-col layout)
       if (item.column_left_count && typeof item.column_left_count === 'object') {
@@ -350,6 +362,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
             content: state.stateDescription,
             sourceType: 'state',
             sourceIndex: index,
+            footerPage: state.footer_page === 1 || state.footer_page === 2 ? state.footer_page : undefined,
           });
         });
       }
@@ -363,6 +376,7 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
             content: status.skill,
             sourceType: 'status',
             sourceIndex: index,
+            footerPage: status.footer_page === 1 || status.footer_page === 2 ? status.footer_page : undefined,
           });
         });
       }
@@ -670,40 +684,21 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
     index === self.findIndex((r) => r.title === rule.title)
   );
 
-  // 2. First special rule: placed on both first and second pages
-  if (uniqueRules.length > 0) {
-    const firstRule = uniqueRules[0];
-    const firstRuleData = {
-      id: firstRule.id || `_meta_${firstRule.sourceType}_${firstRule.sourceIndex}`,
-      title: firstRule.title,
-      content: firstRule.content,
-      rules: firstRule.rules,
-      isState: firstRule.sourceType !== 'special_rule',
-      sourceType: firstRule.sourceType,
-      sourceIndex: firstRule.sourceIndex,
+  // Scroll rules belong beside the title; state/status explanations can be
+  // placed after the character list or on the existing second page.
+  for (const rule of uniqueRules) {
+    const ruleData = {
+      id: rule.id || `_meta_${rule.sourceType}_${rule.sourceIndex}`,
+      title: rule.title,
+      content: rule.content,
+      rules: rule.rules,
+      isState: rule.sourceType !== 'special_rule',
+      sourceType: rule.sourceType,
+      sourceIndex: rule.sourceIndex,
+      footerPage: rule.footerPage,
     };
-
-    // First page shows the first rule
-    script.specialRules.push(firstRuleData);
-
-    // Second page also shows the first rule
-    script.secondPageRules?.push({ ...firstRuleData });
-  }
-
-  // 3. Second and subsequent rules: placed only on second page
-  if (uniqueRules.length > 1) {
-    for (let i = 1; i < uniqueRules.length; i++) {
-      const rule = uniqueRules[i];
-      script.secondPageRules?.push({
-        id: rule.id || `_meta_${rule.sourceType}_${rule.sourceIndex}`,
-        title: rule.title,
-        content: rule.content,
-        rules: rule.rules,
-        isState: rule.sourceType !== 'special_rule',
-        sourceType: rule.sourceType,
-        sourceIndex: rule.sourceIndex,
-      });
-    }
+    script.secondPageRules?.push(ruleData);
+    if (rule.sourceType === 'special_rule') script.specialRules.push({ ...ruleData });
   }
 
   // Auto-detect jinx relationships between characters

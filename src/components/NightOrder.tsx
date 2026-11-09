@@ -19,6 +19,8 @@ import type { NightAction } from '../types';
 import { THEME_COLORS } from '../theme/colors';
 import CharacterImage from './CharacterImage';
 import { normalizeImageUrl } from '../utils/jsonSafety';
+import type { LayoutFramePointerHandlers } from './LayoutFrame';
+import { useTranslation } from '../utils/i18n';
 
 function getActionId(action: NightAction, index: number): string {
   return `${normalizeImageUrl(action?.image)}-${index}`;
@@ -38,6 +40,8 @@ interface NightOrderProps {
   disabled?: boolean;
   onReorder?: (oldIndex: number, newIndex: number) => void;
   compact?: boolean;
+  titleDrag?: LayoutFramePointerHandlers;
+  onEditTitle?: () => void;
 }
 
 function SortableActionItem({
@@ -109,7 +113,8 @@ function SortableActionItem({
   );
 }
 
-export default function NightOrder({ title, actions, isMobile = false, disabled = false, onReorder, compact = false }: NightOrderProps) {
+export default function NightOrder({ title, actions, isMobile = false, disabled = false, onReorder, compact = false, titleDrag, onEditTitle }: NightOrderProps) {
+  const { t } = useTranslation();
   const safeActions = Array.isArray(actions)
     ? actions.filter((action): action is NightAction => !!action && typeof action === 'object')
     : [];
@@ -182,6 +187,12 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
       ) : (
         <Typography
           variant="h4"
+          data-night-order-title
+          {...titleDrag}
+          tabIndex={titleDrag ? 0 : undefined}
+          title={onEditTitle ? t('ui.editNightOrderTitle') : undefined}
+          onDoubleClick={onEditTitle}
+          onKeyDown={event => { if (event.key === 'Enter' && onEditTitle) { event.preventDefault(); onEditTitle(); } else titleDrag?.onKeyDown?.(event); }}
           sx={{
             textAlign: 'center',
             fontWeight: 'bold',
@@ -190,6 +201,8 @@ export default function NightOrder({ title, actions, isMobile = false, disabled 
             mb: isMobile ? 1 : 1.5,
             mt: 0.5,
             color: isMobile ? '#fefefe' : 'inherit',
+            cursor: titleDrag ? 'grab' : onEditTitle ? 'pointer' : 'default',
+            touchAction: titleDrag ? 'none' : undefined,
           }}
         >
           {isMobile ? (

@@ -1,3 +1,5 @@
+import { normalizeExplanationDocument } from './explanationRichText';
+
 export interface WrappingMatch {
   wrapperStart: number;
   wrapperEnd: number;
@@ -116,6 +118,8 @@ export function deepStripHtml<T>(value: T): T {
     return value.map(deepStripHtml) as unknown as T;
   }
   if (typeof value === 'object' && value !== null) {
+    const richDocument = normalizeExplanationDocument(value);
+    if (richDocument) return richDocument as T;
     const result: Record<string, unknown> = {};
     for (const key of Object.keys(value as object)) {
       result[key] = deepStripHtml((value as Record<string, unknown>)[key]);

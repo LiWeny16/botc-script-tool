@@ -29,6 +29,8 @@ import { trackPreviewScript } from '../utils/analytics';
 import type { Script } from '../types';
 import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
+import ImageExportDialog from '../components/AppSub/ImageExportDialog';
+import { appTheme } from '../theme/appTheme';
 
 const theme = createTheme({
   breakpoints: {
@@ -58,6 +60,7 @@ const ScriptPreview = observer(() => {
   const [loading, setLoading] = useState<boolean>(true);
   const [originalJson, setOriginalJson] = useState<string>('');
   const [sharedName, setSharedName] = useState<string>('');
+  const [exportOpen, setExportOpen] = useState(false);
   const tRef = useRef(t);
   tRef.current = t;
 
@@ -363,10 +366,11 @@ const ScriptPreview = observer(() => {
                 <DownloadIcon />
               </IconButton>
               <IconButton
-                onClick={() => window.print()}
+                onClick={() => setExportOpen(true)}
                 size="small"
-                sx={{ color: THEME_COLORS.paper.primary }}
-                aria-label="print"
+                sx={{ color: THEME_COLORS.paper.primary, width: 40, height: 40 }}
+                aria-label={t('input.exportPDF')}
+                title={t('input.exportPDF')}
               >
                 <PrintIcon />
               </IconButton>
@@ -409,6 +413,9 @@ const ScriptPreview = observer(() => {
             <ScriptRenderer script={script} theme={theme} readOnly />
           </Box>
         </Box>
+        {exportOpen && <ThemeProvider theme={appTheme}>
+          <ImageExportDialog open onClose={() => setExportOpen(false)} language={language} scriptTitle={script.title || 'script'} initialMode="print" script={script} />
+        </ThemeProvider>}
       </Box>
     </ThemeProvider>
   );

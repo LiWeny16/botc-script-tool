@@ -87,6 +87,58 @@ export interface SpecialRule {
   isState?: boolean;  // whether this is a state-type rule
   sourceType?: 'state' | 'status' | 'special_rule';  // source type
   sourceIndex?: number;  // index in the source array
+  footerPage?: 1 | 2;  // explicit page for a footer explanation
+}
+
+export interface FooterListRow {
+  id: string;
+  text: string;
+  icon?: string;
+}
+
+export type RichTextTag = 'p' | 'div' | 'span' | 'strong' | 'em' | 'u' | 's' | 'ul' | 'ol' | 'li' | 'br' | 'h2' | 'h3' | 'h4';
+export interface RichTextStyle {
+  color?: string;
+  backgroundColor?: string;
+  fontFamily?: string;
+  fontSize?: string;
+  fontWeight?: string;
+  fontStyle?: string;
+  textDecoration?: string;
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+}
+export type RichTextNode = { type: 'text'; text: string; sourcePage?: 1 | 2 } | {
+  type: 'element'; tag: RichTextTag; style?: RichTextStyle; children?: RichTextNode[]; sourcePage?: 1 | 2;
+};
+export interface RichTextDocument {
+  kind: 'botc-rich-text';
+  version: 1;
+  nodes: RichTextNode[];
+}
+
+/** Overlay x/width are percentages; y is a bottom offset in pixels. State layout uses pixel offsets. */
+export interface FooterComponent {
+  id: string;
+  type: 'nightLegend' | 'list' | 'image' | 'stateLayout';
+  page: 1 | 2;
+  x: number;
+  y: number;
+  width: number;
+  height?: number;
+  title?: string;
+  text?: string;
+  rows?: FooterListRow[];
+  columns?: 1 | 2;
+  url?: string;
+  opacity?: number;
+  autoReserve?: boolean;
+  reserveSpace?: number;
+  /** The legend x/width describe the cropped cloud instead of the older leaf ornament. */
+  cloudOnly?: boolean;
+  richTextDocuments?: Partial<Record<Language, RichTextDocument>>;
+  defaultContent?: boolean;
+  defaultWidthAdaptive?: boolean;
+  hidden?: boolean;
 }
 
 export interface Script {
@@ -96,8 +148,10 @@ export interface Script {
   titleImageSize?: number;  // first page title image size
   useTitleImage?: boolean;  // whether to use an image title on the first page
   showTitleFlourish?: boolean;  // whether to show the decorative pattern behind the title
+  titleFlourishScale?: number;
   author: string;
   authorImage?: string;  // author avatar (base64 data URL)
+  authorAlignment?: 'left' | 'center' | 'right';
   playerCount?: string;  // player count range, e.g. "7-15"
   characters: {
     [key: string]: Character[];  // supports dynamic team types, including standard teams
@@ -107,6 +161,11 @@ export interface Script {
   jinx: Record<string, Record<string, JinxInfo>>;
   all: Character[];
   specialRules: SpecialRule[];
+  footerComponents?: FooterComponent[];
+  footerDefaultsVersion?: number;
+  footerLayoutVersion?: number;
+  sideFirstNightTitle?: string;
+  sideOtherNightTitle?: string;
   secondPageRules?: SpecialRule[];  // special rules for the second page
   // second page configuration (from _meta)
   secondPageTitle?: boolean;  // whether to show the second page title

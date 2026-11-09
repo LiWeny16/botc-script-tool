@@ -9,6 +9,7 @@
  */
 
 @media print {
+  .header-drag-guides, .footer-drag-guides { display: none !important; }
 
   /* 重置所有页面边距 - 无白边 */
   @page {

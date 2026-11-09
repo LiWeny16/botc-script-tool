@@ -17,23 +17,25 @@ import {
   ListItemText,
   Divider,
 } from '@mui/material';
-import { Close as CloseIcon, Description as DescriptionIcon, LinkOff as LinkOffIcon } from '@mui/icons-material';
+import { Close as CloseIcon, Description as DescriptionIcon, InfoOutlined as InfoIcon, LinkOff as LinkOffIcon } from '@mui/icons-material';
 import { useTranslation } from '../utils/i18n';
 import { getAllSpecialRuleTemplates, type SpecialRuleTemplate } from '../data/utils/specialRules';
 
 interface AddCustomRuleDialogProps {
   open: boolean;
   onClose: () => void;
-  onAddRule: (ruleType: 'special_rule' | 'custom_jinx', templateId?: string) => void;
+  onAddRule: (ruleType: 'special_rule' | 'state' | 'custom_jinx', templateId?: string) => void;
+  initialType?: 'special_rule';
 }
 
 const AddCustomRuleDialog = ({
   open,
   onClose,
   onAddRule,
+  initialType,
 }: AddCustomRuleDialogProps) => {
   const { t, language } = useTranslation();
-  const [selectedType, setSelectedType] = useState<'special_rule' | 'custom_jinx' | null>(null);
+  const [selectedType, setSelectedType] = useState<'special_rule' | 'state' | 'custom_jinx' | null>(initialType || null);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const templates = getAllSpecialRuleTemplates();
   const getTemplateText = (text?: SpecialRuleTemplate['title']): string =>
@@ -64,6 +66,14 @@ const AddCustomRuleDialog = ({
       disabled: false,
     },
     {
+      type: 'state' as const,
+      title: t('specialRules.stateRule'),
+      description: t('specialRules.stateRuleExample'),
+      icon: <InfoIcon sx={{ fontSize: 48, color: 'primary.main' }} />,
+      example: t('specialRules.stateRuleExampleText'),
+      disabled: false,
+    },
+    {
       type: 'custom_jinx' as const,
       title: t('customJinx.addTitle'),
       description: t('customJinx.customJinxDescription'),
@@ -85,7 +95,7 @@ const AddCustomRuleDialog = ({
       </DialogTitle>
 
       <DialogContent dividers>
-        {!selectedType || selectedType === 'custom_jinx' ? (
+        {!selectedType || selectedType === 'custom_jinx' || selectedType === 'state' ? (
           <>
             <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
               {t('specialRules.selectType')}
@@ -209,14 +219,14 @@ const AddCustomRuleDialog = ({
               ))}
             </List>
 
-            <Button
+            {!initialType && <Button
               onClick={() => setSelectedType(null)}
               sx={{ mt: 2 }}
               variant="outlined"
               fullWidth
             >
               {t('common.backToTypeSelection')}
-            </Button>
+            </Button>}
           </>
         )}
       </DialogContent>

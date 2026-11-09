@@ -24,6 +24,7 @@ class ConfigStore {
 
   constructor() {
     makeAutoObservable(this);
+    if (typeof window !== 'undefined' && window.location.pathname.endsWith('/export-render.html')) return;
     this.loadConfig();
     this.detectLanguageFromUrl();
     this.setupUrlListener(); // Listen for URL changes

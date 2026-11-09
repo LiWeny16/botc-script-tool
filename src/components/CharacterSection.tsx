@@ -9,6 +9,7 @@ import { useTranslation } from '../utils/i18n';
 import { configStore } from '../stores/ConfigStore';
 import { uiConfigStore } from '../stores/UIConfigStore';
 import CharacterCard from './CharacterCard';
+import TitleContentGapHandle from './TitleContentGapHandle';
 import { useDragAutoScroll } from '../hooks/useDragAutoScroll';
 import {
   DndContext,
@@ -44,6 +45,7 @@ interface CharacterSectionProps {
   disableDrag?: boolean;
   readOnly?: boolean;
   compact?: boolean;
+  adjustHeaderHeight?: boolean;
 }
 
 type ColumnSide = 'left' | 'right';
@@ -115,7 +117,7 @@ const pointerFirstCollisionDetection: CollisionDetection = (args) => {
 const CharacterSection = observer(({
   team, characters, script, onReorder, onUpdateCharacter, onEditCharacter,
   onDeleteCharacter, onReplaceCharacter, onAddCustomCharacter,
-  disableDrag = false, readOnly = false, compact = false,
+  disableDrag = false, readOnly = false, compact = false, adjustHeaderHeight = false,
 }: CharacterSectionProps) => {
   const COMPACT_SCALE = compact ? 0.47 : 1;
   const { t } = useTranslation();
@@ -276,7 +278,9 @@ const CharacterSection = observer(({
             <><span style={{ color: teamLabelColor }}>{teamLabel}</span>·<span style={{ color: TEAM_COLORS[team] }}>{getTranslatedTeamName(team)}</span></>
           )}
         </Typography>
-        <Divider sx={{ flex: 1, ml: 1.5, borderColor: THEME_COLORS.gray, borderWidth: 1 }} />
+        {adjustHeaderHeight && !readOnly && !compact
+          ? <TitleContentGapHandle />
+          : <Divider sx={{ flex: 1, ml: 1.5, borderColor: THEME_COLORS.gray, borderWidth: 1 }} />}
       </Box>
 
       <Box sx={{ px: compact ? 0.2 : 2 }}>

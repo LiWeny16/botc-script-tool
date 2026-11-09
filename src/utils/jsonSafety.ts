@@ -134,6 +134,11 @@ export interface NormalizedScriptEntry {
   titleImageSize?: number;
   use_title_image?: boolean;
   show_title_flourish?: boolean;
+  title_flourish_scale?: number;
+  side_first_night_title?: string;
+  side_other_night_title?: string;
+  footer_defaults_version?: number;
+  footer_layout_version?: number;
   playerCount?: string;
   second_page_title?: boolean;
   second_page_title_text?: string;
@@ -217,7 +222,7 @@ export function normalizeScriptJsonInput(raw: unknown): NormalizeResult {
       'firstNightReminder', 'otherNightReminder',
       'author', 'logo', 'background', 'titleImage',
       'playerCount', 'second_page_title_text', 'second_page_title_image',
-      'second_page_order', 'name_en', 'nameEn']) {
+      'second_page_order', 'name_en', 'nameEn', 'side_first_night_title', 'side_other_night_title']) {
       const val = (entry as Record<string, unknown>)[key];
       if (val !== undefined && val !== null) {
         (normalized as Record<string, unknown>)[key] = asString(val);
@@ -231,7 +236,7 @@ export function normalizeScriptJsonInput(raw: unknown): NormalizeResult {
 
     // Number fields
     for (const key of ['firstNight', 'otherNight', 'titleImageSize',
-      'second_page_title_font_size', 'second_page_title_image_size']) {
+      'second_page_title_font_size', 'second_page_title_image_size', 'title_flourish_scale', 'footer_defaults_version', 'footer_layout_version']) {
       const val = (entry as Record<string, unknown>)[key];
       if (val !== undefined && val !== null) {
         (normalized as Record<string, unknown>)[key] = asNumber(val);
@@ -257,7 +262,7 @@ export function normalizeScriptJsonInput(raw: unknown): NormalizeResult {
     }
 
     // Passthrough complex fields (title, content, rules, jinx, jinxes, state, status)
-    for (const key of ['title', 'content', 'rules', 'jinx', 'jinxes', 'state', 'status']) {
+    for (const key of ['title', 'content', 'rules', 'jinx', 'jinxes', 'state', 'status', 'footer_components']) {
       const val = (entry as Record<string, unknown>)[key];
       if (val !== undefined) {
         (normalized as Record<string, unknown>)[key] = val;

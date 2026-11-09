@@ -6,24 +6,18 @@ import {
   Typography,
   CssBaseline,
   ThemeProvider,
-  createTheme,
   Paper,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogContentText,
   DialogActions,
   Button,
+  TextField,
+  useMediaQuery,
 } from '@mui/material';
-import {
-  Print as PrintIcon,
-  CheckCircleOutline as CheckIcon,
-  InfoOutlined as InfoIcon,
-  Image as ImageIcon,
-  OpenInNew as OpenInNewIcon,
-} from '@mui/icons-material';
 import { observer } from 'mobx-react-lite';
-import type { Script, Character } from './types';
+import type { Script, Character, FooterComponent, RichTextDocument } from './types';
+import type { Language } from './utils/languages';
 import InputPanel from './components/InputPanel';
 import ShareDialog from './components/ShareDialog';
 import CharacterEditDialog from './components/CharacterEditDialog';
@@ -36,16 +30,21 @@ import AddCustomRuleDialog from './components/AddCustomRuleDialog';
 import CustomJinxDialog from './components/CustomJinxDialog';
 import ScriptRenderer from './components/ScriptRenderer';
 import { generateScript } from './utils/scriptGenerator';
-import { THEME_COLORS, THEME_FONTS } from './theme/colors';
+import { appTheme as theme } from './theme/appTheme';
 import { useTranslation } from './utils/i18n';
 import { SEOManager } from './components/SEOManager';
 import { scriptStore } from './stores/ScriptStore';
+import { uiConfigStore } from './stores/UIConfigStore';
+import { DEFAULT_EXPLANATION_WIDTH, withDefaultFooterComponents } from './utils/defaultFooterComponents';
 import { configStore } from './stores/ConfigStore';
 import { getSpecialRuleTemplate } from './data/utils/specialRules';
 import { deepStripHtml } from './utils/richTextEditorUtils';
 import { getAllCharacterDictionaries, getCharacterDictionary, getCharacterInDictionary } from './data';
 import UISettingsDrawer from './components/UISettingsDrawer';
 import TowerImageDialog from './components/TowerImageDialog';
+import FooterComponentDialog from './components/FooterComponentDialog';
+import ExplanationEditorDialog from './components/ExplanationEditorDialog';
+import { LayoutContextMenuHost } from './components/LayoutContextMenu';
 import AboutDialog from './components/AboutDialog';
 import {
   GlobalStyles,
@@ -53,15 +52,15 @@ import {
 import { initGlobalShortcuts, cleanupGlobalShortcuts, registerSaveCallback, unregisterSaveCallback, showSaveAlert, alertUseMui } from './utils/event';
 import { saveScript } from './lib/cloudScripts';
 import { authStore } from './stores/AuthStore';
-import { OverlayScrollbars } from 'overlayscrollbars';
-import PrintDialog from './components/AppSub/PrintDialog';
+import ImageExportDialog, { type ExportMode } from './components/AppSub/ImageExportDialog';
+import A4LayoutGuide from './components/A4LayoutGuide';
 import UnlockModeDialog from './components/AppSub/UnlockModeDialog';
 import ExportJsonDialog from './components/AppSub/ExportJsonDialog';
 import { trackGenerateScript, trackExportJson, trackExportImage, trackExportPdf, trackClearScript, trackAddCharacter, trackRemoveCharacter, trackEditCharacter } from './utils/analytics';
-import { AnimatePresence } from 'framer-motion';
-import AnimatedDialog from './components/AnimatedDialog';
 import AgentFAB from './components/Agent/AgentFAB';
 import AgentDialog from './components/Agent/AgentDialog';
+import { normalizeOfficialStateCopy } from './utils/officialStateCopy';
+import { defaultExplanationDocuments, explanationForPage, splitExplanationDocument } from './utils/explanationRichText';
 
 // Place this above the App component, or below the theme definition
 const printStyles = {
@@ -173,43 +172,6 @@ const printStyles = {
 
   },
 };
-// Create theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: THEME_COLORS.good,
-    },
-    secondary: {
-      main: THEME_COLORS.evil,
-    },
-    background: {
-      default: '#f5f5f5',
-    },
-    text: {
-      primary: THEME_COLORS.text.primary,
-      secondary: THEME_COLORS.text.secondary,
-    },
-  },
-  typography: {
-    fontFamily: THEME_FONTS.fontFamily,
-  },
-  breakpoints: {
-    values: {
-      xs: 0,
-      sm: 600,
-      md: 960,
-      lg: 1280,
-      xl: 1920,
-    },
-  },
-  components: {
-    MuiDialog: { defaultProps: { disableScrollLock: true } },
-    MuiDrawer: { defaultProps: { disableScrollLock: true } },
-    MuiMenu: { defaultProps: { disableScrollLock: true } },
-    MuiPopover: { defaultProps: { disableScrollLock: true } },
-  },
-});
-
 /** Top-level crash barrier — catches ANY render error in the entire app tree */
 class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
   override state: { error: Error | null } = { error: null };
@@ -241,7 +203,7 @@ class AppErrorBoundary extends Component<{ children: ReactNode }, { error: Error
 }
 
 class ScriptRendererErrorBoundary extends Component<
-  { children: ReactNode; fallback: ReactNode },
+  { children: ReactNode; fallback: ReactNode; resetKey: string },
   { hasError: boolean }
 > {
   state = { hasError: false };
@@ -254,12 +216,17 @@ class ScriptRendererErrorBoundary extends Component<
     console.error('ScriptRenderer render crashed:', error, errorInfo);
   }
 
+  componentDidUpdate(previousProps: Readonly<{ children: ReactNode; fallback: ReactNode; resetKey: string }>) {
+    if (this.state.hasError && previousProps.resetKey !== this.props.resetKey) this.setState({ hasError: false });
+  }
+
   render() {
     return this.state.hasError ? this.props.fallback : this.props.children;
   }
 }
 
 const App = observer(() => {
+  const isMobileLayout = useMediaQuery(theme.breakpoints.down('md'));
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { t, language } = useTranslation();
@@ -277,20 +244,27 @@ const App = observer(() => {
     open: false,
     mode: null,
   });
+  const [nightOrderTitleEdit, setNightOrderTitleEdit] = useState<{ side: 'first' | 'other'; text: string } | null>(null);
   const [secondPageTitleEditDialogOpen, setSecondPageTitleEditDialogOpen] = useState<boolean>(false);
   const [specialRuleEditDialogOpen, setSpecialRuleEditDialogOpen] = useState<boolean>(false);
   const [editingSpecialRule, setEditingSpecialRule] = useState<any>(null);
   const [isInitialized, setIsInitialized] = useState<boolean>(false);
   const [addCustomRuleDialogOpen, setAddCustomRuleDialogOpen] = useState<boolean>(false);
+  const [addCustomRuleInitialType, setAddCustomRuleInitialType] = useState<'special_rule' | undefined>();
   const [aboutDialogOpen, setAboutDialogOpen] = useState<boolean>(false);
   const [jsonParseError, setJsonParseError] = useState<string>(''); // JSON parse error state
   const [customJinxDialogOpen, setCustomJinxDialogOpen] = useState<boolean>(false);
-  const [printDialogOpen, setPrintDialogOpen] = useState<boolean>(false); // Print dialog state
   const [exportJsonDialogOpen, setExportJsonDialogOpen] = useState<boolean>(false); // Export JSON options dialog
-  const [exportImageDialogOpen, setExportImageDialogOpen] = useState<boolean>(false); // Export image hint dialog
+  const [exportMode, setExportMode] = useState<ExportMode | null>(null);
+  const a4PreviewFrameRef = useRef<HTMLIFrameElement>(null);
   const [unlockModeDialogOpen, setUnlockModeDialogOpen] = useState<boolean>(false); // Unlock mode dialog
   const [pendingEditCharacter, setPendingEditCharacter] = useState<Character | null>(null); // Pending character to edit
   const [towerImageDialogOpen, setTowerImageDialogOpen] = useState<boolean>(false);
+  const [footerPage, setFooterPage] = useState<1 | 2>(1);
+  const [editingFooter, setEditingFooter] = useState<FooterComponent | null>(null);
+  const [editingExplanation, setEditingExplanation] = useState<{
+    value: RichTextDocument; layout: FooterComponent; language: Language; defaults?: Record<Language, RichTextDocument>;
+  } | null>(null);
 
   // Get state from MobX store
   const { script, originalJson, normalizedJson, customTitle, customAuthor } = scriptStore;
@@ -318,7 +292,10 @@ const App = observer(() => {
         // If stored data exists, regenerate script (to adapt to language changes)
         if (originalJson) {
           try {
-          const generatedScript = generateScript(originalJson, language);
+          const normalizedStateCopy = normalizeOfficialStateCopy(originalJson);
+          const migratedJson = withDefaultFooterComponents(normalizedStateCopy.json, false);
+          if (migratedJson !== originalJson) scriptStore.setOriginalJson(migratedJson);
+          const generatedScript = generateScript(migratedJson, language);
             if (customTitle) generatedScript.title = customTitle;
             if (customAuthor) generatedScript.author = customAuthor;
             scriptStore.setScript(generatedScript);
@@ -420,7 +397,9 @@ const App = observer(() => {
 
   const handleGenerate = (json: string, title?: string, author?: string) => {
     try {
-      const generatedScript = generateScript(json, language);
+      const normalizedStateCopy = normalizeOfficialStateCopy(json);
+      const sourceJson = withDefaultFooterComponents(normalizedStateCopy.json);
+      const generatedScript = generateScript(sourceJson, language);
 
       // Override title and author
       if (title) generatedScript.title = title;
@@ -429,7 +408,7 @@ const App = observer(() => {
       // Update store
       scriptStore.updateScript({
         script: generatedScript,
-        originalJson: json,
+        originalJson: sourceJson,
         customTitle: title || '',
         customAuthor: author || '',
       });
@@ -453,7 +432,9 @@ const App = observer(() => {
   useEffect(() => {
         if (originalJson && isInitialized) {
       try {
-        const generatedScript = generateScript(originalJson, language);
+        const normalizedStateCopy = normalizeOfficialStateCopy(originalJson);
+        if (normalizedStateCopy.changed) scriptStore.setOriginalJson(normalizedStateCopy.json);
+        const generatedScript = generateScript(normalizedStateCopy.json, language);
 
         // Restore custom title and author
         if (customTitle) generatedScript.title = customTitle;
@@ -470,9 +451,9 @@ const App = observer(() => {
   }, [language, originalJson, customTitle, customAuthor, isInitialized]);
 
   // Update character order and sync to JSON
-  const handleReorderCharacters = (team: string, newOrder: Character[], columnLeftCount?: number) => {
+  const handleReorderCharacters = useCallback((team: string, newOrder: Character[], columnLeftCount?: number) => {
     scriptStore.reorderCharacters(team, newOrder, columnLeftCount);
-  };
+  }, []);
 
   // Update character info and sync to JSON
   const handleUpdateCharacter = useCallback((characterId: string, updates: Partial<Character>, target?: Character | null) => {
@@ -480,7 +461,7 @@ const App = observer(() => {
   }, []);
 
   // Handle editing character
-  const handleEditCharacter = (character: Character) => {
+  const handleEditCharacter = useCallback((character: Character) => {
     // Check if in official ID parse mode
     if (configStore.config.officialIdParseMode) {
       // Save pending character to edit, show unlock dialog
@@ -492,7 +473,7 @@ const App = observer(() => {
     setEditingCharacter(character);
     setEditDialogOpen(true);
     trackEditCharacter({ characterId: character.id });
-  };
+  }, []);
 
   // Handle unlock mode and continue editing
   const handleUnlockAndEdit = () => {
@@ -538,13 +519,12 @@ const App = observer(() => {
   const handleCloseTitleEdit = useCallback(() => setTitleEditState({ open: false, mode: null }), []);
   const handleCloseSecondPageTitleEdit = useCallback(() => setSecondPageTitleEditDialogOpen(false), []);
   const handleCloseExportJson = useCallback(() => setExportJsonDialogOpen(false), []);
-  const handleCloseExportImage = useCallback(() => setExportImageDialogOpen(false), []);
+  const handleCloseExportImage = useCallback(() => setExportMode(null), []);
   const handleCloseSpecialRuleEdit = useCallback(() => setSpecialRuleEditDialogOpen(false), []);
   const handleCloseAddCustomRule = useCallback(() => setAddCustomRuleDialogOpen(false), []);
   const handleCloseAboutDialog = useCallback(() => setAboutDialogOpen(false), []);
   const handleCloseCustomJinx = useCallback(() => setCustomJinxDialogOpen(false), []);
-  const handleClosePrintDialog = useCallback(() => setPrintDialogOpen(false), []);
-  const handleOpenTowerImageDialog = useCallback(() => setTowerImageDialogOpen(true), []);
+  const handleOpenTowerImageDialog = useCallback((page: 1 | 2 = 1) => { setFooterPage(page); setTowerImageDialogOpen(true); }, []);
   const handleCloseTowerImageDialog = useCallback(() => setTowerImageDialogOpen(false), []);
 
   // Handle adding character to script
@@ -567,24 +547,24 @@ const App = observer(() => {
   };
 
   // Handle removing character from script
-  const handleRemoveCharacter = (character: Character) => {
+  const handleRemoveCharacter = useCallback((character: Character) => {
     scriptStore.removeCharacter(character);
     trackRemoveCharacter({ characterId: character.id, team: character.team });
-  };
+  }, []);
 
   // Handle replacing character
-  const handleReplaceCharacter = (character: Character, position: { x: number; y: number }) => {
+  const handleReplaceCharacter = useCallback((character: Character, position: { x: number; y: number }) => {
     setReplacingCharacter(character);
     setLibraryPosition(position);
     setLibraryCardOpen(true);
-  };
+  }, []);
 
-  const handleTitleEdit = (mode: 'main' | 'firstNight' | 'otherNight') => {
+  const handleTitleEdit = useCallback((mode: 'main' | 'firstNight' | 'otherNight') => {
     setTitleEditState({
       open: true,
       mode,
     });
-  };
+  }, []);
 
   // Handle creating a custom character via right-click context menu
   const handleAddCustomCharacter = useCallback((team: string) => {
@@ -603,9 +583,9 @@ const App = observer(() => {
   }, [t, scriptStore]);
 
   // Handle second page title editing
-  const handleSecondPageTitleEdit = () => {
+  const handleSecondPageTitleEdit = useCallback(() => {
     setSecondPageTitleEditDialogOpen(true);
-  };
+  }, []);
 
   // Handle first page title save
   const handleTitleSave = (data: {
@@ -650,32 +630,41 @@ const App = observer(() => {
   };
 
   // Handle special rule editing
-  const handleSpecialRuleEdit = (rule: any) => {
+  const handleSpecialRuleEdit = useCallback((rule: any) => {
     setEditingSpecialRule(rule);
     setSpecialRuleEditDialogOpen(true);
-  };
+  }, []);
 
   // Handle special rule save
   const handleSpecialRuleSave = (rule: any) => {
     scriptStore.updateSpecialRule(rule);
   };
+  const handleSpecialRuleDelete = useCallback((rule: any) => {
+    scriptStore.removeSpecialRule(rule);
+  }, []);
+  const handleOpenAddSpecialRule = useCallback(() => {
+    setAddCustomRuleInitialType('special_rule');
+    setAddCustomRuleDialogOpen(true);
+  }, []);
 
   // Handle adding custom rule
   const handleAddCustomRule = () => {
+    setAddCustomRuleInitialType(undefined);
     setAddCustomRuleDialogOpen(true);
   };
 
   // Handle night order reordering
-  const handleNightOrderReorder = (nightType: 'first' | 'other', oldIndex: number, newIndex: number) => {
+  const handleNightOrderReorder = useCallback((nightType: 'first' | 'other', oldIndex: number, newIndex: number) => {
     // If official ID parse mode is enabled, disable reordering
     if (configStore.config.officialIdParseMode) {
       console.log('Official ID parse mode is enabled, night order modification disabled');
       return;
     }
 
-    if (!script) return;
+    const currentScript = scriptStore.script;
+    if (!currentScript) return;
 
-    const actions = nightType === 'first' ? [...script.firstnight] : [...script.othernight];
+    const actions = nightType === 'first' ? [...currentScript.firstnight] : [...currentScript.othernight];
     if (oldIndex === newIndex || oldIndex < 0 || oldIndex >= actions.length || newIndex < 0 || newIndex > actions.length) return;
 
     // Get the dragged action (may be a character or a special icon: NIGHT/MINION INFO/DEMON INFO)
@@ -706,7 +695,7 @@ const App = observer(() => {
     const characterImage = draggedAction.image;
 
     // Special icons (Dusk/Mi/Di) are not characters — update their index directly
-    const character = script.all.find(c => c.image === characterImage);
+    const character = currentScript.all.find(c => c.image === characterImage);
     if (!character) {
       scriptStore.updateNightOrderIconIndex(nightType, characterImage, newOrderValue);
       return;
@@ -721,14 +710,33 @@ const App = observer(() => {
 
     // Update character and sync to JSON
     handleUpdateCharacter(character.id, updates);
+  }, [handleUpdateCharacter]);
+
+  const handleOpenExplanation = (page: 1 | 2) => {
+    const current = scriptStore.script;
+    if (!current) return;
+    const components = current.footerComponents || [];
+    const existing = components.find(item => item.type === 'stateLayout' && item.page === page);
+    const layout: FooterComponent = existing ? { ...existing, hidden: false }
+      : { id: `state-layout-${page}`, type: 'stateLayout', page, x: 0, y: 0, width: DEFAULT_EXPLANATION_WIDTH };
+    const preview: Script = { ...current, footerComponents: existing
+      ? components.map(item => item.id === existing.id ? layout : item) : [...components, layout] };
+    const value = explanationForPage(preview, page, language, uiConfigStore.config.enableTwoPageMode);
+    const defaults = value ? undefined : defaultExplanationDocuments();
+    setEditingExplanation({ value: value || defaults![language], layout, language, defaults });
   };
 
   // Handle adding new rule
-  const handleAddNewRule = (ruleType: 'special_rule' | 'custom_jinx', templateId?: string) => {
+  const handleAddNewRule = (ruleType: 'special_rule' | 'state' | 'custom_jinx', templateId?: string, footerPage?: 1 | 2) => {
     if (ruleType === 'custom_jinx') {
       // Open custom jinx dialog
       setAddCustomRuleDialogOpen(false);
       setCustomJinxDialogOpen(true);
+      return;
+    }
+
+    if (ruleType === 'state' && script) {
+      handleOpenExplanation(footerPage || (uiConfigStore.config.enableTwoPageMode ? 2 : 1));
       return;
     }
 
@@ -1016,21 +1024,12 @@ const App = observer(() => {
 
   const handleExportPDF = () => {
     trackExportPdf();
-    // Show print settings dialog
-    setPrintDialogOpen(true);
+    setExportMode('print');
   };
 
   const handleExportImage = () => {
     trackExportImage();
-    // Show export image hint dialog
-    setExportImageDialogOpen(true);
-  };
-
-  const handleConfirmPrint = () => {
-    // Close dialog and trigger print
-    setPrintDialogOpen(false);
-    // Trigger browser print, user can save as PDF
-    window.print();
+    setExportMode('image');
   };
 
   // Clear all data, but keep default JSON framework
@@ -1047,10 +1046,11 @@ const App = observer(() => {
 
     // Parse default JSON, generate empty script (so add buttons can add characters)
     try {
-      const generatedScript = generateScript(defaultJson, language);
+      const initializedJson = withDefaultFooterComponents(defaultJson);
+      const generatedScript = generateScript(initializedJson, language);
       scriptStore.updateScript({
         script: generatedScript,
-        originalJson: defaultJson,
+        originalJson: initializedJson,
         customTitle: '',
         customAuthor: '',
       });
@@ -1067,6 +1067,7 @@ const App = observer(() => {
   return (
     <AppErrorBoundary>
     <ThemeProvider theme={theme}>
+      <LayoutContextMenuHost />
       <GlobalStyles styles={printStyles} /> {/* 👈 add here */}
       <SEOManager />
       <CssBaseline />
@@ -1110,9 +1111,10 @@ const App = observer(() => {
           )}
 
           {/* Script display area - using ScriptRenderer component */}
+          {script && <A4LayoutGuide language={language} previewFrameRef={a4PreviewFrameRef} />}
           {script && (
             <ScriptRendererErrorBoundary
-              key={originalJson}
+              resetKey={originalJson}
               fallback={
                 <Paper sx={{ p: 4, textAlign: 'center', backgroundColor: 'rgba(255, 255, 255, 0.9)' }}>
                   <Typography color="error">
@@ -1132,11 +1134,16 @@ const App = observer(() => {
                 onReplaceCharacter={handleReplaceCharacter}
                 onAddCustomCharacter={handleAddCustomCharacter}
                 onTitleEdit={handleTitleEdit}
+                onEditNightOrderTitle={(side) => setNightOrderTitleEdit({ side, text: side === 'first'
+                  ? scriptStore.script?.sideFirstNightTitle || t('firstNight') : scriptStore.script?.sideOtherNightTitle || t('otherNight') })}
                 onSecondPageTitleEdit={handleSecondPageTitleEdit}
                 onSpecialRuleEdit={handleSpecialRuleEdit}
-                onSpecialRuleDelete={(rule) => scriptStore.removeSpecialRule(rule)}
+                onSpecialRuleDelete={handleSpecialRuleDelete}
+                onAddSpecialRule={handleOpenAddSpecialRule}
                 onNightOrderReorder={handleNightOrderReorder}
                 onOpenTowerImageDialog={handleOpenTowerImageDialog}
+                onEditFooterComponent={setEditingFooter}
+                onEditExplanation={(value, layout) => setEditingExplanation({ value, layout, language })}
               />
             </ScriptRendererErrorBoundary>
           )}
@@ -1164,7 +1171,6 @@ const App = observer(() => {
         </Container >
       </Box >
 
-      <AnimatePresence>
       {shareDialogOpen && (
         <ShareDialog
           key="share-dialog"
@@ -1216,7 +1222,7 @@ const App = observer(() => {
           key="ui-settings"
           open={uiSettingsOpen}
           onClose={handleCloseUISettings}
-          onOpenTowerImageDialog={handleOpenTowerImageDialog}
+          onOpenTowerImageDialog={() => handleOpenTowerImageDialog(1)}
         />
       )}
 
@@ -1224,12 +1230,54 @@ const App = observer(() => {
         key="tower-image"
         open={towerImageDialogOpen}
         onClose={handleCloseTowerImageDialog}
+        script={script}
+        page={footerPage}
+        onAddExplanation={handleOpenExplanation}
+        onEdit={setEditingFooter}
+        onEditExplanation={(value, layout) => setEditingExplanation({ value, layout, language })}
       />
+
+      {editingFooter && <FooterComponentDialog key={editingFooter.id} item={editingFooter} onClose={() => setEditingFooter(null)}
+        onSave={(item) => scriptStore.setFooterComponents((scriptStore.script?.footerComponents || []).map(old => old.id === item.id ? item : old))} />}
+
+      {editingExplanation && <ExplanationEditorDialog key={`${editingExplanation.layout.id}-${editingExplanation.language}`}
+        value={editingExplanation.value} onClose={() => setEditingExplanation(null)} onSave={(value) => {
+          const components = scriptStore.script?.footerComponents || [];
+          const singlePage = !uiConfigStore.config.enableTwoPageMode && editingExplanation.layout.page === 1;
+          const parts = singlePage ? splitExplanationDocument(value) : null;
+          const originalParts = singlePage ? splitExplanationDocument(editingExplanation.value) : null;
+          const pages: (1 | 2)[] = singlePage && (parts?.[2].nodes.length || originalParts?.[2].nodes.length) ? [1, 2] : [editingExplanation.layout.page];
+          const nextComponents = [...components];
+          for (const page of pages) {
+            const index = nextComponents.findIndex(item => item.type === 'stateLayout' && item.page === page);
+            const existing = index >= 0 ? nextComponents[index] : undefined;
+            const base: FooterComponent = page === editingExplanation.layout.page ? editingExplanation.layout
+              : { id: `state-layout-${page}`, type: 'stateLayout', page, x: 0, y: 0, width: DEFAULT_EXPLANATION_WIDTH };
+            const next: FooterComponent = { ...base, ...existing, hidden: false,
+              richTextDocuments: { ...(existing?.defaultContent || base.defaultContent ? defaultExplanationDocuments() : undefined),
+                ...(page === editingExplanation.layout.page ? editingExplanation.defaults : undefined),
+                ...existing?.richTextDocuments, [editingExplanation.language]: parts ? parts[page] : value } };
+            if (index >= 0) nextComponents[index] = next; else nextComponents.push(next);
+          }
+          scriptStore.setFooterComponents(nextComponents);
+          setEditingExplanation(null);
+        }} />}
+
+      {nightOrderTitleEdit && <Dialog open onClose={() => setNightOrderTitleEdit(null)} fullWidth maxWidth="xs">
+        <DialogTitle>{t('ui.edit')} · {nightOrderTitleEdit.side === 'first' ? t('firstNight') : t('otherNight')}</DialogTitle>
+        <DialogContent dividers><TextField autoFocus fullWidth label={nightOrderTitleEdit.side === 'first' ? t('firstNight') : t('otherNight')} value={nightOrderTitleEdit.text}
+          onChange={event => setNightOrderTitleEdit({ ...nightOrderTitleEdit, text: event.target.value })} /></DialogContent>
+        <DialogActions><Button onClick={() => setNightOrderTitleEdit(null)}>{t('common.cancel')}</Button>
+          <Button variant="contained" onClick={() => { scriptStore.updateTitleInfo(nightOrderTitleEdit.side === 'first'
+            ? { sideFirstNightTitle: nightOrderTitleEdit.text.trim() } : { sideOtherNightTitle: nightOrderTitleEdit.text.trim() });
+          setNightOrderTitleEdit(null); }}>{t('common.save')}</Button></DialogActions>
+      </Dialog>}
 
       {titleEditState.open && (
         <TitleEditDialog
           key="title-edit"
           open={titleEditState.open}
+          isMainTitle={titleEditState.mode === 'main'}
           title={
             titleEditState.mode === 'main'
               ? script?.title || ''
@@ -1259,10 +1307,12 @@ const App = observer(() => {
               : script?.useStorytellerOtherNightTitleImage
           }
           showTitleFlourish={script?.showTitleFlourish}
+          titleFlourishScale={script?.titleFlourishScale}
           author={script?.author || ''}
           playerCount={script?.playerCount || ''}
           textAlignment={(script as any)?.textAlignment || 'center'}
-          authorAlignment={(script as any)?.authorAlignment || 'center'}
+          authorAlignment={script?.authorAlignment}
+          defaultAuthorAlignment={script?.specialRules?.length || uiConfigStore.config.legacyCenteredAuthorLineTargets?.includes(isMobileLayout ? 'authorLineMobile' : 'authorLine') ? 'center' : 'right'}
           onClose={() =>
             setTitleEditState({ open: false, mode: null })
           }
@@ -1274,6 +1324,7 @@ const App = observer(() => {
                 titleImageSize: data.titleImageSize,
                 useTitleImage: data.useTitleImage,
                 showTitleFlourish: data.showTitleFlourish,
+                titleFlourishScale: data.titleFlourishScale,
                 author: data.author,
                 playerCount: data.playerCount,
                 textAlignment: data.textAlignment,
@@ -1333,6 +1384,7 @@ const App = observer(() => {
           open={addCustomRuleDialogOpen}
           onClose={handleCloseAddCustomRule}
           onAddRule={handleAddNewRule}
+          initialType={addCustomRuleInitialType}
         />
       )}
 
@@ -1359,107 +1411,8 @@ const App = observer(() => {
 
 
 
-      {exportImageDialogOpen && (
-        <AnimatedDialog
-          key="export-image"
-          open={exportImageDialogOpen}
-          onClose={handleCloseExportImage}
-          disableScrollLock={true}
-          maxWidth="sm"
-          fullWidth
-          PaperProps={{
-            sx: {
-              borderRadius: 3,
-              boxShadow: '0 12px 48px rgba(0,0,0,0.15)',
-            }
-          }}
-        >
-          <DialogTitle
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              pb: 2,
-              pt: 3,
-              px: 3,
-            }}
-          >
-            <ImageIcon sx={{ fontSize: 32, color: '#ff9800' }} />
-            <Typography variant="h6" component="span" sx={{ fontWeight: 700, fontSize: '1.25rem' }}>
-              {t('dialog.exportImageTitle')}
-            </Typography>
-          </DialogTitle>
-          <DialogContent sx={{ px: 3, pb: 3 }}>
-            <Typography variant="body1" sx={{ color: '#333', mb: 3, lineHeight: 1.8, fontSize: '1rem' }}>
-              {t('dialog.exportImageMessage')}
-            </Typography>
-
-            <Box
-              sx={{
-                p: 2.5,
-                borderRadius: 2,
-                border: '2px solid #fff3e0',
-                backgroundColor: '#fffbf5',
-                mb: 2,
-              }}
-            >
-              <Typography variant="body2" sx={{ color: '#666', fontSize: '0.9rem', lineHeight: 1.6 }}>
-                {t('dialog.exportImageTip')}
-              </Typography>
-            </Box>
-          </DialogContent>
-          <DialogActions sx={{ px: 3, py: 2.5, backgroundColor: '#fafafa', gap: 1 }}>
-            <Button
-              onClick={() => setExportImageDialogOpen(false)}
-              sx={{
-                px: 3,
-                py: 1,
-                fontWeight: 500,
-                color: '#757575',
-                '&:hover': {
-                  backgroundColor: '#eeeeee',
-                }
-              }}
-            >
-              {t('common.cancel')}
-            </Button>
-            <Button
-              variant="contained"
-              endIcon={<OpenInNewIcon />}
-              onClick={() => {
-                const url = language === 'cn'
-                  ? 'https://www.ilovepdf.com/zh-cn/pdf_to_jpg'
-                  : language === 'es'
-                    ? 'https://www.ilovepdf.com/es/pdf_a_jpg'
-                  : 'https://www.ilovepdf.com/pdf_to_jpg';
-                window.open(url, '_blank');
-                setExportImageDialogOpen(false);
-              }}
-              sx={{
-                px: 3,
-                py: 1,
-                fontWeight: 600,
-                backgroundColor: '#ff9800',
-                '&:hover': {
-                  backgroundColor: '#f57c00',
-                }
-              }}
-            >
-              {t('dialog.gotoILovePDF')}
-            </Button>
-          </DialogActions>
-        </AnimatedDialog>
-      )}
-
-      {printDialogOpen && (
-        <PrintDialog
-          key="print"
-          open={printDialogOpen}
-          onClose={handleClosePrintDialog}
-          onConfirm={handleConfirmPrint}
-          t={t as (key: string) => string}
-          language={language}
-        />
+      {exportMode && (
+        <ImageExportDialog open onClose={handleCloseExportImage} language={language} scriptTitle={script?.title || 'script'} initialMode={exportMode} sourceFrame={a4PreviewFrameRef.current} />
       )}
 
       {unlockModeDialogOpen && (
@@ -1474,8 +1427,6 @@ const App = observer(() => {
           t={t as (key: string) => string}
         />
       )}
-      </AnimatePresence>
-
       {/* AI Agent */}
       <AgentFAB />
       <AgentDialog />

@@ -34,7 +34,7 @@ import {
   FontDownload as FontDownloadIcon,
   Add as AddIcon,
 } from '@mui/icons-material';
-import { uiConfigStore } from '../stores/UIConfigStore';
+import { MAX_TITLE_CONTENT_GAP, MIN_TITLE_CONTENT_GAP, uiConfigStore } from '../stores/UIConfigStore';
 import { useTranslation } from '../utils/i18n';
 import FontUploader from './FontUploader';
 
@@ -643,6 +643,21 @@ const UISettingsDrawer = observer(({ open, onClose, onOpenTowerImageDialog }: UI
                       onChange={(_, value) => uiConfigStore.updateConfig({ titleHeightMd: value as number })}
                       min={30}
                       max={250}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+
+                  {/* 标题与角色列表间距 */}
+                  <Box>
+                    <Typography variant="caption" gutterBottom>
+                      {t('ui.titleContentGap')}: {uiConfigStore.config.titleContentGap}px
+                    </Typography>
+                    <Slider
+                      value={uiConfigStore.config.titleContentGap}
+                      onChange={(_, value) => uiConfigStore.setTitleContentGap(value as number, { persist: false })}
+                      onChangeCommitted={(_, value) => uiConfigStore.setTitleContentGap(value as number)}
+                      min={MIN_TITLE_CONTENT_GAP}
+                      max={MAX_TITLE_CONTENT_GAP}
                       valueLabelDisplay="auto"
                     />
                   </Box>

@@ -16,6 +16,7 @@ class ScriptStore {
   
   constructor() {
     makeAutoObservable(this);
+    if (typeof window !== 'undefined' && window.location.pathname.endsWith('/export-render.html')) return;
     this.loadFromStorage();
   }
 
@@ -64,19 +65,23 @@ class ScriptStore {
         name: script.title,
         author: script.author || '',
       };
+      if (script.footerComponents?.length) meta.footer_components = script.footerComponents;
+      if (script.footerDefaultsVersion !== undefined) meta.footer_defaults_version = script.footerDefaultsVersion;
+      if (script.footerLayoutVersion !== undefined) meta.footer_layout_version = script.footerLayoutVersion;
+      if (script.sideFirstNightTitle) meta.side_first_night_title = script.sideFirstNightTitle;
+      if (script.sideOtherNightTitle) meta.side_other_night_title = script.sideOtherNightTitle;
       if (script.authorImage) meta.authorImage = script.authorImage;
       if ((script as any).titleEn) meta.name_en = (script as any).titleEn;
       if (script.titleImage) meta.titleImage = script.titleImage;
       if (script.titleImageSize) meta.titleImageSize = script.titleImageSize;
       if (script.useTitleImage !== undefined) meta.use_title_image = script.useTitleImage;
       if (script.showTitleFlourish !== undefined) meta.show_title_flourish = script.showTitleFlourish;
+      if (script.titleFlourishScale !== undefined) meta.title_flourish_scale = script.titleFlourishScale;
       if (script.playerCount) meta.playerCount = script.playerCount;
       if ((script as any).textAlignment && (script as any).textAlignment !== 'center') {
         meta.text_alignment = (script as any).textAlignment;
       }
-      if ((script as any).authorAlignment && (script as any).authorAlignment !== 'center') {
-        meta.author_alignment = (script as any).authorAlignment;
-      }
+      if (script.authorAlignment) meta.author_alignment = script.authorAlignment;
       
       // Second page configuration
       if (script.secondPageTitle !== undefined) meta.second_page_title = script.secondPageTitle;
@@ -122,11 +127,13 @@ class ScriptStore {
             stateRules.push({
               stateName: rule.title,
               stateDescription: rule.content,
+              ...(rule.footerPage ? { footer_page: rule.footerPage } : {}),
             });
           } else if (rule.sourceType === 'status') {
             statusRules.push({
               name: rule.title,
               skill: rule.content,
+              ...(rule.footerPage ? { footer_page: rule.footerPage } : {}),
             });
           }
         });
@@ -139,11 +146,13 @@ class ScriptStore {
             stateRules.push({
               stateName: rule.title,
               stateDescription: rule.content,
+              ...(rule.footerPage ? { footer_page: rule.footerPage } : {}),
             });
           } else if (rule.sourceType === 'status' && !statusRules.some(s => s.name === rule.title)) {
             statusRules.push({
               name: rule.title,
               skill: rule.content,
+              ...(rule.footerPage ? { footer_page: rule.footerPage } : {}),
             });
           }
         });
@@ -216,6 +225,7 @@ class ScriptStore {
               team: 'special_rule',
               title: rule.title,
               content: rule.content,
+              ...(rule.rules?.length ? { rules: rule.rules } : {}),
             });
           }
         });
@@ -260,6 +270,7 @@ class ScriptStore {
     if (data.originalJson !== undefined) this.originalJson = data.originalJson;
     if (data.customTitle !== undefined) this.customTitle = data.customTitle;
     if (data.customAuthor !== undefined) this.customAuthor = data.customAuthor;
+    if (data.script) this.generateNormalizedJson(data.script);
     this.saveToStorage();
   }
 
@@ -649,6 +660,9 @@ class ScriptStore {
     titleImageSize?: number;
     useTitleImage?: boolean;
     showTitleFlourish?: boolean;
+    titleFlourishScale?: number;
+    sideFirstNightTitle?: string;
+    sideOtherNightTitle?: string;
     author?: string;
     playerCount?: string;
     textAlignment?: 'left' | 'center' | 'right';
@@ -693,6 +707,9 @@ class ScriptStore {
     if (data.showTitleFlourish !== undefined) {
       updatedScript.showTitleFlourish = data.showTitleFlourish;
     }
+    if (data.titleFlourishScale !== undefined) updatedScript.titleFlourishScale = data.titleFlourishScale;
+    if (data.sideFirstNightTitle !== undefined) updatedScript.sideFirstNightTitle = data.sideFirstNightTitle;
+    if (data.sideOtherNightTitle !== undefined) updatedScript.sideOtherNightTitle = data.sideOtherNightTitle;
 
     if (data.author !== undefined) updatedScript.author = data.author;
     if (data.playerCount !== undefined) updatedScript.playerCount = data.playerCount;
@@ -793,6 +810,22 @@ class ScriptStore {
   }
 
   // Update special rule
+  setFooterComponents(footerComponents: Script['footerComponents']) {
+    if (!this.script) return;
+    try {
+      const json = this.safeParseOriginalJsonArray();
+      let meta = json.find((entry: any) => entry && typeof entry === 'object' && entry.id === '_meta');
+      if (!meta) { meta = { id: '_meta' }; json.unshift(meta); }
+      if (footerComponents?.length) meta.footer_components = footerComponents;
+      else delete meta.footer_components;
+      this.originalJson = JSON.stringify(json, null, 2);
+      this.setScript({ ...this.script, footerComponents });
+    } catch (error) {
+      console.error('Failed to save footer components:', error);
+    }
+  }
+
+  // Update special rule
   updateSpecialRule(rule: any) {
     if (!this.script) return;
 
@@ -827,7 +860,14 @@ class ScriptStore {
 
     // Remove from secondPageRules (if exists)
     if (updatedScript.secondPageRules) {
-      updatedScript.secondPageRules = updatedScript.secondPageRules.filter(r => r.id !== rule.id);
+      updatedScript.secondPageRules = updatedScript.secondPageRules.filter(r => r.id !== rule.id).map(r => {
+        if ((rule.sourceType === 'state' || rule.sourceType === 'status') && r.sourceType === rule.sourceType
+          && typeof r.sourceIndex === 'number' && typeof rule.sourceIndex === 'number' && r.sourceIndex > rule.sourceIndex) {
+          const sourceIndex = r.sourceIndex - 1;
+          return { ...r, sourceIndex, id: `_meta_${r.sourceType}_${sourceIndex}` };
+        }
+        return r;
+      });
     }
 
     this.setScript(updatedScript);
@@ -1121,6 +1161,9 @@ class ScriptStore {
     titleImageSize?: number;
     useTitleImage?: boolean;
     showTitleFlourish?: boolean;
+    titleFlourishScale?: number;
+    sideFirstNightTitle?: string;
+    sideOtherNightTitle?: string;
     author?: string;
     playerCount?: string;
     textAlignment?: 'left' | 'center' | 'right';
@@ -1174,6 +1217,9 @@ class ScriptStore {
           if (data.showTitleFlourish !== undefined) {
             updatedMeta.show_title_flourish = data.showTitleFlourish;
           }
+          if (data.titleFlourishScale !== undefined) updatedMeta.title_flourish_scale = data.titleFlourishScale;
+          if (data.sideFirstNightTitle !== undefined) updatedMeta.side_first_night_title = data.sideFirstNightTitle;
+          if (data.sideOtherNightTitle !== undefined) updatedMeta.side_other_night_title = data.sideOtherNightTitle;
           if (data.author !== undefined) updatedMeta.author = data.author;
           if (data.playerCount !== undefined) {
             if (data.playerCount) {
@@ -1190,7 +1236,7 @@ class ScriptStore {
             }
           }
           if (data.authorAlignment !== undefined) {
-            if (data.authorAlignment && data.authorAlignment !== 'center') {
+            if (data.authorAlignment) {
               updatedMeta.author_alignment = data.authorAlignment;
             } else {
               delete updatedMeta.author_alignment;
@@ -1269,13 +1315,16 @@ class ScriptStore {
         if (data.showTitleFlourish !== undefined) {
           newMeta.show_title_flourish = data.showTitleFlourish;
         }
+        if (data.titleFlourishScale !== undefined) newMeta.title_flourish_scale = data.titleFlourishScale;
+        if (data.sideFirstNightTitle !== undefined) newMeta.side_first_night_title = data.sideFirstNightTitle;
+        if (data.sideOtherNightTitle !== undefined) newMeta.side_other_night_title = data.sideOtherNightTitle;
         if (data.playerCount) {
           newMeta.playerCount = data.playerCount;
         }
         if (data.textAlignment && data.textAlignment !== 'center') {
           newMeta.text_alignment = data.textAlignment;
         }
-        if (data.authorAlignment && data.authorAlignment !== 'center') {
+        if (data.authorAlignment) {
           newMeta.author_alignment = data.authorAlignment;
         }
         if (data.secondPageTitleText) {
