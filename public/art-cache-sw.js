@@ -158,6 +158,9 @@ async function handle(request) {
 self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', event => event.waitUntil((async () => {
   await self.clients.claim();
+  // Remove only this application's obsolete Cache Storage versions; other
+  // applications' caches and user-uploaded IndexedDB data are left alone.
+  try { await Promise.all((await caches.keys()).filter(key => /^botc-static-v\d+$/.test(key)).map(key => caches.delete(key))); } catch { /* Storage may be disabled. */ }
   const assets = await manifest;
   if (assets) await prune(assets);
 })()));

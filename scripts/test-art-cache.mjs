@@ -77,9 +77,12 @@ try {
     'the cached proxy image is readable for export even when its original host has no CORS');
   await context.setOffline(false);
 
+  await page.evaluate(async () => { await caches.open('botc-static-v6'); await caches.open('unrelated-cache'); });
   version = 'v2'; revision = 'second'; image = Buffer.from('new-image');
   await page.evaluate(() => navigator.serviceWorker.register('/art-cache-sw.js?v=v2'));
   await page.waitForFunction(() => navigator.serviceWorker.controller?.scriptURL.includes('v=v2'));
+  await page.waitForFunction(async () => !(await caches.keys()).includes('botc-static-v6'));
+  assert.ok((await page.evaluate(() => caches.keys())).includes('unrelated-cache'), 'other caches must be preserved');
   assert.equal(await getImage(), 'new-image', 'a new manifest revision must replace stale artwork');
   assert.ok(requests > firstRequests);
   console.log('IndexedDB artwork cache, external icon/proxy fallback, offline reuse, and revision invalidation passed.');
