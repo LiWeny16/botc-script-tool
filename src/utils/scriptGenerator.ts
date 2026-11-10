@@ -734,13 +734,8 @@ export function generateScript(jsonString: string, language: Language = 'cn'): S
   script.firstnight.sort((a, b) => a.index - b.index);
   script.othernight.sort((a, b) => a.index - b.index);
 
-  // 每个阵营内部:自定义(有作者)角色稳定置底,官方在前
-  Object.keys(script.characters).forEach(teamKey => {
-    const arr = script.characters[teamKey];
-    if (arr.length > 1) {
-      script.characters[teamKey] = [...arr.filter(c => !c.author), ...arr.filter(c => c.author)];
-    }
-  });
+  // Preserve the script's order, including custom characters. Re-sorting by author
+  // here silently undoes drag-and-drop whenever the saved JSON is regenerated.
 
   return script;
 }

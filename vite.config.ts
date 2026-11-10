@@ -1,12 +1,46 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'node:url'
+import { createHash } from 'node:crypto'
+import { readdirSync, readFileSync } from 'node:fs'
+import { join, relative, sep } from 'node:path'
+
+// Content hashes let the browser keep unchanged artwork across deployments
+// while replacing only files whose pixels have actually changed.
+const artRoot = fileURLToPath(new URL('./public/imgs', import.meta.url))
+const artAssets: Record<string, string> = {}
+function collectArt(directory: string) {
+  for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+    const path = join(directory, entry.name)
+    if (entry.isDirectory()) collectArt(path)
+    else if (/\.(png|jpe?g|webp|avif|gif|svg)$/i.test(entry.name)) {
+      const url = '/imgs/' + relative(artRoot, path).split(sep).map(encodeURIComponent).join('/')
+      artAssets[url] = createHash('sha256').update(readFileSync(path)).digest('hex').slice(0, 16)
+    }
+  }
+}
+collectArt(artRoot)
+const artVersion = createHash('sha256').update(JSON.stringify(artAssets)).digest('hex').slice(0, 16)
+const artManifest = JSON.stringify({ version: artVersion, assets: artAssets })
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
   plugins: [
     react(),
+    {
+      name: 'botc-art-cache-manifest',
+      configureServer(server) {
+        server.middlewares.use('/art-cache-manifest.json', (_req, res) => {
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Cache-Control', 'no-store')
+          res.end(artManifest)
+        })
+      },
+      generateBundle() {
+        this.emitFile({ type: 'asset', fileName: 'art-cache-manifest.json', source: artManifest })
+      },
+    },
   ],
   server: {
     host: '0.0.0.0',
@@ -56,6 +90,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
   },
   define: {
+    __ART_CACHE_VERSION__: JSON.stringify(artVersion),
     VITE_GA_MEASUREMENT_ID: JSON.stringify(process.env.VITE_GA_MEASUREMENT_ID || 'G-VB8HT63ZX6'),
   },
 })

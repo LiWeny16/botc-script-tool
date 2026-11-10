@@ -26,7 +26,18 @@ export const CN_TO_EN_ID_MAP: Record<string, string> = {
   'village_idiot': 'villageidiot',
   'plague_doctor': 'plaguedoctor',
   'organ_grinder': 'organgrinder',
-  'spirit_of_ivory': 'spiritofivory'
+  'spirit_of_ivory': 'spiritofivory',
+  // The project keeps historical local ids for these official extras.
+  'hells_librarian': 'hellslibrarian',
+  'gardener_loric': 'gardener',
+  'bigwig_loric': 'bigwig',
+  'godofug_loric': 'godofug',
+  'Hindu_loric': 'hindu',
+  'knaves_loric': 'knaves',
+  'pope_loric': 'pope',
+  'tor_loric': 'tor',
+  'ventriloquist_loric': 'ventriloquist',
+  'Zenomancer_loric': 'zenomancer',
 };
 
 // 英文ID -> 中文ID 的映射（反向映射）

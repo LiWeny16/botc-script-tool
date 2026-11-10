@@ -449,7 +449,7 @@
       "Tot"
     ],
     "setup": false,
-    "ability": "Jede Nacht*, wähle einen lebenden Spieler. Wenn er gut ist, stirbt er, aber er ist der einzige Spieler, der heute Nacht sterben kann."
+    "ability": "Jede Nacht* wähle einen lebenden Spieler. Ist er gut, stirbt er und der Dämon tötet heute Nacht nicht. Ein guter Spieler gilt als böse."
   },
   {
     "id": "gossip",
@@ -505,7 +505,7 @@
       "Keine Fähigkeit"
     ],
     "setup": false,
-    "ability": "Einmal pro Spiel, in der Nacht, wähle einen Spieler: Dieser lernt, wer du bist."
+    "ability": "Einmal pro Spiel wähle nachts einen Spieler: Er erfährt, dass du der Nachtwächter bist."
   },
   {
     "id": "courtier",
@@ -665,7 +665,7 @@
       "Ist der Alchemist"
     ],
     "setup": false,
-    "ability": "Du hast eine nicht im Spiel befindliche Minion Fähigkeit.",
+    "ability": "Du hast eine Diener-Fähigkeit. Wenn du sie benutzt, kann der Erzähler dich auffordern, anders zu wählen.",
     "special": [
       {
         "type": "reveal",
@@ -1091,7 +1091,7 @@
       "Guess Used"
     ],
     "setup": false,
-    "ability": "Alle Minions wissen, dass du im Spiel bist. Wenn ein Minion dich (einmal) öffentlich errät, verliert dein Team."
+    "ability": "Alle Diener wissen, dass eine Damsel im Spiel ist. Wenn ein Diener dich einmal öffentlich errät, verliert dein Team."
   },
   {
     "id": "snitch",
@@ -1101,7 +1101,7 @@
     "firstNightReminder": "Wecke jeden Minion. Zeige das *DIESE CHARAKTERE SIND NICHT IM SPIEL*-Token. Zeige 3 nicht im Spiel befindliche Charakter-Token.",
     "reminders": [],
     "setup": false,
-    "ability": "Minions beginnen mit dem Wissen von drei nicht im Spiel befindlichen Rollen."
+    "ability": "Jeder Diener erhält drei Täuschungen."
   },
   {
     "id": "heretic",
@@ -1343,7 +1343,7 @@
       "Ist die Marionette"
     ],
     "setup": true,
-    "ability": "Du glaubst, du bist gut, bist es aber nicht. Der Dämon weiß, wer du bist. [Du sitzt neben dem Dämon]",
+    "ability": "Du glaubst, du bist ein guter Charakter, bist es aber nicht. Der Dämon weiß, wer du bist. [Du sitzt neben dem Dämon]",
     "special": [
       {
         "type": "selection",
@@ -1418,7 +1418,7 @@
     "team": "minion",
     "reminders": [],
     "setup": false,
-    "ability": "Wenn du exekutiert wirst, sterben alle bis auf drei Spieler. Eine Minute später stirbt der Spieler mit den meisten Spielern, die auf ihn zeigen.",
+    "ability": "Wenn du exekutiert wirst, sterben alle bis auf drei Spieler. Nach einem Countdown von 10 bis 1 stirbt der Spieler, auf den die meisten Spieler zeigen.",
     "special": [
       {
         "type": "ability",
@@ -1762,7 +1762,7 @@
       "Day 3"
     ],
     "setup": false,
-    "ability": "Nominierte sterben, können aber sofort wieder nominieren (am 3. Tag müssen sie das). Nach Tag drei gewinnt Böse. [Alle Minions sind Riot]"
+    "ability": "An Tag 3 werden Diener zu Riot und Nominierte sterben, nominieren aber sofort einen lebenden Spieler. Dies muss geschehen."
   },
   {
     "id": "leviathan",
@@ -1910,7 +1910,7 @@
       "Has Ability"
     ],
     "setup": false,
-    "ability": "Einmal pro Spiel, wähle in der Nacht einen toten Spieler: Dieser erhält seine Fähigkeit bis zur Abenddämmerung zurück."
+    "ability": "Einmal pro Spiel wähle nachts* einen toten Spieler: Er erhält seine Fähigkeit bis zur Abenddämmerung zurück."
   },
   {
     "id": "judge",

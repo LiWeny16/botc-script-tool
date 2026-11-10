@@ -78,7 +78,7 @@ Color must never be the only state signal. Hover, focus, disabled, selection, an
 
 ### First-Night Legend Ornament
 
-- The ornament asset is `public/imgs/images/sources/night-legend-cloud-v1.png`, an isolated transparent taupe cloud with no leaves or built-in text.
+- The ornament asset is `public/imgs/images/sources/night-legend-cloud-v1.webp`, an isolated transparent taupe cloud with no leaves or built-in text.
 - Keep the cloud against the page edge.
 - Never bake text into the PNG. The legend text remains editable DOM layered over the cartouche.
 - Legend text uses `uiConfigStore.characterNameFont`, matching character names on the script, and scales with the ornament width.
@@ -86,7 +86,7 @@ Color must never be the only state signal. Hover, focus, disabled, selection, an
 - Keep the plaque interior quiet enough for localized text, including longer German and Spanish labels.
 - Poisoned/drunk and madness explanations are paragraphs of one editable rich-text component per page. Old list text joins the same component while its original data remains available for compatibility.
 - Explanation blocks default to `60%` width on desktop and `90%` on narrow screens, can resize to the paper width, and open the rich-text editor on double-click. Newly generated scripts start with one explanation and cloud, both removable and restorable.
-- The gray filigree uses `public/imgs/images/background/back_tower2.png` and remains optional; the restored golden town is a default `public/imgs/images/background/back_town.png` layer.
+- The gray filigree uses `public/imgs/images/background/back_tower2.webp` and remains optional; the restored golden town is a default `public/imgs/images/background/back_town.webp` layer. The previous PNG URLs remain available for saved layouts.
 - The default credit avatars sit slightly lower to clear the upper leaves. The left tower defaults to 80% size and the town silhouette to 45% opacity; preserve deliberately customized settings when updating these defaults.
 
 ### Layout Frame

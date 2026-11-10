@@ -21,9 +21,10 @@ interface Props {
   language: Language;
   initialPage?: number;
   onChange?: (state: A4PreviewState) => void;
+  fillHeight?: boolean;
 }
 
-export default function A4LivePreview({ sourceFrame, viewport, language, initialPage = 0, onChange }: Props) {
+export default function A4LivePreview({ sourceFrame, viewport, language, initialPage = 0, onChange, fillHeight = false }: Props) {
   const copy = COPY[language];
   const { width: viewportWidth, height: viewportHeight } = viewport;
   const [index, setIndex] = useState(initialPage);
@@ -69,7 +70,7 @@ export default function A4LivePreview({ sourceFrame, viewport, language, initial
       const fits = pages.map(page => a4PageFits(page, { width: viewportWidth, height: viewportHeight }));
       setMarkup(old => old === html ? old : html);
       setInfo(old => old.count === pages.length && old.fits.every((fit, i) => fit === fits[i]) ? old : { count: pages.length, fits });
-      setSourceReady(Boolean(html));
+      setSourceReady(Boolean(html) && sourceFrame.dataset.a4Status === 'ready');
     };
     const queue = () => { window.clearTimeout(timer); timer = window.setTimeout(refresh, 50); };
     const bind = () => {
@@ -115,14 +116,15 @@ export default function A4LivePreview({ sourceFrame, viewport, language, initial
   };
   const fitWidth = () => setZoom(Math.min(500, Math.round(availableWidth / (viewport.width * fitScale) * 100)));
 
-  if (!markup) return <Stack role="status" alignItems="center" justifyContent="center" spacing={1.5} sx={{ minHeight: 260 }}>
+  if (!markup) return <Stack role="status" alignItems="center" justifyContent="center" spacing={1.5} sx={{ minHeight: 260, height: fillHeight ? '100%' : undefined, bgcolor: '#eeeae0', borderRadius: 1 }}>
     <CircularProgress size={28} /><Typography variant="body2">{copy.preparing}</Typography>
   </Stack>;
-  return <>
+  return <Box sx={{ display: 'flex', flexDirection: 'column', height: fillHeight ? '100%' : undefined, minHeight: 0 }}>
     <A4PreviewToolbar language={language} index={index} count={info.count} zoom={zoom} onPage={changePage} onZoom={setZoom} onFitWidth={fitWidth} />
     {info.fits[index] === false && <Alert severity="warning" sx={{ mb: 1.5 }}>{copy.overflow}</Alert>}
+    <Box sx={{ position: 'relative', flex: fillHeight ? '1 1 0' : undefined, minHeight: 0 }}>
     <Box ref={setPreviewRef} role="region" tabIndex={0} aria-label={copy.preview} data-preview-scroll {...gestures}
-      sx={{ height: 'min(60vh, 720px)', boxSizing: 'border-box', overflow: 'auto', p: 2, bgcolor: '#eeeae0', borderRadius: 1,
+      sx={{ height: fillHeight ? '100%' : 'min(60vh, 720px)', boxSizing: 'border-box', overflow: 'auto', p: 2, bgcolor: '#eeeae0', borderRadius: 1,
         border: '1px solid rgba(0,0,0,.1)', cursor: panning ? 'grabbing' : zoom > 100 ? 'grab' : 'default', userSelect: 'none',
         '&:focus-visible': { outline: '2px solid #607963', outlineOffset: 2 } }}>
       <Box sx={{ display: 'flex', minWidth: '100%' }}>
@@ -134,6 +136,8 @@ export default function A4LivePreview({ sourceFrame, viewport, language, initial
         </Box>
       </Box>
     </Box>
+    {!sourceReady && <Box role="status" aria-label={copy.preparing} sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', bgcolor: 'rgba(238,234,224,.68)', borderRadius: 1 }}><CircularProgress size={28} /></Box>}
+    </Box>
     <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>{A4_PREVIEW_TEXT[language].hint}</Typography>
-  </>;
+  </Box>;
 }

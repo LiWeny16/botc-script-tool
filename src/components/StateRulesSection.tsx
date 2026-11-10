@@ -53,7 +53,7 @@ const StateRulesSection = ({ rules, onDelete, onEdit }: StateRulesSectionProps) 
               left: 0,
               right: 0,
               bottom: 0,
-              backgroundImage: "url(/imgs/images/sources/pattern.png)",
+              backgroundImage: "url(/imgs/images/sources/pattern.webp)",
               backgroundSize: "48%",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",

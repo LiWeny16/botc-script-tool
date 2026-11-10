@@ -4,7 +4,8 @@
  * expansion packs still retrieve Characters directly by language, consistent with the old logic.
  *
  * @attribution
- *   English roles (roles.json): https://github.com/bra1n/townsquare
+ *   English roles (roles.json): https://release.botc.app/resources/data/roles.json
+ *     (official ability text compared on 2026-11-09; project extras are retained)
  *   Spanish roles (rolesEs.json): https://github.com/bra1n/townsquare
  *   German role text (rolesDe.json): local curated translation
  *   Chinese role text (ZH_CORE_CHARACTERS): https://clocktower.gstonegames.com/

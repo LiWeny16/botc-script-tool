@@ -24,9 +24,9 @@ export interface TowerImage {
 }
 
 export const AVAILABLE_TOWERS: TowerImage[] = [
-  { id: 'back_tower', url: '/imgs/images/background/back_tower.png', x: 0, y: 0, scale: 0.8, opacity: 0.4, isDefault: true },
-  { id: 'back_tower2', url: '/imgs/images/background/back_tower2.png', x: 36, y: 0, scale: 1.0, opacity: 0.8, isDefault: true },
-  { id: 'back_town', url: '/imgs/images/background/back_town.png', x: 100, y: 0, scale: 1.0, opacity: 0.45, isDefault: true },
+  { id: 'back_tower', url: '/imgs/images/background/back_tower.webp', x: 0, y: 0, scale: 0.8, opacity: 0.4, isDefault: true },
+  { id: 'back_tower2', url: '/imgs/images/background/back_tower2.webp', x: 36, y: 0, scale: 1.0, opacity: 0.8, isDefault: true },
+  { id: 'back_town', url: '/imgs/images/background/back_town.webp', x: 100, y: 0, scale: 1.0, opacity: 0.45, isDefault: true },
 ];
 export const DEFAULT_TOWERS: TowerImage[] = AVAILABLE_TOWERS.filter(image => image.id !== 'back_tower2');
 const CURRENT_LAYOUT_VERSION = 1;

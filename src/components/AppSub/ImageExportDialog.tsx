@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, LinearProgress, Stack, Tab, Tabs, Typography } from '@mui/material';
+import { Alert, Box, Button, Dialog, DialogContent, DialogTitle, LinearProgress, Stack, Tab, Tabs, Typography } from '@mui/material';
 import { DownloadOutlined, ImageOutlined, PrintOutlined, UploadFileOutlined } from '@mui/icons-material';
 import { zipSync } from 'fflate';
 import { observer } from 'mobx-react-lite';
@@ -54,7 +54,7 @@ const COPY = {
 
 export type ExportMode = 'image' | 'print';
 type OutputAction = 'page' | 'all' | 'print';
-interface Props { open: boolean; onClose: () => void; language: Language; scriptTitle: string; initialMode?: ExportMode; script?: Script; sourceFrame?: HTMLIFrameElement | null }
+interface Props { open: boolean; onClose: () => void; language: Language; scriptTitle: string; initialMode?: ExportMode; initialPage?: number; script?: Script; sourceFrame?: HTMLIFrameElement | null }
 
 function safeFilename(value: string) {
   return Array.from(value.replace(/[\\/:*?"<>|]/g, '_'), character => character.charCodeAt(0) < 32 ? '_' : character).join('').trim().slice(0, 80) || 'script';
@@ -66,13 +66,13 @@ function saveBlob(blob: Blob, filename: string) {
   window.setTimeout(() => URL.revokeObjectURL(url), 30000);
 }
 
-const ImageExportDialog = observer(function ImageExportDialog({ open, onClose, language, scriptTitle, initialMode = 'image', script, sourceFrame }: Props) {
+const ImageExportDialog = observer(function ImageExportDialog({ open, onClose, language, scriptTitle, initialMode = 'image', initialPage = 0, script, sourceFrame }: Props) {
   const copy = COPY[language];
   const scale = normalizeA4Scale(uiConfigStore.config.a4ExportScale);
   const viewport = a4Viewport(scale);
   const [mode, setMode] = useState<ExportMode>(initialMode);
   const [fallbackFrame, setFallbackFrame] = useState<HTMLIFrameElement | null>(null);
-  const [preview, setPreview] = useState<A4PreviewState>({ index: 0, count: 0, fits: [], ready: false });
+  const [preview, setPreview] = useState<A4PreviewState>({ index: initialPage, count: 0, fits: [], ready: false });
   const [missing, setMissing] = useState<MissingExportImage[]>([]);
   const [replacements, setReplacements] = useState<Record<string, string>>({});
   const [phase, setPhase] = useState<'idle' | 'resources' | 'render' | 'pack'>('idle');
@@ -163,10 +163,18 @@ const ImageExportDialog = observer(function ImageExportDialog({ open, onClose, l
   const statusText = phase === 'resources' ? copy.preparing : phase === 'render' ? copy.rendering : copy.packing;
   const hasOverflow = preview.ready && preview.fits.some(fit => !fit);
   const disabled = busy || !preview.ready || hasOverflow;
-  return <Dialog open={open} onClose={() => { cancel(); onClose(); }} disableScrollLock fullWidth maxWidth="lg" aria-labelledby="image-export-title">
+  return <Dialog open={open} onClose={() => { cancel(); onClose(); }} disableScrollLock fullWidth maxWidth="lg" aria-labelledby="image-export-title"
+    slotProps={{ paper: { sx: { height: { xs: 'calc(100% - 24px)', md: 'min(900px, calc(100% - 32px))' }, overflow: 'hidden' } } }}>
     {!sourceFrame && <A4PreviewSourceFrame script={script} viewport={viewport} onFrame={setFallbackFrame} />}
-    <DialogTitle id="image-export-title" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-      <ImageOutlined color="primary" />{copy.title}
+    <DialogTitle sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+      <Box id="image-export-title" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}><ImageOutlined color="primary" />{copy.title}</Box>
+      <Stack direction="row" flexWrap="wrap" alignItems="center" gap={1}>
+        <Button sx={{ minHeight: 40, textTransform: 'none' }} onClick={() => { cancel(); onClose(); }}>{copy.close}</Button>
+        {mode === 'print' ? <Button sx={{ minHeight: 40, textTransform: 'none' }} variant="contained" startIcon={<PrintOutlined />} disabled={disabled} onClick={() => start('print')}>{copy.print}</Button> : <>
+          <Button sx={{ minHeight: 40, textTransform: 'none' }} variant={preview.count <= 1 ? 'contained' : 'outlined'} startIcon={<DownloadOutlined />} disabled={disabled} onClick={() => start('page')}>{copy.download}</Button>
+          {preview.count > 1 && <Button sx={{ minHeight: 40, textTransform: 'none' }} variant="contained" startIcon={<DownloadOutlined />} disabled={disabled} onClick={() => start('all')}>{copy.all}</Button>}
+        </>}
+      </Stack>
     </DialogTitle>
     <Box sx={{ px: { xs: 2, sm: 3 } }}>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>{copy.subtitle}</Typography>
@@ -175,12 +183,12 @@ const ImageExportDialog = observer(function ImageExportDialog({ open, onClose, l
         <Tab value="print" icon={<PrintOutlined />} iconPosition="start" label={copy.printMode} sx={{ minHeight: 44, textTransform: 'none' }} />
       </Tabs>
     </Box>
-    <DialogContent dividers>
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column-reverse', md: 'row' }, gap: 3, alignItems: 'stretch' }}>
-        <Box sx={{ flex: 1, minWidth: 0 }}>
-          <A4LivePreview sourceFrame={sourceFrame || fallbackFrame} viewport={viewport} language={language} onChange={setPreview} />
+    <DialogContent dividers sx={{ display: 'flex', flexDirection: 'column', minHeight: 0, overflowY: { xs: 'auto', md: 'hidden' } }}>
+      <Box sx={{ display: 'flex', flex: 1, minHeight: 0, flexDirection: { xs: 'column', md: 'row' }, gap: 3, alignItems: 'stretch' }}>
+        <Box sx={{ flex: { xs: '0 0 48vh', md: '1 1 0' }, minWidth: 0, minHeight: { xs: 260, md: 0 } }}>
+          <A4LivePreview sourceFrame={sourceFrame || fallbackFrame} viewport={viewport} language={language} initialPage={initialPage} onChange={setPreview} fillHeight />
         </Box>
-        <Box sx={{ flex: { xs: '0 0 auto', md: '0 0 280px' }, minWidth: 0 }}>
+        <Box sx={{ flex: { xs: '0 0 auto', md: '0 0 280px' }, minWidth: 0, overflowY: { md: 'auto' } }}>
           <A4ScaleControl language={language} disabled={busy} />
           <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textWrap: 'pretty' }}>{mode === 'print' ? copy.printHint : copy.imageHint}</Typography>
           <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 2, textWrap: 'pretty' }}>{copy.proxy}</Typography>
@@ -208,13 +216,6 @@ const ImageExportDialog = observer(function ImageExportDialog({ open, onClose, l
         </Box>
       </Box>
     </DialogContent>
-    <DialogActions>
-      <Button onClick={() => { cancel(); onClose(); }}>{copy.close}</Button>
-      {mode === 'print' ? <Button variant="contained" startIcon={<PrintOutlined />} disabled={disabled} onClick={() => start('print')}>{copy.print}</Button> : <>
-        <Button variant={preview.count <= 1 ? 'contained' : 'outlined'} startIcon={<DownloadOutlined />} disabled={disabled} onClick={() => start('page')}>{copy.download}</Button>
-        {preview.count > 1 && <Button variant="contained" startIcon={<DownloadOutlined />} disabled={disabled} onClick={() => start('all')}>{copy.all}</Button>}
-      </>}
-    </DialogActions>
   </Dialog>;
 });
 

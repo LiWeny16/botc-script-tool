@@ -11,7 +11,7 @@ export const getLoricCharacters = (language: string): Character[] => {
         {
             id: 'gardener_loric',
             name: t(language, '园丁', 'Gardener', 'Jardinero'),
-            ability: t(language, "由说书人来为一名或更多玩家派发角色。", "The Storyteller assigns 1 or more players' characters.", 'El Narrador asigna los personajes de 1 o más jugadores.'),
+            ability: t(language, "由说书人来为所有玩家派发角色。", "The Storyteller assigns all players' characters.", 'El Narrador asigna los personajes de todos los jugadores.'),
             team: 'loric',
             image: 'https://botc.letshare.fun/imgs/icons/Loric/gardener_loric.png',
             firstNight: 0,
@@ -24,7 +24,7 @@ export const getLoricCharacters = (language: string): Character[] => {
         {
             id: 'tor_loric',
             name: t(language, '遗忘之门', 'Tor', 'Tor'),
-            ability: t(language, "玩家不知道自己的角色和阵营。当他们死亡时才会得知这些信息。", "Players don't know their character or alignment. They learn them after they die.", 'Los jugadores no saben su personaje ni su bando. Lo descubren cuando mueren.'),
+            ability: t(language, "玩家不知道自己的角色和阵营。当他们死亡时才会得知这些信息。", "Players don't know their character or alignment. They learn them when they die.", 'Los jugadores no saben su personaje ni su bando. Lo descubren cuando mueren.'),
             team: 'loric',
             image: 'https://botc.letshare.fun/imgs/icons/Loric/tor_loric.png',
             firstNight: 0,

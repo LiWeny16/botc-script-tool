@@ -13,7 +13,7 @@ const sample = JSON.stringify([{ id: '_meta', name: 'Custom Your Script!', autho
 const errors = [];
 
 async function openScript(width, proxyAvailable = true, json = sample) {
-  const page = await browser.newPage({ viewport: { width, height: 950 }, acceptDownloads: true });
+  const page = await browser.newPage({ viewport: { width, height: 950 }, acceptDownloads: true, serviceWorkers: 'block' });
   page.on('pageerror', error => errors.push(String(error)));
   await page.route('https://oss.gstonegames.com/**', route => route.request().resourceType() === 'image'
     ? route.fulfill({ status: 200, contentType: 'image/png', body: icon })
@@ -85,7 +85,7 @@ try {
   assert.notDeepEqual(scaled, first, 'changing the scale changes the actual exported image');
   await desktop.getByRole('dialog').getByRole('button', { name: 'Close', exact: true }).click();
 
-  const reloadedContext = await browser.newContext({ storageState: await desktop.context().storageState() });
+  const reloadedContext = await browser.newContext({ storageState: await desktop.context().storageState(), serviceWorkers: 'block' });
   const reloaded = await reloadedContext.newPage();
   await reloaded.goto(`${server.resolvedUrls.local[0]}?lang=en`, { waitUntil: 'domcontentloaded' });
   assert.equal(await reloaded.evaluate(async () => (await import('/src/stores/UIConfigStore.ts')).uiConfigStore.config.a4ExportScale), 48, 'custom scale survives a reload');
@@ -135,7 +135,7 @@ try {
       if (typeof value === 'string' && value.startsWith('data:image/svg+xml')) {
         const svg = decodeURIComponent(value.slice(value.indexOf(',') + 1));
         window.__exportTestCustomFont = /@font-face\s*\{[^}]*ExportTestFace[^}]*data:font\/ttf;base64/.test(svg);
-        window.__exportTestExternalPattern = window.__exportTestExternalPattern || svg.includes('/imgs/images/sources/pattern.png');
+        window.__exportTestExternalPattern = window.__exportTestExternalPattern || svg.includes('/imgs/images/sources/pattern.webp');
       }
       descriptor.set.call(this, value);
     } });

@@ -73,7 +73,7 @@ export const SecondPageTitle = ({
             transform: 'translate(-50%, -50%)',
             width: { xs: "80%", md: "48%" },
             height: '100%',
-            backgroundImage: "url(/imgs/images/sources/pattern.png)",
+            backgroundImage: "url(/imgs/images/sources/pattern.webp)",
             backgroundSize: 'contain',
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",

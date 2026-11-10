@@ -102,7 +102,7 @@ const SpecialRulesSection = ({ rules, layoutTarget, allowLayoutDrag = false, onD
       boxSizing: 'border-box',
       // Preserve the folded corner and fine border as the parchment grows.
       border: '1px solid transparent',
-      borderImage: 'url(/imgs/images/sources/special-rule-header-v3.png) 210 300 160 300 fill / 30px 43px 23px 43px / 0 stretch',
+      borderImage: 'url(/imgs/images/sources/special-rule-header-v3.webp) 210 300 160 300 fill / 30px 43px 23px 43px / 0 stretch',
       px: 'clamp(22px, 5.5%, 32px)',
       py: '18px',
       cursor: allowLayoutDrag ? 'move' : undefined,

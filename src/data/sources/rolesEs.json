@@ -26,7 +26,7 @@
   {
     "id": "empath",
     "name": "Empático",
-    "ability": "Cada noche sabes cuántos de tus vecinos vivos son malos.",
+    "ability": "Cada noche sabes cuántos de tus 2 vecinos vivos son malos.",
     "source": "https://villacuervos.es/wiki/personaje/empath"
   },
   {
@@ -224,7 +224,7 @@
   {
     "id": "tealady",
     "name": "Dama del té",
-    "ability": "Si tus vecinos vivos son buenos, no pueden morir.",
+    "ability": "Si tus 2 vecinos vivos son buenos, no pueden morir.",
     "source": "https://villacuervos.es/wiki/personaje/tealady"
   },
   {
@@ -338,7 +338,7 @@
   {
     "id": "voudon",
     "name": "Voudon",
-    "ability": "Solo tú y los muertos podéis votar. No necesitan ficha de votación para hacerlo. No es necesaria una mayoría para ejecutar.",
+    "ability": "Solo tú y los muertos podéis votar. No necesitan ficha de votación para hacerlo. No se requiere una mayoría del 50 %.",
     "source": "https://villacuervos.es/wiki/personaje/voudon"
   },
   {
@@ -512,7 +512,7 @@
   {
     "id": "bonecollector",
     "name": "Coleccionista de Huesos",
-    "ability": "Una vez por partida, por la noche, elige 1 jugador muerto: vuelve a ganar su habilidad hasta el crepúsculo.",
+    "ability": "Una vez por partida, por la noche*, elige 1 jugador muerto: recupera su habilidad hasta el crepúsculo.",
     "source": "https://villacuervos.es/wiki/personaje/bonecollector"
   },
   {
@@ -650,7 +650,7 @@
   {
     "id": "snitch",
     "name": "Soplón",
-    "ability": "Los Esbirros empiezan conociendo 3 faroles.",
+    "ability": "Cada Esbirro recibe 3 faroles.",
     "source": "https://villacuervos.es/wiki/personaje/snitch"
   },
   {
@@ -764,7 +764,7 @@
   {
     "id": "riot",
     "name": "Riot",
-    "ability": "En día 3, los Esbirros se convierten en Riot y los nominados mueren pero pueden nominar a un jugador vivo inmediatamente. Esto debe pasar.",
+    "ability": "El día 3, los Esbirros se convierten en Riot y los nominados mueren, pero deben nominar inmediatamente a un jugador vivo. Esto debe pasar.",
     "source": "https://villacuervos.es/wiki/personaje/riot"
   },
   {

@@ -431,7 +431,7 @@ const ScriptRenderer = observer(({
                         key="top_image"
                         id="second_page_top"
                         component="img"
-                        src={"/imgs/images/sources/back_4.png"}
+                        src={"/imgs/images/sources/back_4.webp"}
                         alt="Decorative torn paper"
                         sx={{
                             position: "relative",
@@ -1190,7 +1190,7 @@ const ScriptRenderer = observer(({
                                         position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
                                         width: { xs: `${95 * (script.titleFlourishScale ?? 1)}%`, md: `${110 * (script.titleFlourishScale ?? 1)}%` },
                                         height: `${125 * (script.titleFlourishScale ?? 1)}%`, pointerEvents: 'none',
-                                        backgroundImage: 'url(/imgs/images/sources/pattern.png)', backgroundSize: 'contain',
+                                        backgroundImage: 'url(/imgs/images/sources/pattern.webp)', backgroundSize: 'contain',
                                         backgroundPosition: 'center', backgroundRepeat: 'no-repeat', opacity: 0.6, zIndex: 0,
                                     }} />}
                                     {!readOnly && !compact && <HeaderLayoutFrame target={titleLayoutTarget} moveLabel={t('ui.dragHeaderTitle')}

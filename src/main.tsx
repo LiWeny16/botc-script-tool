@@ -14,6 +14,9 @@ import Changelog from './pages/Changelog.tsx'
 import AllCharacters from './pages/AllCharacters.tsx'
 import ImageGen from './pages/ImageGen.tsx'
 import { I18nProvider } from './utils/i18n.tsx'
+import { registerArtCache } from './utils/registerArtCache.ts'
+
+registerArtCache()
 
 // ── Global crash prevention (white-screen defense) ───────────────────────
 // These run OUTSIDE React — they catch anything the ErrorBoundary can't:

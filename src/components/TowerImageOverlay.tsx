@@ -26,12 +26,15 @@ const imageSizes = new Map<string, { width: number; height: number }>([
   ['/imgs/images/background/back_tower.png', { width: 380, height: 657 }],
   ['/imgs/images/background/back_tower2.png', { width: 1086, height: 167.5 }],
   ['/imgs/images/background/back_town.png', { width: 666, height: 181 }],
+  ['/imgs/images/background/back_tower.webp', { width: 380, height: 657 }],
+  ['/imgs/images/background/back_tower2.webp', { width: 1086, height: 167.5 }],
+  ['/imgs/images/background/back_town.webp', { width: 666, height: 181 }],
 ]);
 
 export default function TowerImageOverlay({ image, onUpdate, onDelete, onDoubleClick, containerRef, readOnly = false }: Props) {
   const { t, language } = useTranslation();
   const s = footerText(language);
-  const isGrayOrnament = image.url === '/imgs/images/background/back_tower2.png';
+  const isGrayOrnament = image.url === '/imgs/images/background/back_tower2.png' || image.url === '/imgs/images/background/back_tower2.webp';
   const [draft, setDraft] = useState(image);
   const [loaded, setLoaded] = useState(() => ({ url: image.url, size: imageSizes.get(image.url) }));
   const natural = loaded.url === image.url ? loaded.size : imageSizes.get(image.url);

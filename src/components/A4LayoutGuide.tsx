@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RefObject } from 'react';
-import { Box, Button, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, Paper, Stack, Typography } from '@mui/material';
 import { CheckCircleOutline, ErrorOutline } from '@mui/icons-material';
 import { reaction, toJS } from 'mobx';
 import { observer } from 'mobx-react-lite';
@@ -13,7 +13,7 @@ import type { Script } from '../types';
 import { a4PageFits, a4PageRoots, a4Viewport, A4_LIVE_FRAME_CSS, A4_OUTPUT_HEIGHT, A4_OUTPUT_WIDTH, normalizeA4Scale } from '../utils/a4Layout';
 import type { Language } from '../utils/languages';
 import A4ScaleControl from './A4ScaleControl';
-import A4GuidePreviewDialog from './A4GuidePreviewDialog';
+import ImageExportDialog from './AppSub/ImageExportDialog';
 
 const COPY = {
   cn: { title: 'A4 布局预览', checking: '正在检查页面…', fit: '在 A4 范围内', overflow: '超出 A4，请调整后再导出', page: '第', pageEnd: '页', openPreview: '放大查看 A4 预览', previewTip: '双击放大预览',
@@ -107,7 +107,7 @@ const A4LayoutGuide = observer(function A4LayoutGuide({ language, previewFrameRe
   const selectedFits = fits[selected];
   const openPreview = () => {
     if (openTimer.current !== null) { window.clearTimeout(openTimer.current); openTimer.current = null; }
-    if (!checking && fits.length) setPreviewOpen(true);
+    if (frameRef.current) setPreviewOpen(true);
   };
   return <Paper variant="outlined" data-a4-layout-guide sx={{ mb: 2, p: 2, borderColor: '#c8bba3', bgcolor: 'rgba(251, 246, 231, .97)', '@media print': { display: 'none' } }}>
     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
@@ -125,26 +125,27 @@ const A4LayoutGuide = observer(function A4LayoutGuide({ language, previewFrameRe
           </Button>)}
         </Stack>
       </Box>
-      <Box role="button" tabIndex={checking || !fits.length ? -1 : 0} aria-label={copy.openPreview} aria-disabled={checking || !fits.length} title={copy.previewTip}
+      <Box role="button" tabIndex={0} aria-label={copy.openPreview} title={copy.previewTip}
         onClick={event => {
           if (event.detail >= 2) openPreview();
           else { if (openTimer.current !== null) window.clearTimeout(openTimer.current); openTimer.current = window.setTimeout(openPreview, 250); }
         }} onDoubleClick={openPreview}
         onMouseDown={event => { if (event.button === 0) { event.preventDefault(); event.currentTarget.focus({ preventScroll: true }); } }}
         onDragStart={event => event.preventDefault()}
-        onKeyDown={event => { if (!checking && fits.length && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); openPreview(); } }} data-a4-guide-preview
+        onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openPreview(); } }} data-a4-guide-preview
         sx={{ position: 'relative', flexShrink: 0, width: PREVIEW_WIDTH, height: PREVIEW_HEIGHT, p: 0,
-        boxSizing: 'content-box', overflow: 'hidden', alignSelf: { xs: 'center', sm: 'flex-start' }, bgcolor: '#f6f1dc', cursor: checking ? 'default' : 'zoom-in', userSelect: 'none', WebkitUserSelect: 'none',
+        boxSizing: 'content-box', overflow: 'hidden', alignSelf: { xs: 'center', sm: 'flex-start' }, bgcolor: '#f6f1dc', cursor: 'zoom-in', userSelect: 'none', WebkitUserSelect: 'none',
         border: '2px solid', borderColor: !checking && selectedFits === false ? '#b3261e' : '#9b927e', boxShadow: '0 2px 8px rgba(0,0,0,.12)',
         '&:focus-visible': { outline: '2px solid #607963', outlineOffset: 3 } }}>
         <iframe ref={frameRef} title={copy.title} aria-hidden="true" sandbox="allow-scripts allow-same-origin" tabIndex={-1}
           src={`${import.meta.env.BASE_URL}export-render.html`}
           style={{ position: 'absolute', top: 0, left: 0, width: viewport.width, height: viewport.height, border: 0,
             transformOrigin: 'top left', transform: `scale(${PREVIEW_WIDTH / viewport.width})`, pointerEvents: 'none' }} />
+        {checking && <Box role="status" aria-label={copy.checking} sx={{ position: 'absolute', inset: 0, display: 'grid', placeItems: 'center', bgcolor: 'rgba(246,241,220,.65)' }}><CircularProgress size={24} /></Box>}
       </Box>
     </Stack>
-    {previewOpen && frameRef.current && <A4GuidePreviewDialog sourceFrame={frameRef.current} viewport={viewport}
-      language={language} initialPage={selected} onClose={() => setPreviewOpen(false)} />}
+    {previewOpen && frameRef.current && <ImageExportDialog open sourceFrame={frameRef.current} initialPage={selected}
+      scriptTitle={scriptStore.script?.title || 'script'} language={language} onClose={() => setPreviewOpen(false)} />}
   </Paper>;
 });
 

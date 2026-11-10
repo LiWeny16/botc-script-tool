@@ -4,7 +4,7 @@
         "jinx": [
             {
                 "id": "princess",
-                "reason": "Si la Princesa nomina y ejecuta a un jugador en el primer dia, nadie muere por Al-Hadikhia. (Asi es como la Princesa y Al-Hadikhia interactuan naturalmente; este jinx es solo para aclaracion.)",
+                "reason": "Si la Princesa nominó y ejecutó a un jugador durante su primer día, nadie muere por Al-Hadikhia esta noche.",
                 "reasonLegacy": "Si la Princesa nombro y ejecuto a un jugador su primer dia, nadie muere por la habilidad del Al-Hadikhia esta noche."
             }
         ]
@@ -14,16 +14,17 @@
         "jinx": [
             {
                 "id": "wraith",
-                "reason": "Si el Alquimista tiene la habilidad del Espectro, no la tiene, y hay un Espectro en juego. Cada dia, despues de la fase de ejecucion, el Alquimista vivo puede adivinar publicamente a un jugador vivo como el Espectro: si acierta, el Demonio debe elegir al Espectro esta noche."
+                "reason": "Un Alquimista-Espectro no tiene la habilidad del Espectro y hay un Espectro en juego. Después de cada ejecución, un Alquimista-Espectro vivo puede señalar públicamente a un jugador vivo como el Espectro. Si acierta, el Demonio debe elegir al Espectro esta noche.",
+                "reasonLegacy": "Si el Alquimista tiene la habilidad del Espectro, no la tiene, y hay un Espectro en juego. Cada dia, despues de la fase de ejecucion, el Alquimista vivo puede adivinar publicamente a un jugador vivo como el Espectro: si acierta, el Demonio debe elegir al Espectro esta noche."
             },
             {
                 "id": "spy",
-                "reason": "Si el Alquimista tendria la habilidad del Espia, no la tiene, y hay un Espia en juego. Cada dia, despues de la fase de ejecucion, el Alquimista vivo puede adivinar publicamente a un jugador vivo como el Espia. Si acierta, el Demonio debe elegir al Espia esta noche.",
+                "reason": "Un Alquimista-Espía no tiene la habilidad del Espía y hay un Espía en juego. Después de cada ejecución, un Alquimista-Espía vivo puede señalar públicamente a un jugador vivo como el Espía. Si acierta, el Demonio debe elegir al Espía esta noche.",
                 "reasonLegacy": "Si el Alquimista tiene la habilidad del Espia, no la tiene, y hay un Espia en juego. Cada dia, despues de la fase de ejecucion, el Alquimista vivo puede adivinar publicamente a un jugador vivo como el Espia. Si acierta, el Demonio debe elegir al Espia esta noche."
             },
             {
                 "id": "widow",
-                "reason": "Si el Alquimista tendria la habilidad de la Viuda, no la tiene, y hay una Viuda en juego. Cada dia, despues de la fase de ejecucion, el Alquimista vivo puede adivinar publicamente a un jugador vivo como la Viuda. Si acierta, el Demonio debe elegir a la Viuda esta noche.",
+                "reason": "Un Alquimista-Viuda no tiene la habilidad de la Viuda y hay una Viuda en juego. Después de cada ejecución, un Alquimista-Viuda vivo puede señalar públicamente a un jugador vivo como la Viuda. Si acierta, el Demonio debe elegir a la Viuda esta noche.",
                 "reasonLegacy": "Si el Alquimista tiene la habilidad de la Viuda, no la tiene, y hay una Viuda en juego. Cada dia, despues de la fase de ejecucion, el Alquimista vivo puede adivinar publicamente a un jugador vivo como la Viuda. Si acierta, el Demonio debe elegir a la Viuda esta noche."
             },
             {
@@ -32,7 +33,7 @@
             },
             {
                 "id": "summoner",
-                "reason": "El Alquimista con la habilidad del Invocador no recibe faroles. Elige que Demonio, pero no que jugador — el Narrador elige que jugador se convierte en un Demonio malvado. Si muere antes de elegir, ganan los malos. [No hay Demonio]",
+                "reason": "El Alquimista-Invocador no recibe faroles y elige qué Demonio, pero no qué jugador. Si muere antes, ganan los malos. [No hay Demonio]",
                 "reasonLegacy": "El Alquimista-Invocador no recibe faroles, y elige que Demonio pero no que jugador. Si muere antes de que esto ocurra, ganan los malos. [No hay Demonio]"
             },
             {
@@ -204,7 +205,7 @@
         "jinx": [
             {
                 "id": "scarlet_woman",
-                "reason": "Si hubiera dos Demonios vivos y uno de ellos fuera de la Mujer escarlata, la Mujer escarlata no se convierte en Demonio.",
+                "reason": "Si hubiera dos Demonios y uno de ellos fuera antes la Mujer Escarlata, ella sigue siendo la Mujer Escarlata.",
                 "reasonLegacy": "Si el Fang Gu elige a un Forastero y muere, la Mujer escarlata no se convierte en Fang Gu."
             }
         ]
@@ -290,7 +291,7 @@
             },
             {
                 "id": "marionette",
-                "reason": "Si la Marioneta estaria en juego durante la preparacion, entra en juego despues del Demonio y se sienta junto al Demonio.",
+                "reason": "Si hubiera una Marioneta en juego, entra después del Demonio y debe empezar como su vecina.",
                 "reasonLegacy": "Si el Kazali elige crear una Marioneta, debe elegir a uno de sus vecinos."
             },
             {
@@ -320,7 +321,7 @@
         "jinx": [
             {
                 "id": "engineer",
-                "reason": "Si el Ingeniero crea Legion, todos los jugadores malvados se convierten en Legion. Si Legion esta en juego, el Ingeniero no tiene su habilidad y aprende esto.",
+                "reason": "Si se crea a Legión, todos los jugadores malos se convierten en Legión. Si Legión está en juego, el Ingeniero empieza sabiéndolo, pero no tiene habilidad.",
                 "reasonLegacy": "La Legion y el Ingeniero no pueden estar ambos en juego al inicio. Si el Ingeniero crea a la Legion, la mayoria de jugadores (incluyendo todos los malos) se convierten en Legion malos."
             },
             {
@@ -333,7 +334,7 @@
             },
             {
                 "id": "hatter",
-                "reason": "Si el Sombrerero crea Legion, todos los jugadores malvados se convierten en Legion. Si Legion esta en juego, el Sombrerero no tiene su habilidad.",
+                "reason": "Si se crea a Legión, todos los jugadores malos se convierten en Legión. Si Legión está en juego, el Sombrerero no tiene habilidad.",
                 "reasonLegacy": "Si el Sombrerero muere y la Legion esta en juego, no pasa nada. Si el Sombrerero muere y un jugador malo elige a la Legion, todos los jugadores malos actuales se convierten en Legion."
             },
             {
@@ -347,7 +348,8 @@
             },
             {
                 "id": "magician",
-                "reason": "El Mago se despierta con la Legión y puede aparecer como malo. La Legión aprende si el Mago está en juego, pero no aprende qué jugador es."
+                "reason": "Si el Mago está en juego, durante la información del Demonio, Legión despierta en grupos separados. Cada grupo descubre qué jugadores son buenos, pero no descubre al Mago.",
+                "reasonLegacy": "El Mago se despierta con la Legión y puede aparecer como malo. La Legión aprende si el Mago está en juego, pero no aprende qué jugador es."
             }
         ]
     },
@@ -361,17 +363,18 @@
             },
             {
                 "id": "monk",
-                "reason": "Si el Leviatan nomina y ejecuta al jugador protegido por el Monje la noche anterior, ganan los buenos.",
+                "reason": "Si el Leviatán nomina y ejecuta al jugador protegido por el Monje, ganan los buenos.",
                 "reasonLegacy": "Si el Leviatan esta en juego, el jugador protegido por el Monje esta a salvo de todas las habilidades malas."
             },
             {
                 "id": "innkeeper",
-                "reason": "Si el Leviatan nomina y ejecuta a uno de los jugadores protegidos por el Posadero la noche anterior, ganan los buenos.",
+                "reason": "Si el Leviatán nomina y ejecuta a un jugador protegido por el Posadero, ganan los buenos.",
                 "reasonLegacy": "Si el Leviatan esta en juego, los jugadores protegidos por el Posadero estan a salvo de todas las habilidades malas."
             },
             {
                 "id": "ravenkeeper",
-                "reason": "Cada noche*, el Leviatan elige 1 jugador vivo (diferente a las noches anteriores): un Guardian de cuervos elegido usa su habilidad pero no muere."
+                "reason": "Cada noche*, el Leviatán elige un jugador vivo (distinto de los elegidos en noches anteriores): si elige al Guardián de Cuervos, este usa su habilidad pero no muere.",
+                "reasonLegacy": "Cada noche*, el Leviatan elige 1 jugador vivo (diferente a las noches anteriores): un Guardian de cuervos elegido usa su habilidad pero no muere."
             },
             {
                 "id": "banshee",
@@ -383,7 +386,7 @@
             },
             {
                 "id": "farmer",
-                "reason": "Cada noche*, el Leviatan elige a un jugador vivo (diferente a noches anteriores): un Granjero elegido usa su habilidad pero no muere.",
+                "reason": "Cada noche*, el Leviatán elige un jugador bueno vivo (distinto de los elegidos en noches anteriores): si elige al Granjero, este usa su habilidad pero no muere.",
                 "reasonLegacy": "Cada noche*, el Leviatan elige 1 jugador bueno vivo (diferente a las noches anteriores): un Granjero elegido usa su habilidad pero no muere."
             },
             {
@@ -438,12 +441,12 @@
         "jinx": [
             {
                 "id": "poppy_grower",
-                "reason": "Si el Cultivador de opio esta en juego, los Esbirros se despiertan uno a la vez hasta que uno elige cuidar a Lil Monsta.",
+                "reason": "Si Lil’ Monsta y el Cultivador de Opio están vivos, los Esbirros despiertan uno a uno hasta que uno elige tomar la ficha de Lil’ Monsta.",
                 "reasonLegacy": "Si el Cultivador de opio esta en juego, los Esbirros no se despiertan juntos. Se despiertan uno por uno hasta que uno elija tomar la ficha de Lil' Monsta."
             },
             {
                 "id": "scarlet_woman",
-                "reason": "Si el jugador que cuida a Lil Monsta muere mientras 5 o mas jugadores viven, la Mujer escarlata debe cuidar a Lil Monsta desde entonces.",
+                "reason": "Si Lil’ Monsta muere con 5 o más jugadores vivos, la Mujer Escarlata cuida a Lil’ Monsta durante el resto de la partida.",
                 "reasonLegacy": "Si hay 5 o mas jugadores vivos y el jugador que cuida a Lil' Monsta muere, la Mujer escarlata recibe la ficha de Lil' Monsta esta noche."
             },
             {
@@ -492,7 +495,7 @@
         "jinx": [
             {
                 "id": "summoner",
-                "reason": "Si el Invocador crea al Senor de Typhon, el Senor de Typhon debe ser vecino de un Esbirro, y el jugador al otro lado del Senor de Typhon se convierte en un Esbirro malvado.",
+                "reason": "Si se invoca a un Señor de Tifón, debe estar junto a un Esbirro y su otro vecino se convierte en un Esbirro malo.",
                 "reasonLegacy": "Si el Invocador crea un Senor de Typhon, el Senor de Typhon debe ser vecino de un Esbirro. El otro vecino se convierte en un Esbirro malo que no esta en juego."
             },
             {
@@ -514,11 +517,12 @@
             },
             {
                 "id": "wraith",
-                "reason": "Cada dia, despues de la fase de ejecucion, el Mago vivo puede adivinar publicamente a un jugador vivo como el Espectro: si acierta, el Demonio debe elegir al Espectro esta noche."
+                "reason": "Después de cada ejecución, el Mago vivo puede señalar públicamente a un jugador vivo como el Espectro. Si acierta, el Demonio debe elegir al Espectro esta noche.",
+                "reasonLegacy": "Cada dia, despues de la fase de ejecucion, el Mago vivo puede adivinar publicamente a un jugador vivo como el Espectro: si acierta, el Demonio debe elegir al Espectro esta noche."
             },
             {
                 "id": "lil_monsta",
-                "reason": "Si el Mago esta vivo, el Narrador decide quien cuida a Lil Monsta.",
+                "reason": "Si el Mago está vivo, el Narrador elige qué Esbirro cuida a Lil’ Monsta.",
                 "reasonLegacy": "Cada noche, el Mago elige un Esbirro: si ese Esbirro y Lil' Monsta estan vivos, ese Esbirro cuida a Lil' Monsta."
             },
             {
@@ -533,7 +537,7 @@
         "jinx": [
             {
                 "id": "lil_monsta",
-                "reason": "Si la Marioneta estaria en juego durante la preparacion, entra en juego despues del Demonio y se sienta junto al Demonio.",
+                "reason": "Si hubiera una Marioneta en juego, entra después del Demonio y debe empezar como su vecina.",
                 "reasonLegacy": "La Marioneta es vecina de un Esbirro, no del Demonio. La Marioneta no se despierta para elegir quien cuida a Lil' Monsta, y no descubre que es la Marioneta si tiene la ficha de Lil' Monsta."
             },
             {
@@ -546,7 +550,7 @@
             },
             {
                 "id": "balloonist",
-                "reason": "Si la Marioneta cree que es el Aeronauta, +1 Forastero podria haberse anadido durante la preparacion.",
+                "reason": "Si la Marioneta cree que es el Aeronauta, puede haberse añadido un Forastero durante la preparación.",
                 "reasonLegacy": "Si la Marioneta cree que es el Aeronauta, puede haberse anadido +1 Forastero."
             },
             {
@@ -555,7 +559,7 @@
             },
             {
                 "id": "huntsman",
-                "reason": "Si la Marioneta cree que es el Cazador, la Doncella fue anadida durante la preparacion.",
+                "reason": "Si la Marioneta cree que es el Cazador, la Damisela se añadió durante la preparación.",
                 "reasonLegacy": "Si la Marioneta cree que es el Cazador, se anadio la Doncella."
             },
             {
@@ -564,11 +568,13 @@
             },
             {
                 "id": "magician",
-                "reason": "Si el Mago está vivo, el Demonio no aprende quién es la Marioneta."
+                "reason": "Si el Mago está vivo, el Demonio no sabe cuál de sus vecinos es la Marioneta.",
+                "reasonLegacy": "Si el Mago está vivo, el Demonio no aprende quién es la Marioneta."
             },
             {
                 "id": "mathematician",
-                "reason": "El Matemático podría aprender que la Marioneta recibió información falsa o que su \"habilidad no funcionó correctamente\"."
+                "reason": "Si la habilidad de la Marioneta produjo información falsa o no funcionó correctamente, el número del Matemático incluye esa anomalía.",
+                "reasonLegacy": "El Matemático podría aprender que la Marioneta recibió información falsa o que su \"habilidad no funcionó correctamente\"."
             },
             {
                 "id": "guhuoniao",
@@ -586,6 +592,10 @@
             {
                 "id": "zombuul",
                 "reason": "Si el Zombuul muere y ha matado a la Mente maestra, la Mente maestra aún conserva su habilidad."
+            },
+            {
+                "id": "vigormortis",
+                "reason": "Un Cerebro que tiene su habilidad la conserva si el Vigormortis muere."
             }
         ]
     },
@@ -594,11 +604,13 @@
         "jinx": [
             {
                 "id": "lunatic",
-                "reason": "El Matematico descubre si el Lunatico ataca a jugador(es) diferente(s) a los que ataco el Demonio real."
+                "reason": "Si el Lunático ataca a un jugador distinto del atacado por el verdadero Demonio, el número del Matemático incluye esa anomalía.",
+                "reasonLegacy": "El Matematico descubre si el Lunatico ataca a jugador(es) diferente(s) a los que ataco el Demonio real."
             },
             {
                 "id": "drunk",
-                "reason": "El Matemático podría aprender que el Borracho recibió información falsa o que su \"habilidad no funcionó correctamente\"."
+                "reason": "Si la habilidad del Borracho produjo información falsa o no funcionó correctamente, el número del Matemático incluye esa anomalía.",
+                "reasonLegacy": "El Matemático podría aprender que el Borracho recibió información falsa o que su \"habilidad no funcionó correctamente\"."
             }
         ]
     },
@@ -707,7 +719,8 @@
         "jinx": [
             {
                 "id": "sage",
-                "reason": "El Recluso podría aparecer como el Demonio que mató al Sabio."
+                "reason": "El Ermitaño puede aparecer como el Demonio para el Sabio.",
+                "reasonLegacy": "El Recluso podría aparecer como el Demonio que mató al Sabio."
             }
         ]
     },
@@ -721,7 +734,7 @@
             },
             {
                 "id": "monk",
-                "reason": "Si Riot nomina y ejecuta al jugador que el Monje protegio la noche anterior, ganan los buenos.",
+                "reason": "Si Riot nomina y ejecuta al jugador protegido por el Monje, ganan los buenos.",
                 "reasonLegacy": "Si Riot esta en juego, el jugador protegido por el Monje esta a salvo de todas las habilidades malas."
             },
             {
@@ -730,7 +743,7 @@
             },
             {
                 "id": "innkeeper",
-                "reason": "Si Riot nomina y ejecuta a uno de los jugadores que el Posadero protegio la noche anterior, ganan los buenos.",
+                "reason": "Si Riot nomina y ejecuta a un jugador protegido por el Posadero, ganan los buenos.",
                 "reasonLegacy": "Si Riot esta en juego, el jugador protegido por el Posadero esta a salvo de todas las habilidades malas."
             },
             {
@@ -739,7 +752,7 @@
             },
             {
                 "id": "banshee",
-                "reason": "Cada noche*, Riot elige un jugador vivo (diferente a las noches anteriores): una Banshee elegida muere y gana su habilidad.",
+                "reason": "Cada noche*, Riot elige un jugador bueno vivo (distinto de los elegidos en noches anteriores): si elige a la Banshee, esta muere y obtiene su habilidad.",
                 "reasonLegacy": "Cada noche*, Riot elige 1 jugador bueno vivo (diferente a las noches anteriores): una Banshee elegida muere y gana su habilidad."
             },
             {
@@ -762,7 +775,7 @@
             },
             {
                 "id": "exorcist",
-                "reason": "Si Riot nomina y ejecuta al jugador que el Exorcista eligio la noche anterior, ganan los buenos.",
+                "reason": "Si Riot nomina y ejecuta al jugador elegido por el Exorcista, ganan los buenos.",
                 "reasonLegacy": "Si el Exorcista elige a Riot la 3a noche, los Esbirros no se convierten en Riot."
             },
             {
@@ -771,7 +784,8 @@
             },
             {
                 "id": "atheist",
-                "reason": "Durante la cadena de nominaciones de Riot, si el Narrador es nominado, los jugadores votan. Si el Narrador \"fuera a ser ejecutado\", la partida termina. De lo contrario, el Narrador inicia una nueva nominación."
+                "reason": "Durante una revuelta, si el Narrador es nominado, los jugadores votan. Si está «a punto de morir», la partida termina. Si no, nomina de nuevo.",
+                "reasonLegacy": "Durante la cadena de nominaciones de Riot, si el Narrador es nominado, los jugadores votan. Si el Narrador \"fuera a ser ejecutado\", la partida termina. De lo contrario, el Narrador inicia una nueva nominación."
             },
             {
                 "id": "banxian",
@@ -817,7 +831,7 @@
         "jinx": [
             {
                 "id": "al-hadikhia",
-                "reason": "Si hubiera dos Demonios vivos y uno de ellos fue creado por la Mujer escarlata, el Demonio creado por la Mujer escarlata vuelve a ser la Mujer escarlata.",
+                "reason": "Si hubiera dos Demonios y uno de ellos fuera antes la Mujer Escarlata, ese Demonio vuelve a ser la Mujer Escarlata.",
                 "reasonLegacy": "Si hay dos Al-Hadikhias vivos, la Mujer escarlata que se convirtio en Al-Hadikhia vuelve a ser Mujer escarlata."
             }
         ]
@@ -846,12 +860,12 @@
             },
             {
                 "id": "poppy_grower",
-                "reason": "Si el Cultivador de opio esta vivo en la 3a noche, el Invocador elige que Demonio, pero el Narrador elige que jugador.",
+                "reason": "Si el Cultivador de Opio está vivo en la tercera noche, el Invocador elige qué Demonio, pero no qué jugador.",
                 "reasonLegacy": "Si el Cultivador de opio esta vivo cuando actua el Invocador, el Invocador elige que Demonio, pero el Narrador elige a que jugador."
             },
             {
                 "id": "marionette",
-                "reason": "Si la Marioneta estuviera en juego en la configuracion inicial, entra en juego despues del Demonio y es vecina del Demonio.",
+                "reason": "Si hubiera una Marioneta en juego, entra después del Demonio y debe empezar como su vecina.",
                 "reasonLegacy": "La Marioneta es vecina del Invocador. El Invocador sabe quien es la Marioneta."
             },
             {
@@ -866,7 +880,7 @@
             },
             {
                 "id": "courtier",
-                "reason": "Si el Invocador vivo pierde su habilidad, el Narrador obtiene la habilidad del Invocador.",
+                "reason": "Si el Invocador vivo no tiene habilidad, el Narrador tiene la habilidad del Invocador.",
                 "reasonLegacy": "Si el Invocador esta borracho la 3a noche, el Invocador elige que Demonio, pero el Narrador elige a que jugador."
             },
             {
@@ -885,7 +899,7 @@
             },
             {
                 "id": "legion",
-                "reason": "Si el Invocador invoca a la Legion, todos los jugadores malos se convierten en Legion.",
+                "reason": "Si se invoca a Legión, todos los jugadores malos se convierten en Legión.",
                 "reasonLegacy": "Si el Invocador crea a la Legion, la mayoria de jugadores (incluyendo todos los malos) se convierten en Legion malos."
             },
             {
@@ -895,7 +909,7 @@
             },
             {
                 "id": "preacher",
-                "reason": "Si el Invocador vivo pierde su habilidad, el Narrador obtiene la habilidad del Invocador.",
+                "reason": "Si el Invocador vivo no tiene habilidad, el Narrador tiene la habilidad del Invocador.",
                 "reasonLegacy": "Si el Predicador eligio al Invocador en la 3a noche o antes, el Invocador elige que Demonio, pero el Narrador elige a que jugador."
             },
             {
@@ -958,12 +972,12 @@
             },
             {
                 "id": "preacher",
-                "reason": "Si el Visir pierde su habilidad, lo aprende pero no muere durante el dia.",
+                "reason": "Si el Visir pierde su habilidad, lo descubre y no puede morir durante el día.",
                 "reasonLegacy": "Si el Visir pierde su habilidad, lo descubre. Si el Visir es ejecutado mientras tiene su habilidad, su equipo gana."
             },
             {
                 "id": "courtier",
-                "reason": "Si el Visir pierde su habilidad, lo aprende pero no muere durante el dia.",
+                "reason": "Si el Visir pierde su habilidad, lo descubre y no puede morir durante el día.",
                 "reasonLegacy": "Si el Visir pierde su habilidad, lo descubre. Si el Visir es ejecutado mientras tiene su habilidad, su equipo gana."
             },
             {
@@ -989,7 +1003,7 @@
         "jinx": [
             {
                 "id": "banshee",
-                "reason": "Si el Vortox mata a la Banshee, los jugadores aun aprenden informacion correcta. (Este jinx es solo para aclaracion.)",
+                "reason": "Si el Vortox mata a la Banshee, todos los jugadores saben que la Banshee ha muerto.",
                 "reasonLegacy": "Si el Vortox esta en juego y el Demonio mata a la Banshee, los jugadores aun descubren que la Banshee ha muerto."
             }
         ]

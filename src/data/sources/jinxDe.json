@@ -8,7 +8,7 @@
             },
             {
                 "id": "lunatic",
-                "reason": "Der Mathematiker erfährt, ob der Wahnsinnige andere(n) Spieler angegriffen hat als der echte Dämon."
+                "reason": "Wenn der Wahnsinnige einen anderen Spieler angreift als der echte Dämon, zählt die Zahl des Mathematikers diese Abweichung mit."
             }
         ]
     },
@@ -80,15 +80,18 @@
         "jinx": [
             {
                 "id": "soldier",
-                "reason": "Wenn der Leviathan im Spiel ist, ist der Soldat vor allen bösen Fähigkeiten sicher."
+                "reason": "Wenn der Leviathan den Soldaten nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Wenn der Leviathan im Spiel ist, ist der Soldat vor allen bösen Fähigkeiten sicher."
             },
             {
                 "id": "monk",
-                "reason": "Wenn der Leviathan im Spiel ist, ist der vom Mönch geschützte Spieler vor allen bösen Fähigkeiten sicher."
+                "reason": "Wenn der Leviathan den vom Mönch geschützten Spieler nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Wenn der Leviathan im Spiel ist, ist der vom Mönch geschützte Spieler vor allen bösen Fähigkeiten sicher."
             },
             {
                 "id": "innkeeper",
-                "reason": "Wenn der Leviathan im Spiel ist, sind die vom Wirt geschützten Spieler vor allen bösen Fähigkeiten sicher."
+                "reason": "Wenn der Leviathan einen vom Wirt geschützten Spieler nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Wenn der Leviathan im Spiel ist, sind die vom Wirt geschützten Spieler vor allen bösen Fähigkeiten sicher."
             },
             {
                 "id": "ravenkeeper",
@@ -108,11 +111,13 @@
             },
             {
                 "id": "mayor",
-                "reason": "Wenn der Leviathan im Spiel ist und am Tag 5 keine Exekution stattfindet, gewinnt Gut."
+                "reason": "Wenn Leviathan und Bürgermeister an Tag 5 leben und keine Exekution stattfindet, gewinnt Gut.",
+                "reasonLegacy": "Wenn der Leviathan im Spiel ist und am Tag 5 keine Exekution stattfindet, gewinnt Gut."
             },
             {
                 "id": "exorcist",
-                "reason": "Böse gewinnt nicht, wenn mehr als 1 guter Spieler exekutiert wurde, falls der Exorzist lebt und jemals erfolgreich den Leviathan gewählt hat."
+                "reason": "Wenn der Leviathan den vom Exorzisten gewählten Spieler nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Böse gewinnt nicht, wenn mehr als 1 guter Spieler exekutiert wurde, falls der Exorzist lebt und jemals erfolgreich den Leviathan gewählt hat."
             },
             {
                 "id": "grandmother",
@@ -124,11 +129,13 @@
             },
             {
                 "id": "hatter",
-                "reason": "Wenn der Hutmacher am oder nach Tag 5 stirbt, kann der Dämon den Leviathan nicht wählen."
+                "reason": "Der Leviathan kann nach Tag 5 nicht ins Spiel kommen.",
+                "reasonLegacy": "Wenn der Hutmacher am oder nach Tag 5 stirbt, kann der Dämon den Leviathan nicht wählen."
             },
             {
                 "id": "pithag",
-                "reason": "Nach Tag 5 kann die Pit-Hag den Leviathan nicht wählen."
+                "reason": "Der Leviathan kann nach Tag 5 nicht ins Spiel kommen.",
+                "reasonLegacy": "Nach Tag 5 kann die Pit-Hag den Leviathan nicht wählen."
             }
         ]
     },
@@ -137,11 +144,13 @@
         "jinx": [
             {
                 "id": "poppygrower",
-                "reason": "Wenn der Mohnbauer im Spiel ist, wachen die Diener nicht zusammen. Sie werden nacheinander geweckt, bis einer von ihnen den Lil' Monsta-Token nimmt."
+                "reason": "Wenn Lil’ Monsta und der Mohnbauer leben, wachen die Diener einzeln auf, bis einer von ihnen den Lil’ Monsta-Token nimmt.",
+                "reasonLegacy": "Wenn der Mohnbauer im Spiel ist, wachen die Diener nicht zusammen. Sie werden nacheinander geweckt, bis einer von ihnen den Lil' Monsta-Token nimmt."
             },
             {
                 "id": "scarletwoman",
-                "reason": "Wenn 5 oder mehr Spieler am Leben sind und der Spieler mit dem Lil' Monsta-Token stirbt, bekommt die Scarlet Woman heute Abend den Lil' Monsta-Token."
+                "reason": "Wenn Lil’ Monsta bei mindestens fünf lebenden Spielern stirbt, betreut die Scarlet Woman Lil’ Monsta für den Rest des Spiels.",
+                "reasonLegacy": "Wenn 5 oder mehr Spieler am Leben sind und der Spieler mit dem Lil' Monsta-Token stirbt, bekommt die Scarlet Woman heute Abend den Lil' Monsta-Token."
             },
             {
                 "id": "vizier",
@@ -149,7 +158,12 @@
             },
             {
                 "id": "hatter",
-                "reason": "Wenn ein Dämon Lil' Monsta wählt, wählt er auch einen Diener, der heute Abend Lil' Monsta betreut."
+                "reason": "Wenn der Hutmacher stirbt und der Dämon Lil’ Monsta wählt, wählt er außerdem einen Diener-Charakter, zu dem er wird.",
+                "reasonLegacy": "Wenn ein Dämon Lil' Monsta wählt, wählt er auch einen Diener, der heute Abend Lil' Monsta betreut."
+            },
+            {
+                "id": "psychopath",
+                "reason": "Wenn der Psychopath Lil’ Monsta betreut, stirbt er bei seiner Exekution."
             }
         ]
     },
@@ -158,7 +172,8 @@
         "jinx": [
             {
                 "id": "engineer",
-                "reason": "Legion und der Ingenieur können nicht beide zu Beginn des Spiels im Spiel sein. Wenn der Ingenieur Legion erschafft, werden die meisten Spieler (inklusive aller bösen Spieler) zu böser Legion."
+                "reason": "Wenn Legion erschaffen wird, werden alle bösen Spieler zu Legion. Ist Legion im Spiel, weiß der Ingenieur dies zu Beginn, hat aber keine Fähigkeit.",
+                "reasonLegacy": "Legion und der Ingenieur können nicht beide zu Beginn des Spiels im Spiel sein. Wenn der Ingenieur Legion erschafft, werden die meisten Spieler (inklusive aller bösen Spieler) zu böser Legion."
             },
             {
                 "id": "preacher",
@@ -170,11 +185,20 @@
             },
             {
                 "id": "hatter",
-                "reason": "Wenn der Hutmacher stirbt und Legion im Spiel ist, passiert nichts. Wenn der Hutmacher stirbt und ein böser Spieler Legion wählt, werden alle aktuellen bösen Spieler Legion."
+                "reason": "Wenn Legion erschaffen wird, werden alle bösen Spieler zu Legion. Ist Legion im Spiel, hat der Hutmacher keine Fähigkeit.",
+                "reasonLegacy": "Wenn der Hutmacher stirbt und Legion im Spiel ist, passiert nichts. Wenn der Hutmacher stirbt und ein böser Spieler Legion wählt, werden alle aktuellen bösen Spieler Legion."
             },
             {
                 "id": "zealot",
                 "reason": "Der Fanatiker könnte bei Legions Fähigkeit als böse registriert werden."
+            },
+            {
+                "id": "magician",
+                "reason": "Ist der Magier im Spiel, wacht Legion beim Dämonen-Info-Schritt in getrennten Gruppen auf. Jede Gruppe erfährt, welche Spieler gut sind, aber nicht, wer der Magier ist."
+            },
+            {
+                "id": "politician",
+                "reason": "Der Politiker kann gegenüber Legion als böse gelten."
             }
         ]
     },
@@ -183,11 +207,13 @@
         "jinx": [
             {
                 "id": "fanggu",
-                "reason": "Wenn der Fang Gu einen Outsider wählt und stirbt, wird die Scarlet Woman nicht der Fang Gu."
+                "reason": "Wenn es zwei Dämonen gäbe und einer davon zuvor die Scarlet Woman war, bleibt sie die Scarlet Woman.",
+                "reasonLegacy": "Wenn der Fang Gu einen Outsider wählt und stirbt, wird die Scarlet Woman nicht der Fang Gu."
             },
             {
                 "id": "alhadikhia",
-                "reason": "Wenn zwei lebende Al-Hadikhias existieren, wird die Scarlet Woman Al-Hadikhia wieder zur Scarlet Woman."
+                "reason": "Wenn es zwei Dämonen gäbe und einer davon zuvor die Scarlet Woman war, wird dieser wieder zur Scarlet Woman.",
+                "reasonLegacy": "Wenn zwei lebende Al-Hadikhias existieren, wird die Scarlet Woman Al-Hadikhia wieder zur Scarlet Woman."
             }
         ]
     },
@@ -196,7 +222,8 @@
         "jinx": [
             {
                 "id": "poppygrower",
-                "reason": "Wenn der Mohnbauer im Spiel ist, sieht der Spion das Grimorium nicht, bis der Mohnbauer stirbt."
+                "reason": "Wenn der Mohnbauer seine Fähigkeit hat, sieht der Spion das Grimorium nicht.",
+                "reasonLegacy": "Wenn der Mohnbauer im Spiel ist, sieht der Spion das Grimorium nicht, bis der Mohnbauer stirbt."
             },
             {
                 "id": "damsel",
@@ -217,7 +244,8 @@
         "jinx": [
             {
                 "id": "poppygrower",
-                "reason": "Wenn der Mohnbauer im Spiel ist, sieht die Witwe das Grimorium nicht, bis der Mohnbauer stirbt."
+                "reason": "Wenn der Mohnbauer seine Fähigkeit hat, sieht die Witwe das Grimorium nicht.",
+                "reasonLegacy": "Wenn der Mohnbauer im Spiel ist, sieht die Witwe das Grimorium nicht, bis der Mohnbauer stirbt."
             },
             {
                 "id": "damsel",
@@ -243,31 +271,38 @@
         "jinx": [
             {
                 "id": "clockmaker",
-                "reason": "Wenn der Beschwörer im Spiel ist, erhält der Uhrmacher seine Informationen nicht, bis ein Dämon erzeugt wird."
+                "reason": "Der Beschwörer gilt für den Uhrmacher als der Dämon.",
+                "reasonLegacy": "Wenn der Beschwörer im Spiel ist, erhält der Uhrmacher seine Informationen nicht, bis ein Dämon erzeugt wird."
             },
             {
                 "id": "poppygrower",
-                "reason": "Wenn der Mohnbauer lebt, wenn der Beschwörer handelt, wählt der Beschwörer, welcher Dämon, aber der Erzähler wählt, welcher Spieler."
+                "reason": "Wenn der Mohnbauer in der dritten Nacht lebt, wählt der Beschwörer, welcher Dämon, aber nicht welcher Spieler.",
+                "reasonLegacy": "Wenn der Mohnbauer lebt, wenn der Beschwörer handelt, wählt der Beschwörer, welcher Dämon, aber der Erzähler wählt, welcher Spieler."
             },
             {
                 "id": "marionette",
-                "reason": "Die Marionette ist Nachbar des Beschwörers. Der Beschwörer weiß, wer die Marionette ist."
+                "reason": "Wenn eine Marionette im Spiel wäre, kommt sie nach dem Dämon ins Spiel und muss zu Beginn sein Nachbar sein.",
+                "reasonLegacy": "Die Marionette ist Nachbar des Beschwörers. Der Beschwörer weiß, wer die Marionette ist."
             },
             {
                 "id": "pithag",
-                "reason": "Der Beschwörer kann keinen im-Spiel befindlichen Dämon erschaffen. Wenn der Beschwörer einen nicht-im-Spiel Dämon erschafft, sind Todesfälle heute Nacht willkürlich."
+                "reason": "Wenn der Beschwörer einen zweiten lebenden Dämon erschafft, sind die Todesfälle heute Nacht willkürlich.",
+                "reasonLegacy": "Der Beschwörer kann keinen im-Spiel befindlichen Dämon erschaffen. Wenn der Beschwörer einen nicht-im-Spiel Dämon erschafft, sind Todesfälle heute Nacht willkürlich."
             },
             {
                 "id": "hatter",
-                "reason": "Der Beschwörer kann keinen im-Spiel befindlichen Dämon erschaffen. Wenn der Beschwörer einen nicht-im-Spiel Dämon erschafft, sind Todesfälle heute Nacht willkürlich."
+                "reason": "Wenn der Beschwörer einen zweiten lebenden Dämon erschafft, sind die Todesfälle heute Nacht willkürlich.",
+                "reasonLegacy": "Der Beschwörer kann keinen im-Spiel befindlichen Dämon erschaffen. Wenn der Beschwörer einen nicht-im-Spiel Dämon erschafft, sind Todesfälle heute Nacht willkürlich."
             },
             {
                 "id": "courtier",
-                "reason": "Wenn der Beschwörer am 3. Nacht betrunken ist, wählt der Beschwörer, welcher Dämon, aber der Erzähler wählt, welcher Spieler."
+                "reason": "Wenn der lebende Beschwörer keine Fähigkeit hat, hat der Erzähler die Beschwörer-Fähigkeit.",
+                "reasonLegacy": "Wenn der Beschwörer am 3. Nacht betrunken ist, wählt der Beschwörer, welcher Dämon, aber der Erzähler wählt, welcher Spieler."
             },
             {
                 "id": "engineer",
-                "reason": "Wenn der Ingenieur einen Beschwörer vor dessen Fähigkeit aus dem Spiel entfernt, benutzt der Beschwörer sofort seine Fähigkeit."
+                "reason": "Wenn der lebende Beschwörer aus dem Spiel entfernt wird, hat der Erzähler die Beschwörer-Fähigkeit.",
+                "reasonLegacy": "Wenn der Ingenieur einen Beschwörer vor dessen Fähigkeit aus dem Spiel entfernt, benutzt der Beschwörer sofort seine Fähigkeit."
             },
             {
                 "id": "zombuul",
@@ -275,23 +310,28 @@
             },
             {
                 "id": "pukka",
-                "reason": "Der Beschwörer kann am 2. Nacht einen Spieler wählen, der der Pukka wird."
+                "reason": "Der Beschwörer darf einen Pukka in der zweiten statt in der dritten Nacht beschwören.",
+                "reasonLegacy": "Der Beschwörer kann am 2. Nacht einen Spieler wählen, der der Pukka wird."
             },
             {
                 "id": "legion",
-                "reason": "Wenn der Beschwörer Legion erschafft, werden die meisten Spieler (inklusive aller bösen Spieler) zu böser Legion."
+                "reason": "Wenn Legion beschworen wird, werden alle bösen Spieler zu Legion.",
+                "reasonLegacy": "Wenn der Beschwörer Legion erschafft, werden die meisten Spieler (inklusive aller bösen Spieler) zu böser Legion."
             },
             {
                 "id": "kazali",
-                "reason": "Der Beschwörer kann keinen im-Spiel befindlichen Dämon erschaffen. Wenn der Beschwörer einen nicht-im-Spiel Dämon erschafft, sind Todesfälle heute Nacht willkürlich."
+                "reason": "Wenn der Beschwörer einen zweiten lebenden Dämon erschafft, sind die Todesfälle heute Nacht willkürlich.",
+                "reasonLegacy": "Der Beschwörer kann keinen im-Spiel befindlichen Dämon erschaffen. Wenn der Beschwörer einen nicht-im-Spiel Dämon erschafft, sind Todesfälle heute Nacht willkürlich."
             },
             {
                 "id": "preacher",
-                "reason": "Wenn der Prediger den Beschwörer am oder vor der 3. Nacht gewählt hat, wählt der Beschwörer welcher Dämon, aber der Erzähler wählt welcher Spieler."
+                "reason": "Wenn der lebende Beschwörer keine Fähigkeit hat, hat der Erzähler die Beschwörer-Fähigkeit.",
+                "reasonLegacy": "Wenn der Prediger den Beschwörer am oder vor der 3. Nacht gewählt hat, wählt der Beschwörer welcher Dämon, aber der Erzähler wählt welcher Spieler."
             },
             {
                 "id": "lordoftyphon",
-                "reason": "Wenn der Beschwörer einen Lord of Typhon erschafft, muss dieser Lord einen Diener als Nachbar haben. Der andere Nachbar wird ein nicht-im-Spiel böser Diener."
+                "reason": "Wenn ein Lord of Typhon beschworen wird, muss er neben einem Diener sitzen und sein anderer Nachbar wird zu einem bösen Diener.",
+                "reasonLegacy": "Wenn der Beschwörer einen Lord of Typhon erschafft, muss dieser Lord einen Diener als Nachbar haben. Der andere Nachbar wird ein nicht-im-Spiel böser Diener."
             }
         ]
     },
@@ -300,7 +340,8 @@
         "jinx": [
             {
                 "id": "lilmonsta",
-                "reason": "Die Marionette ist Nachbar eines Dieners, nicht des Dämons. Die Marionette wird nicht geweckt, um zu wählen, wer den Lil' Monsta-Token nimmt, und erfährt nicht, dass sie die Marionette ist, wenn sie den Lil' Monsta-Token hat."
+                "reason": "Wenn eine Marionette im Spiel wäre, kommt sie nach dem Dämon ins Spiel und muss zu Beginn sein Nachbar sein.",
+                "reasonLegacy": "Die Marionette ist Nachbar eines Dieners, nicht des Dämons. Die Marionette wird nicht geweckt, um zu wählen, wer den Lil' Monsta-Token nimmt, und erfährt nicht, dass sie die Marionette ist, wenn sie den Lil' Monsta-Token hat."
             },
             {
                 "id": "poppygrower",
@@ -325,6 +366,10 @@
             {
                 "id": "wraith",
                 "reason": "Der Wraith wacht nicht mit der Marionette auf."
+            },
+            {
+                "id": "mathematician",
+                "reason": "Wenn die Fähigkeit der Marionette falsche Informationen lieferte oder nicht richtig funktionierte, zählt die Zahl des Mathematikers diese Abweichung mit."
             }
         ]
     },
@@ -350,7 +395,8 @@
             },
             {
                 "id": "marionette",
-                "reason": "Wenn der Kazali eine Marionette erschaffen möchte, muss er einen seiner Nachbarn wählen."
+                "reason": "Wenn eine Marionette im Spiel wäre, kommt sie nach dem Dämon ins Spiel und muss zu Beginn sein Nachbar sein.",
+                "reasonLegacy": "Wenn der Kazali eine Marionette erschaffen möchte, muss er einen seiner Nachbarn wählen."
             },
             {
                 "id": "huntsman",
@@ -375,7 +421,8 @@
             },
             {
                 "id": "monk",
-                "reason": "Wenn Riot im Spiel ist, ist der vom Mönch geschützte Spieler vor allen bösen Fähigkeiten sicher."
+                "reason": "Wenn Riot den vom Mönch geschützten Spieler nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Wenn Riot im Spiel ist, ist der vom Mönch geschützte Spieler vor allen bösen Fähigkeiten sicher."
             },
             {
                 "id": "farmer",
@@ -383,7 +430,8 @@
             },
             {
                 "id": "innkeeper",
-                "reason": "Wenn Riot im Spiel ist, ist der vom Wirt geschützte Spieler vor allen bösen Fähigkeiten sicher."
+                "reason": "Wenn Riot einen vom Wirt geschützten Spieler nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Wenn Riot im Spiel ist, ist der vom Wirt geschützte Spieler vor allen bösen Fähigkeiten sicher."
             },
             {
                 "id": "sage",
@@ -399,11 +447,13 @@
             },
             {
                 "id": "soldier",
-                "reason": "Wenn Riot im Spiel ist, ist der Soldat vor allen bösen Fähigkeiten sicher."
+                "reason": "Wenn Riot den Soldaten nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Wenn Riot im Spiel ist, ist der Soldat vor allen bösen Fähigkeiten sicher."
             },
             {
                 "id": "grandmother",
-                "reason": "Wenn Riot im Spiel ist und das Enkelkind während des Tages stirbt, stirbt auch die Großmutter."
+                "reason": "Wenn Riot im Spiel ist und das Enkelkind durch Exekution stirbt, gewinnt Böse.",
+                "reasonLegacy": "Wenn Riot im Spiel ist und das Enkelkind während des Tages stirbt, stirbt auch die Großmutter."
             },
             {
                 "id": "king",
@@ -411,7 +461,8 @@
             },
             {
                 "id": "exorcist",
-                "reason": "Wenn der Exorzist Riot in der 3. Nacht wählt, werden Diener nicht zu Riot."
+                "reason": "Wenn Riot den vom Exorzisten gewählten Spieler nominiert und exekutiert, gewinnt Gut.",
+                "reasonLegacy": "Wenn der Exorzist Riot in der 3. Nacht wählt, werden Diener nicht zu Riot."
             }
         ]
     },
@@ -429,15 +480,18 @@
         "jinx": [
             {
                 "id": "investigator",
-                "reason": "Wenn der Ermittler erfährt, dass der Wesir im Spiel ist, wird die Existenz des Wesirs nicht vom Erzähler angekündigt."
+                "reason": "Der Erzähler gibt nicht bekannt, dass der Wesir im Spiel ist.",
+                "reasonLegacy": "Wenn der Ermittler erfährt, dass der Wesir im Spiel ist, wird die Existenz des Wesirs nicht vom Erzähler angekündigt."
             },
             {
                 "id": "preacher",
-                "reason": "Wenn der Wesir seine Fähigkeit verliert, erfährt er dies. Wenn der Wesir exekutiert wird, während er seine Fähigkeit hat, gewinnt sein Team."
+                "reason": "Wenn der Wesir seine Fähigkeit verliert, erfährt er dies und kann tagsüber nicht sterben.",
+                "reasonLegacy": "Wenn der Wesir seine Fähigkeit verliert, erfährt er dies. Wenn der Wesir exekutiert wird, während er seine Fähigkeit hat, gewinnt sein Team."
             },
             {
                 "id": "courtier",
-                "reason": "Wenn der Wesir seine Fähigkeit verliert, erfährt er dies. Wenn der Wesir exekutiert wird, während er seine Fähigkeit hat, gewinnt sein Team."
+                "reason": "Wenn der Wesir seine Fähigkeit verliert, erfährt er dies und kann tagsüber nicht sterben.",
+                "reasonLegacy": "Wenn der Wesir seine Fähigkeit verliert, erfährt er dies. Wenn der Wesir exekutiert wird, während er seine Fähigkeit hat, gewinnt sein Team."
             },
             {
                 "id": "fearmonger",
@@ -449,7 +503,8 @@
             },
             {
                 "id": "alsaahir",
-                "reason": "Wenn der Wesir im Spiel ist, muss der Alsaahir auch raten, welcher Dämon/ welche Dämonen im Spiel sind."
+                "reason": "Der Erzähler gibt nicht bekannt, dass der Wesir im Spiel ist.",
+                "reasonLegacy": "Wenn der Wesir im Spiel ist, muss der Alsaahir auch raten, welcher Dämon/ welche Dämonen im Spiel sind."
             },
             {
                 "id": "zealot",
@@ -466,7 +521,8 @@
         "jinx": [
             {
                 "id": "banshee",
-                "reason": "Wenn der Vortox im Spiel ist und der Dämon die Banshee tötet, erfahren die Spieler dennoch, dass die Banshee gestorben ist."
+                "reason": "Wenn der Vortox die Banshee tötet, erfahren alle Spieler, dass die Banshee gestorben ist.",
+                "reasonLegacy": "Wenn der Vortox im Spiel ist und der Dämon die Banshee tötet, erfahren die Spieler dennoch, dass die Banshee gestorben ist."
             }
         ]
     },
@@ -489,6 +545,10 @@
             {
                 "id": "alhadikhia",
                 "reason": "Wenn die Al-Hadikhia durch Exekution stirbt und der Mastermind lebt, wählt die Al-Hadikhia heute Abend 3 gute Spieler: wenn alle 3 wählen zu leben, gewinnt Böse. Andernfalls gewinnt Gut."
+            },
+            {
+                "id": "vigormortis",
+                "reason": "Ein Mastermind, der seine Fähigkeit hat, behält sie, wenn der Vigormortis stirbt."
             }
         ]
     },
@@ -513,7 +573,8 @@
             },
             {
                 "id": "drunk",
-                "reason": "Wenn der Dämon die Betrunkene-Fähigkeit hätte, wählt der Boffin einen Dorfbewohner, um diese Fähigkeit stattdessen zu haben."
+                "reason": "Der Dämon kann nicht die Fähigkeit des Betrunkenen haben.",
+                "reasonLegacy": "Wenn der Dämon die Betrunkene-Fähigkeit hätte, wählt der Boffin einen Dorfbewohner, um diese Fähigkeit stattdessen zu haben."
             },
             {
                 "id": "villageidiot",
@@ -526,39 +587,48 @@
         "jinx": [
             {
                 "id": "eviltwin",
-                "reason": "Der Erzähler kann nicht die Böse-Zwilling-Fähigkeit erhalten, wenn der Pestarzt stirbt."
+                "reason": "Wenn der Erzähler die Böser-Zwilling-Fähigkeit erhalten würde, wird ein Spieler zum Bösen Zwilling.",
+                "reasonLegacy": "Der Erzähler kann nicht die Böse-Zwilling-Fähigkeit erhalten, wenn der Pestarzt stirbt."
             },
             {
                 "id": "fearmonger",
-                "reason": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Fearmonger-Fähigkeit und erfährt dies."
+                "reason": "Wenn der Erzähler die Fearmonger-Fähigkeit erhalten würde, erhält ein Diener sie und erfährt dies.",
+                "reasonLegacy": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Fearmonger-Fähigkeit und erfährt dies."
             },
             {
                 "id": "goblin",
-                "reason": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Goblin-Fähigkeit und erfährt dies."
+                "reason": "Wenn der Erzähler die Goblin-Fähigkeit erhalten würde, erhält ein Diener sie und erfährt dies.",
+                "reasonLegacy": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Goblin-Fähigkeit und erfährt dies."
             },
             {
                 "id": "spy",
-                "reason": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Spion-Fähigkeit und erfährt dies."
+                "reason": "Wenn der Erzähler die Spion-Fähigkeit erhalten würde, erhält ein Diener sie und erfährt dies.",
+                "reasonLegacy": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Spion-Fähigkeit und erfährt dies."
             },
             {
                 "id": "scarletwoman",
-                "reason": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Scarlet Woman-Fähigkeit und erfährt dies."
+                "reason": "Wenn der Erzähler die Scarlet-Woman-Fähigkeit erhalten würde, erhält ein Diener sie und erfährt dies.",
+                "reasonLegacy": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Scarlet Woman-Fähigkeit und erfährt dies."
             },
             {
                 "id": "boomdandy",
-                "reason": "Wenn der Pestarzt exekutiert wird und der Erzähler die Boomdandy-Fähigkeit erhalten würde, tritt die Boomdandy-Fähigkeit sofort in Kraft."
+                "reason": "Wenn der Erzähler die Boomdandy-Fähigkeit erhalten würde, wird ein Spieler zum Boomdandy.",
+                "reasonLegacy": "Wenn der Pestarzt exekutiert wird und der Erzähler die Boomdandy-Fähigkeit erhalten würde, tritt die Boomdandy-Fähigkeit sofort in Kraft."
             },
             {
                 "id": "baron",
-                "reason": "Wenn der Erzähler die Baron-Fähigkeit erhält, werden bis zu zwei Spieler nicht-im-Spiel Outsider."
+                "reason": "Wenn der Erzähler die Baron-Fähigkeit erhalten würde, werden bis zu zwei Spieler zu Außenseitern.",
+                "reasonLegacy": "Wenn der Erzähler die Baron-Fähigkeit erhält, werden bis zu zwei Spieler nicht-im-Spiel Outsider."
             },
             {
                 "id": "marionette",
-                "reason": "Wenn der Dämon einen Nachbarn hat, der lebendig und ein Dorfbewohner oder Outsider ist, wenn der Pestarzt stirbt, wird dieser Spieler eine böse Marionette. Wenn bereits ein extra böser Spieler existiert, passiert dies nicht."
+                "reason": "Wenn der Erzähler die Marionetten-Fähigkeit erhalten würde, wird einer der guten Nachbarn des Dämons zur Marionette.",
+                "reasonLegacy": "Wenn der Dämon einen Nachbarn hat, der lebendig und ein Dorfbewohner oder Outsider ist, wenn der Pestarzt stirbt, wird dieser Spieler eine böse Marionette. Wenn bereits ein extra böser Spieler existiert, passiert dies nicht."
             },
             {
                 "id": "wraith",
-                "reason": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Wraith-Fähigkeit und erfährt dies."
+                "reason": "Wenn der Erzähler die Wraith-Fähigkeit erhalten würde, erhält ein Diener sie und erfährt dies.",
+                "reasonLegacy": "Wenn der Pestarzt stirbt, erhält ein lebender Diener zusätzlich zu seiner eigenen Fähigkeit die Wraith-Fähigkeit und erfährt dies."
             }
         ]
     },
@@ -571,11 +641,13 @@
             },
             {
                 "id": "baron",
-                "reason": "Der Baron könnte nur 1 Outsider hinzufügen, nicht 2."
+                "reason": "Nur einer der beiden Charaktere darf im Spiel sein.",
+                "reasonLegacy": "Der Baron könnte nur 1 Outsider hinzufügen, nicht 2."
             },
             {
                 "id": "pithag",
-                "reason": "Eine Pit-Hag kann keinen Ketzter erschaffen."
+                "reason": "Nur einer der beiden Charaktere darf im Spiel sein.",
+                "reasonLegacy": "Eine Pit-Hag kann keinen Ketzter erschaffen."
             },
             {
                 "id": "spy",
@@ -587,7 +659,8 @@
             },
             {
                 "id": "lleech",
-                "reason": "Wenn der Lleech den Heretic vergiftet hat und der Lleech stirbt, bleibt der Heretic vergiftet."
+                "reason": "Nur einer der beiden Charaktere darf im Spiel sein.",
+                "reasonLegacy": "Wenn der Lleech den Heretic vergiftet hat und der Lleech stirbt, bleibt der Heretic vergiftet."
             },
             {
                 "id": "boffin",
@@ -604,7 +677,8 @@
             },
             {
                 "id": "kazali",
-                "reason": "Ein böser Dorfbewohner wird nur erzeugt, wenn der Kopfgeldjäger nach dem Wirken des Kazali noch im Spiel ist."
+                "reason": "Wenn der Kazali den Kopfgeldjäger zu einem Diener macht, wird kein böser Dorfbewohner erschaffen.",
+                "reasonLegacy": "Ein böser Dorfbewohner wird nur erzeugt, wenn der Kopfgeldjäger nach dem Wirken des Kazali noch im Spiel ist."
             }
         ]
     },
@@ -613,7 +687,8 @@
         "jinx": [
             {
                 "id": "princess",
-                "reason": "Wenn die Prinzessin am ersten Tag nominiert und exekutiert wurde, stirbt heute Abend niemand an der Al-Hadikhia-Fähigkeit."
+                "reason": "Wenn die Prinzessin an ihrem ersten Tag einen Spieler nominiert und exekutiert hat, stirbt heute Nacht niemand durch die Al-Hadikhia.",
+                "reasonLegacy": "Wenn die Prinzessin am ersten Tag nominiert und exekutiert wurde, stirbt heute Abend niemand an der Al-Hadikhia-Fähigkeit."
             }
         ]
     },
@@ -622,15 +697,18 @@
         "jinx": [
             {
                 "id": "wraith",
-                "reason": "Wenn der Alchemist die Wraith-Fähigkeit hat, tut er dies nicht, und ein Wraith ist im Spiel. Jeden Tag, nach der Exekutionsphase, darf der lebende Alchemist öffentlich einen lebenden Spieler als Wraith nennen: wenn korrekt, muss der Dämon heute Nacht den Wraith wählen."
+                "reason": "Ein Alchemist-Wraith hat keine Wraith-Fähigkeit und ein Wraith ist im Spiel. Nach jeder Exekution darf ein lebender Alchemist-Wraith öffentlich einen lebenden Spieler als Wraith benennen. Liegt er richtig, muss der Dämon heute Nacht den Wraith wählen.",
+                "reasonLegacy": "Wenn der Alchemist die Wraith-Fähigkeit hat, tut er dies nicht, und ein Wraith ist im Spiel. Jeden Tag, nach der Exekutionsphase, darf der lebende Alchemist öffentlich einen lebenden Spieler als Wraith nennen: wenn korrekt, muss der Dämon heute Nacht den Wraith wählen."
             },
             {
                 "id": "spy",
-                "reason": "Wenn der Alchemist die Spion-Fähigkeit hat, tut er dies nicht, und ein Spion ist im Spiel. Jeden Tag, nach der Exekutionsphase, darf der lebende Alchemist öffentlich einen lebenden Spieler als Spion nennen: wenn korrekt, muss der Dämon heute Nacht den Spion wählen."
+                "reason": "Ein Alchemist-Spion hat keine Spion-Fähigkeit und ein Spion ist im Spiel. Nach jeder Exekution darf ein lebender Alchemist-Spion öffentlich einen lebenden Spieler als Spion benennen. Liegt er richtig, muss der Dämon heute Nacht den Spion wählen.",
+                "reasonLegacy": "Wenn der Alchemist die Spion-Fähigkeit hat, tut er dies nicht, und ein Spion ist im Spiel. Jeden Tag, nach der Exekutionsphase, darf der lebende Alchemist öffentlich einen lebenden Spieler als Spion nennen: wenn korrekt, muss der Dämon heute Nacht den Spion wählen."
             },
             {
                 "id": "widow",
-                "reason": "Wenn der Alchemist die Witwen-Fähigkeit hat, tut er dies nicht, und eine Witwe ist im Spiel. Jeden Tag, nach der Exekutionsphase, darf der lebende Alchemist öffentlich einen lebenden Spieler als Witwe nennen: wenn korrekt, muss der Dämon heute Nacht die Witwe wählen."
+                "reason": "Ein Alchemist-Witwe hat keine Witwen-Fähigkeit und eine Witwe ist im Spiel. Nach jeder Exekution darf ein lebender Alchemist-Witwe öffentlich einen lebenden Spieler als Witwe benennen. Liegt er richtig, muss der Dämon heute Nacht die Witwe wählen.",
+                "reasonLegacy": "Wenn der Alchemist die Witwen-Fähigkeit hat, tut er dies nicht, und eine Witwe ist im Spiel. Jeden Tag, nach der Exekutionsphase, darf der lebende Alchemist öffentlich einen lebenden Spieler als Witwe nennen: wenn korrekt, muss der Dämon heute Nacht die Witwe wählen."
             },
             {
                 "id": "marionette",
@@ -667,15 +745,22 @@
             },
             {
                 "id": "wraith",
-                "reason": "Jeden Tag, nach der Exekutionsphase, darf der lebende Magier öffentlich einen lebenden Spieler als Wraith nennen: wenn korrekt, muss der Dämon heute Nacht den Wraith wählen."
+                "reason": "Nach jeder Exekution darf der lebende Magier öffentlich einen lebenden Spieler als Wraith benennen. Liegt er richtig, muss der Dämon heute Nacht den Wraith wählen.",
+                "reasonLegacy": "Jeden Tag, nach der Exekutionsphase, darf der lebende Magier öffentlich einen lebenden Spieler als Wraith nennen: wenn korrekt, muss der Dämon heute Nacht den Wraith wählen."
             },
             {
                 "id": "lilmonsta",
-                "reason": "Jede Nacht wählt der Magier einen Diener: falls dieser Diener und Lil' Monsta leben, betreut dieser Diener Lil' Monsta."
+                "reason": "Wenn der Magier lebt, entscheidet der Erzähler, welcher Diener Lil’ Monsta betreut.",
+                "reasonLegacy": "Jede Nacht wählt der Magier einen Diener: falls dieser Diener und Lil' Monsta leben, betreut dieser Diener Lil' Monsta."
             },
             {
                 "id": "vizier",
-                "reason": "Wenn Wesir und Magier beide im Spiel sind, erfährt der Dämon die Diener nicht."
+                "reason": "Wenn der Wesir im Spiel ist, hat der Magier keine Fähigkeit, ist aber gegen die Fähigkeit des Wesirs immun.",
+                "reasonLegacy": "Wenn Wesir und Magier beide im Spiel sind, erfährt der Dämon die Diener nicht."
+            },
+            {
+                "id": "marionette",
+                "reason": "Wenn der Magier lebt, weiß der Dämon nicht, welcher Nachbar die Marionette ist."
             }
         ]
     },
@@ -764,6 +849,33 @@
             {
                 "id": "lleech",
                 "reason": "Wenn 5 oder mehr Spieler am Leben sind, als der Rulianshi den Wirt exekutiert und dieser daran stirbt, stirbt der ursprüngliche Lleech heute Nacht, und der Rulianshi wird zum bösen Lleech, kann aber diese Nacht nicht angreifen."
+            }
+        ]
+    },
+    {
+        "id": "atheist",
+        "jinx": [
+            {
+                "id": "riot",
+                "reason": "Wenn während eines Aufruhrs der Erzähler nominiert wird, stimmen die Spieler ab. Steht er „kurz vor dem Tod“, endet das Spiel. Andernfalls nominiert er erneut."
+            }
+        ]
+    },
+    {
+        "id": "drunk",
+        "jinx": [
+            {
+                "id": "mathematician",
+                "reason": "Wenn die Fähigkeit des Betrunkenen falsche Informationen lieferte oder nicht richtig funktionierte, zählt die Zahl des Mathematikers diese Abweichung mit."
+            }
+        ]
+    },
+    {
+        "id": "recluse",
+        "jinx": [
+            {
+                "id": "sage",
+                "reason": "Die Recluse kann für den Weisen als der Dämon gelten."
             }
         ]
     }

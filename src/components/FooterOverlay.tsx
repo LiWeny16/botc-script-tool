@@ -189,7 +189,7 @@ export default function FooterOverlay({ item, containerRef, readOnly, onSave, on
       '&:hover .layout-frame, &:focus-within .layout-frame': { opacity: 1, visibility: 'visible' },
       '@media print': { outline: 'none !important' } }}>
     {item.type === 'nightLegend' ? <Box sx={{ position: 'relative', zIndex: 4, width: '100%', aspectRatio: `${NIGHT_LEGEND_ASPECT_RATIO}`, containerType: 'inline-size', overflow: 'hidden' }}>
-      <Box component="img" src="/imgs/images/sources/night-legend-cloud-v1.png" alt="" draggable={false}
+      <Box component="img" src="/imgs/images/sources/night-legend-cloud-v1.webp" alt="" draggable={false}
         sx={{ position: 'absolute', top: `${-63 / 596 * 100}%`, left: `${-341 / 1490 * 100}%`, display: 'block',
           width: `${2172 / 1490 * 100}%`, maxWidth: 'none', height: 'auto', pointerEvents: 'none' }} />
       <Typography component="div" sx={{ position: 'absolute', left: '6%', width: '88%', top: '67%',

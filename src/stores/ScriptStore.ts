@@ -1918,19 +1918,20 @@ class ScriptStore {
       };
 
       for (const character of orderedCharacters) {
-        const byIdentity = findCharacterIndex(
-          entryIds.map((entry, index) => (used.has(index) ? { id: undefined } : entry)),
-          character,
-        );
-        if (take(byIdentity)) continue;
-
         if (!hasCharacterId(character.id)) {
           const byName = characterItems.findIndex((item: any, index) => {
             if (used.has(index)) return false;
             const itemObj = typeof item === 'string' ? { id: item } : (item || {});
-            return itemObj.name === character.name;
+            return !hasCharacterId(itemObj.id) && itemObj.name === character.name;
           });
           if (take(byName)) continue;
+          if (take(characterItems.findIndex((_item, index) => !used.has(index) && !hasCharacterId(entryIds[index].id)))) continue;
+        } else {
+          const byIdentity = findCharacterIndex(
+            entryIds.map((entry, index) => (used.has(index) ? { id: undefined } : entry)),
+            character,
+          );
+          if (take(byIdentity)) continue;
         }
 
         // Never drop an entry: fall back to the next unmatched character entry.

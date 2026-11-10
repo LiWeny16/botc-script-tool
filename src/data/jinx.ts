@@ -4,7 +4,8 @@
  *
  * @attribution
  *   English jinx data (jinxEn.json):
- *     https://wiki.bloodontheclocktower.com/Main_Page — Official BOTC Wiki
+ *     https://release.botc.app/resources/data/jinxes.json — official current rules,
+ *     compared on 2026-11-09; project and legacy pairs are retained separately.
  *   Chinese jinx data (jinxZh.json):
  *     https://clocktower.gstonegames.com/ — 集石 (Gstone) Blood on the Clocktower
  *   Spanish jinx data (jinxEs.json):

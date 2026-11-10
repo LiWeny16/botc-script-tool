@@ -9,7 +9,7 @@ import { createServer } from 'vite';
 const server = await createServer({ server: { host: '127.0.0.1', port: 0 }, logLevel: 'error' });
 await server.listen();
 const browser = await chromium.launch();
-const context = await browser.newContext({ viewport: { width: 1440, height: 950 }, acceptDownloads: true });
+const context = await browser.newContext({ viewport: { width: 1440, height: 950 }, acceptDownloads: true, serviceWorkers: 'block' });
 const icon = await sharp({ create: { width: 32, height: 32, channels: 4, background: '#00ff00' } }).png().toBuffer();
 const sample = JSON.stringify([{ id: '_meta', name: 'Print UI Sample', author: 'Onion' }, 'noble']);
 const previewSample = JSON.stringify([{ id: '_meta', name: 'Preview Only Script', author: 'Onion' }, 'noble']);
@@ -50,6 +50,11 @@ try {
   assert.equal(await page.evaluate(() => window.__outputRenderCount || 0), 0, 'opening the preview must not generate output');
   if (process.env.TEMP) await page.screenshot({ path: path.join(process.env.TEMP, 'botc-a4-export-ui-desktop.png') });
   assert.equal(await dialog.getByRole('tab', { name: 'Print / PDF' }).getAttribute('aria-selected'), 'true', 'the existing PDF entry opens print mode');
+  const printButton = await dialog.getByRole('button', { name: 'Print / save PDF' }).boundingBox();
+  const previewViewport = await dialog.locator('[data-preview-scroll]').boundingBox();
+  const dialogBox = await dialog.boundingBox();
+  assert.ok(printButton && previewViewport && dialogBox && printButton.y < previewViewport.y, 'the main action is above the preview');
+  assert.ok(previewViewport.y + previewViewport.height <= dialogBox.y + dialogBox.height, 'the preview stays within the dialog without scrolling the window');
   assert.equal(await dialog.locator('[data-preview-page-count]').innerText(), '1 / 2');
   assert.equal(await dialog.getByRole('button', { name: 'Previous page' }).isDisabled(), true);
 

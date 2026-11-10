@@ -7,7 +7,7 @@ import { createServer } from 'vite';
 const server = await createServer({ server: { host: '127.0.0.1', port: 0 }, logLevel: 'error' });
 await server.listen();
 const browser = await chromium.launch();
-const page = await browser.newPage({ viewport: { width: 1440, height: 950 }, acceptDownloads: true });
+const page = await browser.newPage({ viewport: { width: 1440, height: 950 }, acceptDownloads: true, serviceWorkers: 'block' });
 const icon = await sharp({ create: { width: 32, height: 32, channels: 4, background: '#00ff00' } }).png().toBuffer();
 const errors = [];
 page.on('pageerror', error => errors.push(String(error)));
@@ -50,7 +50,7 @@ try {
   assert.equal(await thumbnail.evaluate(node => !node.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true, button: 0 }))), true,
     'mouse selection must be suppressed on the thumbnail');
   await thumbnail.dblclick();
-  let dialog = page.getByRole('dialog', { name: 'A4 layout preview' });
+  let dialog = page.getByRole('dialog', { name: 'Export and print' });
   await dialog.waitFor();
   const liveFrame = dialog.frameLocator('iframe');
   await liveFrame.locator('#script-preview').waitFor();
@@ -61,6 +61,7 @@ try {
   await dialog.getByRole('button', { name: 'Next page' }).click();
   await liveFrame.locator('#script-preview-3').waitFor();
   assert.equal(await dialog.locator('[data-preview-page-count]').innerText(), '2 / 2');
+  assert.equal(await dialog.getByRole('button', { name: 'Download image', exact: true }).isEnabled(), true, 'the thumbnail preview can directly download the selected page');
   await dialog.getByRole('button', { name: 'Close', exact: true }).click();
   assert.equal(await page.evaluate(() => localStorage.getItem('botc-ui-config')), before, 'preview gestures must not alter exported layout');
 
@@ -78,7 +79,7 @@ try {
   await page.getByRole('button', { name: 'GENERATE SCRIPT' }).click();
   await page.locator('[data-a4-page-status="overflow"]').first().waitFor({ timeout: 60000 });
   await page.getByRole('button', { name: 'Open larger A4 preview' }).dblclick();
-  dialog = page.getByRole('dialog', { name: 'A4 layout preview' });
+  dialog = page.getByRole('dialog', { name: 'Export and print' });
   await dialog.getByText(/This page exceeds A4/).waitFor();
   await dialog.frameLocator('iframe').locator('#script-preview').waitFor();
   assert.deepEqual(errors, []);
