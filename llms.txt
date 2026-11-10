@@ -33,7 +33,7 @@ Total time: approximately 5 minutes from open to exported PDF.
 - [黯月初升](https://botc.letshare.fun/scripts/official-script-6b271d57.html) by Official
 - [窃窃私语](https://botc.letshare.fun/scripts/official-script-a901197e.html) by Official
 - [梦陨春宵](https://botc.letshare.fun/scripts/official-script-ecee3976.html) by Official
-- [无上愉悦](https://botc.letshare.fun/scripts/official-script-98785aa2.html) by Official
+- [无上愉悦](https://botc.letshare.fun/scripts/official-script-b0e294c2.html) by Official
 - [暗流涌动](https://botc.letshare.fun/scripts/official-script-23744796.html) by Official
 
 ### Official Mix Scripts

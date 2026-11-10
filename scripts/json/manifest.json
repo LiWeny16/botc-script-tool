@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-09T14:08:05.810Z",
+  "generatedAt": "2026-11-10T01:45:23.333Z",
   "version": 1,
   "scripts": [
     {
@@ -130,8 +130,8 @@
       "description": "",
       "category": "official",
       "logo": "https://clocktower-wiki.gstonegames.com/images/thumb/c/ce/Ngj.png/450px-Ngj.png",
-      "jsonUrl": "/scripts/json/official/Supreme Pleasure.json",
-      "file": "Supreme Pleasure.json",
+      "jsonUrl": "/scripts/json/official/supreme pleasure.json",
+      "file": "supreme pleasure.json",
       "dir": "official"
     },
     {

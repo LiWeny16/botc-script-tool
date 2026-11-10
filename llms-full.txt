@@ -77,7 +77,7 @@ This tool hosts 22 Blood on the Clocktower scripts across 3 categories.
 - **Author:** Official
 - **Category:** Official Scripts
 - **English Name:** Supreme Pleasure
-- **URL:** https://botc.letshare.fun/scripts/official-script-98785aa2.html
+- **URL:** https://botc.letshare.fun/scripts/official-script-b0e294c2.html
 - **SPA URL:** https://botc.letshare.fun/#/repo/%E6%97%A0%E4%B8%8A%E6%84%89%E6%82%A6
 
 ### 暗流涌动
