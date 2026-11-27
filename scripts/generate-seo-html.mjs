@@ -160,21 +160,126 @@ function stripDynamicTags(html) {
     .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>\n?/g, '')
     .replace(/<script async src="https:\/\/www\.googletagmanager\.com\/gtag\/js\?id=[^"]*"><\/script>\n?/g, '')
     .replace(/<script>\s*window\.dataLayer[\s\S]*?gtag\('config',[\s\S]*?<\/script>\n?/g, '')
+    .replace(/<style id="app-startup-styles">[\s\S]*?<\/style>\n?/g, '')
     .replace(/<meta property="og:locale:alternate" content="[^"]*" \/>\n?/g, '');
 }
 
+const startupStyles = `<style id="app-startup-styles">
+    body { margin: 0; }
+    .app-startup {
+      box-sizing: border-box;
+      display: grid;
+      place-items: center;
+      min-height: 100vh;
+      min-height: 100svh;
+      padding: 24px;
+      color: #2c2416;
+      background: radial-gradient(ellipse at top, #fffaf0, #f6f1dc 75%);
+      font: 1rem/1.65 "Source Han Serif", "Source Han Serif SC", "Microsoft YaHei", Georgia, serif;
+    }
+    .app-startup__card {
+      box-sizing: border-box;
+      width: min(100%, 36rem);
+      padding: clamp(24px, 5vw, 48px);
+      border: 1px solid #d9c8a8;
+      border-radius: 8px;
+      background: #fffbf2;
+      box-shadow: 0 16px 40px rgba(67, 49, 25, 0.09), 0 2px 8px rgba(67, 49, 25, 0.05);
+      text-align: center;
+    }
+    .app-startup__icon {
+      display: block;
+      margin: 0 auto 16px;
+    }
+    .app-startup h1 {
+      margin: 0;
+      font-size: clamp(1.65rem, 5vw, 2.5rem);
+      line-height: 1.2;
+      text-wrap: balance;
+    }
+    .app-startup__description {
+      margin: 16px 0 0;
+      color: #3d3226;
+      text-wrap: pretty;
+    }
+    .app-startup__status {
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin: 24px 0 0;
+      font-size: 0.9rem;
+      color: #465f4c;
+    }
+    .app-startup__status:not([hidden]) { display: flex; }
+    .app-startup__spinner {
+      box-sizing: border-box;
+      flex: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #ddcfb3;
+      border-right-color: #816539;
+      border-radius: 50%;
+      animation: app-startup-spin 0.9s linear infinite;
+    }
+    .app-startup__links {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0 16px;
+      margin-top: 16px;
+      padding-top: 8px;
+      border-top: 1px solid #e7dac2;
+    }
+    .app-startup__links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      padding-inline: 4px;
+      color: #075780;
+      text-underline-offset: 0.2em;
+    }
+    .app-startup__links a:focus-visible {
+      outline: 2px solid #607963;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    @keyframes app-startup-spin { to { transform: rotate(1turn); } }
+    @media (prefers-reduced-motion: reduce) {
+      .app-startup__spinner { animation: none; }
+    }
+  </style>`;
+
 function rootFallback() {
   const m = META[DEFAULT_LANGUAGE];
-  return `<div id="root"><main>
-    <h1>${escapeHtml(m.appTitle)}</h1>
-    <p>${escapeHtml(m.description)}</p>
-    <p>The interactive editor requires JavaScript. Browse the script directory or read an introduction in your language:</p>
-    <nav aria-label="Resources">
-      <a href="/scripts/">Script directory / 剧本目录</a>
-      <a href="/zh-cn/" lang="zh-CN">中文</a>
-      <a href="/es/" lang="es">Español</a>
-    </nav>
-  </main></div>`;
+  return `<div id="root">
+    <main class="app-startup">
+      <div class="app-startup__card">
+        <img class="app-startup__icon" src="/32x32.ico" width="32" height="32" alt="" />
+        <h1>${escapeHtml(m.appTitle)}</h1>
+        <p class="app-startup__description">${escapeHtml(m.description)}</p>
+        <p id="app-startup-status" class="app-startup__status" role="status" hidden>
+          <span class="app-startup__spinner" aria-hidden="true"></span>
+          <span>Loading the editor…</span>
+        </p>
+        <noscript><p class="app-startup__status">Enable JavaScript to use the editor.</p></noscript>
+        <nav class="app-startup__links" aria-label="Resources">
+          <a href="/scripts/">Script directory</a>
+          <a href="/zh-cn/" lang="zh-CN">中文</a>
+          <a href="/es/" lang="es">Español</a>
+        </nav>
+      </div>
+    </main>
+    <script id="app-startup-script">
+      {
+        const status = document.getElementById('app-startup-status');
+        status.hidden = false;
+        const entry = document.querySelector('script[type="module"][src]');
+        entry?.addEventListener('error', () => {
+          status.textContent = 'The editor could not load. Refresh the page to try again.';
+        }, { once: true });
+      }
+    </script>
+  </div>`;
 }
 
 function generateRootHtml(sourceHtml) {
@@ -195,9 +300,11 @@ function generateRootHtml(sourceHtml) {
     [/<meta name="twitter:image:alt" content="[^"]*"/, `<meta name="twitter:image:alt" content="${escapeHtml(m.ogImageAlt)}"`],
   ];
   for (const [pattern, replacement] of replacements) html = html.replace(pattern, () => replacement);
-  html = html.replace('<div id="root"></div>', rootFallback());
+  const root = /<div id="root">(?:\s*<main\b[\s\S]*?<\/main>\s*(?:<script id="app-startup-script">[\s\S]*?<\/script>\s*)?)?<\/div>/;
+  html = html.replace(root, () => rootFallback());
   return html.replace('</head>', `${buildHreflangLinks()}
   <link rel="canonical" href="${SITE_URL}/" />
+${startupStyles}
 ${structuredData(STRUCTURED_DATA[DEFAULT_LANGUAGE])}
 ${buildGaScript()}
 </head>`);

@@ -34,7 +34,7 @@ for (const url of urls) {
   assert.equal(canonical.length, 1, `${url} has one canonical`);
   assert.equal(canonical[0][1], url, `${url} is self-canonical`);
   assert.match(html, /<title>[^<]+<\/title>/);
-  assert.match(html, /<main>[\s\S]*<h1>/);
+  assert.match(html, /<main\b[^>]*>[\s\S]*<h1>/);
   assert.match(html, /googletagmanager\.com\/gtag\/js\?id=/, `${url} measures landing visits`);
   assert.doesNotMatch(html, /<meta\s+http-equiv=["']refresh["']/i, `${url} stays readable`);
   const jsonLd = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];

@@ -695,17 +695,16 @@ const ScriptRenderer = observer(({
                     pt: { xs: 0.75, sm: 1, md: 1.25 },
                     pb: { xs: 0.5, sm: 0.75, md: 1 },
                     minWidth: hasSpecialRules && !compact ? { xs: '44px', md: '48px' } : { xs: '80px', sm: '90px', md: '100px' },
-                    '& .MuiTypography-root': hasSpecialRules && !compact
-                        ? { whiteSpace: 'nowrap', lineHeight: 1.2, fontSize: '0.72rem' }
-                        : { whiteSpace: 'nowrap' },
                 }}>
                     <Typography sx={{
-                        fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                        fontSize: hasSpecialRules && !compact ? '0.72rem' : { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                        lineHeight: hasSpecialRules && !compact ? 1.2 : undefined,
                         color: '#404040ff',
                         fontWeight: 700,
                         textAlign: 'center',
+                        whiteSpace: 'nowrap',
                     }}>
-                        {t('credits.designTitle')}{labelValueSeparator.trimEnd()}
+                        {t('credits.designTitle')}
                         <br />
                         {t('credits.designers')}
                     </Typography>
