@@ -6,7 +6,7 @@ const DROP_TAGS = new Set([
 
 /** Allowed rich-text tags for ability descriptions (markdown-it output + toolbar HTML). */
 const ALLOWED_TAGS = new Set([
-  'p', 'br', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'span', 'div',
+  'p', 'br', 'b', 'strong', 'i', 'em', 'u', 's', 'strike', 'del', 'mark', 'span', 'div',
   'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4',
 ]);
 

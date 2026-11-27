@@ -24,6 +24,22 @@ md.enable([
   'html_block',
 ]);
 
+// Parse setup notes only in the rendered description, leaving editor source untouched.
+md.inline.ruler.push('setup_note', (state, silent) => {
+  if (!state.env?.highlightSetupNotes || state.src[state.pos] !== '[') return false;
+
+  const note = /^\[([^[\]\n]+)\]/.exec(state.src.slice(state.pos, state.posMax));
+  if (!note?.[1].trim()) return false;
+
+  const end = state.pos + note[0].length;
+  if (!silent) {
+    // Treat the brackets as part of the mark and render the inner markdown normally.
+    state.push('html_inline', '', 0).content = `<mark>[${state.md.renderInline(note[1])}]</mark>`;
+  }
+  state.pos = end;
+  return true;
+});
+
 /** Trim stray spaces inside emphasis markers so loosely written markers still parse. */
 export function normalizeEmphasisMarkers(content: string): string {
   let result = content;
@@ -82,7 +98,7 @@ export function serializeEditorHtml(html: string): string {
 
 export function renderAbilityMarkdown(source: string): string {
   if (!source) return '';
-  const rendered = md.render(normalizeEmphasisMarkers(source));
+  const rendered = md.render(normalizeEmphasisMarkers(source), { highlightSetupNotes: true });
   // Strip single-<p> wrapper: plain text doesn't need a paragraph shell
   const trimmed = rendered.trim();
   if (
