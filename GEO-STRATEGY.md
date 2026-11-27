@@ -1,229 +1,44 @@
-# BOTC Script Tool — GEO-Bound Promotional Distribution Strategy
-# Generated: 2026-05-06 | Target: botc.letshare.fun + github.com/LiWeny16/botc-script-tool
+# 搜索与 AI 引用：现状和后续工作
 
----
+检查日期：2026-11-27。站点：<https://botc.letshare.fun/>。
 
-## 1. Current SEO/GEO Status
+## 当前能确认的情况
 
-### Verified Rankings (Tavily Search Engine, May 2026)
+- 修改前，线上站点地图中的 `/repo` 和 `/changelog` 实际返回 404；应用使用的是带 `#` 的路由。
+- 修改前，生成的剧本页立即跳转到带片段的应用路由，并把该路由设为 canonical；而旧的按剧本名称查找逻辑只认识少数英文名称，不能可靠打开目录中的剧本。
+- 修改前，各语言的 hreflang 指向同一个地址。首页的结构化数据还包含读者无法在页面看到的 FAQ 与 HowTo，以及缺少可核实来源的统计和结论。
+- 仓库的英文和中文 README 仍有缺少可靠出处的比例、用时及“零服务器上传”等表述，需要单独核实和修订；本次未改动原有 README。
+- 当前没有读取到此站点的 Google Search Console、Bing Webmaster Tools 或 GA4 报表，因此无法确认收录量、搜索排名、自然搜索流量或 AI 引用率。搜索工具的结果顺序和相关性分数不能当作 Google 排名或真实点击量。
 
-| Search Query | Ranking | Status |
-|---|---|---|
-| `blood on the clocktower script beautifier layout custom PDF export tool free` | **#1** (score 0.9999) | Ahead of official tool and all competitors |
-| `botc script tool blood clocktower script beautifier` | **#2** (score 0.9999) | Behind only tchajed/botc-tools |
-| `BOTC custom script generator jinx editor night order homebrew` | **Not ranked** | Dominated by GitHub repos and official tool |
-| `botc-script-tool github` | **Not ranked** | Repo just renamed; needs index time |
+## 已实施的改进
 
-### Competitor Landscape (Tavily-indexed)
+1. 为每个剧本生成可阅读的静态详情页，包含实际的剧本资料、角色列表、JSON 与预览入口；页面使用自身的 canonical，不再自动跳转。预览入口通过对应 JSON 地址加载剧本。
+2. 增加可抓取的剧本目录，以及各自有实际内容和 URL 的中文、西班牙语介绍页。首页、语言页和目录之间提供可发现的链接。
+3. 站点地图只列出生成的有效页面；多语言页面使用相互一致的 hreflang。首页的运行时 canonical 不再带片段。
+4. 使用可核实的功能描述，移除没有页面内容支撑的 FAQ/HowTo 结构化数据及无来源的数字。保留的结构化数据描述产品与实际页面。
+5. 明确允许 `OAI-SearchBot` 抓取；保留 `llms.txt` 作为可读的辅助目录，不把它当作收录或引用的保证。
+6. 静态落地页加载已有的 GA4 标记，以便记录落地访问；应用初始化 Web Vitals。没有额外启用手动 SPA 页面浏览事件，避免在 GA4 增强型衡量已开启时重复计数。
+7. 构建检查验证站点地图、页面 canonical、剧本预览指向的 JSON、语言链接和结构化数据。
 
-| Competitor | Type | Strengths | Weaknesses |
-|---|---|---|---|
-| LectronPusher/botc-custom-script-generator | Python/LaTeX CLI | 10 stars, indexed on Tavily | No browser UI, no jinx editor, requires LaTeX knowledge |
-| chizmeeple/botc-custom-script-json2pdf | Python CLI | Indexed on Tavily | No browser UI, no jinx editor, Python dependency |
-| homebrew-script-tool.vercel.app | Browser-based | Browser UI | Limited character set, no jinx editor, no backgrounds |
-| flesh-and-bone.app | Browser-based | Campaign system | Not a beautifier — different category |
-| bignose.whitetree.org/projects/botc/diy/ | DIY resource | Comprehensive DIY guide | Static PDFs, not interactive |
-| botcscripts.com | Script database | Large script collection | No editor, no beautifier, database only |
-| tchajed/botc-tools | Storyteller tool | Night sheet generator | No script beautification, limited features |
+## 需要账号数据才能判断的问题
 
-### Your Competitive Moat
+- 在 Search Console 确认站点所有权和索引状态，提交 `https://botc.letshare.fun/sitemap.xml`，检查首页、中文介绍页、目录和几个剧本页的抓取与索引情况。
+- 对比最近 28 天与前 28 天的自然搜索点击、展现、点击率和查询词；同时按落地页和国家或地区查看。区分品牌词和非品牌词，样本较小时避免根据少量点击判断趋势。
+- 在 GA4 对比自然搜索和引荐流量的落地页、互动及剧本生成/导出事件；用 DebugView 核验页面浏览和关键事件，确认没有重复计数。
+- 在 GA4 中查看来源为 `chatgpt.com` 的会话和落地页。它只能反映可归因的访问，不能代表所有 AI 引用、展示或回答中的提及。
+- 如有 Bing Webmaster Tools，提交同一站点地图并检查抓取和索引。可结合中文关键词与实际展现词决定后续内容，而不是预先承诺排名。
 
-BOTC Script Tool is the **only** tool that combines: browser-based access + jinx editor + night order customizer + custom backgrounds + two-page layout + multilingual support + script repository + custom icon upload. No single competitor offers more than 3 of these 8 features.
+## 接下来的优化候选
 
----
+- 使用真实 Search Console 查询词，补充有用的操作指南，例如导入 JSON、自定义相克、调整夜间顺序和打印 PDF；每篇内容应解决具体问题并链接到工具。
+- 使用 PageSpeed Insights / 实际 Web Vitals 数据识别慢设备上的加载瓶颈，再决定是否拆分首页 JavaScript 或优化图片。
+- 按真实需求改善目录搜索、剧本资料和相关页面之间的链接；不要批量生成只有关键词、没有实质内容的页面。
+- 在部署后的数周持续观察收录与自然流量。站点地图和结构化数据不保证被收录、取得排名或被 AI 引用。
 
-## 2. Princeton GEO Method Implementation Map
+## 官方参考
 
-### Method-by-Method Audit of Current Assets
-
-| GEO Method | Boost | README | Website (index.html) | llms.txt | GitHub Description | Script Pages |
-|---|---|---|---|---|---|---|
-| Cite Sources | +40% | Reddit, GitHub Issues #409 #469, bra1n/townsquare, BOTC Wiki, 集石 | Reddit, GitHub Issues | Reddit, GitHub Issues, BOTC Wiki | - | BOTC Wiki, gstonegames |
-| Statistics | +37% | 70% dissatisfaction, 7 tools, 5 formats, 100+ jinxes, 21+ scripts, 5 min, 10 sec | 70%, 200+ upvotes, 300+ reactions, 5 min | 5 formats, 21+ scripts, 5 min | - | Script-specific stats |
-| Quotations | +30% | 4 Reddit quotes with attribution | 3 Reddit quotes in FAQ | 2 quotes in FAQ | - | - |
-| Authoritative Tone | +25% | Strong throughout | Strong throughout | Strong throughout | - | Present |
-| Easy-to-Understand | +20% | Good (tables, bullets, short paragraphs) | Good (FAQ format) | Good | Good | Present |
-| Technical Terms | +18% | jinx, night order, homebrew, townsfolk, outsider, minion, demon, fabled, loric, JSON, PDF, DPI | Same + SEO terms | Same | botc, script, beautifier, layout, custom, generator | Same |
-| Unique Words | +15% | Good vocabulary diversity | Good | Fair (bulleted lists) | Fair (single line) | Present |
-| Fluency | +15-30% | Excellent | Excellent | Good | Good | Good |
-| Keyword Stuffing | **-10%** | Avoided | Avoided | Avoided | Avoided | Avoided |
-
-### Gap: Where to Add More Content
-
-**1. llms.txt needs script repository listing** — Currently only lists features and FAQ. Add full script index with names, authors, categories, descriptions, and URLs. This is what transforms llms.txt from a feature list into a comprehensive knowledge base that AI crawlers can cite extensively.
-
-**2. llms-full.txt needs expansion** — Currently 312 lines. Add: complete character roster with abilities, full jinx relationship table, night order documentation, export format technical specifications.
-
-**3. Per-script pages need richer meta** — Each `docs/scripts/*.html` page should include the script description and character list in the meta description for better long-tail indexing.
-
----
-
-## 3. Distribution Channel Strategy
-
-### Phase 1: Owned Channels (Immediate — Zero Gatekeeping)
-
-| Channel | URL/Action | SEO Value | GEO Value | Effort |
-|---|---|---|---|---|
-| GitHub Discussions Announcement | github.com/LiWeny16/botc-script-tool/discussions | Medium — GitHub is high-authority domain | Medium — indexed by all AI crawlers | 5 min |
-| GitHub repo Topics (20 tags) | Settings → Topics | High — GitHub topic pages rank well | High — semantic keyword clustering | 2 min |
-| GitHub repo Description | Settings → Description | High — becomes meta description for search | High — primary AI citation text | 1 min |
-| GitHub repo Website URL | Settings → Website → botc.letshare.fun | Medium — backlink from high-authority domain | Medium | 1 min |
-
-**GitHub Topics to Add (20 maximum):**
-```
-blood-on-the-clocktower, botc, script-generator, script-tool, layout-beautifier,
-custom-scripts, jinx-editor, night-order, board-game, tabletop,
-pdf-export, json, react, typescript, homebrew,
-clocktower, social-deduction, storyteller, open-source, free
-```
-
-### Phase 2: Community Channels (1-2 Weeks — Low Gatekeeping)
-
-| Channel | Action | Keywords to Embed | Risk |
-|---|---|---|---|
-| Reddit r/BloodOnTheClocktower | Post showcase: "Built a free BOTC script beautifier — custom backgrounds, editable jinxes, drag-and-drop night order" | botc script tool, custom script generator, layout beautifier, jinx editor, night order customizer, PDF export | Low — community welcomes tools |
-| Reddit r/boardgames | Cross-post with different framing: "Free browser-based tool for making beautiful Blood on the Clocktower custom scripts" | Same as above + board game tool, print-and-play | Low |
-| BOTC Unofficial Discord (26K members) | Post in #tools or #homebrew channel with a brief intro + link | casual introduction, don't spam keywords | None |
-| BGG BOTC Variants Forum | Post when account restriction lifts. Use the reply template from our BGG strategy | botc script tool, layout beautifier, custom script generator, PDF export | Low — community contribution framing |
-| BGG "Printing Custom Scripts" thread | Reply directly — this thread is already indexed and highly relevant | print custom scripts BOTC, PDF beautifier, two-page layout | None |
-
-### Phase 3: High-Authority Backlinks (Ongoing)
-
-| Target | Strategy | SEO Impact |
-|---|---|---|
-| BOTC Wiki (wiki.bloodontheclocktower.com) | Add link on "Script Tool" page under "Community Tools" or "External Resources" section | Very High — .org domain, directly relevant |
-| bra1n/townsquare README | Your tool uses their role data — request a reciprocal link | High — GitHub, directly relevant |
-| ravenswoodbluff.com | Already links to community tools — reach out to add yours | Medium-High — fan site with SEO authority |
-| notquitetangible.blogspot.com | Beginner's guide — already references script tools | Medium — blog with domain authority |
-
----
-
-## 4. Keyword Binding Strategy
-
-### Primary Keyword Cluster (English)
-
-```
-blood on the clocktower script tool
-botc script tool
-blood on the clocktower layout beautifier
-botc custom script generator
-blood on the clocktower script beautifier
-free botc script generator
-botc jinx editor
-botc night order customizer
-botc homebrew script tool
-clocktower script PDF beautifier
-custom script layout tool
-blood on the clocktower PDF export
-```
-
-### Long-Tail Keyword Cluster (English)
-
-```
-how to make beautiful botc script PDF
-botc custom jinx relationship editor
-blood on the clocktower custom night order
-upload custom character icons botc
-botc script two page layout
-free alternative to official botc script tool
-print blood on the clocktower script with backgrounds
-botc homebrew character icon tool
-blood on the clocktower script beautifier free no signup
-```
-
-### Primary Keyword Cluster (Chinese)
-
-```
-血染钟楼板子美化器
-染钟楼谜团剧本工具
-血染钟楼自创板子
-血染钟楼剧本生成器
-血染钟楼DIY剧本
-血染钟楼彩图导出
-血染钟楼自定义相克
-血染钟楼夜间顺序
-血染钟楼自制角色图标
-BOTC剧本工具
-```
-
-### Where Each Keyword Lives
-
-| Keyword | README.md | Website HTML | JSON-LD | llms.txt | GitHub Desc | Script Pages |
-|---|---|---|---|---|---|---|
-| botc script tool | Throughout | Title, H1, meta | name, alternateName | Title | Yes | Every page title |
-| layout beautifier | H1, Why, Comparisons | Title, meta desc | description | Capabilities | Description | Every page |
-| custom script generator | H1, Features | meta keywords | featureList | Capabilities | Topics | Page titles |
-| jinx editor | FAQ, Features, Comparisons | FAQPage JSON-LD | mainEntity questions | FAQ section | Topics | — |
-| night order customizer | H1, FAQ, Features | FAQPage JSON-LD | mainEntity questions | FAQ section | Topics | — |
-| homebrew script tool | FAQ, Features | meta keywords | featureList | Capabilities | Topics | — |
-| PDF beautifier | H1, Features, Comparisons | meta desc | description | Capabilities | Description | Page desc |
-| free / open source | Badges, License, FAQ | meta desc | offers.price=0 | Throughout | Badge | — |
-
----
-
-## 5. Content Calendar for Continuous GEO
-
-### Weekly (Ongoing)
-
-| Frequency | Action |
-|---|---|
-| Weekly | Check Google Search Console for new keyword opportunities |
-| Weekly | Check Tavily search for ranking changes on target keywords |
-| Weekly | Reply to 1-2 Reddit r/BloodOnTheClocktower threads where the tool is relevant |
-| Bi-weekly | Add 1-2 new community scripts to the repository (triggers sitemap re-crawl) |
-
-### Monthly
-
-| Month | Action |
-|---|---|
-| Month 1 | Get 5-10 GitHub stars (ask community members, friends). Stars directly impact GitHub search ranking |
-| Month 1 | Submit sitemap to Google Search Console, Bing Webmaster Tools |
-| Month 2 | Reach out to BOTC Wiki maintainers to get listed on Script Tool page |
-| Month 2 | Post on BGG Variants forum (account restriction should be lifted) |
-| Month 3 | Publish a "how to use" guide as a blog post or GitHub Wiki page |
-| Month 3 | Add video/GIF demo to README |
-
----
-
-## 6. Technical SEO/GEO Checklist (Completed vs Remaining)
-
-### Completed
-- [x] JSON-LD structured data (WebApplication + FAQPage + HowTo + Organization + BreadcrumbList + SpeakableSpecification)
-- [x] Post-build SSG: per-script HTML pages (23 pages indexed)
-- [x] llms.txt with FAQ and features
-- [x] llms-full.txt comprehensive knowledge base
-- [x] Multi-language hreflang (en, zh-CN, es)
-- [x] Sitemap with 23 URLs
-- [x] AI bot whitelist in robots.txt (GPTBot, ChatGPT-User, PerplexityBot, ClaudeBot, anthropic-ai, Bingbot, Googlebot)
-- [x] Open Graph + Twitter Card tags
-- [x] Google Analytics 4 + Web Vitals
-- [x] Service Worker caching
-- [x] GitHub repo renamed to botc-script-tool
-- [x] README.md with full GEO optimization (all 9 Princeton methods applied)
-- [x] Bilingual README (EN + CN)
-- [x] Data source attributions
-
-### Remaining
-- [ ] GitHub Topics (add all 20 from strategy)
-- [ ] GitHub Description (add to repo settings)
-- [ ] GitHub Discussions Announcement (post the prepared message)
-- [ ] Submit sitemap to Google Search Console
-- [ ] Submit sitemap to Bing Webmaster Tools
-- [ ] Reddit r/BloodOnTheClocktower showcase post
-- [ ] BOTC Discord #tools channel introduction
-- [ ] Get 5+ GitHub stars
-- [ ] BGG forum post (once account restriction lifts)
-- [ ] BOTC Wiki: request link addition on Script Tool page
-- [ ] bra1n/townsquare: request reciprocal link
-
----
-
-## 7. Expected GEO Impact Timeline
-
-| Timeframe | Expected Outcome |
-|---|---|
-| 1-2 weeks | GitHub search: appear in top 5 for "botc-script-tool" (need stars + topic tags) |
-| 2-4 weeks | Tavily: rank for "botc jinx editor" and "botc night order customizer" long-tail queries |
-| 4-8 weeks | Google: appear on page 1 for "blood on the clocktower script beautifier" |
-| 2-3 months | AI engines (ChatGPT, Perplexity, Claude): begin citing botc.letshare.fun as the recommended BOTC beautifier tool |
-| 3-6 months | Establish as the de facto BOTC script beautifier — cited alongside the official tool in community guides |
+- [Google：JavaScript 网站的搜索基础](https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics)
+- [Google：重定向与搜索](https://developers.google.com/search/docs/crawling-indexing/301-redirects)
+- [Google：结构化数据质量要求](https://developers.google.com/search/docs/appearance/structured-data/sd-policies)
+- [Google：单页应用的 GA4 衡量](https://developers.google.com/analytics/devguides/collection/ga4/single-page-applications)
+- [OpenAI：发布者与开发者常见问题](https://help.openai.com/en/articles/12627856-publishers-and-developers-faq)

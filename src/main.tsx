@@ -15,8 +15,10 @@ import AllCharacters from './pages/AllCharacters.tsx'
 import ImageGen from './pages/ImageGen.tsx'
 import { I18nProvider } from './utils/i18n.tsx'
 import { registerArtCache } from './utils/registerArtCache.ts'
+import { initWebVitals } from './utils/analytics.ts'
 
 registerArtCache()
+initWebVitals()
 
 // ── Global crash prevention (white-screen defense) ───────────────────────
 // These run OUTSIDE React — they catch anything the ErrorBoundary can't:

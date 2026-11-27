@@ -1,6 +1,8 @@
 export const SITE_URL: string;
 export const DEFAULT_LANGUAGE: string;
 export const LANGUAGES: readonly string[];
+export const LANG_TO_BCP47: Record<string, string>;
+export const LANGUAGE_URLS: Record<string, string>;
 export const OG_IMAGE: string;
 export const OG_IMAGE_WIDTH: number;
 export const OG_IMAGE_HEIGHT: number;
@@ -18,6 +20,7 @@ export const META: Record<
       question: string;
       answer: string;
     }>;
+    howToSteps: Array<{ name: string; text: string }>;
     ogLocale: string;
     ogAlternate: string[];
   }

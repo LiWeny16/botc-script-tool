@@ -4,6 +4,7 @@ import { useTranslation } from '../utils/i18n';
 import {
   SITE_URL,
   LANGUAGES,
+  LANGUAGE_URLS,
   DEFAULT_LANGUAGE,
   STRUCTURED_DATA,
   OG_IMAGE,
@@ -58,10 +59,10 @@ export const SEOManager = observer(() => {
     setMeta('name', 'twitter:image:alt', m.ogImageAlt);
 
     // 更新 Hreflang 链接
-    updateHreflangLinks(language);
+    updateHreflangLinks();
 
     // 更新 Canonical URL
-    updateCanonical(language);
+    updateCanonical();
 
     // 更新 JSON-LD 结构化数据
     updateJsonLd(language);
@@ -72,32 +73,29 @@ export const SEOManager = observer(() => {
 });
 
 function getPageUrl() {
-  const hash = window.location.hash;
-  return hash ? `${SITE_URL}${hash}` : `${SITE_URL}/`;
+  return `${SITE_URL}/`;
 }
 
-function updateHreflangLinks(currentLang: string) {
+function updateHreflangLinks() {
   // Remove existing hreflang links
   document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
-
-  const pageUrl = getPageUrl();
 
   for (const lang of LANGUAGES) {
     const link = document.createElement('link');
     link.rel = 'alternate';
     link.setAttribute('hreflang', LANG_TO_BCP47[lang as keyof typeof LANG_TO_BCP47] || lang);
-    link.href = pageUrl;
+    link.href = LANGUAGE_URLS[lang];
     document.head.appendChild(link);
   }
 
   const xDefault = document.createElement('link');
   xDefault.rel = 'alternate';
   xDefault.setAttribute('hreflang', 'x-default');
-  xDefault.href = pageUrl;
+  xDefault.href = getPageUrl();
   document.head.appendChild(xDefault);
 }
 
-function updateCanonical(_lang: string) {
+function updateCanonical() {
   const pageUrl = getPageUrl();
   let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
   if (!canonical) {
@@ -115,7 +113,7 @@ function updateJsonLd(lang: string) {
     existing.remove();
   }
 
-  const data = STRUCTURED_DATA[lang];
+  const data = STRUCTURED_DATA[lang] ?? STRUCTURED_DATA[DEFAULT_LANGUAGE];
   if (data) {
     const script = document.createElement('script');
     script.type = 'application/ld+json';

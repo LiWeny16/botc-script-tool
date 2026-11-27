@@ -3,6 +3,9 @@ User-agent: *
 Allow: /
 
 # AI Search Engine Bots
+User-agent: OAI-SearchBot
+Allow: /
+
 User-agent: GPTBot
 Allow: /
 

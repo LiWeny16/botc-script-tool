@@ -1168,6 +1168,10 @@ const App = observer(() => {
               </Typography>
             </Paper>
           )}
+          <Box component="nav" aria-label={language === 'cn' ? '剧本资源' : 'Script resources'}
+            sx={{ py: 2, textAlign: 'center', fontSize: '0.875rem', '@media print': { display: 'none' } }}>
+            <a href="/scripts/">{language === 'cn' ? '浏览剧本目录' : language === 'es' ? 'Directorio de guiones' : 'Browse the script directory'}</a>
+          </Box>
         </Container >
       </Box >
 
