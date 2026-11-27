@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Herramienta de guiones Blood on the Clocktower — Crear y editar</title>
+  <meta name="description" content="Crea y maqueta guiones de Blood on the Clocktower. Importa JSON, edita personajes y jinxes, ordena las noches y exporta imágenes o imprime en PDF." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://botc.letshare.fun/es/" />
+  <link rel="alternate" hreflang="zh-CN" href="https://botc.letshare.fun/zh-cn/" />
+  <link rel="alternate" hreflang="en" href="https://botc.letshare.fun/" />
+  <link rel="alternate" hreflang="es" href="https://botc.letshare.fun/es/" />
+  <link rel="alternate" hreflang="x-default" href="https://botc.letshare.fun/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Herramienta de guiones Blood on the Clocktower — Crear y editar" />
+  <meta property="og:description" content="Crea y maqueta guiones de Blood on the Clocktower. Importa JSON, edita personajes y jinxes, ordena las noches y exporta imágenes o imprime en PDF." />
+  <meta property="og:url" content="https://botc.letshare.fun/es/" />
+  <meta property="og:image" content="https://botc.letshare.fun/imgs/images/screenshots/promo-gpt.png" />
+  <meta property="og:image:width" content="1731" />
+  <meta property="og:image:height" content="909" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Herramienta de guiones Blood on the Clocktower — Crear y editar" />
+  <meta name="twitter:description" content="Crea y maqueta guiones de Blood on the Clocktower. Importa JSON, edita personajes y jinxes, ordena las noches y exporta imágenes o imprime en PDF." />
+  <meta name="twitter:image" content="https://botc.letshare.fun/imgs/images/screenshots/promo-gpt.png" />
+  <link rel="icon" href="/32x32.ico" />
+  <style>
+  :root { color-scheme: light; font-family: "Source Han Serif SC", "Microsoft YaHei", Georgia, serif; }
+  body { margin: 0; background: #f6f1dc; color: #2c2416; line-height: 1.7; }
+  header, main, footer { max-width: 960px; margin: auto; padding: 1rem 1.25rem; }
+  header { border-bottom: 1px solid #c9bda2; }
+  nav { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; }
+  nav a:first-child { font-weight: bold; }
+  a { color: #075780; text-underline-offset: 0.15em; overflow-wrap: anywhere; }
+  a:focus-visible { outline: 3px solid #607963; outline-offset: 3px; }
+  h1, h2, h3 { line-height: 1.3; }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); margin: 1rem 0; }
+  section { margin: 2rem 0; }
+  .lead { font-size: 1.1rem; max-width: 75ch; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1.25rem 0; }
+  .button { display: inline-block; background: #075780; color: white; padding: 0.6rem 1rem; border-radius: 6px; text-decoration: none; }
+  .button:hover { background: #064968; }
+  .muted { color: #51483d; }
+  .description { white-space: pre-wrap; overflow-wrap: anywhere; }
+  .roles { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; padding-left: 1.25rem; }
+  .directory li { margin-bottom: 0.75rem; }
+  footer { border-top: 1px solid #c9bda2; font-size: 0.9rem; }
+</style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "@id": "https://botc.letshare.fun/#webapp",
+      "name": "Herramienta de guiones Blood on the Clocktower",
+      "description": "Crea y maqueta guiones de Blood on the Clocktower. Importa JSON, edita personajes y jinxes, ordena las noches y exporta imágenes o imprime en PDF.",
+      "url": "https://botc.letshare.fun/",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Web",
+      "inLanguage": "es",
+      "availableLanguage": [
+        "zh-CN",
+        "en",
+        "es"
+      ],
+      "image": "https://botc.letshare.fun/imgs/images/screenshots/promo-gpt.png",
+      "featureList": [
+        "Importa JSON compatible o elige un guion del directorio",
+        "Edita personajes, reglas especiales, jinxes y orden nocturno",
+        "Ajusta el diseño de una o dos páginas, fondos, fuentes e imágenes",
+        "Exporta imágenes y JSON, o imprime y guarda un PDF desde el navegador"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://botc.letshare.fun/#website",
+      "name": "Herramienta de guiones Blood on the Clocktower",
+      "url": "https://botc.letshare.fun/"
+    }
+  ]
+}
+  </script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-VB8HT63ZX6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', "G-VB8HT63ZX6", { page_location: window.location.href, page_title: document.title });
+  </script>
+</head>
+<body>
+<header><nav aria-label="Idiomas">
+  <a href="/">BOTC Script Tool</a><a href="/scripts/">Ver el directorio de guiones</a>
+  <a href="/zh-cn/" lang="zh-CN">中文</a><a href="/" lang="en">English</a><a href="/es/" lang="es">Español</a>
+</nav></header>
+<main>
+  <h1>Herramienta de guiones Blood on the Clocktower</h1>
+  <p class="lead">Crea y maqueta guiones de Blood on the Clocktower. Importa JSON, edita personajes y jinxes, ordena las noches y exporta imágenes o imprime en PDF.</p>
+  <div class="actions"><a class="button" href="/?lang=es">Abrir la herramienta</a><a href="/scripts/">Ver el directorio de guiones</a></div>
+  <section><h2>Funciones</h2><ul><li>Importa JSON compatible o elige un guion del directorio</li><li>Edita personajes, reglas especiales, jinxes y orden nocturno</li><li>Ajusta el diseño de una o dos páginas, fondos, fuentes e imágenes</li><li>Exporta imágenes y JSON, o imprime y guarda un PDF desde el navegador</li></ul></section>
+  <section><h2>Cómo empezar</h2><ol><li><strong>Importa un guion</strong> — Pega o sube un JSON, o elige un guion del directorio.</li><li><strong>Edita el contenido</strong> — Ajusta personajes, reglas especiales, jinxes y orden nocturno.</li><li><strong>Organiza el diseño</strong> — Elige el diseño, el fondo y las fuentes, y revisa la vista previa.</li><li><strong>Exporta o imprime</strong> — Exporta una imagen o un JSON, o guarda un PDF desde el diálogo de impresión.</li></ol></section>
+  <section><h2>Preguntas frecuentes</h2><h3>¿La herramienta es gratuita?</h3><p>La edición, vista previa y exportación básicas son gratuitas y no requieren cuenta. Algunas funciones opcionales en la nube requieren iniciar sesión.</p><h3>¿Cómo importo un guion de Blood on the Clocktower?</h3><p>Pega o sube un JSON compatible, o elige un guion del directorio para verlo.</p><h3>¿Cómo guardo o imprimo un guion?</h3><p>Exporta una imagen o un JSON, o usa el diálogo de impresión del navegador para imprimir o guardar como PDF.</p><h3>¿Puedo personalizar personajes y jinxes?</h3><p>Sí. Puedes editar personajes y jinxes, ordenar las acciones nocturnas y ajustar el diseño.</p></section>
+</main><footer><a href="https://github.com/LiWeny16/botc-script-tool">GitHub</a></footer>
+</body>
+</html>

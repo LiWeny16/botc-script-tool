@@ -1,11 +1,14 @@
 User-agent: *
 Allow: /
 
-# AI Search Engine Bots
-User-agent: GPTBot
+# Search and AI crawlers are welcome.
+User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
 Allow: /
 
 User-agent: PerplexityBot
@@ -15,12 +18,6 @@ User-agent: ClaudeBot
 Allow: /
 
 User-agent: anthropic-ai
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Googlebot
 Allow: /
 
 Sitemap: https://botc.letshare.fun/sitemap.xml
