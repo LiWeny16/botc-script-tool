@@ -695,42 +695,20 @@ const ScriptRenderer = observer(({
                     pt: { xs: 0.75, sm: 1, md: 1.25 },
                     pb: { xs: 0.5, sm: 0.75, md: 1 },
                     minWidth: hasSpecialRules && !compact ? { xs: '44px', md: '48px' } : { xs: '80px', sm: '90px', md: '100px' },
-                    maxWidth: hasSpecialRules && !compact ? '72px' : { xs: '120px', md: '160px' },
                     '& .MuiTypography-root': hasSpecialRules && !compact
-                        ? { whiteSpace: 'normal', overflowWrap: 'anywhere', lineHeight: 1.2, fontSize: '0.72rem' }
-                        : { whiteSpace: 'normal', overflowWrap: 'anywhere' },
+                        ? { whiteSpace: 'nowrap', lineHeight: 1.2, fontSize: '0.72rem' }
+                        : { whiteSpace: 'nowrap' },
                 }}>
-                    {script.authorImage ? (
-                        <>
-                            <Typography sx={{
-                                fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
-                                color: '#404040ff',
-                                fontWeight: 700,
-                                textAlign: 'center',
-                                whiteSpace: 'nowrap',
-                            }}>
-                                {t('credits.designers')}
-                            </Typography>
-                            <Typography sx={{
-                                fontSize: { xs: '0.6rem', sm: '0.68rem', md: '0.75rem' },
-                                color: '#666',
-                                textAlign: 'center',
-                                whiteSpace: 'nowrap',
-                            }}>
-                                {t('credits.designTitle')}
-                            </Typography>
-                        </>
-                    ) : (
-                        <Typography sx={{
-                            fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
-                            color: '#404040ff',
-                            fontWeight: 700,
-                            textAlign: 'center',
-                            whiteSpace: 'nowrap',
-                        }}>
-                            {t('credits.designTitle')}: {t('credits.designers')}
-                        </Typography>
-                    )}
+                    <Typography sx={{
+                        fontSize: { xs: '0.65rem', sm: '0.75rem', md: '0.85rem' },
+                        color: '#404040ff',
+                        fontWeight: 700,
+                        textAlign: 'center',
+                    }}>
+                        {t('credits.designTitle')}{labelValueSeparator.trimEnd()}
+                        <br />
+                        {t('credits.designers')}
+                    </Typography>
                 </Box>
                 {!readOnly && !compact && <HeaderLayoutFrame target={designLayoutTarget} kind="avatar" moveLabel={t('ui.dragHeaderAvatar')}
                     resizeLabel={t('ui.resizeHeaderAvatar')} moreLabel={t('ui.moreActions')}
